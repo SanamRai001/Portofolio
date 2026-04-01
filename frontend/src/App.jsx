@@ -15,9 +15,9 @@ const App = () => {
     <>
       <div className='Header'>
         <NavBar className="NavB"></NavBar>
-        <HeroSection className="HeroS" toggle={systemToggle}></HeroSection>
+        <HeroSection className="HeroS" systemToggle={systemToggle}></HeroSection>
       </div>
-      <SystemControl sendData = {handleToggle}></SystemControl>
+      <SystemControl handleToggle = {handleToggle}></SystemControl>
       <Projects></Projects>
       <Form></Form>
       <TechStack></TechStack>

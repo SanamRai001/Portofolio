@@ -2,12 +2,11 @@ import React from 'react'
 import ecg from './assets/image.png'
 import axios from 'axios'
 
-const HeroSection = (systemToggle) => {
+const HeroSection = (props) => {
   const handleSubmit = async ()=>{
     try{
-      const res = await axios.post("http://localhost:5000/api/system", systemToggle);
-      const data = await res.json();
-      console.log("Server Response", data);
+      const res = await axios.post("http://localhost:5000/api/system", props.systemToggle);
+      console.log("Server Response", res.data);
     }
     catch(error){
       console.error("Error sending data", error);
