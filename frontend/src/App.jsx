@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 import NavBar from './NavBar'
 import HeroSection from './HeroSection'
 import SystemControl from './SystemControl'
@@ -7,17 +7,13 @@ import TechStack from './TechStack'
 import Projects from './Projects'
 import  Form from './Form'
 const App = () => {
-    const [systemToggle, setSystemToggle] = useState({});
-    const handleToggle = (data) =>{
-      setSystemToggle(data);
-    }
   return (
     <>
       <div className='Header'>
         <NavBar className="NavB"></NavBar>
-        <HeroSection className="HeroS" systemToggle={systemToggle}></HeroSection>
+        <HeroSection className="HeroS" ></HeroSection>
       </div>
-      <SystemControl handleToggle = {handleToggle}></SystemControl>
+      <SystemControl ></SystemControl>
       <Projects></Projects>
       <Form></Form>
       <TechStack></TechStack>

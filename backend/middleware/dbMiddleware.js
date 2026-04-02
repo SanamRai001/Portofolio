@@ -1,11 +1,18 @@
-import systemConfig from '../config/systemConfig.js'
+import System from "../models/systemModel";
 
-function dbMiddleware(req, res, next){
-    if(systemConfig.db){
-        next();
+
+async function dbMiddleware(req, res, next){
+    try{
+        const systemConfig = await System.findOne();
+        if(systemConfig.db && systemConfig){
+            next();
+        }
+        else{
+            return res.json({message:"Database toggle is off."});
+        }
     }
-    else{
-        return res.json({message:"Database toggle is off."});
+    catch(error){
+        return res.status(500).json({message: "Error fetching config"});
     }
 }
 

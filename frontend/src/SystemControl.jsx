@@ -1,28 +1,49 @@
 import React, { useEffect, useState } from 'react'
 import Toggle from './reusable/Toggle'
-const SystemControl = (props) => {
-    const [toggle,  setToggle] = useState(()=>{
-        const stored = localStorage.getItem("toggle");
-        return stored ? JSON.parse(stored) : {
+import axios from 'axios';
+const SystemControl = () => {
+    const [toggle,  setToggle] = useState(
+        {
             auth:false,
             db:false,
             cache: false,
             logging: false,
             rateLimit: false,
             pagination: false
-        };
-    });
-    const handleToggle = (key, value)=>{
+        }
+    );
+    const handleToggle = async (key, value)=>{
        const next = {
         ...toggle, 
         [key]:value
        };
        setToggle(next);
-        props.handleToggle(next);
+            try{
+                const res = await axios.post("http://localhost:5000/api/system",next);
+                console.log(res.data);
+            }
+            catch(error){
+                console.log("Error", error);
+            }
+       
     }
     useEffect(()=>{
-        localStorage.setItem("toggle", JSON.stringify(toggle));
-    },[toggle]);
+        const getData = async()=>{
+            try{
+                const res = await axios.get("http://localhost:5000/api/system");
+                console.log(res.data);
+                const next = res.data;
+                setToggle(prev =>({
+                    ...prev,
+                    ...next
+                }));
+            }
+            catch(error){
+                console.log("Error", error);
+            }
+        }
+        getData();
+    },[]);
   
 
   return (
