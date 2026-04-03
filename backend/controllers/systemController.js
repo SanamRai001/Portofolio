@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 
 export const updateSystemConfig = async (req, res) =>{
     const  toggles = req.body;
-    console.log(toggles);
     try{
         const insertResult = await System.findOneAndUpdate(
         {},

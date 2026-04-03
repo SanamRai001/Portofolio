@@ -1,7 +1,7 @@
 import System from "../models/systemModel.js";
 
 
-async function dbMiddleware(req, res, next){
+async function systemMiddleware(req, res, next){
     try{
         const systemConfig = await System.findOne();
         if(!systemConfig){
@@ -21,4 +21,4 @@ async function dbMiddleware(req, res, next){
     }
 }
 
-export default dbMiddleware;
+export default systemMiddleware;

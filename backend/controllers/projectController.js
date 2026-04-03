@@ -5,7 +5,6 @@ export const getProjects = async (req, res)=>{
     try{
         if(req.systemConfig?.db === true){
             const projects =  await Project.find();
-            console.log("SYSTEM CONFIG:", req.systemConfig);
             res.json({
                 success: true,
                 message: "Projects  fetched successfully",
