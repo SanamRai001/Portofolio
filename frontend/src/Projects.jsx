@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useState } from 'react';
 import { useEffect } from 'react';
 
-const Projects = () => {
+const Projects = (props) => {
   const url = "http://localhost:5000/api/projects";
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState("");
@@ -11,6 +11,7 @@ const Projects = () => {
   useEffect(()=>{
     const fetchData = async ()=>{
       try{
+        setLoading(true);
         const response = await axios.get(url);
         setProjects(response.data.data);
         if(response.data.success == false){
@@ -25,10 +26,14 @@ const Projects = () => {
       }
       catch(e){
         console.error(e.message);
+        console.log(projects);
+        setLoading(false);
+        setMessage("Something Went Wrong!");
+        setProjects([]);
       }
     }
     fetchData();
-  },[]);
+  },[props.systemToggle.db]);
 
   
   return (

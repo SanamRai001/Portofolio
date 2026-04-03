@@ -8,8 +8,8 @@ import Projects from './Projects'
 import  Form from './Form'
 const App = () => {
   const [systemToggle, setSystemToggle] = useState({});
-  const handleToggle = ()=>{
-    setSystemToggle(data);
+  const handleToggle = (toggle)=>{
+    setSystemToggle(toggle);
   }
   return (
     <>

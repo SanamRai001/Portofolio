@@ -5,22 +5,29 @@ import mongoose from 'mongoose';
 
 export const updateSystemConfig = async (req, res) =>{
     const  toggles = req.body;
-    Object.assign(systemConfig, toggles);
     console.log(toggles);
-    console.log("Updated system config:", systemConfig);
     try{
-        const insertResult = System.updateOne({}, systemConfig, {upsert: true});
+        const insertResult = await System.findOneAndUpdate(
+        {},
+        { $set: toggles },
+        { upsert: true, returnDocument: "after" }
+        );
         console.log("System toggle is inserted.");
+        res.json({
+        success: true,
+        message: "System config updated",
+        data: insertResult
+        });
     }
     catch(error){
         console.error("Error", error);
+        res.json({
+        success: false,
+        message: "Update failed",
+        });
     }
 
-    res.json({
-        success: true,
-        message: "System config updated",
-        data: systemConfig
-    });
+    
 };
 export const readSystemConfig = async (req, res) =>{
     try{

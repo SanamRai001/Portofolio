@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Toggle from './reusable/Toggle'
 import axios from 'axios';
-const SystemControl = () => {
+const SystemControl = (props) => {
     const [toggle,  setToggle] = useState(
         {
             auth:false,
-            db:false,
+            db: false,
             cache: false,
             logging: false,
             rateLimit: false,
@@ -18,9 +18,10 @@ const SystemControl = () => {
         [key]:value
        };
        setToggle(next);
+       props.handleToggle(next);
             try{
                 const res = await axios.post("http://localhost:5000/api/system",next);
-                console.log(res.data);
+                console.log(res.data.data);
             }
             catch(error){
                 console.log("Error", error);
@@ -31,14 +32,13 @@ const SystemControl = () => {
         const getData = async()=>{
             try{
                 const res = await axios.get("http://localhost:5000/api/system");
-                console.log(res.data);
-                const next = res.data;
+                const next = res.data.data;
                 setToggle(prev =>({
                     ...prev,
                     ...next
                 }));
             }
-            catch(error){
+        catch(error){
                 console.log("Error", error);
             }
         }
