@@ -21,6 +21,7 @@
     "mongoose": "^9.2.2",
     "morgan": "^1.10.1",
     "mysql2": "^3.18.2",
+    "node-cache": "^5.1.2",
     "sequelize": "^6.37.7",
     "uuid": "^13.0.0",
     "winston": "^3.19.0"
