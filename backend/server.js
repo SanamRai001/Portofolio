@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.use(loggingMiddleware);
+// app.use(loggingMiddleware);
 
 
 app.use("/api/projects", projectRoutes);

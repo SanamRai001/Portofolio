@@ -14,6 +14,9 @@ const loggingMiddleware = (req, res, next) =>{
         }
         res.on("finish", logging);
     }
+    else{
+        console.log("logging middleware not working");
+    }
     next();
 }
 

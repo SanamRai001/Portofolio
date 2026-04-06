@@ -6,6 +6,6 @@ import loggingMiddleware from '../middleware/loggingMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', systemMiddleware,getProjects);
+router.get('/', systemMiddleware, loggingMiddleware,getProjects);
 
 export default router;
