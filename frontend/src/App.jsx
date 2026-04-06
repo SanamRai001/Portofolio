@@ -19,7 +19,7 @@ const App = () => {
       </div>
       <SystemControl handleToggle = {handleToggle}></SystemControl>
       <Projects systemToggle={systemToggle}></Projects>
-      <Form></Form>
+      <Form systemToggle={systemToggle}></Form>
       <TechStack></TechStack>
       <Footer></Footer>
     </>

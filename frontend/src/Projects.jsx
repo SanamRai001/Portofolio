@@ -2,7 +2,7 @@ import React from 'react'
 import axios from 'axios'
 import { useState } from 'react';
 import { useEffect } from 'react';
-
+// left  to add pagination  footer UI
 const Projects = (props) => {
   const url = "http://localhost:5000/api/projects";
   const [projects, setProjects] = useState([]);
@@ -12,7 +12,11 @@ const Projects = (props) => {
     const fetchData = async ()=>{
       try{
         setLoading(true);
-        const response = await axios.get(url);
+        const response = await axios.get(url,{
+          headers:{
+            'Authorization': `Bearer ${localStorage.getItem("token")}`
+          }
+        });
         setProjects(response.data.data);
         if(response.data.success == false){
           setMessage(response.data.message);
