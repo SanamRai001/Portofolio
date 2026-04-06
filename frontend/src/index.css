@@ -35,6 +35,15 @@ nav ul{
     justify-content: space-between;
 }
 
+nav .img{
+    height: 50px;
+    width: 50px;
+    object-fit: contain;
+}
+nav  .img:hover{
+    scale: 1.1;
+}
+
 .NavItem{
     padding: 10px;
 }
