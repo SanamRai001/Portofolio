@@ -13,12 +13,16 @@ const App = () => {
   }
   return (
     <>
-      <div className='Header'>
         <NavBar className="NavB"></NavBar>
+      <div className='Header'>
         <HeroSection className="HeroS" ></HeroSection>
       </div>
-      <SystemControl handleToggle = {handleToggle}></SystemControl>
-      <Projects systemToggle={systemToggle}></Projects>
+      <div id='system-controls'>
+        <SystemControl handleToggle = {handleToggle}></SystemControl>
+      </div>
+      <div id='projects'>
+        <Projects systemToggle={systemToggle}></Projects>
+      </div>
       <Form systemToggle={systemToggle}></Form>
       <TechStack></TechStack>
       <Footer></Footer>

@@ -4,10 +4,10 @@ const NavBar = () => {
   return (
     <>
         <nav className='Nav'>
-            <a href="" className='NavItem'> <img className= 'img' src={logo} alt="my logo"  /> </a>
+            <a href="/" className='NavItem'> <img className= 'img' src={logo} alt="my logo"  /> </a>
             <ul>
-                <li><a href="" className='NavItem'>System Controls</a></li>
-                <li><a href="" className='NavItem'>Projects</a></li>
+                <li><a href="#system-controls" className='NavItem'>System Controls</a></li>
+                <li><a href="#projects" className='NavItem'>Projects</a></li>
                 <li><a href="/Sanam_Rai_resume.pdf" target='_blank' rel='noreferrer' download="Sanam_Rai_resume.pdf" className='NavItem'>Resume</a></li>
             </ul>
         </nav>
