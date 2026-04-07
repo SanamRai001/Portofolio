@@ -54,14 +54,18 @@ const Projects = (props) => {
         <div className='ProjectCards'>
         {projects.map((p)=>(
           <div key={p._id} className='ProjectCard'>
-            <h1>{p.name}</h1>
-            <p>{p.description}</p>
-            <ul>
-              {p.techStacks.map((t)=>(
-                <li>{t}</li>
-              ))}
-            </ul>
-          </div>
+          <h1>{p.name}</h1>
+          <p>{p.description}</p>
+          <ul>
+            {p.techStacks.map((t)=>(
+              <li>{t}</li>
+            ))}
+          </ul>
+
+          <a href={p.github} target="_blank" rel="noopener noreferrer">
+            View Code
+          </a>
+        </div>
         ))}
       </div>
 

@@ -12,6 +12,13 @@ const projectSchema = new Schema({
     },
     techStacks:{
         type: [String]
+    },
+    github:{
+        type: String,
+        required: true
+    },
+    liveDemo:{
+        type: String
     }
 },{ timestamps:true});
 
