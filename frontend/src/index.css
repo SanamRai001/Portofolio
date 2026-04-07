@@ -287,3 +287,10 @@ input[type="submit"]{
     display: flex;
     gap: 1rem;
 }
+
+.social-icons{
+    display: flex;
+    direction: row;
+    gap: 10px;
+    font-size: xx-large;
+}
