@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 import projectRoutes from './routes/projectRoutes.js'
 import authRoutes from './routes/AuthRoutes.js'
 import systemRoutes from './routes/SystemRoutes.js'
+import controlRoutes from './routes/ControlRoutes.js'
 
 //middleware
 import loggingMiddleware from './middleware/loggingMiddleware.js';
@@ -26,7 +27,7 @@ app.use(express.static('public'));
 app.use("/api/projects", projectRoutes);
 app.use("/api/auth", authRoutes);
 app.use('/api/', systemRoutes);
-
+app.use('/api/controls', controlRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

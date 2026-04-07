@@ -12,6 +12,17 @@ const SystemControl = (props) => {
             pagination: false
         }
     );
+    const [activeControl, setActiveControl] = useState("");
+    const [controls, setControls] = useState([]);
+    const selected = controls.find(c=>c.key === activeControl);
+    const toggleList = [
+  { key: "db", head: "Database Enabled", sub: "Toggle persistent storage layer" },
+  { key: "auth", head: "Authentication Enabled", sub: "Toggle auth system" },
+  { key: "rateLimit", head: "Rate Limiting Enabled", sub: "Control request limits" },
+  { key: "logging", head: "Logging Enabled", sub: "Enable system logs" },
+  { key: "cache", head: "Cache Enabled", sub: "Enable caching layer" },
+  { key: "pagination", head: "Pagination Enabled", sub: "Enable pagination system" }
+];
     const handleToggle = async (key, value)=>{
        const next = {
         ...toggle, 
@@ -43,8 +54,23 @@ const SystemControl = (props) => {
             }
         }
         getData();
+        const getControls = async()=>{
+            try{
+                const res = await axios.get("http://localhost:5000/api/controls");
+                if(res.data.success){
+                    setControls(res.data.data);
+                }
+                else{
+                    console.log("No contorls data fetched");
+                }
+            }
+            catch(error){
+                console.log(error);
+            }
+        }
+        getControls();
     },[]);
-  
+    
 
   return (
     <>
@@ -55,16 +81,27 @@ const SystemControl = (props) => {
         </div>
         <div className='Toggles'>
             <div className='AllToggles'>
-            <Toggle headName="Database Enabled" subName="Toggle persistent storage layer" toggleName="db" value={toggle.db} className="MainToggle" sendData={handleToggle}></Toggle>
-            <Toggle headName="Authentication Enabled" subName="Toggle persistent storage layer" toggleName="auth" value={toggle.auth} className="MainToggle" sendData={handleToggle}></Toggle>
-            <Toggle headName="Rate Limiting Enabled" subName="Toggle persistent storage layer" toggleName="rateLimit" value={toggle.rateLimit} className="MainToggle" sendData={handleToggle}></Toggle>
-            <Toggle headName="Logging Enabled" subName="Toggle persistent storage layer" toggleName="logging" value={toggle.logging} className="MainToggle" sendData={handleToggle}></Toggle>
-            <Toggle headName="Cache Enabled" subName="Toggle persistent storage layer" toggleName="cache" value={toggle.cache} className="MainToggle" sendData={handleToggle}></Toggle>
-            <Toggle headName="Pagination Enabled" subName="Toggle persistent storage layer" toggleName="pagination" value={toggle.pagination} className="MainToggle" sendData={handleToggle}></Toggle>
+                {toggleList.map((item) => (
+                    <Toggle
+                        key={item.key}
+                        headName={item.head}
+                        subName={item.sub}
+                        toggleName={item.key}
+                        value={toggle[item.key]}
+                        sendData={handleToggle}
+                        onHover={() => setActiveControl(item.key)}
+                        onLeave={() => setActiveControl(null)}
+                    />
+                    ))}
             </div>
-            <div>
-                Info
-            </div>
+            {
+                selected && 
+                <div>
+                        <div> {selected.title} </div>
+                        <div> {selected.description}</div>
+                        <div> {selected.details} </div>
+                    </div>
+            }
         </div>
     </div>
 

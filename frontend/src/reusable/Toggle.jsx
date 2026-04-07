@@ -19,7 +19,7 @@ const Toggle = (props) => {
    
   return (
     <>
-    <div className="Toggle" >
+    <div className="Toggle" onMouseEnter={props.onHover} onMouseLeave={props.onLeave}>
         <div>
             <p className='headName'>{props.headName}</p>
             <p className='subName'>{props.subName}</p>

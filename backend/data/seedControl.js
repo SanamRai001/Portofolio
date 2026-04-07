@@ -1,91 +1,66 @@
 import mongoose from "mongoose";
 import controlModel from "../models/controlModel.js";
 import connectDB from "../config/db.js";
+
 connectDB();
+
 const data = [
   {
-    key: "database",
-    title: "Database Enabled",
-    description: "Controls whether the application connects to the database.",
-    details: "If disabled, the server will not initialize any MongoDB connection. All persistent data operations will fail."
+    key: "db",
+    title: "Database System",
+    description: "Controls whether the application connects to MongoDB.",
+    details:
+      "If disabled, the system will not initialize MongoDB. All persistent data operations will fallback or fail."
   },
   {
-    key: "authentication",
-    title: "Authentication Enabled",
-    description: "Enables user authentication and session validation.",
-    details: "When disabled, protected routes will be publicly accessible without login verification."
+    key: "auth",
+    title: "Authentication System",
+    description: "Enables login and user session validation.",
+    details:
+      "When disabled, all routes become publicly accessible without JWT verification."
   },
   {
-    key: "authorization",
-    title: "Role-Based Authorization",
-    description: "Enforces role-based access control (RBAC).",
-    details: "Users will only access resources permitted by their assigned roles (admin, user, moderator, etc.)."
-  },
-  {
-    key: "rate_limiting",
+    key: "rateLimit",
     title: "Rate Limiting",
     description: "Limits number of incoming requests per IP/user.",
-    details: "Helps prevent brute-force attacks and API abuse by restricting excessive requests."
-  },
-  {
-    key: "cors",
-    title: "CORS Protection",
-    description: "Controls cross-origin resource sharing rules.",
-    details: "Defines which domains are allowed to access backend APIs."
+    details:
+      "Prevents API abuse by restricting excessive requests within a time window."
   },
   {
     key: "logging",
     title: "System Logging",
-    description: "Enables server-side request and error logging.",
-    details: "Logs API requests, authentication attempts, and system errors for monitoring and debugging."
+    description: "Tracks system activity and errors.",
+    details:
+      "Logs requests, authentication events, and system errors for debugging."
   },
   {
-    key: "caching",
+    key: "cache",
     title: "Caching Layer",
-    description: "Enables response caching for improved performance.",
-    details: "Frequently requested data is stored temporarily to reduce database load."
+    description: "Improves performance using temporary stored responses.",
+    details:
+      "Reduces database load by caching frequently accessed data."
   },
   {
-    key: "email_service",
-    title: "Email Service",
-    description: "Controls outgoing email notifications.",
-    details: "Handles account verification emails, password resets, and system alerts."
-  },
-  {
-    key: "file_upload",
-    title: "File Upload Service",
-    description: "Enables file and image uploads.",
-    details: "Handles multipart form data and manages storage location."
-  },
-  {
-    key: "maintenance_mode",
-    title: "Maintenance Mode",
-    description: "Temporarily disables public access to the application.",
-    details: "Shows a maintenance page to users while system updates or fixes are being applied."
-  },
-  {
-    key: "api_monitoring",
-    title: "API Monitoring",
-    description: "Tracks API performance and uptime.",
-    details: "Collects metrics such as response time, error rate, and request volume."
-  },
-  {
-    key: "security_headers",
-    title: "Security Headers",
-    description: "Enables HTTP security headers.",
-    details: "Adds headers like Helmet to improve protection against common vulnerabilities."
+    key: "pagination",
+    title: "Pagination System",
+    description: "Splits large data into pages.",
+    details:
+      "Improves performance and UX when handling large datasets."
   }
 ];
-const seed = async()=>{
-    try{
-        await controlModel.insertMany(data);
-        console.log("Seeding Completed");
-        mongoose.connection.close()
-    }
-    catch(e){
-        console.error(e.message);
-        process.exit(1)
-    }
 
-}
+const seed = async () => {
+  try {
+    await controlModel.deleteMany(); // important for clean re-seed
+    await controlModel.insertMany(data);
+
+    console.log("✅ Seeding Completed");
+
+    mongoose.connection.close();
+  } catch (e) {
+    console.error("❌ Seeding Error:", e.message);
+    process.exit(1);
+  }
+};
+
 seed();
