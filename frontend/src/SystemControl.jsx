@@ -96,10 +96,10 @@ const SystemControl = (props) => {
             </div>
             {
                 selected && 
-                <div>
-                        <div> {selected.title} </div>
-                        <div> {selected.description}</div>
-                        <div> {selected.details} </div>
+                    <div className='ControlInfo'>
+                        <div className='ControlTitle'> {selected.title} </div>
+                        <div className='ControlDes'> {selected.description}</div>
+                        <div className='ControlDetails'> {selected.details} </div>
                     </div>
             }
         </div>
