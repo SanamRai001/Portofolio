@@ -13,14 +13,21 @@ const Logs = (props) => {
       }
     }
     fetchLogs();
-  },[]);
+    const interval = (fetchLogs, 2000);
+    return ()=>clearInterval(interval);
+  },[props.systemToggle.logging]);
   return (
     <>
         <div>
           {
-            props.toggle.logging && 
+            props.systemToggle.logging && 
             <div>
-              {logs}
+              {
+              logs.length === 0 ?
+              (<p>No  logs  yet</p>) :
+              logs.map((log, index)=>(
+                <p key={index}> {log} </p>
+              ))}
             </div>
           }
         </div>

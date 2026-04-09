@@ -6,6 +6,7 @@ import Footer from './Footer'
 import TechStack from './TechStack'
 import Projects from './Projects'
 import  Form from './Form'
+import Logs from './Logs'
 const App = () => {
   const [systemToggle, setSystemToggle] = useState({});
   const handleToggle = (toggle)=>{
@@ -20,6 +21,7 @@ const App = () => {
       <div id='system-controls'>
         <SystemControl handleToggle = {handleToggle}></SystemControl>
       </div>
+      <Logs systemToggle={systemToggle}></Logs>
       <div id='projects'>
         <Projects systemToggle={systemToggle}></Projects>
       </div>
