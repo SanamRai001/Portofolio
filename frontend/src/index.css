@@ -332,3 +332,122 @@ input[type="submit"]{
     gap: 10px;
     font-size: xx-large;
 }
+
+/* tabler */
+@media (max-width: 1024px){
+    .SystemControl{
+        padding: 60px 40px;
+    }
+    .Toggles{
+        grid-template-columns: 1fr;
+    }
+    .AllToggles{
+        grid-template-columns: 1fr;
+    }
+    .MainToggles{
+        width: 100%;
+    }
+    .MainProject{
+        padding: 2rem 2rem;
+    }
+    .ProjectCards{
+        grid-template-columns: 1fr 1fr;
+    }
+    .MainFooter{
+        padding: 40px 40px;
+    }
+    .UpperFooter{
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+}
+
+/* Mobile */
+@media (max-width:  768px){
+    .NavItem{
+        padding: 6px 8px;
+        font-size: 14px;
+    }
+    .HeroSection{
+        height: auto;
+        min-height: calc(80vh - 72px);
+        padding: 40px  20px;
+        text-align: center;
+    }
+    button{
+        padding: 10px 30px;
+        font-size: 14px;
+    }
+    .SystemControl{
+        padding: 40px 20px;
+    }
+    .Toggle{
+        height: auto;
+        padding: 16px;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .ControlDes{
+        max-width: 100%;
+    }
+
+    .MainFooter{
+        padding: 40px 20px;
+    }
+    .UpperFooter{
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    /* .LowerFooter{
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    } */
+    .MainForm{
+        padding: 1.5rem 1rem;
+    }
+    .ProjectCards{
+        grid-template-columns: 1fr;
+    }
+    .MainForm form h1{
+        font-size: 24px;
+    }
+}
+
+/* small mobile */
+@media (max-width:  480px){
+    button{
+        padding: 8px;
+        font-size: 13px;
+        margin: 4px;
+    }
+    .SystemControl{
+        padding: 24px 16px;
+    }
+    .Toggle{
+        flex-direction: column;
+    }
+    .ControlTitle{
+        font-size: 16px;
+    }
+    .MainProject{
+        padding: 1rem;
+    }
+    .ProjectCard{
+        padding: 14px;
+    }
+    .ProjectCard{
+        font-size: large;
+    }
+    .MainFooter{
+        padding: 32px  16px;
+    }
+    .NavItem{
+        padding: 4px 6px;
+        font-size: 13px;
+    }
+    .MainForm form h1{
+        font-size: 22px;
+    }
+}
