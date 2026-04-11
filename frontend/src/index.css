@@ -353,6 +353,9 @@ input[type="submit"]{
     .ProjectCards{
         grid-template-columns: 1fr 1fr;
     }
+    .TechStack{
+        padding: 40px 40px;
+    }
     .MainFooter{
         padding: 40px 40px;
     }
@@ -368,7 +371,7 @@ input[type="submit"]{
         padding: 6px 8px;
         font-size: 14px;
     }
-    .HeroSection{
+    .HeroSection div{
         height: auto;
         min-height: calc(80vh - 72px);
         padding: 40px  20px;
@@ -399,16 +402,19 @@ input[type="submit"]{
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    /* .LowerFooter{
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-    } */
     .MainForm{
+        height: auto;
         padding: 1.5rem 1rem;
+    }
+    .MainForm form{
+        padding: 32px  24px;
+        max-width: 100%;
     }
     .ProjectCards{
         grid-template-columns: 1fr;
+    }
+    .TechStack{
+        padding: 40px 20px;
     }
     .MainForm form h1{
         font-size: 24px;
@@ -417,6 +423,10 @@ input[type="submit"]{
 
 /* small mobile */
 @media (max-width:  480px){
+    nav .img{
+        height: 36px;
+        width: 36px;
+    }
     button{
         padding: 8px;
         font-size: 13px;
