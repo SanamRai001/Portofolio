@@ -14,20 +14,27 @@ const App = () => {
   }
   return (
     <>
-        <NavBar className="NavB"></NavBar>
-      <div className='Header'>
-        <HeroSection className="HeroS" ></HeroSection>
+    {systemToggle.auth && (
+      <div className='AuthOverlay'>
+        <Form systemToggle={systemToggle}></Form>
       </div>
-      <div id='system-controls'>
-        <SystemControl handleToggle = {handleToggle}></SystemControl>
+    )}
+      <NavBar className="NavB"></NavBar>
+      <div className={systemToggle.auth ? "blurred" : ""}>
+        <div className='Header'>
+          <HeroSection className="HeroS" ></HeroSection>
+        </div>
+        <div id='system-controls'>
+          <SystemControl handleToggle = {handleToggle}></SystemControl>
+        </div>
+        <Logs systemToggle={systemToggle}></Logs>
+        <div id='projects'>
+          <Projects systemToggle={systemToggle}></Projects>
+        </div>
+        <TechStack></TechStack>
+        <Footer></Footer>
       </div>
-      <Logs systemToggle={systemToggle}></Logs>
-      <div id='projects'>
-        <Projects systemToggle={systemToggle}></Projects>
-      </div>
-      <Form systemToggle={systemToggle}></Form>
-      <TechStack></TechStack>
-      <Footer></Footer>
+      
     </>
   )
 }
