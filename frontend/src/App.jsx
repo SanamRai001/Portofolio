@@ -14,13 +14,13 @@ const App = () => {
   }
   return (
     <>
-    {systemToggle.auth && (
+    {systemToggle.auth && !localStorage.getItem("token") && (
       <div className='AuthOverlay'>
         <Form systemToggle={systemToggle}></Form>
       </div>
     )}
       <NavBar className="NavB"></NavBar>
-      <div className={systemToggle.auth ? "blurred" : ""}>
+      <div className={systemToggle.auth && !localStorage.getItem("token") ? "Blurred" : ""}>
         <div className='Header'>
           <HeroSection className="HeroS" ></HeroSection>
         </div>
