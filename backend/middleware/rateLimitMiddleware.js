@@ -4,7 +4,7 @@ import System from "../models/systemModel.js";
 const limiter = rateLimit({
         windowMs: 30 * 1000,
         standardHeaders: 'draft-7',
-        limit: 5,
+        limit: 20,
         legacyHeaders: false,
         message: {
             success: false,
