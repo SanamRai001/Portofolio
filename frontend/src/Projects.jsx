@@ -1,10 +1,11 @@
 import React from 'react'
 import axios from 'axios'
+import API from "./config/api";
 import { useState } from 'react';
 import { useEffect } from 'react';
 // left  to add pagination  footer UI
 const Projects = (props) => {
-  const url = "http://localhost:5000/api/projects";
+  const url = `${API}/api/projects`;
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState("");
   const  [loading, setLoading] = useState(true);

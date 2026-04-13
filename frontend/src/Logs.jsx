@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import API from "./config/api";
 const Logs = (props) => {
   const [logs, setLogs] = useState([]);
   useEffect(()=>{
     const  fetchLogs= async ()=>{
-      const res = await axios.get("http://localhost:5000/api/logs");
+      const res = await axios.get(`${API}/api/logs`);
       if(res.data.success == true){
         setLogs(res.data.data);
       }

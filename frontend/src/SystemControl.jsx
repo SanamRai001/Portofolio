@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Toggle from './reusable/Toggle'
+import API from "./config/api";
 import axios from 'axios';
 const SystemControl = (props) => {
     const [toggle,  setToggle] = useState(
@@ -31,7 +32,7 @@ const SystemControl = (props) => {
        setToggle(next);
        props.handleToggle(next);
             try{
-                const res = await axios.post("http://localhost:5000/api/system",next);
+                const res = await axios.post(`${API}/api/system`,next);
                 console.log(res.data.data);
             }
             catch(error){
@@ -42,7 +43,7 @@ const SystemControl = (props) => {
     useEffect(()=>{
         const getData = async()=>{
             try{
-                const res = await axios.get("http://localhost:5000/api/system");
+                const res = await axios.get(`${API}/api/system`);
                 const next = res.data.data;
                 setToggle(prev =>({
                     ...prev,
@@ -56,7 +57,7 @@ const SystemControl = (props) => {
         getData();
         const getControls = async()=>{
             try{
-                const res = await axios.get("http://localhost:5000/api/controls");
+                const res = await axios.get(`${API}/api/controls`);
                 if(res.data.success){
                     setControls(res.data.data);
                 }

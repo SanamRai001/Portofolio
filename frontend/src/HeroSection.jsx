@@ -1,11 +1,11 @@
 import React from 'react'
 import ecg from './assets/image.png'
 import axios from 'axios'
-
+import API from "./config/api";
 const HeroSection = () => {
 const getData = async()=>{
             try{
-                const res = await axios.get("http://localhost:5000/api/systemConfig");
+                const res = await axios.get(`${API}/api/systemConfig`);
                 console.log(res.data);              
             }
             catch(error){

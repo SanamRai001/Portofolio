@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import API from "./config/api";
 import axios from 'axios';
 const Form = (props) => {
     const [email, setEmail] = useState("");
@@ -6,7 +7,7 @@ const Form = (props) => {
     const handleSubmit = async (e)=>{
         e.preventDefault();
         const user = {email:email, password: password};
-        const response = await axios.post("http://localhost:5000/api/auth/login", user);
+        const response = await axios.post(`${API}/api/auth/login`, user);
         const token = response.data.token;
         window.location.reload();
         localStorage.setItem("token", token);
