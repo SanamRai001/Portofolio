@@ -50,9 +50,9 @@ Most portfolios are static pages. This one has a live control panel that changes
 | Auth | JWT, bcrypt |
 | Tools | Postman, dotenv, Git |
 
----
-
 ## 📁 Project Structure
+
+```
 portfolio-system/
 ├── backend/
 │   ├── config/          # DB connection, feature toggle state
@@ -65,7 +65,7 @@ portfolio-system/
 │   ├── components/      # Navbar, TogglePanel, ProjectCard
 │   ├── pages/           # Home, Login, Dashboard
 │   └── App.jsx
----
+```
 
 ## 🚀 Getting Started
 
