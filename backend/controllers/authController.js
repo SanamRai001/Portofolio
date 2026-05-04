@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 import User from '../models/userModel.js'
 import  jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-import { token } from 'morgan';
 
 dotenv.config();
 

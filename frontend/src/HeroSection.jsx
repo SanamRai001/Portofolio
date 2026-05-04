@@ -5,7 +5,7 @@ import API from "./config/api";
 const HeroSection = () => {
 const getData = async()=>{
             try{
-                const res = await axios.get(`${API}/api/systemConfig`);
+                const res = await axios.get(`${API}/api/system`);
                 console.log(res.data);              
             }
             catch(error){

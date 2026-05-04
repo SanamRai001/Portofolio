@@ -14,7 +14,7 @@ const Logs = (props) => {
       }
     }
     fetchLogs();
-    const interval = (fetchLogs, 2000);
+    const interval = setInterval(fetchLogs, 2000);
     return ()=>clearInterval(interval);
   },[props.systemToggle.logging]);
   return (

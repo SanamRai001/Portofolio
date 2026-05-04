@@ -14,12 +14,11 @@ import logRoutes from './routes/LogRoutes.js'
 import loggingMiddleware from './middleware/loggingMiddleware.js';
 
 dotenv.config();
-connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({ origin: 'http://sanam-rai.com.np' }));
 app.use(express.json());
 app.use(express.static('public'));
 // app.use(loggingMiddleware);
@@ -35,6 +34,6 @@ app.use('/api/logs', logRoutes);
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
-app.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
-});
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+}).catch(() => process.exit(1));

@@ -1,7 +1,5 @@
-import express from 'express'
 import systemConfig from '../config/systemConfig.js';
 import System from '../models/systemModel.js';
-import mongoose from 'mongoose';
 
 export const updateSystemConfig = async (req, res) =>{
     const  toggles = req.body;
@@ -9,7 +7,7 @@ export const updateSystemConfig = async (req, res) =>{
         const insertResult = await System.findOneAndUpdate(
         {},
         { $set: toggles },
-        { upsert: true, returnDocument: "after" }
+        { upsert: true, new: true }
         );
         console.log("System toggle is inserted.");
         res.json({

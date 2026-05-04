@@ -19,7 +19,7 @@ const Projects = (props) => {
           }
         });
         setProjects(response.data.data);
-        if(response.data.success == false){
+        if(response.data.success === false){
           setMessage(response.data.message);
         }
         else{

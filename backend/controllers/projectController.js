@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Project from "../models/projectModel.js";
 import NodeCache from "node-cache";
-import System from "../models/systemModel.js";
 
 const projectCache = new NodeCache({stdTTL:100, checkperiod:120});
 

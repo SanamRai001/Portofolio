@@ -9,8 +9,8 @@ const Form = (props) => {
         const user = {email:email, password: password};
         const response = await axios.post(`${API}/api/auth/login`, user);
         const token = response.data.token;
-        window.location.reload();
         localStorage.setItem("token", token);
+        window.location.reload();
         console.log("this is token  :",token);
     }
   return (
