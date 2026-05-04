@@ -18,8 +18,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: 'http://sanam-rai.com.np' }));
-app.use(express.json());
+app.use(cors({
+  origin: [
+    'https://sanam-rai.com.np',
+    'https://www.sanam-rai.com.np'
+  ]
+}));app.use(express.json());
 app.use(express.static('public'));
 // app.use(loggingMiddleware);
 
