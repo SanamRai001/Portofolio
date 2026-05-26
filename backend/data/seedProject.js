@@ -6,53 +6,65 @@ connectDB();
 
 const data = [
   {
-    name: "YakTalk – Real-Time Chat Application",
+    name: "Krishi Bazar — Agricultural E-Commerce Marketplace",
     description:
-      "A real-time chat application built using the MERN stack with Socket.io. Features include private messaging, online user tracking, and JWT-based authentication with secure password handling.",
-    techStacks: ["React", "Node.js", "Express", "MongoDB", "Socket.io", "JWT", "bcrypt"],
-    github: "https://github.com/SanamRai001/YakTalk-chatapp"
-  },
-  {
-    name: "Phone Book CLI Application",
-    description:
-      "A command-line based contact management system supporting CRUD operations with input validation using regex and persistent storage using JSON.",
-    techStacks: ["Python", "JSON", "Regex", "CLI"],
-    github: "https://github.com/SanamRai001/PhoneBook-Application-"
-  },
-  {
-    name: "Sample Portfolio Website",
-    description:
-      "A modular portfolio website built using Flask and Tailwind CSS to demonstrate backend routing and structured design principles.",
-    techStacks: ["Flask", "Python", "Tailwind CSS"],
-    github: "https://github.com/SanamRai001/Sample-Portofolio"
+      "A full-stack agricultural marketplace where Nepali farmers list produce and buyers purchase directly. Features JWT authentication, dual checkout flows (Cart and Buy Now), real-time cart management synced with MongoDB, skeleton loading screens, and a custom notification system built from scratch. Deployed on Render and Vercel with MongoDB Atlas.",
+    techStacks: ["React", "Node.js", "Express", "MongoDB", "JWT", "Tailwind CSS", "Context API", "Mongoose"],
+    github: "https://github.com/SanamRai001/KrishiBazar",
+    live: "https://krishi-bazar-alpha.vercel.app"
   },
   {
     name: "Backend-Controlled Portfolio System",
     description:
-      "A dynamic portfolio application where system features like caching, authentication, rate limiting, and pagination can be toggled in real-time using a backend-driven control panel.",
+      "A dynamic portfolio application where system features — JWT authentication, in-memory caching, rate limiting, pagination, and request logging — can each be toggled on or off independently at runtime through a backend control panel. Demonstrates production-level API architecture thinking.",
     techStacks: ["React", "Node.js", "Express", "MongoDB", "JWT"],
-    github: "https://github.com/SanamRai001/Portofolio"
+    github: "https://github.com/SanamRai001/Portofolio",
+    live: "https://sanam-rai.com.np"
+  },
+  {
+    name: "YakTalk — Secure Real-Time Chat Application",
+    description:
+      "A full-stack real-time messaging application with private chat, online presence tracking, and JWT-based authentication. Socket.IO connections secured server-side by verifying JWT during WebSocket handshake. Deployed with separate frontend and backend services on Render.",
+    techStacks: ["React", "Node.js", "Express", "MongoDB", "Socket.io", "JWT", "bcrypt", "Tailwind CSS"],
+    github: "https://github.com/SanamRai001/YakTalk-chatapp",
+    live: "https://yaktalk-chatapp-1.onrender.com"
+  },
+  {
+    name: "Phone Book CLI Application",
+    description:
+      "A command-line contact management system with full CRUD operations, regex input validation, JSON persistent storage, and Pytest unit tests — applying QA principles from professional internship to a personal project.",
+    techStacks: ["Python", "JSON", "Regex", "Pytest", "CLI"],
+    github: "https://github.com/SanamRai001/PhoneBook-Application-"
   },
   {
     name: "Daily Dose of Motivation",
     description:
-      "A simple application that delivers motivational quotes to users, focusing on clean UI and consistent user engagement.",
+      "A web application delivering daily motivational content, demonstrating clean JavaScript architecture and modular code organisation.",
     techStacks: ["React", "Node.js"],
     github: "https://github.com/SanamRai001/Daily-Dose-of-Motivation"
+  },
+  {
+    name: "Sample Portfolio Website",
+    description:
+      "A modular portfolio website built using Flask and Tailwind CSS to demonstrate backend routing and structured design principles across different frameworks beyond Node.js.",
+    techStacks: ["Flask", "Python", "Tailwind CSS"],
+    github: "https://github.com/SanamRai001/Sample-Portofolio"
   }
 ];
-const seedProject = async () => {
+
+const seedProjects = async () => {
   try {
     await projectModel.deleteMany();
-    await projectModel.insertMany(data);
+    console.log("🗑️  Old projects cleared");
 
-    console.log("✅ Projects Seeded (Clean & Real)");
+    await projectModel.insertMany(data);
+    console.log(`✅ ${data.length} projects seeded successfully`);
 
     mongoose.connection.close();
-  } catch (e) {
+  } catch(e) {
     console.error(e.message);
     process.exit(1);
   }
 };
 
-seedProject();
+seedProjects();
