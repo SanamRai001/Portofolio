@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 const Schema = mongoose.Schema;
-
 const projectSchema = new Schema({
     name:{
         type: String,
@@ -19,9 +18,10 @@ const projectSchema = new Schema({
     },
     liveDemo:{
         type: String
+    },
+    imageUrl:{
+        type: String
     }
 },{ timestamps:true});
-
 const Project = mongoose.model("Project", projectSchema);
-
 export default Project;
