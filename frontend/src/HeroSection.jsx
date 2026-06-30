@@ -20,7 +20,7 @@ const HeroSection = () => {
     <main className='HeroSection'>
       <div>
         <p className='text-7xl font-bold'>Sanam Rai</p>
-        <p className='text-4xl text-neutral-600 font-mono'>Backend Developer</p>
+        <p className='text-4xl text-neutral-600 font-mono'>Full Stack Developer</p>
         <p className='text-xl text-neutral-600'>"I build fast, secure, and scalable backend systems."</p>
         <button
           className='rounded-full bg-gradient-to-r from-cyan-500 to-blue-400 fetchData text-black font-bold'
