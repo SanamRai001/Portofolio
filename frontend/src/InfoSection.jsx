@@ -1,6 +1,6 @@
 import { useState } from "react"
 import initialProjects from "./projectsData"
-import ProjectCard from "./ProjectCard"
+import ProjectCard from "./reusable/ProjectCard"
 
 const InfoSection = () => {
   const [projects] = useState(initialProjects);

@@ -2,7 +2,7 @@ import React from 'react'
 import axios from 'axios'
 import API from "./config/api";
 import { useState, useEffect } from 'react';
-import ProjectCard from './ProjectCard';
+import ProjectCard from './reusable/ProjectCard';
 
 const Projects = (props) => {
   const url = `${API}/api/projects`;
