@@ -7,6 +7,17 @@
     padding: 0;
     box-sizing: border-box;
 }
+*{
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.Nav {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+nav .img{
+    transition: scale 0.25s ease;
+}
 :root{
     --bgcolor-primary-nav: #0c103c;
     --txtcolor-primary-nav: white;
@@ -91,9 +102,22 @@ button{
     display: flex;
     justify-content: start;
     align-items: center;
+    border-radius: 100vw;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+}
+.ToggleButton.active{
+    background-color: var(--mainColor);
 }
 .ToggleBall{
-    height: 23px;
+    height: 20px;
+    width: 20px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+}
+.ToggleButton.active .ToggleBall{
+    transform: translateX(20px);
 }
 .SystemControl{
     padding: 100px;
@@ -256,6 +280,14 @@ button{
     background-color: #04090F;
     border-radius: 8px;
     padding: 20px;
+}
+.ProjectCard{
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.ProjectCard:hover{
+    transform: translateY(-6px);
+    border-color: var(--mainColor);
+    box-shadow: 0 8px 24px rgba(0, 191, 255, 0.15);
 }
 .ProjectCard h1{
     font-size: x-large;
@@ -476,4 +508,33 @@ input[type="submit"]{
     filter: blur(5px);
     pointer-events: none;
     user-select: none;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.MainProject, .SystemControl, .TechStack{
+    animation: fadeInUp 0.6s ease both;
+}
+.Blurred{
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+    transition: filter 0.3s ease;
+}
+.AuthOverlay{
+    animation: fadeInUp 0.3s ease both;
+}
+nav ul{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+button:hover, input[type="submit"]:hover{
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+input[type="submit"]{
+    transition: filter 0.2s ease, transform 0.2s ease;
 }

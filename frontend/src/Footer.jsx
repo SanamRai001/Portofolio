@@ -16,7 +16,7 @@ const Footer = () => {
                     <h1>Quick Access</h1>
                     <ul>
                         <li><a href="#system-controls">SystemControl</a></li>
-                        <li><a href="#Project">Projects</a></li>
+                        <li><a href="#projects">Projects</a></li>
                         <li><a href="/Sanam_Rai_resume.pdf" target='_blank' rel='noreferrer' download="Sanam_Rai_resume.pdf" className='NavItem'>Resume</a></li>
                     </ul>
                 </div>
