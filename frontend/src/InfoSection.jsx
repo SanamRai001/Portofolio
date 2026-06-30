@@ -1,5 +1,5 @@
 import { useState } from "react"
-import initialProjects from "./projectsData"
+import initialProjects from "./data/projectsData"
 import ProjectCard from "./reusable/ProjectCard"
 
 const InfoSection = () => {
