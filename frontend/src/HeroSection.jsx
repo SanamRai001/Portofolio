@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
-import ecg from './assets/image.png'
+import { useState } from 'react'
 import axios from 'axios'
+import { ArrowDownRight, Activity, Download, ExternalLink } from 'lucide-react'
 import API from "./config/api";
+import LivingForge from './LivingForge'
 
 const HeroSection = () => {
   const [status, setStatus] = useState(null);
@@ -9,7 +10,7 @@ const HeroSection = () => {
   const getData = async () => {
     try {
       setStatus("Pinging backend...");
-      const res = await axios.get(`${API}/api/system`);
+      const res = await axios.get(API + "/api/system");
       setStatus(res.data?.success ? "Backend online ✓" : "Backend responded without a success state");
     } catch (error) {
       console.log("Error", error);
@@ -18,32 +19,84 @@ const HeroSection = () => {
   }
 
   return (
-    <main className='HeroSection'>
-      <div>
-        <p className='text-sm uppercase tracking-[0.32em] text-cyan-400 font-mono'>Interactive backend portfolio</p>
-        <h1 className='text-7xl font-bold'>Sanam Rai</h1>
-        <p className='text-4xl text-neutral-300 font-mono'>Backend-focused Full Stack Developer</p>
-        <p className='text-xl text-neutral-500 max-w-3xl text-center'>
-          I do not only list backend skills here. Use the control panel below to switch authentication,
-          persistence, caching, rate limiting, logging, and pagination on and off and observe how the system changes.
-        </p>
-        <div className='flex flex-wrap justify-center gap-2 text-sm font-mono text-neutral-400'>
-          <span>Node.js</span><span>•</span><span>Express</span><span>•</span><span>MongoDB</span><span>•</span><span>JWT</span><span>•</span><span>API Architecture</span>
+    <section className="HeroSection" id="top" aria-labelledby="hero-title">
+      <div className="HeroGrid" aria-hidden="true" />
+
+      <div className="HeroInner">
+        <div className="HeroCopy">
+          <div className="Eyebrow">
+            <span className="StatusDot" aria-hidden="true" />
+            Backend-focused full stack developer
+          </div>
+
+          <h1 id="hero-title">
+            <span>Sanam Rai</span>
+            <strong>I build the systems behind the interface.</strong>
+          </h1>
+
+          <p className="HeroLead">
+            I design APIs, data flows, authentication, and reliable backend behavior, then connect them to interfaces that make the system easy to understand and use.
+          </p>
+
+          <div className="HeroActions">
+            <a href="#system-controls" className="Button ButtonPrimary">
+              Open Backend Lab
+              <ArrowDownRight size={18} aria-hidden="true" />
+            </a>
+
+            <a href="#projects" className="Button ButtonSecondary">
+              View Projects
+              <ExternalLink size={17} aria-hidden="true" />
+            </a>
+
+            <a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer" className="Button ButtonGhost">
+              Resume
+              <Download size={16} aria-hidden="true" />
+            </a>
+          </div>
+
+          <div className="HeroSystemRow" aria-label="Primary engineering stack">
+            <span>Node.js</span>
+            <span>Express</span>
+            <span>MongoDB</span>
+            <span>JWT</span>
+            <span>API architecture</span>
+          </div>
+
+          <div className="BackendPing">
+            <button type="button" className="BackendPingButton" onClick={getData}>
+              <Activity size={17} aria-hidden="true" />
+              Ping live backend
+            </button>
+            <span className="BackendPingStatus" aria-live="polite">
+              {status || "Runtime check available"}
+            </span>
+          </div>
         </div>
-        <div className='flex flex-wrap justify-center items-center'>
-          <a href="#system-controls" className='rounded-full bg-cyan-400 text-black font-bold px-8 py-3 m-2'>Open Backend Lab ↓</a>
-          <button
-            className='rounded-full border border-cyan-500/40 bg-transparent fetchData text-white font-bold'
-            onClick={getData}
-          >
-            <img src={ecg} alt="Backend status pulse" className='w-9'/>
-            <span className='font-bold'>Ping API</span>
-            <span>&gt;</span>
-          </button>
-        </div>
-        {status && <p className='text-sm text-cyan-400 mt-2 font-mono' aria-live="polite">{status}</p>}
+
+        <aside className="HeroPanel" aria-label="Engineering focus">
+          <div className="HeroPanelHead">
+            <span className="TerminalDots" aria-hidden="true"><i /><i /><i /></span>
+            <span>builder.profile</span>
+          </div>
+
+          <div className="HeroPanelBody">
+            <div className="CodeLine"><span>focus</span><strong>backend systems</strong></div>
+            <div className="CodeLine"><span>default</span><strong>simple + maintainable</strong></div>
+            <div className="CodeLine"><span>method</span><strong>build → inspect → improve</strong></div>
+            <div className="CodeLine"><span>learning</span><strong>architecture + AI systems</strong></div>
+          </div>
+
+          <div className="HeroPanelNote">
+            <span className="PanelPulse" aria-hidden="true" />
+            The backend lab below changes the running application, not a fake dashboard.
+          </div>
+        </aside>
       </div>
-    </main>
+
+      <LivingForge />
+    </section>
   )
 }
+
 export default HeroSection

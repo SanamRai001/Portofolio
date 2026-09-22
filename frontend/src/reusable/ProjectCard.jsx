@@ -1,4 +1,4 @@
-import React from "react";
+import { ArrowUpRight, Github } from 'lucide-react'
 
 const ProjectCard = ({ project }) => {
   const {
@@ -10,43 +10,79 @@ const ProjectCard = ({ project }) => {
     imageUrl,
   } = project;
 
-  const handleCardClick = () => {
+  const openDemo = () => {
     if (liveDemo) {
       window.open(liveDemo, "_blank", "noopener,noreferrer");
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (!liveDemo) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openDemo();
+    }
+  };
+
   return (
-    <div
-      className={`ProjectCard ${liveDemo ? "clickable" : ""}`}
-      onClick={handleCardClick}
-      role={liveDemo ? "button" : undefined}
-      title={liveDemo ? "Click to view live demo" : undefined}
+    <article
+      className={"ProjectCard" + (liveDemo ? " clickable" : "")}
+      onClick={liveDemo ? openDemo : undefined}
+      onKeyDown={handleKeyDown}
+      tabIndex={liveDemo ? 0 : undefined}
+      role={liveDemo ? "link" : undefined}
+      aria-label={liveDemo ? name + " — open live demo" : undefined}
     >
-      {imageUrl && (
-        <img src={imageUrl} alt={name} className="ProjectImage" />
-      )}
+      <div className="ProjectVisual">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt=""
+            className="ProjectImage"
+            loading="lazy"
+            onError={(event) => { event.currentTarget.style.display = "none"; }}
+          />
+        ) : null}
+        <span className="ProjectVisualLabel">case / build</span>
+      </div>
 
-      <h1>{name}</h1>
-      <p>{description}</p>
+      <div className="ProjectBody">
+        <div>
+          <h3>{name}</h3>
+          <p>{description}</p>
+        </div>
 
-      <ul>
-        {techStacks.map((t, i) => (
-          <li key={i}>{t}</li>
-        ))}
-      </ul>
+        <ul className="ProjectTags" aria-label={name + " technologies"}>
+          {techStacks.map((technology) => (
+            <li key={technology}>{technology}</li>
+          ))}
+        </ul>
 
-      {github && (
-        <a
-          href={github}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          View Code
-        </a>
-      )}
-    </div>
+        <div className="ProjectActions">
+          {liveDemo && (
+            <a
+              href={liveDemo}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => event.stopPropagation()}
+            >
+              Live demo <ArrowUpRight size={15} aria-hidden="true" />
+            </a>
+          )}
+
+          {github && (
+            <a
+              href={github}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Github size={15} aria-hidden="true" /> Source
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
   );
 };
 

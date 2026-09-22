@@ -1,55 +1,44 @@
-import React from 'react'
-import { FaGithub } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
 const Footer = () => {
   return (
-    <>
-        <div className='MainFooter'>
-            <div className='UpperFooter'>
-                <div>
-                    <h1>System Core</h1>
-                    <p>Specialized in building high-availablity distributed systems, secure APIs gateways, and scalable microservices architecture.</p>
-                </div>
-                <div>
-                    <h1>Quick Access</h1>
-                    <ul>
-                        <li><a href="#system-controls">SystemControl</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                        <li><a href="/Sanam_Rai_resume.pdf" target='_blank' rel='noreferrer' download="Sanam_Rai_resume.pdf" className='NavItem'>Resume</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h1>Status</h1>
-                    <h4>All systems operational</h4>
-                    <ul className="social-icons">
-                        <li>
-                            <a href="https://github.com/SanamRai001" target="_blank">
-                            <FaGithub></FaGithub>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="https://www.linkedin.com/in/sanam-rai-6b2149212/" target="_blank">
-                            <FaLinkedin></FaLinkedin>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="mailto:sanamr571@outlook.com">
-                            <MdEmail></MdEmail>
-                            </a>
-                        </li>
-                        </ul>
-                </div>
+    <footer className="MainFooter" id="contact">
+      <div className="SectionShell">
+        <div className="FooterTop">
+          <div className="FooterIntro">
+            <span className="BrandMark" aria-hidden="true">SR</span>
+            <div>
+              <p className="SectionKicker">Sanam Rai</p>
+              <h2>Build useful systems. Keep learning how they work.</h2>
+              <p>Backend-focused full stack developer exploring architecture, reliable products, and modern AI systems.</p>
             </div>
-            <hr />
-            <div className='LowerFooter'>
-                <div>© 2026 Backend Developer Portfolio. Built for scale.</div>
+          </div>
+
+          <div className="FooterLinks">
+            <div>
+              <h3>Navigate</h3>
+              <a href="#about">About</a>
+              <a href="#system-controls">Backend Lab</a>
+              <a href="#projects">Projects</a>
+              <a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer">Resume</a>
             </div>
+
+            <div>
+              <h3>Connect</h3>
+              <a href="https://github.com/SanamRai001" target="_blank" rel="noopener noreferrer"><FaGithub aria-hidden="true" />GitHub</a>
+              <a href="https://www.linkedin.com/in/sanam-rai-6b2149212/" target="_blank" rel="noopener noreferrer"><FaLinkedin aria-hidden="true" />LinkedIn</a>
+              <a href="mailto:sanamr571@outlook.com"><MdEmail aria-hidden="true" />Email</a>
+            </div>
+          </div>
         </div>
-    </>
+
+        <div className="FooterBottom">
+          <span>© 2026 Sanam Rai</span>
+          <span>Backend · Systems · AI · Full Stack</span>
+        </div>
+      </div>
+    </footer>
   )
 }
 

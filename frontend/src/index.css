@@ -1,549 +1,1495 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
+:root {
+  --bg: #05080d;
+  --bg-soft: #081019;
+  --surface: #0b141e;
+  --surface-raised: #0e1a26;
+  --surface-muted: #101821;
+  --line: rgba(150, 184, 206, 0.14);
+  --line-strong: rgba(87, 221, 242, 0.28);
+  --text: #f5f7f8;
+  --text-soft: #b6c2cb;
+  --muted: #748592;
+  --cyan: #57ddf2;
+  --cyan-strong: #31c8e3;
+  --teal: #35c8b4;
+  --amber: #ffb85c;
+  --coral: #f2738a;
+  --navy: #071522;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-*{
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+* {
+  box-sizing: border-box;
 }
 
-.Nav {
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-nav .img{
-    transition: scale 0.25s ease;
-}
-:root{
-    --bgcolor-primary-nav: #0c103c;
-    --txtcolor-primary-nav: white;
-    --mainColor: #2DAFED;
-    --textColor:#6b777f;
-    color: white;
-    font-family: "Roboto", sans-serif;
-}
 html {
   scroll-behavior: smooth;
-}
-.Header{
-    background-image: url("./assets/Hero.png");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    min-height: 100vh;
-}
-/* make navbar sticky */
-.Nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px;
-    color: var(--txtcolor-primary-nav);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background-color: rgba(0, 6, 12, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-}
-nav ul{
-    display: flex;
-    justify-content: space-between;
+  background: var(--bg);
 }
 
-nav .img{
-    height: 50px;
-    width: 50px;
-    object-fit: contain;
-}
-nav  .img:hover{
-    scale: 1.1;
-}
-
-.NavItem{
-    padding: 10px;
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 78% 8%, rgba(52, 118, 153, 0.10), transparent 28rem),
+    radial-gradient(circle at 12% 28%, rgba(53, 200, 180, 0.045), transparent 24rem),
+    var(--bg);
+  color: var(--text);
 }
 
-body{
-    background-color: #030B10;
-    
-}
-.HeroSection div{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    height: calc(90vh - 72px);
-    border-bottom: 0.1px solid rgb(78, 78, 86);
-
+body,
+button,
+input {
+  font: inherit;
 }
 
-button{
-    padding: 10px 50px;
-    margin:8px;
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-    align-items: center;
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
 }
-.ToggleButton{
-    padding: 2px;
-    background-color: gray;
-    width: 44px;
-    height: 24px;
-    margin: 10px;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    border-radius: 100vw;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-}
-.ToggleButton.active{
-    background-color: var(--mainColor);
-}
-.ToggleBall{
-    height: 20px;
-    width: 20px;
-    background-color: white;
-    border-radius: 50%;
-    transition: transform 0.25s ease;
-}
-.ToggleButton.active .ToggleBall{
-    transform: translateX(20px);
-}
-.SystemControl{
-    padding: 100px;
-}
-.Toggle{
-    padding: 10px;
-    width: 100%;
-    height: 90px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(0, 191, 255, 0.4);    
-    border-radius: 18px;
-    box-shadow: 
-    0 0 10px rgba(0, 191, 255, 0.3),  /* Soft outer blur */
-    inset 0 0 5px rgba(0, 191, 255, 0.2);
- 
-}
-.headName{
-    color: var(--mainColor);
 
+a {
+  color: inherit;
+  text-decoration: none;
 }
-.subName{
-    color: var(--textColor);
+
+button {
+  color: inherit;
 }
-.Toggles{
+
+img {
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(87, 221, 242, 0.22);
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.SiteShell {
+  overflow: clip;
+}
+
+.SectionShell {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.SectionKicker,
+.Eyebrow,
+.InspectorLabel {
+  margin: 0 0 12px;
+  color: var(--cyan);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.SectionHeading {
+  margin-bottom: 34px;
+}
+
+.SectionHeading h2,
+.LabHeader h2,
+.ProjectHead h2,
+.FooterIntro h2,
+.SelectedWorkHeader h2 {
+  margin: 0;
+  max-width: 760px;
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  line-height: 1.03;
+  letter-spacing: -0.045em;
+}
+
+.SectionHeadingSplit {
   display: grid;
-  margin: 10px;
-  grid-template-columns: 3fr 1fr;
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.75fr);
+  gap: 56px;
+  align-items: end;
+}
+
+.SectionHeadingSplit > p,
+.SelectedWorkHeader > p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.75;
+}
+
+.Nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(150, 184, 206, 0.10);
+  background: rgba(5, 8, 13, 0.76);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.NavInner {
+  width: min(1220px, calc(100% - 32px));
+  min-height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.Brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.BrandMark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(87, 221, 242, 0.34);
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(87, 221, 242, 0.11), rgba(87, 221, 242, 0.025));
+  color: var(--cyan);
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+}
+
+.BrandCopy {
+  display: grid;
+  gap: 1px;
+}
+
+.BrandCopy strong {
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+}
+
+.BrandCopy small {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.NavLinks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.NavItem {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 650;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.NavItem:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.NavItemPrimary {
+  border: 1px solid rgba(87, 221, 242, 0.24);
+  color: var(--cyan);
+  background: rgba(87, 221, 242, 0.055);
+}
+
+.HeroSection {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100svh - 72px);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.HeroGrid {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(rgba(146, 174, 193, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(146, 174, 193, 0.045) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.72), transparent 88%);
+}
+
+.HeroSection::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -160px;
+  top: 4%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(87, 221, 242, 0.11), transparent 67%);
+  pointer-events: none;
+}
+
+.HeroInner {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 84px 0 96px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.72fr);
+  gap: clamp(44px, 8vw, 112px);
+  align-items: center;
+}
+
+.HeroCopy {
+  position: relative;
+  z-index: 2;
+}
+
+.Eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 22px;
+}
+
+.StatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 5px rgba(53, 200, 180, 0.08);
+}
+
+.HeroCopy h1 {
+  margin: 0;
+  display: grid;
+  gap: 14px;
+  max-width: 810px;
+}
+
+.HeroCopy h1 > span {
+  color: white;
+  font-size: clamp(3.6rem, 8vw, 7.25rem);
+  line-height: 0.88;
+  letter-spacing: -0.065em;
+}
+
+.HeroCopy h1 > strong {
+  max-width: 700px;
+  color: var(--text-soft);
+  font-size: clamp(1.7rem, 3.3vw, 3rem);
+  font-weight: 560;
+  line-height: 1.07;
+  letter-spacing: -0.045em;
+}
+
+.HeroLead {
+  max-width: 690px;
+  margin: 28px 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.8vw, 1.16rem);
+  line-height: 1.78;
+}
+
+.HeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.Button {
+  min-height: 46px;
+  padding: 0 17px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 750;
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.Button:hover {
+  transform: translateY(-2px);
+}
+
+.ButtonPrimary {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #041016;
+}
+
+.ButtonPrimary:hover {
+  background: #77e7f6;
+}
+
+.ButtonSecondary {
+  border-color: rgba(255, 255, 255, 0.11);
+  background: rgba(255, 255, 255, 0.055);
+  color: white;
+}
+
+.ButtonSecondary:hover,
+.ButtonGhost:hover {
+  border-color: rgba(87, 221, 242, 0.28);
+  background: rgba(87, 221, 242, 0.07);
+}
+
+.ButtonGhost {
+  border-color: transparent;
+  color: var(--text-soft);
+  background: transparent;
+}
+
+.HeroSystemRow {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.HeroSystemRow span {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.018);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.BackendPing {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.BackendPingButton {
+  border: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--cyan);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.BackendPingButton:hover {
+  color: white;
+}
+
+.BackendPingStatus {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+.HeroPanel {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(14, 26, 38, 0.84), rgba(8, 16, 25, 0.72));
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.HeroPanelHead {
+  min-height: 46px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.TerminalDots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.TerminalDots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #40505d;
+}
+
+.TerminalDots i:nth-child(2) { background: #896f42; }
+.TerminalDots i:nth-child(3) { background: #356c68; }
+
+.HeroPanelBody {
+  padding: 22px 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.CodeLine {
+  min-height: 46px;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: 94px 1fr;
+  align-items: center;
+  gap: 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.025);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+}
+
+.CodeLine span {
+  color: #607484;
+}
+
+.CodeLine strong {
+  color: #bfd0db;
+  font-weight: 600;
+}
+
+.HeroPanelNote {
+  padding: 15px 18px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.PanelPulse {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.InfoSection,
+.SystemControl,
+.LogsSection,
+.MainProject,
+.TechStack {
+  padding: 104px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.InfoSection {
+  background: linear-gradient(180deg, rgba(10, 17, 25, 0.42), rgba(5, 8, 13, 0));
+}
+
+.IdentityGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.IdentityCard {
+  min-height: 220px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(11, 20, 30, 0.58);
+}
+
+.IdentityIcon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(87, 221, 242, 0.2);
+  border-radius: 10px;
+  color: var(--cyan);
+  background: rgba(87, 221, 242, 0.055);
+}
+
+.IdentityCard h3 {
+  margin: 54px 0 9px;
+  font-size: 1.05rem;
+}
+
+.IdentityCard p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+
+.SelectedWorkHeader {
+  margin: 96px 0 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.58fr);
+  gap: 44px;
+  align-items: end;
+}
+
+.ProjectCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ProjectCard {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(9, 17, 25, 0.78);
+  overflow: hidden;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.ProjectCard.clickable {
+  cursor: pointer;
+}
+
+.ProjectCard:hover,
+.ProjectCard:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(87, 221, 242, 0.32);
+  background: rgba(12, 23, 34, 0.88);
+}
+
+.ProjectVisual {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(87, 221, 242, 0.07), rgba(53, 200, 180, 0.025)),
+    #08111a;
+  border-bottom: 1px solid var(--line);
+}
+
+.ProjectImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.86) contrast(1.03);
+  transition: transform 240ms ease, filter 240ms ease;
+}
+
+.ProjectCard:hover .ProjectImage {
+  transform: scale(1.025);
+  filter: saturate(1) contrast(1.04);
+}
+
+.ProjectVisualLabel {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  padding: 5px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  background: rgba(3, 8, 13, 0.78);
+  color: #91a4b2;
+  backdrop-filter: blur(8px);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.ProjectBody {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ProjectBody h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+}
+
+.ProjectBody p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 0.83rem;
+  line-height: 1.65;
+}
+
+.ProjectTags {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+}
+
+.ProjectTags li {
+  padding: 5px 7px;
+  border: 1px solid rgba(150, 184, 206, 0.12);
+  border-radius: 7px;
+  color: #8fa0ac;
+  background: rgba(255, 255, 255, 0.018);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.ProjectActions {
+  margin-top: auto;
+  padding-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.ProjectActions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.ProjectActions a:hover {
+  color: var(--cyan);
+}
+
+.SystemControl {
+  background: rgba(6, 12, 19, 0.46);
+}
+
+.LabHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 44px;
+  align-items: end;
+}
+
+.LabLead {
+  max-width: 720px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.72;
+}
+
+.RuntimeCard {
+  min-width: 220px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 13px;
+  background: rgba(87, 221, 242, 0.035);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.RuntimeCard span {
+  color: var(--muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.RuntimeCard strong {
+  color: var(--cyan);
+  font-size: 0.82rem;
+}
+
+.RuntimeCard small {
+  color: #7e919e;
+  font-size: 0.7rem;
+}
+
+.ArchitecturePath {
+  margin: 34px 0 16px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.018);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.ArchitecturePath i {
+  color: #40525f;
+  font-style: normal;
+}
+
+.Toggles {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.55fr);
+  gap: 16px;
   align-items: start;
 }
-.AllToggles{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
 
+.AllToggles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
-.MainToggles{
-    width: 50%;
+
+.Toggle {
+  min-height: 116px;
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(10, 18, 27, 0.78);
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.Toggle:hover,
+.Toggle:focus-within {
+  border-color: rgba(87, 221, 242, 0.26);
+  background: rgba(12, 23, 34, 0.9);
+}
+
+.Toggle.is-active {
+  border-color: rgba(87, 221, 242, 0.3);
+}
+
+.ToggleCopy {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.ToggleIcon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(87, 221, 242, 0.055);
+  color: #75b9c6;
+}
+
+.headName {
+  margin: 0;
+  color: #dfe7eb;
+  font-size: 0.83rem;
+  font-weight: 750;
+}
+
+.subName {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.ToggleButton {
+  width: 42px;
+  height: 24px;
+  flex: 0 0 42px;
+  padding: 2px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 999px;
+  background: #27323b;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.ToggleButton.active {
+  border-color: rgba(87, 221, 242, 0.42);
+  background: var(--cyan-strong);
+}
+
+.ToggleBall {
+  width: 18px;
+  height: 18px;
+  display: block;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+  transform: translateX(0);
+  transition: transform 180ms ease;
+}
+
+.ToggleButton.active .ToggleBall {
+  transform: translateX(18px);
 }
 
 .ControlInfo {
-  background-color: #01080D;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-
-  padding: 1rem;
+  min-height: 242px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-
-  margin-top: 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  justify-content: space-between;
+  gap: 28px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #071019;
 }
+
 .ControlTitle {
-  color: var(--mainColor);
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  margin: 0;
+  font-size: 1.15rem;
 }
+
 .ControlDes {
-  font-size: 14px;
-  color: var(--textColor);
-  line-height: 1.6;
-  margin-top: 8px;
-  max-width: 400px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
 }
+
 .ControlDetails {
+  margin-top: 14px;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.InspectorState {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+}
+
+.InspectorState span {
+  color: var(--muted);
+}
+
+.InspectorState strong {
+  color: #778895;
+}
+
+.InspectorState strong.is-enabled {
+  color: var(--cyan);
+}
+
+.LogsSection {
+  padding-top: 0;
+  background: rgba(6, 12, 19, 0.46);
+}
+
+.LogConsole {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #040a10;
+  overflow: hidden;
+}
+
+.LogConsoleHead {
+  min-height: 74px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.LogConsoleHead .SectionKicker {
+  margin-bottom: 5px;
+}
+
+.LogConsoleHead h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.LogPolling {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+}
+
+.LogPolling span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 5px rgba(53, 200, 180, 0.07);
+}
+
+.LogConsoleBody {
+  max-height: 300px;
+  overflow: auto;
+  padding: 14px 18px 18px;
+  color: #8da0ad;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  line-height: 1.7;
+}
+
+.LogConsoleBody p {
+  margin: 0;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.035);
+}
+
+.LogConsoleBody p > span {
+  margin-right: 9px;
+  color: var(--cyan);
+}
+
+.LogError {
+  color: #f29aa9 !important;
+}
+
+.LogEmpty {
+  color: #627582 !important;
+}
+
+.MainProject {
+  background: rgba(4, 8, 13, 0.5);
+}
+
+.ProjectHead {
+  max-width: 790px;
+  margin-bottom: 30px;
+}
+
+.ProjectHead > p:last-child {
+  margin: 14px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ProjectLoading,
+.ProjectMessage {
+  min-height: 130px;
+  padding: 24px;
+  display: grid;
+  place-content: center;
+  border: 1px dashed rgba(150, 184, 206, 0.17);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  text-align: center;
+}
+
+.ProjectMessage {
+  gap: 8px;
+}
+
+.ProjectMessage span {
+  color: var(--amber);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ProjectMessage p {
+  margin: 0;
+}
+
+.TechStack {
+  background: linear-gradient(180deg, rgba(9, 16, 24, 0.42), rgba(5, 8, 13, 0));
+}
+
+.ArchitectureCards {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.ArchitectureCards article {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(10, 18, 27, 0.66);
+}
+
+.ArchitectureCards article > span {
+  color: var(--cyan);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+}
+
+.ArchitectureCards h3 {
+  margin: 46px 0 9px;
+  font-size: 1rem;
+}
+
+.ArchitectureCards p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.ArchitectureArrow {
+  align-self: center;
+  color: #334652;
+}
+
+.MainFooter {
+  padding: 76px 0 34px;
+  background: #04070b;
+}
+
+.FooterTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 70px;
+}
+
+.FooterIntro {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.FooterIntro .SectionKicker {
+  margin-bottom: 8px;
+}
+
+.FooterIntro h2 {
+  max-width: 650px;
+  font-size: clamp(1.8rem, 3.6vw, 3.1rem);
+}
+
+.FooterIntro p:last-child {
+  max-width: 620px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.FooterLinks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 34px;
+}
+
+.FooterLinks > div {
+  display: grid;
+  align-content: start;
   gap: 10px;
-  margin-top: 10px;
 }
 
-.TechStack{
-    color: var(--textColor);
-    display: flex;
+.FooterLinks h3 {
+  margin: 0 0 5px;
+  color: white;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.FooterLinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.FooterLinks a:hover {
+  color: var(--cyan);
+}
+
+.FooterBottom {
+  margin-top: 64px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #566673;
+  font-size: 0.72rem;
+}
+
+.AuthOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 5, 8, 0.82);
+  backdrop-filter: blur(12px);
+}
+
+.Blurred {
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.MainForm {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.AuthCard {
+  width: min(460px, 100%);
+  padding: clamp(24px, 5vw, 38px);
+  border: 1px solid rgba(87, 221, 242, 0.23);
+  border-radius: 20px;
+  background: #071019;
+  box-shadow: var(--shadow);
+}
+
+.AuthCardHead h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+}
+
+.AuthCardHead > p:last-child {
+  margin: 12px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 0.86rem;
+}
+
+.DemoCredentials {
+  margin: 22px 0;
+  padding: 13px;
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255,255,255,0.022);
+}
+
+.DemoCredentials span {
+  margin-bottom: 3px;
+  color: var(--amber);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.DemoCredentials code {
+  color: #aebcc6;
+  font-size: 0.76rem;
+}
+
+.Field {
+  margin-top: 15px;
+  display: grid;
+  gap: 7px;
+}
+
+.Field label {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.Field input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #050b11;
+  color: white;
+}
+
+.Field input:focus {
+  border-color: rgba(87, 221, 242, 0.45);
+  outline: 2px solid rgba(87, 221, 242, 0.15);
+  outline-offset: 1px;
+}
+
+.checkbox {
+  margin-top: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.checkbox input {
+  accent-color: var(--cyan);
+}
+
+.AuthError {
+  margin: 13px 0 0;
+  color: #f39aa9;
+  font-size: 0.78rem;
+}
+
+.AuthSubmit {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.AuthSubmit:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+@media (max-width: 980px) {
+  .HeroInner,
+  .SectionHeadingSplit,
+  .SelectedWorkHeader,
+  .FooterTop {
+    grid-template-columns: 1fr;
+  }
+
+  .HeroInner {
+    gap: 36px;
+    padding-top: 68px;
+  }
+
+  .HeroPanel {
+    width: min(620px, 100%);
+  }
+
+  .SectionHeadingSplit,
+  .SelectedWorkHeader {
+    gap: 18px;
+  }
+
+  .IdentityGrid,
+  .ProjectCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .LabHeader {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .RuntimeCard {
+    min-width: 0;
+    width: min(330px, 100%);
+  }
+
+  .Toggles {
+    grid-template-columns: 1fr;
+  }
+
+  .ControlInfo {
+    min-height: 190px;
+  }
+
+  .ArchitectureCards {
+    grid-template-columns: 1fr;
+  }
+
+  .ArchitectureArrow {
+    display: none;
+  }
+
+  .FooterTop {
+    gap: 42px;
+  }
+}
+
+@media (max-width: 720px) {
+  .SectionShell,
+  .HeroInner {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .NavInner {
+    width: calc(100% - 20px);
+    min-height: 64px;
+    gap: 12px;
+  }
+
+  .BrandCopy small {
+    display: none;
+  }
+
+  .NavLinks {
+    gap: 0;
+  }
+
+  .NavLinks li:first-child {
+    display: none;
+  }
+
+  .NavItem {
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 0.74rem;
+  }
+
+  .HeroSection {
+    min-height: auto;
+  }
+
+  .HeroInner {
+    padding: 58px 0 74px;
+  }
+
+  .HeroCopy h1 > span {
+    font-size: clamp(3.25rem, 17vw, 5.2rem);
+  }
+
+  .HeroCopy h1 > strong {
+    max-width: calc(100% - 70px);
+  }
+
+  .HeroLead {
+    max-width: calc(100% - 52px);
+  }
+
+  .HeroPanel {
+    margin-top: 18px;
+  }
+
+  .InfoSection,
+  .SystemControl,
+  .MainProject,
+  .TechStack {
+    padding: 76px 0;
+  }
+
+  .IdentityGrid,
+  .ProjectCards,
+  .AllToggles {
+    grid-template-columns: 1fr;
+  }
+
+  .SelectedWorkHeader {
+    margin-top: 72px;
+  }
+
+  .ArchitecturePath {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .ArchitecturePath span {
+    white-space: nowrap;
+  }
+
+  .FooterLinks {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .FooterBottom {
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    background-color: #02060A;
-    padding: 60px 80px;
+    gap: 8px;
+  }
 }
 
+@media (max-width: 520px) {
+  .BrandCopy {
+    display: none;
+  }
 
-.MainFooter{
-    display: flex;
-    flex-direction: column;
-    background-color: #050C13;
-    padding: 60px 80px;
-}
+  .NavLinks li:last-child {
+    display: none;
+  }
 
-.MainFooter h1{
-    color: var(--mainColor);
-}
-.UpperFooter{
+  .HeroCopy h1 > strong,
+  .HeroLead {
+    max-width: calc(100% - 76px);
+  }
+
+  .HeroActions {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    color: var(--textColor);
-    gap: 40px;
-}
-.UpperFooter div{
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-.LowerFooter{
-    color: var(--textColor);
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding-top: 20px;
-}
-.MainFooter hr{
-    border: none;
-    height: 1px;
-    background-color: #131C23;
-    margin-top: 40px;
-}
+    grid-template-columns: 1fr;
+    max-width: calc(100% - 70px);
+  }
 
-.MainProject{
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 2rem 3rem;
-    background-color: #02060A;
-
-}
-.MainProject h1{
-    color: white;
-
-}
-.MainProject p{
-    color: var(--textColor);
-}
-.ProjectHead{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    padding: 2rem 2rem;
-}
-.ProjectCards{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-}
-.ProjectCard{
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    border: 1px solid #0a2a3b;
-    background-color: #04090F;
-    border-radius: 8px;
-    padding: 20px;
-}
-.ProjectCard{
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-.ProjectCard:hover{
-    transform: translateY(-6px);
-    border-color: var(--mainColor);
-    box-shadow: 0 8px 24px rgba(0, 191, 255, 0.15);
-}
-.ProjectCard h1{
-    font-size: x-large;
-}
-.ProjectCard ul{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px;
-    text-transform: uppercase;
-    font-size: small;
-}
-.ProjectCard ul li{
-    background-color: #06141E;
-    border-radius: 10px;
-    padding: 0.2rem 0.7rem;
-}
-
-.MainForm{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90vh;
-}
-.MainForm form{
-    padding: 48px 64px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    color: white;
-    background-color: transparent;
-    backdrop-filter: blur(8px);
-    border: 1px  solid white;
-    max-width: 420px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-.MainForm form h1{
-    text-align: center;
-    font-size: 32px;
-}
-.MainForm p{
-    font-size: 12px ;
-
-}
-
-input[type="email"],input[type="password"]{
-    border-bottom: 1px solid white;
-    padding: 12px 16px;
+  .Button {
     width: 100%;
-}
-input[type="email"]:focus,input[type="password"]:focus{
-    outline: none;
-    border-bottom: 1px solid var(--mainColor);
-    box-shadow: #2DAFED;
-    transition: all 0.3s ease;
-}
-input[type="submit"]{
-    width: 100%;
-    background-color: var(--mainColor);
-    padding: 12px;
-    border-radius: 100vw;
-    text-align: center;
-    margin-top: 1rem;
-}
-.checkbox{
-    display: flex;
-    gap: 1rem;
+  }
+
+  .BackendPing {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .HeroPanel {
+    margin-top: 30px;
+  }
+
+  .IdentityCard {
+    min-height: 190px;
+  }
+
+  .IdentityCard h3 {
+    margin-top: 38px;
+  }
+
+  .Toggle {
+    min-height: 126px;
+    align-items: flex-start;
+  }
+
+  .FooterIntro {
+    flex-direction: column;
+  }
+
+  .FooterLinks {
+    grid-template-columns: 1fr;
+  }
 }
 
-.social-icons{
-    display: flex;
-    direction: row;
-    gap: 10px;
-    font-size: xx-large;
-}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 
-/* tabler */
-@media (max-width: 1024px){
-    .SystemControl{
-        padding: 60px 40px;
-    }
-    .Toggles{
-        grid-template-columns: 1fr;
-    }
-    .AllToggles{
-        grid-template-columns: 1fr;
-    }
-    .MainToggles{
-        width: 100%;
-    }
-    .MainProject{
-        padding: 2rem 2rem;
-    }
-    .ProjectCards{
-        grid-template-columns: 1fr 1fr;
-    }
-    .TechStack{
-        padding: 40px 40px;
-    }
-    .MainFooter{
-        padding: 40px 40px;
-    }
-    .UpperFooter{
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-    }
-}
-
-/* Mobile */
-@media (max-width:  768px){
-    .NavItem{
-        padding: 6px 8px;
-        font-size: 14px;
-    }
-    .HeroSection div{
-        height: auto;
-        min-height: calc(80vh - 72px);
-        padding: 40px  20px;
-        text-align: center;
-    }
-    button{
-        padding: 10px 30px;
-        font-size: 14px;
-    }
-    .SystemControl{
-        padding: 40px 20px;
-    }
-    .Toggle{
-        height: auto;
-        padding: 16px;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    .ControlDes{
-        max-width: 100%;
-    }
-
-    .MainFooter{
-        padding: 40px 20px;
-    }
-    .UpperFooter{
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    .MainForm{
-        height: auto;
-        padding: 1.5rem 1rem;
-    }
-    .MainForm form{
-        padding: 32px  24px;
-        max-width: 100%;
-    }
-    .ProjectCards{
-        grid-template-columns: 1fr;
-    }
-    .TechStack{
-        padding: 40px 20px;
-    }
-    .MainForm form h1{
-        font-size: 24px;
-    }
-}
-
-/* small mobile */
-@media (max-width:  480px){
-    nav .img{
-        height: 36px;
-        width: 36px;
-    }
-    button{
-        padding: 8px;
-        font-size: 13px;
-        margin: 4px;
-    }
-    .SystemControl{
-        padding: 24px 16px;
-    }
-    .Toggle{
-        flex-direction: column;
-    }
-    .ControlTitle{
-        font-size: 16px;
-    }
-    .MainProject{
-        padding: 1rem;
-    }
-    .ProjectCard{
-        padding: 14px;
-    }
-    .ProjectCard{
-        font-size: large;
-    }
-    .MainFooter{
-        padding: 32px  16px;
-    }
-    .NavItem{
-        padding: 4px 6px;
-        font-size: 13px;
-    }
-    .MainForm form h1{
-        font-size: 22px;
-    }
-}
-.AuthOverlay{
-    position: fixed;
-     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 99999;
-}
-.Blurred{
-    filter: blur(5px);
-    pointer-events: none;
-    user-select: none;
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.MainProject, .SystemControl, .TechStack{
-    animation: fadeInUp 0.6s ease both;
-}
-.Blurred{
-    filter: blur(5px);
-    pointer-events: none;
-    user-select: none;
-    transition: filter 0.3s ease;
-}
-.AuthOverlay{
-    animation: fadeInUp 0.3s ease both;
-}
-nav ul{
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-button:hover, input[type="submit"]:hover{
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-}
-input[type="submit"]{
-    transition: filter 0.2s ease, transform 0.2s ease;
-}
-.ProjectImage{
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 6px;
-}
-.ProjectCard.clickable{
-    cursor: pointer;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

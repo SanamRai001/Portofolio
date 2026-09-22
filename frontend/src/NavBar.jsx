@@ -1,18 +1,22 @@
-import React from 'react'
-import logo from './assets/logo.png'
-
 const NavBar = () => {
   return (
-    <nav className='Nav' aria-label="Primary navigation">
-      <a href="/" className='NavItem flex items-center gap-3' aria-label="Sanam Rai home">
-        <img className='img' src={logo} alt="Sanam Rai logo" />
-        <span className='hidden sm:inline font-mono text-sm text-gray-300'>SANAM RAI</span>
-      </a>
-      <ul>
-        <li><a href="#system-controls" className='NavItem'>Backend Lab</a></li>
-        <li><a href="#projects" className='NavItem'>Projects</a></li>
-        <li><a href="/Sanam_Rai_resume.pdf" target='_blank' rel='noreferrer' className='NavItem'>Resume</a></li>
-      </ul>
+    <nav className="Nav" aria-label="Primary navigation">
+      <div className="NavInner">
+        <a href="#top" className="Brand" aria-label="Sanam Rai home">
+          <span className="BrandMark" aria-hidden="true">SR</span>
+          <span className="BrandCopy">
+            <strong>Sanam Rai</strong>
+            <small>Backend · Systems · Full Stack</small>
+          </span>
+        </a>
+
+        <ul className="NavLinks">
+          <li><a href="#about" className="NavItem">About</a></li>
+          <li><a href="#system-controls" className="NavItem NavItemPrimary">Backend Lab</a></li>
+          <li><a href="#projects" className="NavItem">Projects</a></li>
+          <li><a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer" className="NavItem">Resume</a></li>
+        </ul>
+      </div>
     </nav>
   )
 }

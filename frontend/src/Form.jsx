@@ -1,61 +1,87 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import API from "./config/api";
 import axios from 'axios';
 
-const Form = (props) => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+const Form = ({ systemToggle }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e)=>{
-        e.preventDefault();
-        setError("");
-        setLoading(true);
-        try{
-            const user = {email, password};
-            const response = await axios.post(`${API}/api/auth/login`, user);
-            const token = response.data.token;
-            localStorage.setItem("token", token);
-            window.location.reload();
-        }
-        catch(err){
-            console.log("Error", err);
-            setError(err.response?.data?.message || "Login failed. Check your credentials.");
-            setLoading(false);
-        }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const user = { email, password };
+      const response = await axios.post(API + "/api/auth/login", user);
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      window.location.reload();
+    } catch (requestError) {
+      console.log("Error", requestError);
+      setError(requestError.response?.data?.message || "Login failed. Check your credentials.");
+      setLoading(false);
     }
+  }
+
+  if (!systemToggle.auth) return null;
 
   return (
-    <>
-    {props.systemToggle.auth?
-        <div className='MainForm'>
-            <form onSubmit={handleSubmit}>
-                <h1>Login Form</h1>
-                <div>
-                    <p>Viewer Account</p>
-                    <p>Email:Viewer@gmail.com</p>
-                    <p>Password:Viewer@123#</p>
-                </div>
-                <div className='email'>
-                    <input type="email" placeholder='Email' onChange={(e)=>setEmail(e.target.value)} value={email}/>
-                </div>
-                <div className='password'>
-                    <input type="password" placeholder='Password' onChange={(e)=>setPassword(e.target.value)} value={password}/>
-                </div>
-                <div className='checkbox'>
-                    <input type="checkbox" />
-                    <label htmlFor="">Remember Me</label>
-                </div>
-                {error && <p className='text-red-500 text-sm'>{error}</p>}
-                <div className='submit'>
-                    <input type="submit" value={loading ? "Logging in..." : "Login"} disabled={loading} />
-                </div>
-            </form>
+    <div className="MainForm">
+      <form className="AuthCard" onSubmit={handleSubmit}>
+        <div className="AuthCardHead">
+          <p className="SectionKicker">Protected backend mode</p>
+          <h1>Authenticate to continue</h1>
+          <p>Authentication is enabled in the live architecture lab. Use the demo viewer account to continue testing the system.</p>
         </div>
-        : <p></p>
-    }
-    </>
+
+        <div className="DemoCredentials" aria-label="Demo viewer credentials">
+          <span>Viewer account</span>
+          <code>Viewer@gmail.com</code>
+          <code>Viewer@123#</code>
+        </div>
+
+        <div className="Field">
+          <label htmlFor="viewer-email">Email</label>
+          <input
+            id="viewer-email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            onChange={(event) => setEmail(event.target.value)}
+            value={email}
+            required
+          />
+        </div>
+
+        <div className="Field">
+          <label htmlFor="viewer-password">Password</label>
+          <input
+            id="viewer-password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Password"
+            onChange={(event) => setPassword(event.target.value)}
+            value={password}
+            required
+          />
+        </div>
+
+        <label className="checkbox" htmlFor="remember-viewer">
+          <input id="remember-viewer" type="checkbox" />
+          <span>Remember me on this device</span>
+        </label>
+
+        {error && <p className="AuthError" role="alert">{error}</p>}
+
+        <button type="submit" className="Button ButtonPrimary AuthSubmit" disabled={loading}>
+          {loading ? "Logging in…" : "Login to backend lab"}
+        </button>
+      </form>
+    </div>
   )
 }
+
 export default Form

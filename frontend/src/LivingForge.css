@@ -1,0 +1,165 @@
+.LivingForge {
+  --forge-tilt: 0deg;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 124px;
+  height: 134px;
+  z-index: 45;
+  pointer-events: none;
+  user-select: none;
+  transform: translate3d(calc(82vw - 62px), calc(34vh - 67px), 0);
+  will-change: transform;
+  contain: layout style;
+}
+
+.LivingForgeAura {
+  position: absolute;
+  inset: 24px 18px 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(87, 221, 242, 0.12), transparent 68%);
+  filter: blur(10px);
+  opacity: 0.75;
+}
+
+.LivingForgeSprite {
+  --forge-row-y: 0px;
+  --forge-speed: 1.15s;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 192px;
+  height: 208px;
+  background-image: url("/forge/forge-sprite.svg");
+  background-repeat: no-repeat;
+  background-size: 1536px 2288px;
+  background-position: 0 var(--forge-row-y);
+  transform: translate(-50%, -50%) scale(0.62) rotate(var(--forge-tilt));
+  transform-origin: center;
+  animation: forgeFrames var(--forge-speed) steps(8) infinite;
+  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.24));
+  will-change: background-position, transform;
+}
+
+.LivingForge[data-state="moving"] .LivingForgeSprite,
+.LivingForge[data-state="idle"] .LivingForgeSprite {
+  --forge-row-y: 0px;
+  --forge-speed: 1.2s;
+}
+
+.LivingForge[data-state="blink"] .LivingForgeSprite {
+  --forge-row-y: -208px;
+  --forge-speed: 0.46s;
+}
+
+.LivingForge[data-state="look"] .LivingForgeSprite {
+  --forge-row-y: -416px;
+  --forge-speed: 1.5s;
+}
+
+.LivingForge[data-state="think"] .LivingForgeSprite {
+  --forge-row-y: -624px;
+  --forge-speed: 1.65s;
+}
+
+.LivingForge[data-state="wave"] .LivingForgeSprite {
+  --forge-row-y: -832px;
+  --forge-speed: 1.15s;
+}
+
+.LivingForge[data-state="build"] .LivingForgeSprite {
+  --forge-row-y: -1040px;
+  --forge-speed: 1.05s;
+}
+
+.LivingForge[data-state="celebrate"] .LivingForgeSprite {
+  --forge-row-y: -1248px;
+  --forge-speed: 0.95s;
+}
+
+.LivingForge[data-state="recovery"] .LivingForgeSprite {
+  --forge-row-y: -1456px;
+  --forge-speed: 1.5s;
+}
+
+.LivingForge[data-state="support"] .LivingForgeSprite {
+  --forge-row-y: -1664px;
+  --forge-speed: 1.5s;
+}
+
+.LivingForgeSparkLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.LivingForgeSpark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 999px;
+  background: var(--spark-color);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--spark-color) 70%, transparent);
+  animation: forgeSpark 620ms ease-out forwards;
+}
+
+@keyframes forgeFrames {
+  to { background-position-x: -1536px; }
+}
+
+@keyframes forgeSpark {
+  from {
+    opacity: 0.78;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(var(--spark-drift), 22px, 0) scale(0.25);
+  }
+}
+
+@keyframes forgeAmbient {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+  50% { transform: translate3d(-12px, -8px, 0) rotate(1.5deg); }
+}
+
+@media (pointer: coarse), (max-width: 760px) {
+  .LivingForge {
+    position: absolute;
+    left: auto;
+    right: 8px;
+    top: 42%;
+    transform: none;
+    animation: forgeAmbient 7s ease-in-out infinite;
+  }
+
+  .LivingForgeSprite {
+    transform: translate(-50%, -50%) scale(0.52);
+  }
+
+  .LivingForgeSparkLayer {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .LivingForge {
+    transform: translate3d(calc(82vw - 62px), calc(34vh - 67px), 0);
+    animation: none !important;
+    will-change: auto;
+  }
+
+  .LivingForgeSprite {
+    background-position: 0 0 !important;
+    animation: none !important;
+    transform: translate(-50%, -50%) scale(0.62);
+    will-change: auto;
+  }
+
+  .LivingForgeSparkLayer {
+    display: none;
+  }
+}

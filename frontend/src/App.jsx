@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useCallback, useState } from 'react'
 import NavBar from './NavBar'
 import HeroSection from './HeroSection'
 import SystemControl from './SystemControl'
@@ -11,38 +11,45 @@ import Logs from './Logs'
 
 const App = () => {
   const [systemToggle, setSystemToggle] = useState({});
-  const handleToggle = (toggle) => {
+
+  const handleToggle = useCallback((toggle) => {
     setSystemToggle(toggle);
-  }
+  }, []);
 
   const showAuthOverlay = systemToggle.auth && !localStorage.getItem("token");
 
   return (
     <>
       {showAuthOverlay && (
-        <div className='AuthOverlay'>
-          <Form systemToggle={systemToggle}></Form>
+        <div className="AuthOverlay" role="dialog" aria-modal="true" aria-label="Backend lab authentication">
+          <Form systemToggle={systemToggle} />
         </div>
       )}
-      <NavBar></NavBar>
-      <div className={showAuthOverlay ? "Blurred" : ""}>
-        <div className='Header'>
-          <HeroSection></HeroSection>
-        </div>
-        <div>
-          <InfoSection></InfoSection>
-        </div>
-        <div id='system-controls'>
-          <SystemControl handleToggle={handleToggle}></SystemControl>
-        </div>
-        <Logs systemToggle={systemToggle}></Logs>
-        <div id='projects'>
-          <Projects systemToggle={systemToggle}></Projects>
-        </div>
-        <TechStack></TechStack>
-        <Footer></Footer>
+
+      <NavBar />
+
+      <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")} aria-hidden={showAuthOverlay || undefined}>
+        <main>
+          <HeroSection />
+          <InfoSection />
+
+          <div id="system-controls">
+            <SystemControl handleToggle={handleToggle} />
+          </div>
+
+          <Logs systemToggle={systemToggle} />
+
+          <div id="projects">
+            <Projects systemToggle={systemToggle} />
+          </div>
+
+          <TechStack />
+        </main>
+
+        <Footer />
       </div>
     </>
   )
 }
+
 export default App

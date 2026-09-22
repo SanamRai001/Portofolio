@@ -1,57 +1,66 @@
-import React from 'react'
 import axios from 'axios'
+import { useEffect, useState } from 'react';
 import API from "./config/api";
-import { useState, useEffect } from 'react';
 import ProjectCard from './reusable/ProjectCard';
 
-const Projects = (props) => {
-  const url = `${API}/api/projects`;
+const Projects = ({ systemToggle }) => {
+  const url = API + "/api/projects";
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(()=>{
-    const fetchData = async ()=>{
-      try{
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
         setLoading(true);
-        const response = await axios.get(url,{
-          headers:{
-            'Authorization': `Bearer ${localStorage.getItem("token")}`
+        const response = await axios.get(url, {
+          headers: {
+            'Authorization': "Bearer " + localStorage.getItem("token")
           }
         });
-        setProjects(response.data.data);
+
+        setProjects(Array.isArray(response.data.data) ? response.data.data : []);
         setMessage(response.data.success === false ? response.data.message : "");
-      }
-      catch(e){
-        console.error(e.message);
-        setMessage("Something Went Wrong!");
+      } catch (error) {
+        console.error(error.message);
+        setMessage("Something went wrong while reading the live project API.");
         setProjects([]);
-      }
-      finally{
+      } finally {
         setLoading(false);
       }
     }
+
     fetchData();
-  },[props.systemToggle.db]);
+  }, [url, systemToggle.db]);
 
   return (
-    <>
-      {loading ? <p>Loading...</p> :
-        <div className='MainProject'>
-          <div className='ProjectHead'>
-            <h1 className='text-5xl'>Core Projects</h1>
-            <p className='text-xl'>Solutions designed for reliablity, scalablity, and performance.</p>
-          </div>
-          {message ? <p>{message}</p> :
-            <div className='ProjectCards'>
-              {projects.map((p)=>(
-                <ProjectCard key={p._id} project={p} />
-              ))}
-            </div>
-          }
+    <section className="MainProject" aria-labelledby="core-projects-title">
+      <div className="SectionShell">
+        <div className="ProjectHead">
+          <p className="SectionKicker">Live data path</p>
+          <h2 id="core-projects-title">Core Projects</h2>
+          <p>
+            This section is fetched through the backend and reflects the database, authentication, caching, logging, rate-limit, and pagination configuration above.
+          </p>
         </div>
-      }
-    </>
+
+        {loading ? (
+          <div className="ProjectLoading" role="status">Reading the project API…</div>
+        ) : message ? (
+          <div className="ProjectMessage" role="status">
+            <span>API response</span>
+            <p>{message}</p>
+          </div>
+        ) : (
+          <div className="ProjectCards">
+            {projects.map((project) => (
+              <ProjectCard key={project._id} project={project} />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
+
 export default Projects
