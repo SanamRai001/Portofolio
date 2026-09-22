@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { FORGE_REACTION_EVENT } from './forgeEvents'
 import './LivingForge.css'
 
 const FORGE_WIDTH = 124;
@@ -44,6 +45,8 @@ const LivingForge = () => {
     let lastSparkAt = 0;
     let sparkIndex = 0;
     let lastPointer = { x: 0, y: 0 };
+    let reactionTimer = 0;
+    let reactionActive = false;
     const calmTimers = new Set();
     const sparkTimers = new Set();
 
@@ -66,6 +69,7 @@ const LivingForge = () => {
     };
 
     const scheduleCalmSequence = () => {
+      if (reactionActive) return;
       clearCalmTimers();
       addCalmTimer(() => { forge.dataset.state = "look"; }, 760);
       addCalmTimer(() => { forge.dataset.state = "blink"; }, 2600);
@@ -119,6 +123,36 @@ const LivingForge = () => {
       sparkTimers.add(timer);
     };
 
+    const playReaction = (event) => {
+      const { state, duration = 1100, source = "system" } = event.detail || {};
+      if (!state) return;
+
+      clearCalmTimers();
+
+      if (reactionTimer) {
+        window.clearTimeout(reactionTimer);
+        reactionTimer = 0;
+      }
+
+      reactionActive = true;
+      forge.dataset.state = state;
+      forge.dataset.context = source;
+
+      if (state === "celebrate") {
+        spawnSpark();
+        spawnSpark();
+        spawnSpark();
+      }
+
+      reactionTimer = window.setTimeout(() => {
+        reactionActive = false;
+        reactionTimer = 0;
+        delete forge.dataset.context;
+        forge.dataset.state = "idle";
+        scheduleCalmSequence();
+      }, duration);
+    };
+
     const onPointerMove = (event) => {
       const centerX = position.x + FORGE_WIDTH / 2;
       const centerY = position.y + FORGE_HEIGHT / 2;
@@ -153,10 +187,13 @@ const LivingForge = () => {
 
       const horizontalIntent = clamp(dx / Math.max(window.innerWidth * 0.35, 1), -1, 1);
       forge.style.setProperty("--forge-tilt", (horizontalIntent * 4.5).toFixed(2) + "deg");
-      forge.dataset.state = "moving";
 
-      clearCalmTimers();
-      scheduleCalmSequence();
+      if (!reactionActive) {
+        forge.dataset.state = "moving";
+        clearCalmTimers();
+        scheduleCalmSequence();
+      }
+
       startAnimation();
 
       const pointerTravel = Math.hypot(event.clientX - lastPointer.x, event.clientY - lastPointer.y);
@@ -171,7 +208,11 @@ const LivingForge = () => {
 
     const onPointerLeave = () => {
       clearCalmTimers();
-      forge.dataset.state = "idle";
+
+      if (!reactionActive) {
+        forge.dataset.state = "idle";
+      }
+
       forge.style.setProperty("--forge-tilt", "0deg");
       target = {
         x: clamp(window.innerWidth * 0.82 - FORGE_WIDTH / 2, EDGE_MARGIN, window.innerWidth - FORGE_WIDTH - EDGE_MARGIN),
@@ -192,15 +233,18 @@ const LivingForge = () => {
     applyPosition();
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener(FORGE_REACTION_EVENT, playReaction);
     document.documentElement.addEventListener("pointerleave", onPointerLeave);
     window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener(FORGE_REACTION_EVENT, playReaction);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("resize", onResize);
 
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      if (reactionTimer) window.clearTimeout(reactionTimer);
       clearCalmTimers();
       sparkTimers.forEach((timer) => window.clearTimeout(timer));
       sparkTimers.clear();

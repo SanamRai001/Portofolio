@@ -6,48 +6,40 @@ Turn Sanam Rai's portfolio into a distinctive interactive engineering experience
 ## Current authoritative branch
 `master`
 
-Active development branch: `feat/immersive-system-phase-5`
+Active development branch: `feat/immersive-system-phase-6`
 
 ## Completed phases
-
-### Forge living portfolio
-- Backend-focused portfolio redesign, Forge companion, backend lab, observability console, authentication overlay, and existing API contracts are preserved.
-
-### Phase 1 — Motion foundation
-- Merged to `master` at `16048d8 feat: establish immersive motion foundation`.
-- GSAP foundation, shared motion tokens, reduced-motion handling, scoped cleanup, and hero entrance.
-
-### Phase 2 — System Core prototype
-- Merged to `master` at `b483bd6 feat: prototype interactive system core`.
-- Three.js System Core with capped DPR, compact-device reductions, off-screen pause, static fallback, and full disposal.
-
-### Phase 3 — Scroll architecture story
-- Merged to `master` at `870db1a feat: add scroll architecture story`.
-- Sticky System Core plus API/Auth/Cache/Database/Runtime chapters driven by native scroll + ScrollTrigger.
-
-### Phase 4 — Backend Lab visual synchronization
-- Merged to `master` at `ecd0895 feat: sync backend lab with system core`.
-- Real backend configuration state now drives a dedicated System Core inside the Backend Lab.
-- Rate limiting remains explicitly configuration-only because its middleware is not currently wired to the project route.
+- **Forge living portfolio** — backend-focused redesign, backend lab, observability console, auth overlay, and companion baseline.
+- **Phase 1 — Motion foundation** — merged at `16048d8`; GSAP foundation, motion tokens, reduced-motion handling, scoped cleanup.
+- **Phase 2 — System Core** — merged at `b483bd6`; Three.js architecture core with performance fallbacks and cleanup.
+- **Phase 3 — Scroll architecture story** — merged at `870db1a`; native-scroll API/Auth/Cache/Database/Runtime narrative.
+- **Phase 4 — Backend Lab visual synchronization** — merged at `ecd0895`; real synchronized backend config drives a dedicated System Core.
+- **Phase 5 — Project storytelling** — merged at `2c81f16`; editorial selected-work sequence while the live API project section remains separate.
 
 ## Active phase
-**Phase 5 — Project storytelling**
+**Phase 6 — Forge contextual reactions**
 
 ### Added
-- Replaced the static three-card Selected Work grid with an editorial engineering case-study sequence.
-- Desktop uses one sticky visual stage and three scroll chapters.
-- Active project changes the large project image, engineering signal, focus statement, and progress rail.
-- Case studies preserve the existing project descriptions, technology lists, source links, and live-product links.
-- Added a small architecture lens for each selected project using facts already represented in the project descriptions.
-- GSAP ScrollTrigger only observes chapter position and reveal state; native scrolling is untouched.
-- Mobile removes the sticky stage and places the corresponding project image directly inside each project chapter.
-- Reduced-motion mode also becomes a linear document with no crossfade or scroll reveal dependency.
-- The backend-fetched Core Projects section remains unchanged so the portfolio still demonstrates the live project API separately.
+- Small `forgeEvents.js` event boundary so other components can request a reaction without importing or controlling Forge internals.
+- Only authored Forge states are accepted: look, think, wave, build, celebrate, recovery, support.
+- Reaction duration is bounded to avoid long or sticky mascot states.
+- Backend Lab manual configuration apply → Forge uses the authored build state.
+- Successful backend sync → brief celebrate reaction plus a small three-spark burst.
+- Failed backend sync and automatic configuration rollback → recovery reaction.
+- Project-story chapter changes → subtle think/look reactions.
+- Context reactions temporarily own the sprite state so pointer movement does not instantly overwrite them.
+- Forge still follows the pointer during a reaction; only the animation row is temporarily locked.
+- Existing calm/idle sequence resumes automatically after each reaction.
+- All reaction listeners and timers are cleaned up on unmount.
+- Reduced-motion and coarse-pointer/mobile paths keep their existing simpler behavior and do not add contextual reactions.
 
-## Selected projects in story
-- Krishi Bazar — marketplace flows, JWT auth, synchronized cart state, dual checkout, persistence.
-- Backend-Controlled Portfolio System — runtime configuration, auth/cache/logging/pagination/system behavior.
-- YakTalk — authenticated Socket.IO handshake, presence, private realtime messaging.
+## Interaction guardrails
+- No speech bubbles.
+- No sound.
+- No modal/popup behavior.
+- No extra mascot art or dependency.
+- No continuous new animation loop.
+- Reactions are short and tied to meaningful user/system events only.
 
 ## Backend behavior preserved
 Frontend contracts remain unchanged for:
@@ -57,14 +49,10 @@ Frontend contracts remain unchanged for:
 - `/api/projects`
 - `/api/auth/login`
 
-No backend source file is modified in Phase 5.
+No backend source file is modified in Phase 6.
 
-## Explicitly not included yet
-- No changes to the live API-driven Core Projects component.
-- No Forge project reactions.
-- No new project data model or backend fields.
-- No page-wide WebGL background.
-- No audio, shaders, post-processing, or imported 3D models.
+## Existing truthfulness guardrail
+`rateLimitMiddleware` still exists without being attached to the project route middleware chain. The portfolio continues to present that capability as configuration-only rather than pretending it is enforced.
 
 ## Next phase
-**Phase 6 — Forge contextual reactions and final interaction polish**, if Phase 5 passes build and visual review. Give Forge restrained reactions to project/lab context, then perform mobile, reduced-motion, performance, accessibility, and branch-cleanup review before considering the immersive pass complete.
+**Phase 7 — final production pass.** No new creative feature work by default. Audit mobile layout, reduced motion, keyboard/accessibility, WebGL/GSAP performance, dead CSS/code, deployment behavior, docs, and stale feature branches before calling the immersive redesign complete.

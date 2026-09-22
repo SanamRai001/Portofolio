@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Gauge, ShieldCheck, Database, ScrollText, TimerReset, Boxes } from 'lucide-react'
 import Toggle from './reusable/Toggle'
 import SystemCore from './SystemCore'
+import { emitForgeReaction } from './forgeEvents'
 import API from "./config/api";
 import axios from 'axios';
 import './BackendLabVisual.css'
@@ -45,6 +46,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
     setToggle(next);
     notifyToggle(next);
     setSyncState("Applying configuration...");
+    emitForgeReaction("build", { duration: 950, source: "backend-lab" });
 
     try {
       const res = await axios.post(API + "/api/system", next);
@@ -53,11 +55,13 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
       setToggle(merged);
       notifyToggle(merged);
       setSyncState("Backend synced ✓");
+      emitForgeReaction("celebrate", { duration: 1050, source: "backend-lab" });
     } catch (error) {
       console.log("Error", error);
       setToggle(previous);
       notifyToggle(previous);
       setSyncState("Sync failed — change reverted");
+      emitForgeReaction("recovery", { duration: 1450, source: "backend-lab" });
     }
   }
 

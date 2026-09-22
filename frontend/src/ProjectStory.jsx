@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
 import { gsap, ScrollTrigger, MOTION } from './motion'
 import useReducedMotion from './motion/useReducedMotion'
+import { emitForgeReaction } from './forgeEvents'
 import './ProjectStory.css'
 
 const STORY_META = {
@@ -48,10 +49,16 @@ const ProjectStory = ({ projects }) => {
           start: 'top 58%',
           end: 'bottom 42%',
           onEnter: () => {
+            if (activeRef.current !== index) {
+              emitForgeReaction('think', { duration: 1000, source: 'projects' })
+            }
             activeRef.current = index
             setActiveIndex(index)
           },
           onEnterBack: () => {
+            if (activeRef.current !== index) {
+              emitForgeReaction('look', { duration: 900, source: 'projects' })
+            }
             activeRef.current = index
             setActiveIndex(index)
           },
