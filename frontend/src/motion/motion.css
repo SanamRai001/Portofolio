@@ -1,0 +1,18 @@
+:root {
+  --motion-duration-micro: 160ms;
+  --motion-duration-fast: 280ms;
+  --motion-duration-base: 520ms;
+  --motion-duration-slow: 850ms;
+  --motion-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+[data-motion-reveal] {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-reveal] {
+    will-change: auto;
+  }
+}
