@@ -64,7 +64,7 @@ Safe cleanup candidates after Phase 7 is merged because they have no unique comm
 - `feat/forge-living-portfolio`
 - `dev`
 
-Do **not** delete `readme-brand-001` yet. It is diverged and contains 2 commits not present on master.
+`readme-brand-001` has 2 historically unique commits, but its current `README.md` and `assets/readme/project-cover.svg` blobs are byte-for-byte identical to `master`. It is therefore content-redundant and can be treated as a cleanup candidate once branch deletion is performed externally.
 
 No branch has been deleted automatically.
 
@@ -73,3 +73,9 @@ Several older source assets remain in the repository and were intentionally not 
 
 ## Completion state
 The immersive portfolio redesign is feature-complete by default. No additional visual feature phase is planned. Future work should be limited to verified regressions, content/project updates, backend fixes, or explicitly approved cleanup.
+
+
+## README refresh
+- GitHub-facing documentation was refreshed after the immersive redesign.
+- README now documents the live Backend Lab, Three.js System Core, GSAP architecture story, Forge, project storytelling, current frontend/backend stack, performance/accessibility behavior, and accurate local setup.
+- README deliberately does not present the current demo authentication as production-grade password security.
