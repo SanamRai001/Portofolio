@@ -3,7 +3,7 @@ import axios from 'axios'
 import { ArrowDownRight, Activity, Download, ExternalLink } from 'lucide-react'
 import API from "./config/api";
 import LivingForge from './LivingForge'
-import SystemCore from './SystemCore'
+import HeroIsland from './hero-island/HeroIsland'
 import { gsap, MOTION } from './motion'
 import useReducedMotion from './motion/useReducedMotion'
 
@@ -136,24 +136,24 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <aside className="HeroPanel" aria-label="Engineering focus" data-motion-reveal>
+        <aside className="HeroPanel" aria-label="Interactive miniature world" data-motion-reveal>
           <div className="HeroPanelHead">
             <span className="TerminalDots" aria-hidden="true"><i /><i /><i /></span>
-            <span>builder.profile</span>
+            <span>world.preview</span>
           </div>
 
-          <SystemCore />
+          <HeroIsland />
 
           <div className="HeroPanelBody">
-            <div className="CodeLine"><span>focus</span><strong>backend systems</strong></div>
-            <div className="CodeLine"><span>default</span><strong>simple + maintainable</strong></div>
-            <div className="CodeLine"><span>method</span><strong>build → inspect → improve</strong></div>
-            <div className="CodeLine"><span>learning</span><strong>architecture + AI systems</strong></div>
+            <div className="CodeLine"><span>mood</span><strong>quiet + curious</strong></div>
+            <div className="CodeLine"><span>made with</span><strong>Three.js primitives</strong></div>
+            <div className="CodeLine"><span>motion</span><strong>pointer + ambient drift</strong></div>
+            <div className="CodeLine"><span>next</span><strong>wind + water + life</strong></div>
           </div>
 
           <div className="HeroPanelNote">
             <span className="PanelPulse" aria-hidden="true" />
-            The backend lab below changes the running application, not a fake dashboard.
+            A small surreal world for the playful side of building. The technical system demo still lives below.
           </div>
         </aside>
       </div>

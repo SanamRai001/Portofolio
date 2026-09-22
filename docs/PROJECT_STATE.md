@@ -85,3 +85,31 @@ The immersive portfolio redesign is feature-complete by default. No additional v
 - Restored the six Backend Lab feature switches as the primary interaction block directly below the Backend Lab heading.
 - The System Core remains below the switches as visual feedback rather than replacing or visually burying the controls.
 - Existing backend synchronization, rollback behavior, Forge reactions, and feature semantics are unchanged.
+
+
+## Surreal hero world — Phase 1
+Active branch: `feat/hero-surreal-island-phase-1`.
+
+### Scope
+- Replaced only the hero-side technical System Core with a new handcrafted Three.js miniature world.
+- Architecture Story and Backend Lab System Core remain unchanged.
+- Added a faceted floating island with tapered rocky underside.
+- Added a warm low-poly house with emissive windows and local amber light.
+- Added one stylized tree, surface/underside rocks, a simple pond, and three drifting clouds.
+- Added restrained pointer-driven camera parallax and slow island hover.
+- No OrbitControls, scroll hijacking, GLB model, shader, post-processing, or physics dependency.
+- Desktop shadows are limited; compact/coarse-pointer rendering disables shadow maps and uses lower DPR.
+- Rendering pauses off-screen and when the document is hidden.
+- Reduced-motion/WebGL-failure mode uses a static CSS diorama instead of a render loop.
+- Scene geometry/materials and WebGL context are disposed on unmount.
+
+### Explicitly deferred
+- Forge living inside the island.
+- Wind/grass/leaf animation.
+- Advanced water or waterfall.
+- Day/night cycle.
+- Fireflies, shooting stars, click secrets, or other ambient life.
+- Imported 3D assets.
+
+### Phase 1 success criterion
+Judge the composition and visual identity first. Only continue into environmental animation if the basic island feels memorable in the deployed hero.

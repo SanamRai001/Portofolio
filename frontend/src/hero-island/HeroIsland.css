@@ -1,0 +1,280 @@
+.HeroIsland {
+  position: relative;
+  min-height: 356px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 50% 58%, rgba(91, 157, 169, 0.14), transparent 40%),
+    radial-gradient(circle at 72% 24%, rgba(255, 184, 92, 0.06), transparent 26%),
+    linear-gradient(180deg, rgba(12, 24, 34, 0.7), rgba(5, 12, 19, 0.34));
+}
+
+.HeroIsland::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 65%, rgba(4, 10, 16, 0.26)),
+    radial-gradient(circle at 50% 72%, rgba(87, 221, 242, 0.07), transparent 32%);
+}
+
+.HeroIslandMeta {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 12px;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #6d8390;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.09em;
+  pointer-events: none;
+}
+
+.HeroIslandMeta span:first-child {
+  color: rgba(87, 221, 242, 0.8);
+}
+
+.HeroIslandStage {
+  position: relative;
+  min-height: 356px;
+  isolation: isolate;
+}
+
+.HeroIslandCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  touch-action: pan-y;
+}
+
+.HeroIslandCanvas canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.HeroIslandCaption {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 13px;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.HeroIslandCaption span,
+.HeroIslandCaption strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.59rem;
+  line-height: 1.4;
+}
+
+.HeroIslandCaption span {
+  color: #758894;
+}
+
+.HeroIslandCaption strong {
+  color: #9ab0ba;
+  font-weight: 550;
+}
+
+.HeroIslandFallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  overflow: hidden;
+}
+
+.HeroIsland.is-static .HeroIslandCanvas {
+  display: none;
+}
+
+.HeroIsland.is-static .HeroIslandFallback {
+  display: block;
+}
+
+.FallbackIsland {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+  width: 210px;
+  height: 88px;
+  transform: translate(-50%, -50%);
+}
+
+.FallbackGrass,
+.FallbackEarth,
+.FallbackHouse,
+.FallbackRoof,
+.FallbackWindow,
+.FallbackTreeTrunk,
+.FallbackTreeCrown,
+.FallbackCloud {
+  position: absolute;
+  display: block;
+}
+
+.FallbackGrass {
+  left: 0;
+  top: 0;
+  width: 210px;
+  height: 50px;
+  border-radius: 50%;
+  background: #587b62;
+  box-shadow: inset 0 -7px 0 rgba(28, 47, 38, 0.22);
+}
+
+.FallbackEarth {
+  left: 30px;
+  top: 29px;
+  width: 150px;
+  height: 112px;
+  clip-path: polygon(0 0, 100% 0, 62% 100%, 40% 100%);
+  background: linear-gradient(#654b3c, #3b3030);
+}
+
+.FallbackHouse {
+  left: 118px;
+  top: -25px;
+  width: 47px;
+  height: 38px;
+  border-radius: 3px;
+  background: #d8c6a6;
+}
+
+.FallbackRoof {
+  left: 111px;
+  top: -47px;
+  width: 62px;
+  height: 38px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: #713f45;
+}
+
+.FallbackWindow {
+  left: 146px;
+  top: -12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #ffc979;
+  box-shadow: 0 0 13px rgba(255, 169, 67, 0.58);
+}
+
+.FallbackTreeTrunk {
+  left: 63px;
+  top: -35px;
+  width: 10px;
+  height: 52px;
+  border-radius: 8px;
+  background: #6c4935;
+  transform: rotate(-4deg);
+}
+
+.FallbackTreeCrown {
+  border-radius: 46% 54% 50% 50%;
+  background: #466954;
+}
+
+.FallbackTreeCrown.crown-one {
+  left: 39px;
+  top: -67px;
+  width: 51px;
+  height: 48px;
+}
+
+.FallbackTreeCrown.crown-two {
+  left: 58px;
+  top: -80px;
+  width: 47px;
+  height: 45px;
+}
+
+.FallbackCloud {
+  width: 66px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(232, 237, 240, 0.72);
+  filter: blur(0.3px);
+}
+
+.FallbackCloud::before,
+.FallbackCloud::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.FallbackCloud::before {
+  left: 12px;
+  width: 29px;
+  height: 29px;
+}
+
+.FallbackCloud::after {
+  right: 10px;
+  width: 22px;
+  height: 22px;
+}
+
+.FallbackCloud.cloud-one {
+  left: 12%;
+  top: 25%;
+  transform: scale(0.8);
+}
+
+.FallbackCloud.cloud-two {
+  right: 9%;
+  top: 31%;
+  transform: scale(0.62);
+}
+
+@media (max-width: 720px) {
+  .HeroIsland,
+  .HeroIslandStage {
+    min-height: 300px;
+  }
+
+  .HeroIslandCaption strong {
+    display: none;
+  }
+
+  .HeroIslandMeta,
+  .HeroIslandCaption span {
+    font-size: 0.54rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .HeroIsland,
+  .HeroIslandStage {
+    min-height: 276px;
+  }
+
+  .FallbackIsland {
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .HeroIslandCanvas {
+    display: none;
+  }
+
+  .HeroIslandFallback {
+    display: block;
+  }
+}
