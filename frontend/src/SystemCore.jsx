@@ -1,0 +1,357 @@
+import { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
+import useReducedMotion from './motion/useReducedMotion'
+import './SystemCore.css'
+
+const NODE_CONFIG = [
+  { id: 'auth', label: 'AUTH', position: [0, 1.48, 0.12], color: 0x35c8b4 },
+  { id: 'cache', label: 'CACHE', position: [-1.68, 0.08, -0.08], color: 0x57ddf2 },
+  { id: 'database', label: 'DATABASE', position: [1.68, 0.08, -0.08], color: 0xffb85c },
+  { id: 'runtime', label: 'RUNTIME', position: [0, -1.38, 0.18], color: 0xf2738a },
+]
+
+const SystemCore = () => {
+  const mountRef = useRef(null)
+  const [webglFailed, setWebglFailed] = useState(false)
+  const reducedMotion = useReducedMotion()
+
+  useEffect(() => {
+    const mount = mountRef.current
+    if (!mount || reducedMotion) return undefined
+
+    const compact = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50)
+    camera.position.set(0, 0.05, 5.6)
+
+    let renderer
+
+    try {
+      renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: !compact,
+        powerPreference: 'high-performance',
+      })
+    } catch (error) {
+      console.warn('System Core WebGL unavailable', error)
+      setWebglFailed(true)
+      return undefined
+    }
+
+    renderer.setClearColor(0x000000, 0)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compact ? 1.2 : 1.6))
+    renderer.outputColorSpace = THREE.SRGBColorSpace
+    mount.replaceChildren(renderer.domElement)
+
+    const root = new THREE.Group()
+    root.rotation.x = -0.08
+    scene.add(root)
+
+    scene.add(new THREE.AmbientLight(0x83a8b8, 0.52))
+
+    const cyanLight = new THREE.PointLight(0x57ddf2, 7.5, 8)
+    cyanLight.position.set(-2.4, 1.5, 2.8)
+    scene.add(cyanLight)
+
+    const amberLight = new THREE.PointLight(0xffb85c, 8, 8)
+    amberLight.position.set(2.1, -1.4, 2.5)
+    scene.add(amberLight)
+
+    const coreGeometry = new THREE.IcosahedronGeometry(0.55, compact ? 1 : 2)
+    const coreMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0d2432,
+      emissive: 0x57ddf2,
+      emissiveIntensity: 1.25,
+      metalness: 0.72,
+      roughness: 0.24,
+    })
+    const core = new THREE.Mesh(coreGeometry, coreMaterial)
+    root.add(core)
+
+    const shellGeometry = new THREE.IcosahedronGeometry(0.69, 1)
+    const shellMaterial = new THREE.MeshBasicMaterial({
+      color: 0x57ddf2,
+      transparent: true,
+      opacity: 0.13,
+      wireframe: true,
+    })
+    const shell = new THREE.Mesh(shellGeometry, shellMaterial)
+    root.add(shell)
+
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      color: 0x57ddf2,
+      transparent: true,
+      opacity: 0.5,
+    })
+    const ringSecondaryMaterial = new THREE.MeshBasicMaterial({
+      color: 0x35c8b4,
+      transparent: true,
+      opacity: 0.32,
+    })
+    const ringTertiaryMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffb85c,
+      transparent: true,
+      opacity: 0.2,
+    })
+
+    const ringA = new THREE.Mesh(
+      new THREE.TorusGeometry(1.02, 0.014, 8, compact ? 56 : 96),
+      ringMaterial,
+    )
+    ringA.rotation.x = 1.08
+    ringA.rotation.y = 0.28
+    root.add(ringA)
+
+    const ringB = new THREE.Mesh(
+      new THREE.TorusGeometry(1.27, 0.011, 8, compact ? 56 : 96),
+      ringSecondaryMaterial,
+    )
+    ringB.rotation.x = 0.36
+    ringB.rotation.y = 1.14
+    root.add(ringB)
+
+    const ringC = new THREE.Mesh(
+      new THREE.TorusGeometry(1.5, 0.008, 8, compact ? 48 : 84),
+      ringTertiaryMaterial,
+    )
+    ringC.rotation.x = 1.46
+    ringC.rotation.z = 0.42
+    root.add(ringC)
+
+    const origin = new THREE.Vector3(0, 0, 0)
+    const pulses = []
+
+    NODE_CONFIG.forEach((nodeConfig, index) => {
+      const nodePosition = new THREE.Vector3(...nodeConfig.position)
+      const nodeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0b1822,
+        emissive: nodeConfig.color,
+        emissiveIntensity: 1.1,
+        metalness: 0.58,
+        roughness: 0.34,
+      })
+
+      const node = new THREE.Mesh(
+        new THREE.SphereGeometry(compact ? 0.115 : 0.14, 16, 16),
+        nodeMaterial,
+      )
+      node.position.copy(nodePosition)
+      root.add(node)
+
+      const halo = new THREE.Mesh(
+        new THREE.TorusGeometry(compact ? 0.19 : 0.22, 0.008, 8, 36),
+        new THREE.MeshBasicMaterial({
+          color: nodeConfig.color,
+          transparent: true,
+          opacity: 0.42,
+        }),
+      )
+      halo.position.copy(nodePosition)
+      root.add(halo)
+
+      const connectionGeometry = new THREE.BufferGeometry().setFromPoints([origin, nodePosition])
+      const connection = new THREE.Line(
+        connectionGeometry,
+        new THREE.LineBasicMaterial({
+          color: nodeConfig.color,
+          transparent: true,
+          opacity: 0.22,
+        }),
+      )
+      root.add(connection)
+
+      const pulse = new THREE.Mesh(
+        new THREE.SphereGeometry(compact ? 0.026 : 0.034, 10, 10),
+        new THREE.MeshBasicMaterial({ color: nodeConfig.color }),
+      )
+      pulse.userData = {
+        destination: nodePosition,
+        offset: index * 0.37,
+        speed: 0.34 + index * 0.025,
+      }
+      root.add(pulse)
+      pulses.push(pulse)
+    })
+
+    const particleCount = compact ? 18 : 44
+    const positions = new Float32Array(particleCount * 3)
+
+    for (let index = 0; index < particleCount; index += 1) {
+      const radius = 1.9 + (index % 7) * 0.11
+      const angle = index * 2.399963229728653
+      positions[index * 3] = Math.cos(angle) * radius
+      positions[index * 3 + 1] = Math.sin(angle) * radius * 0.72
+      positions[index * 3 + 2] = ((index % 5) - 2) * 0.22
+    }
+
+    const particleGeometry = new THREE.BufferGeometry()
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+
+    const particles = new THREE.Points(
+      particleGeometry,
+      new THREE.PointsMaterial({
+        color: 0x57ddf2,
+        size: compact ? 0.018 : 0.024,
+        transparent: true,
+        opacity: 0.35,
+        sizeAttenuation: true,
+      }),
+    )
+    root.add(particles)
+
+    const pointer = { x: 0, y: 0 }
+
+    const onPointerMove = (event) => {
+      const bounds = mount.getBoundingClientRect()
+      if (!bounds.width || !bounds.height) return
+
+      pointer.x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2
+      pointer.y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2
+    }
+
+    const onPointerLeave = () => {
+      pointer.x = 0
+      pointer.y = 0
+    }
+
+    mount.addEventListener('pointermove', onPointerMove, { passive: true })
+    mount.addEventListener('pointerleave', onPointerLeave)
+
+    const resize = () => {
+      const width = Math.max(mount.clientWidth, 1)
+      const height = Math.max(mount.clientHeight, 1)
+
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      renderer.setSize(width, height, false)
+    }
+
+    const resizeObserver = new ResizeObserver(resize)
+    resizeObserver.observe(mount)
+    resize()
+
+    let animationFrame = 0
+    let visible = true
+
+    const renderFrame = (time) => {
+      animationFrame = 0
+      if (!visible) return
+
+      const seconds = time * 0.001
+      const targetRotationX = -0.08 + pointer.y * 0.11
+      const targetRotationY = pointer.x * 0.18 + Math.sin(seconds * 0.18) * 0.08
+
+      root.rotation.x += (targetRotationX - root.rotation.x) * 0.045
+      root.rotation.y += (targetRotationY - root.rotation.y) * 0.045
+
+      core.rotation.x = seconds * 0.14
+      core.rotation.y = seconds * 0.2
+      shell.rotation.x = -seconds * 0.09
+      shell.rotation.y = seconds * 0.12
+
+      const pulseScale = 1 + Math.sin(seconds * 2.2) * 0.035
+      core.scale.setScalar(pulseScale)
+
+      ringA.rotation.z = seconds * 0.15
+      ringB.rotation.z = -seconds * 0.11
+      ringC.rotation.y = seconds * 0.07
+      particles.rotation.z = seconds * 0.018
+
+      pulses.forEach((pulse) => {
+        const phase = (seconds * pulse.userData.speed + pulse.userData.offset) % 1
+        pulse.position.lerpVectors(origin, pulse.userData.destination, phase)
+        pulse.scale.setScalar(0.75 + Math.sin(phase * Math.PI) * 0.65)
+      })
+
+      renderer.render(scene, camera)
+      animationFrame = window.requestAnimationFrame(renderFrame)
+    }
+
+    const startRendering = () => {
+      if (!visible || animationFrame) return
+      animationFrame = window.requestAnimationFrame(renderFrame)
+    }
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting
+
+        if (visible) {
+          startRendering()
+        } else if (animationFrame) {
+          window.cancelAnimationFrame(animationFrame)
+          animationFrame = 0
+        }
+      },
+      { threshold: 0.05 },
+    )
+
+    visibilityObserver.observe(mount)
+    startRendering()
+
+    return () => {
+      visible = false
+      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+
+      visibilityObserver.disconnect()
+      resizeObserver.disconnect()
+      mount.removeEventListener('pointermove', onPointerMove)
+      mount.removeEventListener('pointerleave', onPointerLeave)
+
+      scene.traverse((object) => {
+        if (object.geometry) object.geometry.dispose()
+
+        if (object.material) {
+          const materials = Array.isArray(object.material) ? object.material : [object.material]
+          materials.forEach((material) => material.dispose())
+        }
+      })
+
+      renderer.dispose()
+      renderer.forceContextLoss()
+      mount.replaceChildren()
+    }
+  }, [reducedMotion])
+
+  const staticMode = reducedMotion || webglFailed
+
+  return (
+    <div
+      className={'SystemCore' + (staticMode ? ' is-static' : '')}
+      role="img"
+      aria-label="System topology showing an API core connected to authentication, cache, database, and runtime services."
+    >
+      <div className="SystemCoreMeta" aria-hidden="true">
+        <span>LIVE TOPOLOGY</span>
+        <span>{staticMode ? 'STATIC MODE' : 'WEBGL / ACTIVE'}</span>
+      </div>
+
+      <div className="SystemCoreStage">
+        <div className="SystemCoreCanvas" ref={mountRef} aria-hidden="true" />
+
+        <div className="SystemCoreFallback" aria-hidden="true">
+          <span className="SystemCoreFallbackRing ring-one" />
+          <span className="SystemCoreFallbackRing ring-two" />
+          <span className="SystemCoreFallbackCenter" />
+        </div>
+
+        <span className="SystemCoreCenterLabel" aria-hidden="true">API CORE</span>
+
+        {NODE_CONFIG.map((node) => (
+          <span className={'SystemCoreLabel label-' + node.id} key={node.id} aria-hidden="true">
+            <i />
+            {node.label}
+          </span>
+        ))}
+      </div>
+
+      <div className="SystemCoreLegend" aria-hidden="true">
+        <span><i className="legend-cyan" /> requests</span>
+        <span><i className="legend-amber" /> persistence</span>
+        <span><i className="legend-teal" /> trust boundary</span>
+      </div>
+    </div>
+  )
+}
+
+export default SystemCore

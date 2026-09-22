@@ -6,37 +6,42 @@ Turn Sanam Rai's portfolio into a distinctive interactive engineering experience
 ## Current authoritative branch
 `master`
 
-Active development branch: `feat/immersive-system-phase-1`
+Active development branch: `feat/immersive-system-phase-2`
 
-## Completed baseline
-**Forge living portfolio UI — merged to master**
+## Completed phases
 
-- Backend-focused portfolio redesign is live on `master`.
-- Forge companion, backend lab, project presentation, observability console, auth overlay, and existing API contracts are preserved.
-- Latest build fix on `master`: `e22e10b fix: use react-icons for GitHub brand icon`.
+### Forge living portfolio
+- Backend-focused portfolio redesign, Forge companion, backend lab, project presentation, observability console, auth overlay, and existing API contracts are preserved on `master`.
+
+### Phase 1 — Motion foundation
+- Merged to `master` at `16048d8 feat: establish immersive motion foundation`.
+- Added GSAP 3.15.0, shared motion tokens, reduced-motion hook, scoped GSAP cleanup, and a restrained hero entrance.
+- Phase 1 Vercel deployment passed before merge.
 
 ## Active phase
-**Phase 1 — Motion foundation**
+**Phase 2 — System Core prototype**
 
-Scope is intentionally limited to the animation foundation. No Three.js scene is introduced in this phase.
+This phase intentionally adds one isolated Three.js visualization inside the existing hero engineering panel. It does not add scroll choreography or connect the 3D scene to backend toggles yet.
 
 ### Added
-- GSAP 3.15.0 as a frontend dependency with synchronized package-lock metadata.
-- Shared `frontend/src/motion/index.js` registration and motion tokens for duration, easing, distance, and stagger.
-- Shared `useReducedMotion` hook that reacts to OS preference changes and cleans up its media-query listener.
-- Small CSS motion-token layer in `frontend/src/motion/motion.css`.
-- A restrained GSAP hero entrance as a proof-of-life for the shared motion system.
-- GSAP animation is scoped to the hero and reverted on cleanup, making it safe with React StrictMode.
-- Users requesting reduced motion receive the existing static hero with no GSAP entrance.
+- Three.js 0.186.0 as the only new Phase 2 dependency.
+- `SystemCore.jsx` with an API core connected to AUTH, CACHE, DATABASE, and RUNTIME nodes.
+- Central core shell, three architecture rings, connection lines, lightweight request pulses, and a small deterministic particle field.
+- Pointer-responsive depth on capable devices without OrbitControls or another interaction dependency.
+- Rendering pauses when the core leaves the viewport.
+- Device pixel ratio is capped at 1.6 desktop and 1.2 compact/coarse-pointer layouts.
+- Geometry detail, antialiasing, and particle count are reduced for compact/coarse-pointer devices.
+- ResizeObserver keeps renderer resolution scoped to the component rather than the window.
+- Full Three.js geometry/material/renderer/context cleanup on React unmount.
+- Static CSS topology fallback for reduced-motion users or unavailable WebGL.
 
 ## Explicitly not included yet
-- No Three.js dependency.
-- No WebGL canvas.
-- No System Core.
-- No ScrollTrigger-driven pinned chapters.
-- No project-stack transition redesign.
-- No backend-state-to-3D visualization.
+- No ScrollTrigger-pinned architecture chapter.
+- No page-wide 3D background.
+- No project-card 3D effects.
+- No backend-toggle-to-System-Core synchronization.
 - No Forge behavior changes.
+- No sound, shaders, post-processing, GLB assets, or OrbitControls.
 
 ## Backend behavior preserved
 Frontend contracts remain unchanged for:
@@ -46,15 +51,13 @@ Frontend contracts remain unchanged for:
 - `/api/projects`
 - `/api/auth/login`
 
-No backend source file is modified in Phase 1.
+No backend source file is modified in Phase 2.
 
 ## Existing observations
 - The backend package still has no runnable automated test suite.
 - `rateLimitMiddleware` exists but is not currently part of the project route middleware chain; this remains untouched.
 - Backend CORS remains configured for the production portfolio domains rather than localhost.
-- Full cursor/mobile/backend-lab browser verification is still useful after each visual phase.
+- Browser-level visual judgment is important before expanding the System Core into a page-wide storytelling device.
 
 ## Next phase
-**Phase 2 — System Core prototype**
-
-Create one isolated, performance-budgeted Three.js hero prototype representing API/auth/cache/database/runtime relationships. It should have a static/reduced-motion fallback and should not yet be wired into the rest of the page. Only continue into scroll storytelling if this prototype earns its complexity.
+If the prototype looks strong and performs well, **Phase 3 — scroll architecture story** will let GSAP ScrollTrigger progressively reveal and separate the same System Core into API/auth/cache/database/runtime chapters. If the prototype does not justify its cost, revise or remove it before Phase 3.

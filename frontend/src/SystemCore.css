@@ -1,0 +1,253 @@
+.SystemCore {
+  --core-cyan: #57ddf2;
+  --core-teal: #35c8b4;
+  --core-amber: #ffb85c;
+  --core-coral: #f2738a;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 50% 48%, rgba(87, 221, 242, 0.075), transparent 42%),
+    rgba(4, 10, 16, 0.44);
+}
+
+.SystemCoreMeta,
+.SystemCoreLegend {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #607484;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.61rem;
+  letter-spacing: 0.08em;
+}
+
+.SystemCoreMeta span:last-child {
+  color: rgba(87, 221, 242, 0.76);
+}
+
+.SystemCoreStage {
+  position: relative;
+  height: 300px;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.SystemCoreStage::before {
+  content: '';
+  position: absolute;
+  inset: 12% 12%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(87, 221, 242, 0.075), transparent 64%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.SystemCoreCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.SystemCoreCanvas canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.SystemCoreFallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.SystemCoreFallbackRing,
+.SystemCoreFallbackCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.SystemCoreFallbackRing {
+  border: 1px solid rgba(87, 221, 242, 0.24);
+}
+
+.SystemCoreFallbackRing.ring-one {
+  width: 118px;
+  height: 118px;
+}
+
+.SystemCoreFallbackRing.ring-two {
+  width: 174px;
+  height: 174px;
+  border-color: rgba(53, 200, 180, 0.18);
+}
+
+.SystemCoreFallbackCenter {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(87, 221, 242, 0.48);
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 184, 92, 0.58), transparent 26%),
+    radial-gradient(circle, rgba(87, 221, 242, 0.32), rgba(8, 26, 38, 0.92) 68%);
+  box-shadow: 0 0 44px rgba(87, 221, 242, 0.16);
+}
+
+.SystemCore.is-static .SystemCoreCanvas {
+  display: none;
+}
+
+.SystemCore.is-static .SystemCoreFallback {
+  opacity: 1;
+}
+
+.SystemCoreLabel,
+.SystemCoreCenterLabel {
+  position: absolute;
+  z-index: 3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  pointer-events: none;
+  user-select: none;
+}
+
+.SystemCoreLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  background: rgba(5, 12, 19, 0.72);
+  color: #8296a5;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  backdrop-filter: blur(6px);
+}
+
+.SystemCoreLabel i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--core-cyan);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.SystemCoreLabel.label-auth {
+  top: 13%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.SystemCoreLabel.label-auth i {
+  background: var(--core-teal);
+}
+
+.SystemCoreLabel.label-cache {
+  top: 48%;
+  left: 2%;
+  transform: translateY(-50%);
+}
+
+.SystemCoreLabel.label-database {
+  top: 48%;
+  right: 1%;
+  transform: translateY(-50%);
+}
+
+.SystemCoreLabel.label-database i {
+  background: var(--core-amber);
+}
+
+.SystemCoreLabel.label-runtime {
+  left: 50%;
+  bottom: 11%;
+  transform: translateX(-50%);
+}
+
+.SystemCoreLabel.label-runtime i {
+  background: var(--core-coral);
+}
+
+.SystemCoreCenterLabel {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 38px);
+  color: rgba(191, 208, 219, 0.72);
+  font-size: 0.56rem;
+  letter-spacing: 0.11em;
+}
+
+.SystemCoreLegend {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 24px;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+.SystemCoreLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.SystemCoreLegend i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.legend-cyan { background: var(--core-cyan); }
+.legend-amber { background: var(--core-amber); }
+.legend-teal { background: var(--core-teal); }
+
+@media (max-width: 720px) {
+  .SystemCore {
+    padding-inline: 10px;
+  }
+
+  .SystemCoreStage {
+    height: 246px;
+  }
+
+  .SystemCoreMeta {
+    font-size: 0.56rem;
+  }
+
+  .SystemCoreLabel {
+    font-size: 0.52rem;
+  }
+
+  .SystemCoreLabel.label-cache {
+    left: 0;
+  }
+
+  .SystemCoreLabel.label-database {
+    right: 0;
+  }
+
+  .SystemCoreLegend {
+    gap: 8px;
+    font-size: 0.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .SystemCoreCanvas {
+    display: none;
+  }
+
+  .SystemCoreFallback {
+    opacity: 1;
+  }
+}

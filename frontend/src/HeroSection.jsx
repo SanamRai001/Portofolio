@@ -3,6 +3,7 @@ import axios from 'axios'
 import { ArrowDownRight, Activity, Download, ExternalLink } from 'lucide-react'
 import API from "./config/api";
 import LivingForge from './LivingForge'
+import SystemCore from './SystemCore'
 import { gsap, MOTION } from './motion'
 import useReducedMotion from './motion/useReducedMotion'
 
@@ -140,6 +141,8 @@ const HeroSection = () => {
             <span className="TerminalDots" aria-hidden="true"><i /><i /><i /></span>
             <span>builder.profile</span>
           </div>
+
+          <SystemCore />
 
           <div className="HeroPanelBody">
             <div className="CodeLine"><span>focus</span><strong>backend systems</strong></div>
