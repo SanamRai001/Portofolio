@@ -6,42 +6,45 @@ Turn Sanam Rai's portfolio into a distinctive interactive engineering experience
 ## Current authoritative branch
 `master`
 
-Active development branch: `feat/immersive-system-phase-2`
+Active development branch: `feat/immersive-system-phase-3`
 
 ## Completed phases
 
 ### Forge living portfolio
-- Backend-focused portfolio redesign, Forge companion, backend lab, project presentation, observability console, auth overlay, and existing API contracts are preserved on `master`.
+- Backend-focused portfolio redesign, Forge companion, backend lab, project presentation, observability console, auth overlay, and existing API contracts are preserved.
 
 ### Phase 1 — Motion foundation
 - Merged to `master` at `16048d8 feat: establish immersive motion foundation`.
-- Added GSAP 3.15.0, shared motion tokens, reduced-motion hook, scoped GSAP cleanup, and a restrained hero entrance.
-- Phase 1 Vercel deployment passed before merge.
+- GSAP 3.15.0, shared motion tokens, reduced-motion handling, scoped cleanup, and hero entrance.
+- Vercel passed before merge.
+
+### Phase 2 — System Core prototype
+- Merged to `master` at `b483bd6 feat: prototype interactive system core`.
+- Three.js 0.186.0 System Core representing API/auth/cache/database/runtime.
+- Pointer response, request pulses, capped DPR, compact-device reductions, off-screen pause, static fallback, and full disposal.
+- Vercel passed before merge.
 
 ## Active phase
-**Phase 2 — System Core prototype**
-
-This phase intentionally adds one isolated Three.js visualization inside the existing hero engineering panel. It does not add scroll choreography or connect the 3D scene to backend toggles yet.
+**Phase 3 — Scroll architecture story**
 
 ### Added
-- Three.js 0.186.0 as the only new Phase 2 dependency.
-- `SystemCore.jsx` with an API core connected to AUTH, CACHE, DATABASE, and RUNTIME nodes.
-- Central core shell, three architecture rings, connection lines, lightweight request pulses, and a small deterministic particle field.
-- Pointer-responsive depth on capable devices without OrbitControls or another interaction dependency.
-- Rendering pauses when the core leaves the viewport.
-- Device pixel ratio is capped at 1.6 desktop and 1.2 compact/coarse-pointer layouts.
-- Geometry detail, antialiasing, and particle count are reduced for compact/coarse-pointer devices.
-- ResizeObserver keeps renderer resolution scoped to the component rather than the window.
-- Full Three.js geometry/material/renderer/context cleanup on React unmount.
-- Static CSS topology fallback for reduced-motion users or unavailable WebGL.
+- New architecture-story section immediately after the hero.
+- One sticky System Core visual paired with five scroll chapters: API Core, Auth, Cache, Database, Runtime.
+- GSAP ScrollTrigger tracks section progress and chapter activation without hijacking native scrolling.
+- Scroll progress subtly opens the Three.js architecture rings.
+- Active chapter increases emphasis on the relevant core/service node.
+- Chapter copy uses restrained reveal transitions tied to viewport entry.
+- Mobile removes sticky behavior and presents the story as a normal linear document.
+- Reduced-motion users receive the full readable story with a static System Core and no reveal animation.
+- No backend behavior or API contracts changed.
 
 ## Explicitly not included yet
-- No ScrollTrigger-pinned architecture chapter.
-- No page-wide 3D background.
-- No project-card 3D effects.
-- No backend-toggle-to-System-Core synchronization.
-- No Forge behavior changes.
-- No sound, shaders, post-processing, GLB assets, or OrbitControls.
+- No backend-toggle-to-3D synchronization.
+- No project-stack redesign.
+- No page-wide WebGL background.
+- No scroll hijacking.
+- No Forge reaction integration.
+- No audio, shaders, post-processing, or imported 3D models.
 
 ## Backend behavior preserved
 Frontend contracts remain unchanged for:
@@ -51,13 +54,13 @@ Frontend contracts remain unchanged for:
 - `/api/projects`
 - `/api/auth/login`
 
-No backend source file is modified in Phase 2.
+No backend source file is modified in Phase 3.
 
 ## Existing observations
 - The backend package still has no runnable automated test suite.
 - `rateLimitMiddleware` exists but is not currently part of the project route middleware chain; this remains untouched.
-- Backend CORS remains configured for the production portfolio domains rather than localhost.
-- Browser-level visual judgment is important before expanding the System Core into a page-wide storytelling device.
+- Backend CORS remains configured for production portfolio domains rather than localhost.
+- Visual/browser review remains important before increasing interaction density.
 
 ## Next phase
-If the prototype looks strong and performs well, **Phase 3 — scroll architecture story** will let GSAP ScrollTrigger progressively reveal and separate the same System Core into API/auth/cache/database/runtime chapters. If the prototype does not justify its cost, revise or remove it before Phase 3.
+**Phase 4 — Backend Lab visual synchronization**, if Phase 3 feels strong. Connect the real existing backend toggles to the System Core so auth/database/cache/logging state has an explanatory visual response without changing backend semantics.

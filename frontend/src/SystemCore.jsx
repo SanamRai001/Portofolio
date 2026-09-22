@@ -10,7 +10,7 @@ const NODE_CONFIG = [
   { id: 'runtime', label: 'RUNTIME', position: [0, -1.38, 0.18], color: 0xf2738a },
 ]
 
-const SystemCore = () => {
+const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant = 'panel' }) => {
   const mountRef = useRef(null)
   const [webglFailed, setWebglFailed] = useState(false)
   const reducedMotion = useReducedMotion()
@@ -120,6 +120,7 @@ const SystemCore = () => {
 
     const origin = new THREE.Vector3(0, 0, 0)
     const pulses = []
+    const serviceVisuals = []
 
     NODE_CONFIG.forEach((nodeConfig, index) => {
       const nodePosition = new THREE.Vector3(...nodeConfig.position)
@@ -138,13 +139,14 @@ const SystemCore = () => {
       node.position.copy(nodePosition)
       root.add(node)
 
+      const haloMaterial = new THREE.MeshBasicMaterial({
+        color: nodeConfig.color,
+        transparent: true,
+        opacity: 0.42,
+      })
       const halo = new THREE.Mesh(
         new THREE.TorusGeometry(compact ? 0.19 : 0.22, 0.008, 8, 36),
-        new THREE.MeshBasicMaterial({
-          color: nodeConfig.color,
-          transparent: true,
-          opacity: 0.42,
-        }),
+        haloMaterial,
       )
       halo.position.copy(nodePosition)
       root.add(halo)
@@ -171,6 +173,7 @@ const SystemCore = () => {
       }
       root.add(pulse)
       pulses.push(pulse)
+      serviceVisuals.push({ nodeMaterial, haloMaterial })
     })
 
     const particleCount = compact ? 18 : 44
@@ -238,8 +241,10 @@ const SystemCore = () => {
       if (!visible) return
 
       const seconds = time * 0.001
-      const targetRotationX = -0.08 + pointer.y * 0.11
-      const targetRotationY = pointer.x * 0.18 + Math.sin(seconds * 0.18) * 0.08
+      const storyProgress = THREE.MathUtils.clamp(storyProgressRef?.current ?? 0, 0, 1)
+      const activeChapter = activeChapterRef?.current ?? -1
+      const targetRotationX = -0.08 + pointer.y * 0.11 + storyProgress * 0.08
+      const targetRotationY = pointer.x * 0.18 + Math.sin(seconds * 0.18) * 0.08 + storyProgress * 0.12
 
       root.rotation.x += (targetRotationX - root.rotation.x) * 0.045
       root.rotation.y += (targetRotationY - root.rotation.y) * 0.045
@@ -249,13 +254,26 @@ const SystemCore = () => {
       shell.rotation.x = -seconds * 0.09
       shell.rotation.y = seconds * 0.12
 
-      const pulseScale = 1 + Math.sin(seconds * 2.2) * 0.035
+      const pulseScale = 1 + Math.sin(seconds * 2.2) * 0.035 + storyProgress * 0.055
       core.scale.setScalar(pulseScale)
+      coreMaterial.emissiveIntensity += (((activeChapter === 0 ? 2.1 : 1.25) + storyProgress * 0.18) - coreMaterial.emissiveIntensity) * 0.08
 
-      ringA.rotation.z = seconds * 0.15
-      ringB.rotation.z = -seconds * 0.11
-      ringC.rotation.y = seconds * 0.07
+      const ringSpread = 1 + storyProgress * 0.16
+      ringA.scale.setScalar(ringSpread)
+      ringB.scale.setScalar(1 + storyProgress * 0.22)
+      ringC.scale.setScalar(1 + storyProgress * 0.28)
+      ringA.rotation.z = seconds * 0.15 + storyProgress * 0.22
+      ringB.rotation.z = -seconds * 0.11 - storyProgress * 0.18
+      ringC.rotation.y = seconds * 0.07 + storyProgress * 0.16
       particles.rotation.z = seconds * 0.018
+
+      serviceVisuals.forEach((service, index) => {
+        const active = activeChapter === index + 1
+        const targetIntensity = active ? 2.4 : 1.02
+        const targetOpacity = active ? 0.78 : 0.34
+        service.nodeMaterial.emissiveIntensity += (targetIntensity - service.nodeMaterial.emissiveIntensity) * 0.09
+        service.haloMaterial.opacity += (targetOpacity - service.haloMaterial.opacity) * 0.09
+      })
 
       pulses.forEach((pulse) => {
         const phase = (seconds * pulse.userData.speed + pulse.userData.offset) % 1
@@ -311,13 +329,13 @@ const SystemCore = () => {
       renderer.forceContextLoss()
       mount.replaceChildren()
     }
-  }, [reducedMotion])
+  }, [activeChapterRef, reducedMotion, storyProgressRef])
 
   const staticMode = reducedMotion || webglFailed
 
   return (
     <div
-      className={'SystemCore' + (staticMode ? ' is-static' : '')}
+      className={'SystemCore SystemCore--' + variant + (staticMode ? ' is-static' : '')}
       role="img"
       aria-label="System topology showing an API core connected to authentication, cache, database, and runtime services."
     >

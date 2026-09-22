@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import NavBar from './NavBar'
 import HeroSection from './HeroSection'
+import ArchitectureStory from './ArchitectureStory'
 import SystemControl from './SystemControl'
 import Footer from './Footer'
 import TechStack from './TechStack'
@@ -31,6 +32,7 @@ const App = () => {
       <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")} aria-hidden={showAuthOverlay || undefined}>
         <main>
           <HeroSection />
+          <ArchitectureStory />
           <InfoSection />
 
           <div id="system-controls">
