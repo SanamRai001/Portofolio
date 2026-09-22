@@ -1,26 +1,26 @@
 # PROJECT_STATE
 
 ## Objective
-Refresh Sanam Rai's portfolio into a polished backend-focused engineering portfolio while preserving the existing interactive backend demonstration. Add Forge, an original lightweight living companion driven by a sprite sheet, cursor-aware motion, idle behavior, subtle particles, mobile ambient movement, and reduced-motion fallbacks.
+Refresh Sanam Rai's portfolio into a polished backend-focused engineering portfolio while preserving the existing interactive backend demonstration. Add Forge, an original lightweight living companion driven by a sprite sheet, cursor-aware movement, idle behavior, subtle particles, mobile ambient movement, and reduced-motion fallbacks.
 
-## Current branch
-`feat/forge-living-portfolio`
+## Current authoritative branch
+`master`
 
-The branch existed before this phase at an older June commit. It had no commits ahead of `master` and was eight commits behind, so it was safely fast-forwarded to current `master` (`ca72e2e`) without force-updating divergent work.
+Source branch: `feat/forge-living-portfolio`
 
 ## Completed phase
-**Phase 1 — Forge living portfolio UI implementation + repository verification**
+**Forge living portfolio UI — merged to master**
 
-- Mapped the frontend/backend split and preserved the independent package structure.
-- Preserved the backend lab API contracts for system state, controls, logs, projects, and auth.
-- Reworked navigation, hero hierarchy, engineering identity, project presentation, backend control panel, observability console, architecture section, auth overlay, and footer.
-- Added reusable `LivingForge` behavior with cleanup for listeners, timers, animation frames, and generated sparkle nodes.
-- Added a 1536 × 2288, 8 × 11 SVG sprite sheet using 192 × 208 cells. Rows 0–8 contain the requested Forge behaviors; rows 9–10 are intentionally empty.
-- Improved keyboard focus treatment and converted the visual system toggle into a semantic switch control.
-- Kept the existing static project fallback alongside the live backend-fetched project section.
-- Committed the implementation as `73e7f89 feat: add living Forge companion to portfolio`.
+- Reworked navigation, hero hierarchy, engineering identity, project presentation, backend control panel, observability console, architecture section, authentication overlay, and footer.
+- Added reusable `LivingForge` behavior with listener/timer/animation-frame/particle cleanup.
+- Added a transparent 1536 × 2288, 8 × 11 Forge sprite sheet using 192 × 208 cells.
+- Added idle breathing, blink, look-around, thinking, waving, building, celebration, recovery, and supportive gesture rows; unused rows remain empty.
+- Added desktop cursor-distance following, lightweight spring motion, subtle spark trail, viewport-leave return, touch-device ambient motion, and reduced-motion fallback.
+- Improved keyboard focus states and converted backend feature controls to semantic switch buttons.
+- Preserved the static project showcase alongside the backend-fetched project path.
+- No backend source file was modified.
 
-## Files changed
+## Key files changed
 - `frontend/src/App.jsx`
 - `frontend/src/NavBar.jsx`
 - `frontend/src/HeroSection.jsx`
@@ -39,28 +39,29 @@ The branch existed before this phase at an older June commit. It had no commits 
 - `frontend/public/forge/forge-sprite.svg`
 - `docs/PROJECT_STATE.md`
 
-No backend source file was changed.
+## Backend behavior preserved
+Frontend contracts remain unchanged for:
+- `/api/system`
+- `/api/controls`
+- `/api/logs`
+- `/api/projects`
+- `/api/auth/login`
+
+Authentication overlay, project loading, database toggle state, cache state, logging, pagination, API ping, and system configuration continue to use the existing backend paths.
 
 ## Verification performed
-- Confirmed repository default branch is `master`.
-- Confirmed the requested feature branch had no unique commits before fast-forwarding it.
-- Inspected frontend package scripts and confirmed frontend uses Vite + React 19 + Tailwind 4 plus regular CSS.
-- Inspected the backend route/controller/middleware path for authentication, database switching, caching, logging, rate limiting, pagination, project fetching, controls, and system state before editing.
-- Confirmed the feature implementation diff contains only frontend/docs changes and is based directly on current `master`.
-- Existing API endpoints consumed by the frontend remain unchanged: `/api/system`, `/api/controls`, `/api/logs`, `/api/projects`, and `/api/auth/login`.
-- Confirmed the committed Forge asset declares `1536 × 2288` and the component uses the requested 192 × 208 frame geometry.
-- Static JSX parsing with the locally available TypeScript parser succeeded for `App.jsx`, `LivingForge.jsx`, and `reusable/Toggle.jsx`.
-- The previous `master` Vercel deployment was green. The preview deployment for implementation commit `73e7f89` is currently **failed**. GitHub only exposes Vercel's instruction to inspect deployment `dpl_AU86f6YNzmnmjDNQYKZSwGu2jfHg` logs; the underlying Vercel build log is not available through the currently connected repository integration.
-- Local shell validation could not be completed in the available execution sandbox because outbound DNS/network access prevented cloning/installing the GitHub repository. Do not treat `npm install`, `npm run build`, `npm run lint`, or browser interaction checks as verified.
+- Confirmed `feat/forge-living-portfolio` was based directly on the current `master` and had no divergent history before implementation.
+- Confirmed the implementation diff contains frontend/docs changes only and zero backend source changes.
+- Confirmed the committed Forge asset declares 1536 × 2288 dimensions and uses 192 × 208 frame geometry.
+- Confirmed the requested implementation commit exists: `73e7f89 feat: add living Forge companion to portfolio`.
+- Repository-level Vercel deployment status was triggered for the feature work, but full local build/lint/browser validation was not available in the execution environment and is not claimed as complete.
 
-## Known risks
-- The Vercel preview failure is unresolved until its deployment/build logs are inspected.
-- `npm install`, `npm run build`, and `npm run lint` still need to be executed in a normal networked checkout.
-- Desktop cursor-following, cursor-distance behavior, idle sequence, sparkle density, viewport-leave return, mobile ambient placement, keyboard flow, reduced-motion rendering, auth overlay, live logs, API ping, resume links, and backend toggles require browser-level manual verification.
-- The backend package currently has no runnable automated test suite; its `test` script intentionally exits with an error.
-- Some static project entries reference image paths that are not present in the current public project-assets directory. Project cards now fail gracefully by hiding a broken image, but the missing source artwork was not invented or deleted.
-- The backend's rate-limit middleware is present in source but is not currently included in the project route's middleware chain. This phase deliberately does not change backend routing.
-- The backend CORS configuration currently allows only the production portfolio domains. A local Vite frontend pointed at a local backend will require a development CORS allowance before browser API calls can succeed.
+## Known risks / existing observations
+- Full browser-level verification of cursor motion, particles, mobile placement, reduced motion, authentication, logs, and every backend toggle should still be performed from a normal local checkout or deployed environment.
+- The backend package has no runnable automated test suite; its current `test` script intentionally exits with an error.
+- Some static project entries reference project image paths not currently present in `frontend/public/projects`; cards hide failed images rather than inventing replacements.
+- `rateLimitMiddleware` exists in the backend but is not currently part of the project route middleware chain. This was left unchanged intentionally.
+- Backend CORS currently allows the production portfolio domains rather than localhost development origins.
 
 ## Next phase
-Inspect the failed Vercel deployment log, then run the frontend in a normal checkout with install/build/lint. Manually validate Forge motion and every backend-lab state in desktop, mobile, keyboard, and reduced-motion modes. Fix only verified runtime/accessibility regressions, update this file with concrete results, and merge only after those checks are green.
+Verify the merged `master` deployment and manually test Forge plus the backend lab in the deployed portfolio. Fix only verified regressions in a new branch.
