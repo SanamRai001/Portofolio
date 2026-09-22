@@ -6,7 +6,7 @@ Turn Sanam Rai's portfolio into a distinctive interactive engineering experience
 ## Current authoritative branch
 `master`
 
-Active development branch: `feat/immersive-system-phase-3`
+Active development branch: `feat/immersive-system-phase-4`
 
 ## Completed phases
 
@@ -20,31 +20,34 @@ Active development branch: `feat/immersive-system-phase-3`
 
 ### Phase 2 — System Core prototype
 - Merged to `master` at `b483bd6 feat: prototype interactive system core`.
-- Three.js 0.186.0 System Core representing API/auth/cache/database/runtime.
-- Pointer response, request pulses, capped DPR, compact-device reductions, off-screen pause, static fallback, and full disposal.
+- Three.js System Core with capped DPR, compact-device reductions, off-screen pause, static fallback, and full disposal.
+- Vercel passed before merge.
+
+### Phase 3 — Scroll architecture story
+- Merged to `master` at `870db1a feat: add scroll architecture story`.
+- Sticky System Core plus API/Auth/Cache/Database/Runtime chapters driven by native scroll + ScrollTrigger.
+- Mobile remains linear; reduced motion remains readable/static.
 - Vercel passed before merge.
 
 ## Active phase
-**Phase 3 — Scroll architecture story**
+**Phase 4 — Backend Lab visual synchronization**
 
 ### Added
-- New architecture-story section immediately after the hero.
-- One sticky System Core visual paired with five scroll chapters: API Core, Auth, Cache, Database, Runtime.
-- GSAP ScrollTrigger tracks section progress and chapter activation without hijacking native scrolling.
-- Scroll progress subtly opens the Three.js architecture rings.
-- Active chapter increases emphasis on the relevant core/service node.
-- Chapter copy uses restrained reveal transitions tied to viewport entry.
-- Mobile removes sticky behavior and presents the story as a normal linear document.
-- Reduced-motion users receive the full readable story with a static System Core and no reveal animation.
-- No backend behavior or API contracts changed.
+- Embedded a dedicated System Core inside the real Backend Feature Control Panel.
+- The visual reads directly from the same local configuration object that is synchronized with `GET/POST /api/system`.
+- Optimistic toggle changes update both the switch and System Core immediately.
+- Failed backend writes already revert the existing toggle object, which now also reverts the visualization automatically.
+- AUTH maps to the authentication flag and trust-boundary ring.
+- CACHE maps to the cache flag and cache/request path.
+- DATABASE maps to the database flag and persistence path.
+- RUNTIME maps to request logging/observability.
+- Disabled mapped services visibly dim their node, halo, connection, and request pulse.
+- Logging state also controls the ambient observability particle field.
+- Static/reduced-motion mode still exposes ON/OFF state through labels and adjacent status cards.
+- Rate limiting and pagination remain visible as configuration flags only; they are not given fabricated network behavior.
 
-## Explicitly not included yet
-- No backend-toggle-to-3D synchronization.
-- No project-stack redesign.
-- No page-wide WebGL background.
-- No scroll hijacking.
-- No Forge reaction integration.
-- No audio, shaders, post-processing, or imported 3D models.
+## Truthfulness guardrail
+`rateLimitMiddleware` exists but is not currently attached to the project route middleware chain. Phase 4 explicitly labels rate limiting as configuration-only rather than animating it as if it were enforced.
 
 ## Backend behavior preserved
 Frontend contracts remain unchanged for:
@@ -54,13 +57,15 @@ Frontend contracts remain unchanged for:
 - `/api/projects`
 - `/api/auth/login`
 
-No backend source file is modified in Phase 3.
+No backend source file is modified in Phase 4.
 
-## Existing observations
-- The backend package still has no runnable automated test suite.
-- `rateLimitMiddleware` exists but is not currently part of the project route middleware chain; this remains untouched.
-- Backend CORS remains configured for production portfolio domains rather than localhost.
-- Visual/browser review remains important before increasing interaction density.
+## Explicitly not included yet
+- No project-stack redesign.
+- No Forge reactions to backend state.
+- No backend route or middleware changes.
+- No new API endpoint.
+- No page-wide WebGL background.
+- No sound, shaders, post-processing, or imported 3D models.
 
 ## Next phase
-**Phase 4 — Backend Lab visual synchronization**, if Phase 3 feels strong. Connect the real existing backend toggles to the System Core so auth/database/cache/logging state has an explanatory visual response without changing backend semantics.
+**Phase 5 — project storytelling**, if Phase 4 passes build and visual review. Replace ordinary project-card browsing with a more editorial engineering case-study sequence while retaining accessible direct links and mobile simplicity.

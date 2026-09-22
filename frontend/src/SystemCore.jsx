@@ -4,16 +4,26 @@ import useReducedMotion from './motion/useReducedMotion'
 import './SystemCore.css'
 
 const NODE_CONFIG = [
-  { id: 'auth', label: 'AUTH', position: [0, 1.48, 0.12], color: 0x35c8b4 },
-  { id: 'cache', label: 'CACHE', position: [-1.68, 0.08, -0.08], color: 0x57ddf2 },
-  { id: 'database', label: 'DATABASE', position: [1.68, 0.08, -0.08], color: 0xffb85c },
-  { id: 'runtime', label: 'RUNTIME', position: [0, -1.38, 0.18], color: 0xf2738a },
+  { id: 'auth', stateKey: 'auth', label: 'AUTH', position: [0, 1.48, 0.12], color: 0x35c8b4 },
+  { id: 'cache', stateKey: 'cache', label: 'CACHE', position: [-1.68, 0.08, -0.08], color: 0x57ddf2 },
+  { id: 'database', stateKey: 'db', label: 'DATABASE', position: [1.68, 0.08, -0.08], color: 0xffb85c },
+  { id: 'runtime', stateKey: 'logging', label: 'RUNTIME', position: [0, -1.38, 0.18], color: 0xf2738a },
 ]
 
-const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant = 'panel' }) => {
+const SystemCore = ({
+  storyProgressRef = null,
+  activeChapterRef = null,
+  variant = 'panel',
+  systemState = null,
+}) => {
   const mountRef = useRef(null)
+  const systemStateRef = useRef(systemState)
   const [webglFailed, setWebglFailed] = useState(false)
   const reducedMotion = useReducedMotion()
+
+  useEffect(() => {
+    systemStateRef.current = systemState
+  }, [systemState])
 
   useEffect(() => {
     const mount = mountRef.current
@@ -151,20 +161,23 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
       halo.position.copy(nodePosition)
       root.add(halo)
 
+      const connectionMaterial = new THREE.LineBasicMaterial({
+        color: nodeConfig.color,
+        transparent: true,
+        opacity: 0.22,
+      })
       const connectionGeometry = new THREE.BufferGeometry().setFromPoints([origin, nodePosition])
-      const connection = new THREE.Line(
-        connectionGeometry,
-        new THREE.LineBasicMaterial({
-          color: nodeConfig.color,
-          transparent: true,
-          opacity: 0.22,
-        }),
-      )
+      const connection = new THREE.Line(connectionGeometry, connectionMaterial)
       root.add(connection)
 
+      const pulseMaterial = new THREE.MeshBasicMaterial({
+        color: nodeConfig.color,
+        transparent: true,
+        opacity: 1,
+      })
       const pulse = new THREE.Mesh(
         new THREE.SphereGeometry(compact ? 0.026 : 0.034, 10, 10),
-        new THREE.MeshBasicMaterial({ color: nodeConfig.color }),
+        pulseMaterial,
       )
       pulse.userData = {
         destination: nodePosition,
@@ -173,7 +186,14 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
       }
       root.add(pulse)
       pulses.push(pulse)
-      serviceVisuals.push({ nodeMaterial, haloMaterial })
+      serviceVisuals.push({
+        stateKey: nodeConfig.stateKey,
+        node,
+        nodeMaterial,
+        haloMaterial,
+        connectionMaterial,
+        pulseMaterial,
+      })
     })
 
     const particleCount = compact ? 18 : 44
@@ -190,16 +210,14 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
     const particleGeometry = new THREE.BufferGeometry()
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
-    const particles = new THREE.Points(
-      particleGeometry,
-      new THREE.PointsMaterial({
-        color: 0x57ddf2,
-        size: compact ? 0.018 : 0.024,
-        transparent: true,
-        opacity: 0.35,
-        sizeAttenuation: true,
-      }),
-    )
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0x57ddf2,
+      size: compact ? 0.018 : 0.024,
+      transparent: true,
+      opacity: 0.35,
+      sizeAttenuation: true,
+    })
+    const particles = new THREE.Points(particleGeometry, particleMaterial)
     root.add(particles)
 
     const pointer = { x: 0, y: 0 }
@@ -243,6 +261,7 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
       const seconds = time * 0.001
       const storyProgress = THREE.MathUtils.clamp(storyProgressRef?.current ?? 0, 0, 1)
       const activeChapter = activeChapterRef?.current ?? -1
+      const liveConfig = variant === 'lab' ? systemStateRef.current : null
       const targetRotationX = -0.08 + pointer.y * 0.11 + storyProgress * 0.08
       const targetRotationY = pointer.x * 0.18 + Math.sin(seconds * 0.18) * 0.08 + storyProgress * 0.12
 
@@ -254,9 +273,16 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
       shell.rotation.x = -seconds * 0.09
       shell.rotation.y = seconds * 0.12
 
+      const enabledMappedCount = liveConfig
+        ? ['auth', 'cache', 'db', 'logging'].filter((key) => Boolean(liveConfig[key])).length
+        : 0
       const pulseScale = 1 + Math.sin(seconds * 2.2) * 0.035 + storyProgress * 0.055
-      core.scale.setScalar(pulseScale)
-      coreMaterial.emissiveIntensity += (((activeChapter === 0 ? 2.1 : 1.25) + storyProgress * 0.18) - coreMaterial.emissiveIntensity) * 0.08
+      core.scale.setScalar(pulseScale + (liveConfig ? enabledMappedCount * 0.012 : 0))
+
+      const coreTarget = liveConfig
+        ? 0.78 + enabledMappedCount * 0.24
+        : (activeChapter === 0 ? 2.1 : 1.25) + storyProgress * 0.18
+      coreMaterial.emissiveIntensity += (coreTarget - coreMaterial.emissiveIntensity) * 0.08
 
       const ringSpread = 1 + storyProgress * 0.16
       ringA.scale.setScalar(ringSpread)
@@ -267,12 +293,34 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
       ringC.rotation.y = seconds * 0.07 + storyProgress * 0.16
       particles.rotation.z = seconds * 0.018
 
+      if (liveConfig) {
+        const cacheOn = Boolean(liveConfig.cache)
+        const authOn = Boolean(liveConfig.auth)
+        const dbOn = Boolean(liveConfig.db)
+        const loggingOn = Boolean(liveConfig.logging)
+
+        ringMaterial.opacity += ((cacheOn ? 0.52 : 0.09) - ringMaterial.opacity) * 0.08
+        ringSecondaryMaterial.opacity += ((authOn ? 0.5 : 0.08) - ringSecondaryMaterial.opacity) * 0.08
+        ringTertiaryMaterial.opacity += ((dbOn ? 0.42 : 0.07) - ringTertiaryMaterial.opacity) * 0.08
+        particleMaterial.opacity += ((loggingOn ? 0.46 : 0.08) - particleMaterial.opacity) * 0.08
+      }
+
       serviceVisuals.forEach((service, index) => {
-        const active = activeChapter === index + 1
-        const targetIntensity = active ? 2.4 : 1.02
-        const targetOpacity = active ? 0.78 : 0.34
+        const storyActive = activeChapter === index + 1
+        const enabled = liveConfig ? Boolean(liveConfig[service.stateKey]) : null
+        const targetIntensity = liveConfig ? (enabled ? 2.25 : 0.16) : (storyActive ? 2.4 : 1.02)
+        const targetOpacity = liveConfig ? (enabled ? 0.74 : 0.08) : (storyActive ? 0.78 : 0.34)
+        const connectionOpacity = liveConfig ? (enabled ? 0.5 : 0.06) : 0.22
+        const pulseOpacity = liveConfig ? (enabled ? 1 : 0.08) : 1
+        const nodeScale = liveConfig ? (enabled ? 1.08 : 0.76) : 1
+
         service.nodeMaterial.emissiveIntensity += (targetIntensity - service.nodeMaterial.emissiveIntensity) * 0.09
         service.haloMaterial.opacity += (targetOpacity - service.haloMaterial.opacity) * 0.09
+        service.connectionMaterial.opacity += (connectionOpacity - service.connectionMaterial.opacity) * 0.09
+        service.pulseMaterial.opacity += (pulseOpacity - service.pulseMaterial.opacity) * 0.09
+        service.node.scale.x += (nodeScale - service.node.scale.x) * 0.09
+        service.node.scale.y += (nodeScale - service.node.scale.y) * 0.09
+        service.node.scale.z += (nodeScale - service.node.scale.z) * 0.09
       })
 
       pulses.forEach((pulse) => {
@@ -329,19 +377,32 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
       renderer.forceContextLoss()
       mount.replaceChildren()
     }
-  }, [activeChapterRef, reducedMotion, storyProgressRef])
+  }, [activeChapterRef, reducedMotion, storyProgressRef, variant])
 
   const staticMode = reducedMotion || webglFailed
+  const mappedEnabledCount = systemState
+    ? ['auth', 'cache', 'db', 'logging'].filter((key) => Boolean(systemState[key])).length
+    : 0
 
   return (
     <div
       className={'SystemCore SystemCore--' + variant + (staticMode ? ' is-static' : '')}
       role="img"
-      aria-label="System topology showing an API core connected to authentication, cache, database, and runtime services."
+      aria-label={
+        variant === 'lab'
+          ? 'Live system topology reflecting authentication, cache, database, and logging configuration.'
+          : 'System topology showing an API core connected to authentication, cache, database, and runtime services.'
+      }
     >
       <div className="SystemCoreMeta" aria-hidden="true">
-        <span>LIVE TOPOLOGY</span>
-        <span>{staticMode ? 'STATIC MODE' : 'WEBGL / ACTIVE'}</span>
+        <span>{variant === 'lab' ? 'LIVE CONFIG MAP' : 'LIVE TOPOLOGY'}</span>
+        <span>
+          {staticMode
+            ? 'STATIC MODE'
+            : variant === 'lab'
+              ? mappedEnabledCount + '/4 MAPPED ACTIVE'
+              : 'WEBGL / ACTIVE'}
+        </span>
       </div>
 
       <div className="SystemCoreStage">
@@ -355,18 +416,38 @@ const SystemCore = ({ storyProgressRef = null, activeChapterRef = null, variant 
 
         <span className="SystemCoreCenterLabel" aria-hidden="true">API CORE</span>
 
-        {NODE_CONFIG.map((node) => (
-          <span className={'SystemCoreLabel label-' + node.id} key={node.id} aria-hidden="true">
-            <i />
-            {node.label}
-          </span>
-        ))}
+        {NODE_CONFIG.map((node) => {
+          const liveClass = variant === 'lab' && systemState
+            ? (systemState[node.stateKey] ? ' is-enabled' : ' is-disabled')
+            : ''
+
+          return (
+            <span
+              className={'SystemCoreLabel label-' + node.id + liveClass}
+              key={node.id}
+              aria-hidden="true"
+            >
+              <i />
+              {node.label}
+            </span>
+          )
+        })}
       </div>
 
       <div className="SystemCoreLegend" aria-hidden="true">
-        <span><i className="legend-cyan" /> requests</span>
-        <span><i className="legend-amber" /> persistence</span>
-        <span><i className="legend-teal" /> trust boundary</span>
+        {variant === 'lab' ? (
+          <>
+            <span><i className="legend-cyan" /> enabled path</span>
+            <span><i className="legend-amber" /> persistence</span>
+            <span><i className="legend-teal" /> trust boundary</span>
+          </>
+        ) : (
+          <>
+            <span><i className="legend-cyan" /> requests</span>
+            <span><i className="legend-amber" /> persistence</span>
+            <span><i className="legend-teal" /> trust boundary</span>
+          </>
+        )}
       </div>
     </div>
   )
