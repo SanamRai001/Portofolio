@@ -17,25 +17,30 @@ Active audit branch: `chore/immersive-system-phase-7`
 - **Phase 5 — Project storytelling** — `2c81f16`.
 - **Phase 6 — Forge contextual reactions** — `23a8690`.
 
-## Active phase
-**Phase 7 — final production pass**
+## Phase 7 — final production pass
+No new creative feature work was added.
 
-No new creative feature work is included.
-
-### Concrete fixes
-- Added a keyboard skip link and a focusable `#main-content` target.
-- When the authentication modal is active, the entire background including navigation is now `inert` and `aria-hidden`, preventing keyboard focus from escaping behind the modal.
+### Production hardening completed
+- Added a keyboard skip link and focusable `#main-content` target.
+- Authentication modal now makes the complete background, including navigation, `inert` and `aria-hidden` so keyboard focus cannot escape behind it.
 - Login email receives initial focus.
-- Removed the non-functional “Remember me” control because authentication already persists via the existing localStorage token behavior.
-- Live project cards no longer make the whole article a pseudo-link containing nested real links; only the explicit Live demo and Source anchors are interactive.
-- Live project API requests use AbortController so rapid database/config changes cannot let an older request overwrite newer results.
-- Live log polling skips hidden tabs and refreshes once visibility returns.
-- Three.js System Core rendering now pauses both when off-screen and when the browser tab/document is hidden, then resumes when visible.
-- Selected-work imagery is lazy-loaded because that section is below the initial viewport.
-- Fixed the reduced-motion + compact/coarse-pointer Forge positioning conflict so the mascot does not receive the desktop translation on mobile.
+- Removed the non-functional “Remember me” UI because the existing auth flow already persists its token through localStorage.
+- Live project cards no longer use a pseudo-link article containing nested real links; only explicit Live demo and Source anchors are interactive.
+- Live project API calls now use AbortController so rapid database/config changes cannot allow an older response to overwrite newer state.
+- Live-log polling pauses while the document is hidden and refreshes when visibility returns.
+- Three.js System Core rendering pauses both off-screen and while the browser document is hidden, then resumes when visible.
+- Selected-work images are lazy-loaded because the story section sits below the initial viewport.
+- Fixed the compact/coarse-pointer + reduced-motion Forge positioning conflict.
 - Removed confirmed dead source files `frontend/src/App.css` and `frontend/src/Testimonials.jsx`.
 
-## Preserved backend contracts
+## Verification
+- Phase 7 production-hardening commit: `8953db7 chore: harden immersive portfolio for production`.
+- Vercel deployment/build for `8953db7`: **success**.
+- Phase 7 diff contains frontend/docs changes only; no backend source changes.
+- Static verification confirmed modal inertness, skip navigation, project-request cancellation, hidden-document WebGL pause, compact reduced-motion Forge handling, and removal of the two dead source files.
+- Full physical-device/browser testing is not claimed; exact sticky spacing, WebGL appearance, and uncommon viewport behavior should still be visually spot-checked on the deployed site.
+
+## Backend contracts preserved
 Unchanged:
 - `/api/system`
 - `/api/controls`
@@ -43,15 +48,28 @@ Unchanged:
 - `/api/projects`
 - `/api/auth/login`
 
-No backend source file is modified in Phase 7.
+No backend source file was modified by the immersive redesign phases.
 
-## Existing truthfulness guardrail
-`rateLimitMiddleware` exists but is not currently attached to the project route middleware chain. The portfolio continues to describe rate limiting as configuration-only rather than implying that project-route throttling is enforced.
+## Truthfulness guardrail
+`rateLimitMiddleware` exists but is not currently attached to the project route middleware chain. The portfolio continues to present rate limiting as configuration-only rather than implying project-route throttling is enforced.
 
-## Verification boundaries
-- Vercel build/deployment status is used as the repository build gate.
-- Static source review covers listener/timer/RAF/ScrollTrigger cleanup, reduced-motion fallbacks, keyboard semantics, request races, and responsive CSS.
-- A real-browser device pass is still recommended for subjective visual details such as exact sticky spacing, WebGL appearance, and Forge placement across uncommon viewport sizes; this document does not claim physical-device testing.
+## Branch audit
+Safe cleanup candidates after Phase 7 is merged because they have no unique commits relative to current master history:
+- `feat/immersive-system-phase-1`
+- `feat/immersive-system-phase-2`
+- `feat/immersive-system-phase-3`
+- `feat/immersive-system-phase-4`
+- `feat/immersive-system-phase-5`
+- `feat/immersive-system-phase-6`
+- `feat/forge-living-portfolio`
+- `dev`
 
-## After Phase 7
-No additional visual feature phase is planned by default. Remaining work should be regression fixes, content updates, or explicitly approved branch/asset cleanup.
+Do **not** delete `readme-brand-001` yet. It is diverged and contains 2 commits not present on master.
+
+No branch has been deleted automatically.
+
+## Legacy assets
+Several older source assets remain in the repository and were intentionally not deleted during this pass. Asset cleanup should be a separate approved action.
+
+## Completion state
+The immersive portfolio redesign is feature-complete by default. No additional visual feature phase is planned. Future work should be limited to verified regressions, content/project updates, backend fixes, or explicitly approved cleanup.
