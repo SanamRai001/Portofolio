@@ -120,47 +120,12 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
           </div>
         </div>
 
-        <div className="ArchitecturePath" aria-label="Request architecture flow">
-          <span>Browser</span><i aria-hidden="true">→</i>
-          <span>Express API</span><i aria-hidden="true">→</i>
-          <span>Middleware</span><i aria-hidden="true">→</i>
-          <span>Data layer</span>
-        </div>
-
-        <div className="BackendLabVisual" aria-label="Live backend configuration visualization">
-          <div className="BackendLabCore">
-            <SystemCore variant="lab" systemState={toggle} />
+        <div className="FeatureControlsHeader">
+          <div>
+            <p className="InspectorLabel">Feature switches</p>
+            <h3>Control the running backend.</h3>
           </div>
-
-          <div className="BackendLabMap">
-            <div>
-              <p className="InspectorLabel">Live configuration map</p>
-              <h3>Real state, visualized.</h3>
-              <p>
-                These four nodes are driven by the same synchronized state as the controls below. Failed backend updates revert both the switch and the visualization.
-              </p>
-            </div>
-
-            <div className="BackendLabMappedStates">
-              {mappedControls.map((item) => (
-                <div className={'BackendLabMappedState' + (toggle[item.key] ? ' is-enabled' : '')} key={item.key}>
-                  <span>{item.label}</span>
-                  <small>{item.detail}</small>
-                  <strong>{toggle[item.key] ? 'ON' : 'OFF'}</strong>
-                </div>
-              ))}
-            </div>
-
-            <div className="BackendLabConfigOnly">
-              <span>CONFIG FLAGS</span>
-              <code>rateLimit={String(toggle.rateLimit)}</code>
-              <code>pagination={String(toggle.pagination)}</code>
-            </div>
-
-            <p className="BackendLabTruthNote">
-              Rate limiting is shown as configuration only because its middleware is not currently attached to the project route. The visualization does not pretend otherwise.
-            </p>
-          </div>
+          <p>Switch a capability on or off first, then use the visualization below to see how that state maps into the system.</p>
         </div>
 
         <div className="Toggles">
@@ -200,6 +165,49 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
               </strong>
             </div>
           </aside>
+        </div>
+
+        <div className="ArchitecturePath" aria-label="Request architecture flow">
+          <span>Browser</span><i aria-hidden="true">→</i>
+          <span>Express API</span><i aria-hidden="true">→</i>
+          <span>Middleware</span><i aria-hidden="true">→</i>
+          <span>Data layer</span>
+        </div>
+
+        <div className="BackendLabVisual" aria-label="Live backend configuration visualization">
+          <div className="BackendLabCore">
+            <SystemCore variant="lab" systemState={toggle} />
+          </div>
+
+          <div className="BackendLabMap">
+            <div>
+              <p className="InspectorLabel">Live configuration map</p>
+              <h3>Real state, visualized.</h3>
+              <p>
+                These four nodes are driven by the same synchronized state as the switches above. Failed backend updates revert both the switch and the visualization.
+              </p>
+            </div>
+
+            <div className="BackendLabMappedStates">
+              {mappedControls.map((item) => (
+                <div className={'BackendLabMappedState' + (toggle[item.key] ? ' is-enabled' : '')} key={item.key}>
+                  <span>{item.label}</span>
+                  <small>{item.detail}</small>
+                  <strong>{toggle[item.key] ? 'ON' : 'OFF'}</strong>
+                </div>
+              ))}
+            </div>
+
+            <div className="BackendLabConfigOnly">
+              <span>CONFIG FLAGS</span>
+              <code>rateLimit={String(toggle.rateLimit)}</code>
+              <code>pagination={String(toggle.pagination)}</code>
+            </div>
+
+            <p className="BackendLabTruthNote">
+              Rate limiting is shown as configuration only because its middleware is not currently attached to the project route. The visualization does not pretend otherwise.
+            </p>
+          </div>
         </div>
       </div>
     </section>

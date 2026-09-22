@@ -1496,3 +1496,41 @@ img {
 .SkipLink:focus {
   transform: translateY(0);
 }
+
+
+.FeatureControlsHeader {
+  margin: 38px 0 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  gap: 28px;
+  align-items: end;
+}
+
+.FeatureControlsHeader h3 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  letter-spacing: -0.035em;
+}
+
+.FeatureControlsHeader > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.SystemControl .Toggles {
+  margin-bottom: 18px;
+}
+
+.SystemControl .ArchitecturePath {
+  margin-top: 22px;
+}
+
+@media (max-width: 720px) {
+  .FeatureControlsHeader {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 30px;
+  }
+}

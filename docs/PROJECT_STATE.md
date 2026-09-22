@@ -79,3 +79,9 @@ The immersive portfolio redesign is feature-complete by default. No additional v
 - GitHub-facing documentation was refreshed after the immersive redesign.
 - README now documents the live Backend Lab, Three.js System Core, GSAP architecture story, Forge, project storytelling, current frontend/backend stack, performance/accessibility behavior, and accurate local setup.
 - README deliberately does not present the current demo authentication as production-grade password security.
+
+
+## Feature toggle visibility fix
+- Restored the six Backend Lab feature switches as the primary interaction block directly below the Backend Lab heading.
+- The System Core remains below the switches as visual feedback rather than replacing or visually burying the controls.
+- Existing backend synchronization, rollback behavior, Forge reactions, and feature semantics are unchanged.
