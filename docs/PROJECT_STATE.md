@@ -6,7 +6,7 @@ Turn Sanam Rai's portfolio into a distinctive interactive engineering experience
 ## Current authoritative branch
 `master`
 
-Active audit branch: `chore/immersive-system-phase-7`
+Phase 7 source branch: `chore/immersive-system-phase-7`
 
 ## Completed creative phases
 - **Forge living portfolio** — backend-focused redesign and companion baseline.
