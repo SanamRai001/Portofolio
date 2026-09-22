@@ -117,7 +117,7 @@ const ProjectStory = ({ projects }) => {
                   <img
                     src={project.imageUrl}
                     alt=""
-                    loading={index === 0 ? 'eager' : 'lazy'}
+                    loading="lazy"
                     onError={(event) => {
                       event.currentTarget.style.display = 'none'
                     }}

@@ -9,22 +9,37 @@ const Logs = ({ systemToggle }) => {
   useEffect(() => {
     if (!systemToggle.logging) return;
 
+    let active = true;
+
     const fetchLogs = async () => {
+      if (document.hidden) return;
+
       try {
         const res = await axios.get(API + "/api/logs");
-        if (res.data.success === true) {
+        if (active && res.data.success === true) {
           setLogs(res.data.data);
           setError("");
         }
       } catch (requestError) {
+        if (!active) return;
         console.log(requestError);
         setError("Unable to read the live log stream.");
       }
     }
 
+    const onVisibilityChange = () => {
+      if (!document.hidden) fetchLogs();
+    }
+
     fetchLogs();
-    const interval = setInterval(fetchLogs, 2000);
-    return () => clearInterval(interval);
+    const interval = window.setInterval(fetchLogs, 2000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, [systemToggle.logging]);
 
   if (!systemToggle.logging) return null;
@@ -41,7 +56,7 @@ const Logs = ({ systemToggle }) => {
 
             <div className="LogPolling">
               <span aria-hidden="true" />
-              polling every 2s
+              polling every 2s while visible
             </div>
           </div>
 

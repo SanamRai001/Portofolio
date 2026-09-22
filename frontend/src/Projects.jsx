@@ -10,10 +10,13 @@ const Projects = ({ systemToggle }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchData = async () => {
       try {
         setLoading(true);
         const response = await axios.get(url, {
+          signal: controller.signal,
           headers: {
             'Authorization': "Bearer " + localStorage.getItem("token")
           }
@@ -22,15 +25,21 @@ const Projects = ({ systemToggle }) => {
         setProjects(Array.isArray(response.data.data) ? response.data.data : []);
         setMessage(response.data.success === false ? response.data.message : "");
       } catch (error) {
+        if (error.code === "ERR_CANCELED") return;
+
         console.error(error.message);
         setMessage("Something went wrong while reading the live project API.");
         setProjects([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchData();
+
+    return () => controller.abort();
   }, [url, systemToggle.db]);
 
   return (

@@ -27,28 +27,35 @@ const App = () => {
         </div>
       )}
 
-      <NavBar />
+      <div
+        className="AppBackground"
+        inert={showAuthOverlay ? "" : undefined}
+        aria-hidden={showAuthOverlay || undefined}
+      >
+        <a className="SkipLink" href="#main-content">Skip to content</a>
+        <NavBar />
 
-      <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")} aria-hidden={showAuthOverlay || undefined}>
-        <main>
-          <HeroSection />
-          <ArchitectureStory />
-          <InfoSection />
+        <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")}>
+          <main id="main-content" tabIndex="-1">
+            <HeroSection />
+            <ArchitectureStory />
+            <InfoSection />
 
-          <div id="system-controls">
-            <SystemControl handleToggle={handleToggle} />
-          </div>
+            <div id="system-controls">
+              <SystemControl handleToggle={handleToggle} />
+            </div>
 
-          <Logs systemToggle={systemToggle} />
+            <Logs systemToggle={systemToggle} />
 
-          <div id="projects">
-            <Projects systemToggle={systemToggle} />
-          </div>
+            <div id="projects">
+              <Projects systemToggle={systemToggle} />
+            </div>
 
-          <TechStack />
-        </main>
+            <TechStack />
+          </main>
 
-        <Footer />
+          <Footer />
+        </div>
       </div>
     </>
   )

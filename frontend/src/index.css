@@ -580,12 +580,7 @@ img {
   transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
 }
 
-.ProjectCard.clickable {
-  cursor: pointer;
-}
-
-.ProjectCard:hover,
-.ProjectCard:focus-visible {
+.ProjectCard:hover {
   transform: translateY(-4px);
   border-color: rgba(87, 221, 242, 0.32);
   background: rgba(12, 23, 34, 0.88);
@@ -1247,19 +1242,6 @@ img {
   outline-offset: 1px;
 }
 
-.checkbox {
-  margin-top: 15px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
-.checkbox input {
-  accent-color: var(--cyan);
-}
-
 .AuthError {
   margin: 13px 0 0;
   color: #f39aa9;
@@ -1492,4 +1474,25 @@ img {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+
+.SkipLink {
+  position: fixed;
+  left: 14px;
+  top: 14px;
+  z-index: 1200;
+  padding: 10px 13px;
+  border: 1px solid var(--cyan);
+  border-radius: 9px;
+  background: #071019;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 750;
+  transform: translateY(-160%);
+  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.SkipLink:focus {
+  transform: translateY(0);
 }

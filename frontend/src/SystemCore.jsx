@@ -252,11 +252,14 @@ const SystemCore = ({
     resize()
 
     let animationFrame = 0
-    let visible = true
+    let inViewport = true
+    let pageVisible = !document.hidden
+
+    const canRender = () => inViewport && pageVisible
 
     const renderFrame = (time) => {
       animationFrame = 0
-      if (!visible) return
+      if (!canRender()) return
 
       const seconds = time * 0.001
       const storyProgress = THREE.MathUtils.clamp(storyProgressRef?.current ?? 0, 0, 1)
@@ -333,33 +336,51 @@ const SystemCore = ({
       animationFrame = window.requestAnimationFrame(renderFrame)
     }
 
+    const stopRendering = () => {
+      if (!animationFrame) return
+      window.cancelAnimationFrame(animationFrame)
+      animationFrame = 0
+    }
+
     const startRendering = () => {
-      if (!visible || animationFrame) return
+      if (!canRender() || animationFrame) return
       animationFrame = window.requestAnimationFrame(renderFrame)
     }
 
     const visibilityObserver = new IntersectionObserver(
       ([entry]) => {
-        visible = entry.isIntersecting
+        inViewport = entry.isIntersecting
 
-        if (visible) {
+        if (canRender()) {
           startRendering()
-        } else if (animationFrame) {
-          window.cancelAnimationFrame(animationFrame)
-          animationFrame = 0
+        } else {
+          stopRendering()
         }
       },
       { threshold: 0.05 },
     )
 
+    const onDocumentVisibility = () => {
+      pageVisible = !document.hidden
+
+      if (canRender()) {
+        startRendering()
+      } else {
+        stopRendering()
+      }
+    }
+
     visibilityObserver.observe(mount)
+    document.addEventListener('visibilitychange', onDocumentVisibility)
     startRendering()
 
     return () => {
-      visible = false
-      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+      inViewport = false
+      pageVisible = false
+      stopRendering()
 
       visibilityObserver.disconnect()
+      document.removeEventListener('visibilitychange', onDocumentVisibility)
       resizeObserver.disconnect()
       mount.removeEventListener('pointermove', onPointerMove)
       mount.removeEventListener('pointerleave', onPointerLeave)

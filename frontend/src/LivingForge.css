@@ -163,3 +163,15 @@
     display: none;
   }
 }
+
+
+@media (prefers-reduced-motion: reduce) and (max-width: 760px),
+       (prefers-reduced-motion: reduce) and (pointer: coarse) {
+  .LivingForge {
+    transform: none;
+  }
+
+  .LivingForgeSprite {
+    transform: translate(-50%, -50%) scale(0.52);
+  }
+}

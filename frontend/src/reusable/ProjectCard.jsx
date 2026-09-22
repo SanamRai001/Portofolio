@@ -11,29 +11,8 @@ const ProjectCard = ({ project }) => {
     imageUrl,
   } = project;
 
-  const openDemo = () => {
-    if (liveDemo) {
-      window.open(liveDemo, "_blank", "noopener,noreferrer");
-    }
-  };
-
-  const handleKeyDown = (event) => {
-    if (!liveDemo) return;
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openDemo();
-    }
-  };
-
   return (
-    <article
-      className={"ProjectCard" + (liveDemo ? " clickable" : "")}
-      onClick={liveDemo ? openDemo : undefined}
-      onKeyDown={handleKeyDown}
-      tabIndex={liveDemo ? 0 : undefined}
-      role={liveDemo ? "link" : undefined}
-      aria-label={liveDemo ? name + " — open live demo" : undefined}
-    >
+    <article className="ProjectCard">
       <div className="ProjectVisual">
         {imageUrl ? (
           <img
@@ -61,23 +40,13 @@ const ProjectCard = ({ project }) => {
 
         <div className="ProjectActions">
           {liveDemo && (
-            <a
-              href={liveDemo}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(event) => event.stopPropagation()}
-            >
+            <a href={liveDemo} target="_blank" rel="noopener noreferrer">
               Live demo <ArrowUpRight size={15} aria-hidden="true" />
             </a>
           )}
 
           {github && (
-            <a
-              href={github}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(event) => event.stopPropagation()}
-            >
+            <a href={github} target="_blank" rel="noopener noreferrer">
               <FaGithub size={15} aria-hidden="true" /> Source
             </a>
           )}

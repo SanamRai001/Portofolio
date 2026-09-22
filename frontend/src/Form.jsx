@@ -30,7 +30,7 @@ const Form = ({ systemToggle }) => {
 
   return (
     <div className="MainForm">
-      <form className="AuthCard" onSubmit={handleSubmit}>
+      <form className="AuthCard" onSubmit={handleSubmit} aria-busy={loading}>
         <div className="AuthCardHead">
           <p className="SectionKicker">Protected backend mode</p>
           <h1>Authenticate to continue</h1>
@@ -52,6 +52,7 @@ const Form = ({ systemToggle }) => {
             placeholder="you@example.com"
             onChange={(event) => setEmail(event.target.value)}
             value={email}
+            autoFocus
             required
           />
         </div>
@@ -68,11 +69,6 @@ const Form = ({ systemToggle }) => {
             required
           />
         </div>
-
-        <label className="checkbox" htmlFor="remember-viewer">
-          <input id="remember-viewer" type="checkbox" />
-          <span>Remember me on this device</span>
-        </label>
 
         {error && <p className="AuthError" role="alert">{error}</p>}
 
