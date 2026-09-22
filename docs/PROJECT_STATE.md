@@ -6,48 +6,48 @@ Turn Sanam Rai's portfolio into a distinctive interactive engineering experience
 ## Current authoritative branch
 `master`
 
-Active development branch: `feat/immersive-system-phase-4`
+Active development branch: `feat/immersive-system-phase-5`
 
 ## Completed phases
 
 ### Forge living portfolio
-- Backend-focused portfolio redesign, Forge companion, backend lab, project presentation, observability console, auth overlay, and existing API contracts are preserved.
+- Backend-focused portfolio redesign, Forge companion, backend lab, observability console, authentication overlay, and existing API contracts are preserved.
 
 ### Phase 1 — Motion foundation
 - Merged to `master` at `16048d8 feat: establish immersive motion foundation`.
-- GSAP 3.15.0, shared motion tokens, reduced-motion handling, scoped cleanup, and hero entrance.
-- Vercel passed before merge.
+- GSAP foundation, shared motion tokens, reduced-motion handling, scoped cleanup, and hero entrance.
 
 ### Phase 2 — System Core prototype
 - Merged to `master` at `b483bd6 feat: prototype interactive system core`.
 - Three.js System Core with capped DPR, compact-device reductions, off-screen pause, static fallback, and full disposal.
-- Vercel passed before merge.
 
 ### Phase 3 — Scroll architecture story
 - Merged to `master` at `870db1a feat: add scroll architecture story`.
 - Sticky System Core plus API/Auth/Cache/Database/Runtime chapters driven by native scroll + ScrollTrigger.
-- Mobile remains linear; reduced motion remains readable/static.
-- Vercel passed before merge.
+
+### Phase 4 — Backend Lab visual synchronization
+- Merged to `master` at `ecd0895 feat: sync backend lab with system core`.
+- Real backend configuration state now drives a dedicated System Core inside the Backend Lab.
+- Rate limiting remains explicitly configuration-only because its middleware is not currently wired to the project route.
 
 ## Active phase
-**Phase 4 — Backend Lab visual synchronization**
+**Phase 5 — Project storytelling**
 
 ### Added
-- Embedded a dedicated System Core inside the real Backend Feature Control Panel.
-- The visual reads directly from the same local configuration object that is synchronized with `GET/POST /api/system`.
-- Optimistic toggle changes update both the switch and System Core immediately.
-- Failed backend writes already revert the existing toggle object, which now also reverts the visualization automatically.
-- AUTH maps to the authentication flag and trust-boundary ring.
-- CACHE maps to the cache flag and cache/request path.
-- DATABASE maps to the database flag and persistence path.
-- RUNTIME maps to request logging/observability.
-- Disabled mapped services visibly dim their node, halo, connection, and request pulse.
-- Logging state also controls the ambient observability particle field.
-- Static/reduced-motion mode still exposes ON/OFF state through labels and adjacent status cards.
-- Rate limiting and pagination remain visible as configuration flags only; they are not given fabricated network behavior.
+- Replaced the static three-card Selected Work grid with an editorial engineering case-study sequence.
+- Desktop uses one sticky visual stage and three scroll chapters.
+- Active project changes the large project image, engineering signal, focus statement, and progress rail.
+- Case studies preserve the existing project descriptions, technology lists, source links, and live-product links.
+- Added a small architecture lens for each selected project using facts already represented in the project descriptions.
+- GSAP ScrollTrigger only observes chapter position and reveal state; native scrolling is untouched.
+- Mobile removes the sticky stage and places the corresponding project image directly inside each project chapter.
+- Reduced-motion mode also becomes a linear document with no crossfade or scroll reveal dependency.
+- The backend-fetched Core Projects section remains unchanged so the portfolio still demonstrates the live project API separately.
 
-## Truthfulness guardrail
-`rateLimitMiddleware` exists but is not currently attached to the project route middleware chain. Phase 4 explicitly labels rate limiting as configuration-only rather than animating it as if it were enforced.
+## Selected projects in story
+- Krishi Bazar — marketplace flows, JWT auth, synchronized cart state, dual checkout, persistence.
+- Backend-Controlled Portfolio System — runtime configuration, auth/cache/logging/pagination/system behavior.
+- YakTalk — authenticated Socket.IO handshake, presence, private realtime messaging.
 
 ## Backend behavior preserved
 Frontend contracts remain unchanged for:
@@ -57,15 +57,14 @@ Frontend contracts remain unchanged for:
 - `/api/projects`
 - `/api/auth/login`
 
-No backend source file is modified in Phase 4.
+No backend source file is modified in Phase 5.
 
 ## Explicitly not included yet
-- No project-stack redesign.
-- No Forge reactions to backend state.
-- No backend route or middleware changes.
-- No new API endpoint.
+- No changes to the live API-driven Core Projects component.
+- No Forge project reactions.
+- No new project data model or backend fields.
 - No page-wide WebGL background.
-- No sound, shaders, post-processing, or imported 3D models.
+- No audio, shaders, post-processing, or imported 3D models.
 
 ## Next phase
-**Phase 5 — project storytelling**, if Phase 4 passes build and visual review. Replace ordinary project-card browsing with a more editorial engineering case-study sequence while retaining accessible direct links and mobile simplicity.
+**Phase 6 — Forge contextual reactions and final interaction polish**, if Phase 5 passes build and visual review. Give Forge restrained reactions to project/lab context, then perform mobile, reduced-motion, performance, accessibility, and branch-cleanup review before considering the immersive pass complete.

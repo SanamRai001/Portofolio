@@ -1,7 +1,6 @@
-import { useState } from "react"
 import { Braces, DatabaseZap, Workflow } from 'lucide-react'
 import initialProjects from "./data/initialproject"
-import ProjectCard from "./reusable/ProjectCard"
+import ProjectStory from './ProjectStory'
 
 const identity = [
   {
@@ -22,7 +21,7 @@ const identity = [
 ];
 
 const InfoSection = () => {
-  const [projects] = useState(initialProjects);
+  const selectedProjects = initialProjects.slice(0, 3);
 
   return (
     <section className="InfoSection" id="about" aria-labelledby="engineering-identity-title">
@@ -55,14 +54,12 @@ const InfoSection = () => {
             <p className="SectionKicker">Selected work</p>
             <h2>Projects I use to learn real engineering trade-offs.</h2>
           </div>
-          <p>Static showcase remains available even when the backend database is intentionally disabled in the lab.</p>
+          <p>
+            Three builds, viewed as systems rather than thumbnails. The separate Core Projects section still comes from the live backend API.
+          </p>
         </div>
 
-        <div className="ProjectCards">
-          {projects.slice(0, 3).map((project) => (
-            <ProjectCard key={project._id} project={project} />
-          ))}
-        </div>
+        <ProjectStory projects={selectedProjects} />
       </div>
     </section>
   )
