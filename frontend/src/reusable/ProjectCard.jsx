@@ -1,4 +1,5 @@
-import { ArrowUpRight, Github } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
+import { FaGithub } from 'react-icons/fa'
 
 const ProjectCard = ({ project }) => {
   const {
@@ -77,7 +78,7 @@ const ProjectCard = ({ project }) => {
               rel="noopener noreferrer"
               onClick={(event) => event.stopPropagation()}
             >
-              <Github size={15} aria-hidden="true" /> Source
+              <FaGithub size={15} aria-hidden="true" /> Source
             </a>
           )}
         </div>
