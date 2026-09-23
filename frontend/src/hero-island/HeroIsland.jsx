@@ -38,6 +38,28 @@ const addRock = (group, material, position, scale, rotation) => {
   return rock
 }
 
+const makeGrassTuft = (material, bladeGeometry, position, scale, phase) => {
+  const tuft = new THREE.Group()
+  const bladeOffsets = [
+    [-0.045, 0, -0.015],
+    [0.035, 0.015, 0.025],
+    [0, 0.025, 0.055],
+  ]
+
+  bladeOffsets.forEach(([x, y, z], index) => {
+    const blade = new THREE.Mesh(bladeGeometry, material)
+    blade.position.set(x, y + 0.14, z)
+    blade.rotation.z = (index - 1) * 0.16
+    blade.rotation.y = index * 0.65
+    tuft.add(blade)
+  })
+
+  tuft.position.set(...position)
+  tuft.scale.setScalar(scale)
+  tuft.userData.phase = phase
+  return tuft
+}
+
 const HeroIsland = () => {
   const mountRef = useRef(null)
   const [webglFailed, setWebglFailed] = useState(false)
@@ -177,6 +199,26 @@ const HeroIsland = () => {
       depthWrite: false,
     })
 
+    const grassBladeMaterial = new THREE.MeshStandardMaterial({
+      color: 0x739174,
+      roughness: 0.94,
+      flatShading: true,
+    })
+
+    const waterfallMaterial = new THREE.MeshStandardMaterial({
+      color: 0x69c5d2,
+      emissive: 0x174854,
+      emissiveIntensity: 0.55,
+      transparent: true,
+      opacity: 0.62,
+      roughness: 0.2,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    })
+
+    const streamMaterial = waterfallMaterial.clone()
+    streamMaterial.opacity = 0.5
+
     const islandBody = new THREE.Mesh(
       new THREE.CylinderGeometry(2.08, 1.62, 0.72, 9, 1, false),
       earthMaterial,
@@ -280,6 +322,7 @@ const HeroIsland = () => {
     tree.add(trunk)
 
     const crownGeometry = new THREE.IcosahedronGeometry(0.52, 1)
+    const crownMeshes = []
     const crowns = [
       [-0.24, 0.65, 0.04, 0.92],
       [0.16, 0.72, 0, 1.08],
@@ -291,6 +334,8 @@ const HeroIsland = () => {
       crown.position.set(x, y, z)
       crown.scale.setScalar(scale)
       crown.castShadow = true
+      crown.userData.windPhase = crownMeshes.length * 0.8
+      crownMeshes.push(crown)
       tree.add(crown)
     })
 
@@ -299,6 +344,39 @@ const HeroIsland = () => {
     addRock(root, stoneMaterial, [1.66, 0.48, 0.42], [0.58, 0.42, 0.72], [0.16, -0.24, 0.05])
     addRock(root, stoneMaterial, [-0.35, -2.08, 0.36], [0.58, 1.8, 0.64], [0.25, 0.1, 0.28])
     addRock(root, stoneMaterial, [0.62, -2.38, -0.15], [0.46, 1.35, 0.5], [-0.18, -0.2, -0.14])
+
+    const grassBladeGeometry = new THREE.ConeGeometry(0.045, 0.32, 3)
+    const grassTufts = []
+    const grassTuftData = [
+      [-1.56, 0.42, -0.38, 0.86],
+      [-1.3, 0.42, 0.14, 1],
+      [-1.04, 0.42, 0.72, 0.76],
+      [-0.7, 0.42, -0.78, 0.92],
+      [-0.4, 0.42, -1.02, 0.74],
+      [0.04, 0.42, -0.92, 0.9],
+      [0.34, 0.42, 1.12, 0.76],
+      [0.78, 0.42, -1.12, 0.88],
+      [1.1, 0.42, 0.9, 0.72],
+      [1.45, 0.42, 0.2, 0.9],
+      [1.55, 0.42, -0.35, 0.72],
+      [-1.62, 0.42, 0.92, 0.68],
+      [-0.12, 0.42, 1.42, 0.7],
+      [0.88, 0.42, 1.25, 0.62],
+    ]
+
+    grassTuftData
+      .slice(0, compact ? 8 : grassTuftData.length)
+      .forEach(([x, y, z, scale], index) => {
+        const tuft = makeGrassTuft(
+          grassBladeMaterial,
+          grassBladeGeometry,
+          [x, y, z],
+          scale,
+          index * 0.73,
+        )
+        grassTufts.push(tuft)
+        root.add(tuft)
+      })
 
     const pond = new THREE.Mesh(
       new THREE.CircleGeometry(0.55, compact ? 24 : 36),
@@ -322,17 +400,93 @@ const HeroIsland = () => {
     pondRim.scale.copy(pond.scale)
     root.add(pondRim)
 
+    const rippleMaterials = [0, 1].map(() => new THREE.MeshBasicMaterial({
+      color: 0xa7e5eb,
+      transparent: true,
+      opacity: 0.18,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }))
+
+    const ripples = rippleMaterials.map((material, index) => {
+      const ripple = new THREE.Mesh(
+        new THREE.RingGeometry(0.34, 0.365, compact ? 20 : 32),
+        material,
+      )
+      ripple.position.copy(pond.position)
+      ripple.position.y += 0.012 + index * 0.003
+      ripple.rotation.x = -Math.PI / 2
+      ripple.userData.phase = index * 0.52
+      root.add(ripple)
+      return ripple
+    })
+
+    const stream = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.3, 1.22, 1, 3),
+      streamMaterial,
+    )
+    stream.position.set(-0.38, 0.38, 1.42)
+    stream.rotation.x = -Math.PI / 2
+    root.add(stream)
+
+    const waterfall = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.31, 1.48, 1, 5),
+      waterfallMaterial,
+    )
+    waterfall.position.set(-0.38, -0.31, 1.96)
+    waterfall.rotation.z = -0.025
+    root.add(waterfall)
+
+    const moteCount = compact ? 8 : 18
+    const motePositions = new Float32Array(moteCount * 3)
+    const moteBase = new Float32Array(moteCount * 3)
+    const motePhases = new Float32Array(moteCount)
+
+    for (let index = 0; index < moteCount; index += 1) {
+      const angle = index * 2.399963229728653
+      const radius = 1.25 + (index % 5) * 0.27
+      const x = Math.cos(angle) * radius
+      const y = 0.62 + (index % 6) * 0.27
+      const z = Math.sin(angle) * radius * 0.78
+
+      motePositions[index * 3] = x
+      motePositions[index * 3 + 1] = y
+      motePositions[index * 3 + 2] = z
+      moteBase[index * 3] = x
+      moteBase[index * 3 + 1] = y
+      moteBase[index * 3 + 2] = z
+      motePhases[index] = index * 0.83
+    }
+
+    const moteGeometry = new THREE.BufferGeometry()
+    moteGeometry.setAttribute('position', new THREE.BufferAttribute(motePositions, 3))
+    const moteMaterial = new THREE.PointsMaterial({
+      color: 0xb5eef0,
+      size: compact ? 0.022 : 0.03,
+      transparent: true,
+      opacity: compact ? 0.28 : 0.38,
+      depthWrite: false,
+      sizeAttenuation: true,
+    })
+    const motes = new THREE.Points(moteGeometry, moteMaterial)
+    root.add(motes)
+
     const cloudA = makeCloud(cloudMaterial, 0.86)
     cloudA.position.set(-3.6, 2.65, -1.45)
+    cloudA.userData = { startX: -4.2, span: 8.4, offset: 0.6, speed: 0.12, baseY: 2.65, phase: 0 }
     scene.add(cloudA)
 
     const cloudB = makeCloud(cloudMaterial, 0.68)
     cloudB.position.set(3.1, 2.15, -2.1)
+    cloudB.userData = { startX: -4.2, span: 8.4, offset: 7.3, speed: 0.095, baseY: 2.15, phase: 1.4 }
     scene.add(cloudB)
 
     const cloudC = makeCloud(cloudMaterial, 0.48)
     cloudC.position.set(1.7, 3.55, -3.4)
+    cloudC.userData = { startX: -4.2, span: 8.4, offset: 5.9, speed: 0.075, baseY: 3.55, phase: 2.2 }
     scene.add(cloudC)
+
+    const clouds = [cloudA, cloudB, cloudC]
 
     const pointer = { x: 0, y: 0 }
 
@@ -390,11 +544,52 @@ const HeroIsland = () => {
       root.rotation.y += (targetRootRotation - root.rotation.y) * 0.035
       root.rotation.z = Math.sin(seconds * 0.46) * 0.008
 
-      cloudA.position.x = -3.6 + Math.sin(seconds * 0.12) * 0.5
-      cloudB.position.x = 3.1 + Math.sin(seconds * 0.1 + 1.4) * 0.42
-      cloudC.position.x = 1.7 + Math.sin(seconds * 0.085 + 2.2) * 0.36
+      const wind = Math.sin(seconds * 0.86) * 0.035 + Math.sin(seconds * 1.63 + 0.8) * 0.012
+      tree.rotation.z = wind
+      tree.rotation.x = Math.sin(seconds * 0.62) * 0.008
 
+      crownMeshes.forEach((crown, index) => {
+        crown.rotation.z = wind * (0.72 + index * 0.13) + Math.sin(seconds * 1.1 + crown.userData.windPhase) * 0.012
+        crown.rotation.x = Math.sin(seconds * 0.74 + crown.userData.windPhase) * 0.009
+      })
+
+      grassTufts.forEach((tuft) => {
+        const gust = Math.sin(seconds * 1.45 + tuft.userData.phase) * 0.07
+        tuft.rotation.z = wind * 1.7 + gust
+        tuft.rotation.x = Math.sin(seconds * 1.08 + tuft.userData.phase) * 0.025
+      })
+
+      clouds.forEach((cloud) => {
+        const { startX, span, offset, speed, baseY, phase } = cloud.userData
+        cloud.position.x = startX + ((offset + seconds * speed) % span)
+        cloud.position.y = baseY + Math.sin(seconds * 0.28 + phase) * 0.045
+      })
+
+      ripples.forEach((ripple, index) => {
+        const progress = (seconds * 0.2 + ripple.userData.phase) % 1
+        const spread = 0.88 + progress * 0.82
+        ripple.scale.set(1.35 * spread, 0.78 * spread, 1)
+        rippleMaterials[index].opacity = (1 - progress) * 0.2
+      })
+
+      pond.scale.x = 1.35 + Math.sin(seconds * 0.9) * 0.015
+      pond.scale.y = 0.78 + Math.sin(seconds * 1.16 + 0.6) * 0.012
       pondMaterial.opacity = 0.76 + Math.sin(seconds * 1.3) * 0.035
+
+      streamMaterial.opacity = 0.47 + Math.sin(seconds * 1.7) * 0.04
+      waterfallMaterial.opacity = 0.58 + Math.sin(seconds * 1.42 + 0.4) * 0.06
+      waterfall.scale.y = 1 + Math.sin(seconds * 1.15) * 0.018
+
+      const moteAttribute = moteGeometry.getAttribute('position')
+      for (let index = 0; index < moteCount; index += 1) {
+        const phase = motePhases[index]
+        motePositions[index * 3] = moteBase[index * 3] + Math.sin(seconds * 0.43 + phase) * 0.055
+        motePositions[index * 3 + 1] = moteBase[index * 3 + 1] + Math.sin(seconds * 0.72 + phase) * 0.09
+        motePositions[index * 3 + 2] = moteBase[index * 3 + 2] + Math.cos(seconds * 0.37 + phase) * 0.045
+      }
+      moteAttribute.needsUpdate = true
+      motes.rotation.y = seconds * 0.018
+
       houseGlow.intensity = (compact ? 2.2 : 3.2) + Math.sin(seconds * 0.9) * 0.12
 
       renderer.render(scene, camera)
@@ -463,10 +658,10 @@ const HeroIsland = () => {
     <div
       className={'HeroIsland' + (staticMode ? ' is-static' : '')}
       role="img"
-      aria-label="A small surreal floating island with a warm house, tree, pond, rocks, and drifting clouds."
+      aria-label="A small surreal floating island with a warm house, wind-swept tree and grass, pond, waterfall, rocks, drifting clouds, and soft floating motes."
     >
       <div className="HeroIslandMeta" aria-hidden="true">
-        <span>WORLD / 01</span>
+        <span>WORLD / 02</span>
         <span>{staticMode ? 'STILL WORLD' : 'MOVE GENTLY'}</span>
       </div>
 
@@ -485,11 +680,13 @@ const HeroIsland = () => {
             <i className="FallbackHouse" />
             <i className="FallbackRoof" />
             <i className="FallbackWindow" />
+            <i className="FallbackPond" />
+            <i className="FallbackWaterfall" />
           </span>
         </div>
 
         <div className="HeroIslandCaption" aria-hidden="true">
-          <span>A small place between builds.</span>
+          <span>A small world, alive quietly.</span>
           <strong>handmade in Three.js</strong>
         </div>
       </div>

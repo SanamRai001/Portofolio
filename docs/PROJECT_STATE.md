@@ -113,3 +113,24 @@ Active branch: `feat/hero-surreal-island-phase-1`.
 
 ### Phase 1 success criterion
 Judge the composition and visual identity first. Only continue into environmental animation if the basic island feels memorable in the deployed hero.
+
+
+## Surreal hero world — Phase 2
+Active branch: `feat/hero-surreal-island-phase-2`.
+
+### Living environment added
+- Added lightweight grass tufts built from shared primitive geometry; desktop renders the full set and compact devices render a reduced set.
+- Added subtle wind motion to the tree, individual canopy clusters, and grass groups using deterministic sine-based motion.
+- Replaced cloud bobbing-in-place with slow continuous horizontal drift plus small vertical variation.
+- Added two procedural pond ripple rings and gentle pond surface breathing without introducing a water shader.
+- Added a narrow surface stream and translucent waterfall ribbon over the island edge.
+- Added a small deterministic floating-mote field around the island.
+- Preserved Phase 1 camera parallax, hover motion, reduced-motion fallback, offscreen/document-hidden pause, and full WebGL cleanup.
+- No new dependency, GLB asset, physics system, post-processing stack, or backend change.
+
+### Still deferred
+- Forge living inside the island.
+- Day/night lighting cycle.
+- Fireflies or shooting stars.
+- Click/hover secrets.
+- Advanced water/reflection shader.

@@ -120,6 +120,8 @@
 .FallbackWindow,
 .FallbackTreeTrunk,
 .FallbackTreeCrown,
+.FallbackPond,
+.FallbackWaterfall,
 .FallbackCloud {
   position: absolute;
   display: block;
@@ -170,6 +172,26 @@
   border-radius: 2px;
   background: #ffc979;
   box-shadow: 0 0 13px rgba(255, 169, 67, 0.58);
+}
+
+.FallbackPond {
+  left: 72px;
+  top: 5px;
+  width: 48px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid rgba(180, 238, 242, 0.35);
+  background: rgba(90, 184, 199, 0.76);
+}
+
+.FallbackWaterfall {
+  left: 106px;
+  top: 14px;
+  width: 9px;
+  height: 52px;
+  border-radius: 2px 2px 8px 8px;
+  background: linear-gradient(rgba(105, 197, 210, 0.78), rgba(105, 197, 210, 0.16));
+  transform: rotate(-5deg);
 }
 
 .FallbackTreeTrunk {
