@@ -47,6 +47,7 @@ const LivingForge = () => {
     let lastPointer = { x: 0, y: 0 };
     let reactionTimer = 0;
     let reactionActive = false;
+    let yieldingToIsland = false;
     const calmTimers = new Set();
     const sparkTimers = new Set();
 
@@ -107,6 +108,8 @@ const LivingForge = () => {
     };
 
     const spawnSpark = () => {
+      if (yieldingToIsland) return;
+
       const spark = document.createElement("span");
       spark.className = "LivingForgeSpark";
       spark.style.left = (position.x + FORGE_WIDTH / 2) + "px";
@@ -154,6 +157,8 @@ const LivingForge = () => {
     };
 
     const onPointerMove = (event) => {
+      if (yieldingToIsland) return;
+
       const centerX = position.x + FORGE_WIDTH / 2;
       const centerY = position.y + FORGE_HEIGHT / 2;
       const dx = event.clientX - centerX;
@@ -229,7 +234,30 @@ const LivingForge = () => {
       applyPosition();
     };
 
+    const islandPanel = document.querySelector(".HeroPanel");
+    const islandObserver = islandPanel
+      ? new IntersectionObserver(
+          ([entry]) => {
+            yieldingToIsland = entry.isIntersecting && entry.intersectionRatio >= 0.45;
+            forge.dataset.yielding = yieldingToIsland ? "true" : "false";
+
+            if (yieldingToIsland) {
+              clearCalmTimers();
+              forge.dataset.state = "idle";
+            } else if (!reactionActive) {
+              scheduleCalmSequence();
+            }
+          },
+          { threshold: [0, 0.45, 0.75] }
+        )
+      : null;
+
+    if (islandPanel && islandObserver) {
+      islandObserver.observe(islandPanel);
+    }
+
     forge.dataset.state = "idle";
+    forge.dataset.yielding = "false";
     applyPosition();
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
@@ -242,6 +270,7 @@ const LivingForge = () => {
       window.removeEventListener(FORGE_REACTION_EVENT, playReaction);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("resize", onResize);
+      if (islandObserver) islandObserver.disconnect();
 
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       if (reactionTimer) window.clearTimeout(reactionTimer);

@@ -180,3 +180,22 @@ Active branch: `feat/hero-surreal-island-phase-4`.
 - Advanced reflective water.
 - More weather systems.
 - Any additional major hero feature before a production/performance pass.
+
+
+## Surreal hero world — Phase 5 production pass
+Active branch: `chore/hero-surreal-island-production-pass`.
+
+### Hardening changes
+- Added a conservative low-power mode using coarse-pointer/compact layout plus available hardware-concurrency/device-memory hints.
+- Low-power mode disables real-time shadows, caps DPR at 1, disables antialiasing, requests a low-power WebGL context, and reduces grass, motes, fireflies, stars, and smoke detail.
+- Desktop shadow-map size was reduced from 768 to 512 because the hero uses stylized soft forms rather than shadow-detail-critical geometry.
+- Raycasting no longer runs directly on every pointer event. Pointer movement only marks interaction state dirty; at most one raycast is processed inside the next render frame.
+- Pointer/raycast listeners are not installed for coarse-pointer devices.
+- Added CSS paint/layout containment to the island component.
+- Raised the existing visual overlay above the opaque Three.js canvas so its subtle vignette remains effective after Phase 4 introduced an opaque scene background.
+- The global cursor-following Forge now yields to the island Forge while the hero panel is prominently visible, preventing two mascot instances from competing in the same composition.
+- Global Forge spark generation and cursor following pause while it is yielding; normal behavior resumes after the island panel leaves the main viewport.
+- Existing offscreen/document-hidden render pause, reduced-motion fallback, scene disposal, texture disposal, and backend isolation remain unchanged.
+
+### Completion boundary
+No new creative system was added. The surreal island should now be treated as feature-complete unless a deployed visual or performance regression is verified.

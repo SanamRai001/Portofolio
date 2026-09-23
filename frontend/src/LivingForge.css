@@ -11,6 +11,12 @@
   transform: translate3d(calc(82vw - 62px), calc(34vh - 67px), 0);
   will-change: transform;
   contain: layout style;
+  opacity: 1;
+  transition: opacity 220ms ease;
+}
+
+.LivingForge[data-yielding="true"] {
+  opacity: 0.08;
 }
 
 .LivingForgeAura {

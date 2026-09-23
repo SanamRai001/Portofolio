@@ -76,6 +76,10 @@ const HeroIsland = () => {
     if (!mount || reducedMotion) return undefined
 
     const compact = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches
+    const finePointer = window.matchMedia('(pointer: fine)').matches
+    const hardwareConcurrency = navigator.hardwareConcurrency || 8
+    const deviceMemory = navigator.deviceMemory || 8
+    const lowPower = compact || hardwareConcurrency <= 4 || deviceMemory <= 4
     const scene = new THREE.Scene()
 
     const atmosphere = {
@@ -105,9 +109,9 @@ const HeroIsland = () => {
 
     try {
       renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: !compact,
-        powerPreference: 'high-performance',
+        alpha: false,
+        antialias: !lowPower,
+        powerPreference: lowPower ? 'low-power' : 'high-performance',
       })
     } catch (error) {
       console.warn('Hero island WebGL unavailable', error)
@@ -116,9 +120,9 @@ const HeroIsland = () => {
     }
 
     renderer.setClearColor(0x000000, 0)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compact ? 1.1 : 1.5))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.4))
     renderer.outputColorSpace = THREE.SRGBColorSpace
-    renderer.shadowMap.enabled = !compact
+    renderer.shadowMap.enabled = !lowPower
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     mount.replaceChildren(renderer.domElement)
 
@@ -132,9 +136,9 @@ const HeroIsland = () => {
 
     const keyLight = new THREE.DirectionalLight(0xffe5bd, compact ? 2.3 : 2.8)
     keyLight.position.set(4.5, 7, 4)
-    keyLight.castShadow = !compact
-    if (!compact) {
-      keyLight.shadow.mapSize.set(768, 768)
+    keyLight.castShadow = !lowPower
+    if (!lowPower) {
+      keyLight.shadow.mapSize.set(512, 512)
       keyLight.shadow.camera.near = 0.1
       keyLight.shadow.camera.far = 18
       keyLight.shadow.camera.left = -5
@@ -360,10 +364,10 @@ const HeroIsland = () => {
     const smokeGeometry = new THREE.SphereGeometry(0.11, 8, 7)
     const smokePuffs = []
 
-    for (let index = 0; index < (compact ? 3 : 4); index += 1) {
+    for (let index = 0; index < (lowPower ? 3 : 4); index += 1) {
       const material = smokeMaterial.clone()
       const puff = new THREE.Mesh(smokeGeometry, material)
-      puff.userData.phase = index / (compact ? 3 : 4)
+      puff.userData.phase = index / (lowPower ? 3 : 4)
       smokeGroup.add(puff)
       smokePuffs.push(puff)
     }
@@ -425,7 +429,7 @@ const HeroIsland = () => {
     ]
 
     grassTuftData
-      .slice(0, compact ? 8 : grassTuftData.length)
+      .slice(0, lowPower ? 6 : grassTuftData.length)
       .forEach(([x, y, z, scale], index) => {
         const tuft = makeGrassTuft(
           grassBladeMaterial,
@@ -497,7 +501,7 @@ const HeroIsland = () => {
     waterfall.rotation.z = -0.025
     root.add(waterfall)
 
-    const moteCount = compact ? 8 : 18
+    const moteCount = lowPower ? 6 : 18
     const motePositions = new Float32Array(moteCount * 3)
     const moteBase = new Float32Array(moteCount * 3)
     const motePhases = new Float32Array(moteCount)
@@ -531,7 +535,7 @@ const HeroIsland = () => {
     const motes = new THREE.Points(moteGeometry, moteMaterial)
     root.add(motes)
 
-    const fireflyCount = compact ? 4 : 9
+    const fireflyCount = lowPower ? 3 : 9
     const fireflyPositions = new Float32Array(fireflyCount * 3)
     const fireflyBase = new Float32Array(fireflyCount * 3)
     const fireflyPhases = new Float32Array(fireflyCount)
@@ -557,7 +561,7 @@ const HeroIsland = () => {
     const fireflies = new THREE.Points(fireflyGeometry, fireflyMaterial)
     root.add(fireflies)
 
-    const starCount = compact ? 24 : 48
+    const starCount = lowPower ? 18 : 48
     const starPositions = new Float32Array(starCount * 3)
 
     for (let index = 0; index < starCount; index += 1) {
@@ -660,6 +664,7 @@ const HeroIsland = () => {
     const pointer = { x: 0, y: 0 }
     const raycaster = new THREE.Raycaster()
     let hoverTarget = null
+    let pointerDirty = false
     let atmosphereLabel = ''
 
     const getAtmosphereState = (phase) => {
@@ -715,18 +720,21 @@ const HeroIsland = () => {
 
       pointer.x = THREE.MathUtils.clamp(((event.clientX - bounds.left) / bounds.width - 0.5) * 2, -1, 1)
       pointer.y = THREE.MathUtils.clamp(((event.clientY - bounds.top) / bounds.height - 0.5) * 2, -1, 1)
-      updateHoverTarget()
+      pointerDirty = true
     }
 
     const onPointerLeave = () => {
       pointer.x = 0
       pointer.y = 0
+      pointerDirty = false
       hoverTarget = null
       mount.style.cursor = 'default'
     }
 
-    mount.addEventListener('pointermove', onPointerMove, { passive: true })
-    mount.addEventListener('pointerleave', onPointerLeave)
+    if (finePointer) {
+      mount.addEventListener('pointermove', onPointerMove, { passive: true })
+      mount.addEventListener('pointerleave', onPointerLeave)
+    }
 
     const resize = () => {
       const width = Math.max(mount.clientWidth, 1)
@@ -814,6 +822,11 @@ const HeroIsland = () => {
       camera.position.y += (cameraTargetY - camera.position.y) * 0.035
       camera.position.z += (cameraTargetZ - camera.position.z) * 0.035
       camera.lookAt(0, -0.12, 0)
+
+      if (finePointer && pointerDirty) {
+        updateHoverTarget()
+        pointerDirty = false
+      }
 
       root.position.y = -0.08 + Math.sin(seconds * 0.72) * 0.075
       const targetRootRotation = -0.24 + pointer.x * 0.08
@@ -955,8 +968,10 @@ const HeroIsland = () => {
       visibilityObserver.disconnect()
       document.removeEventListener('visibilitychange', onDocumentVisibility)
       resizeObserver.disconnect()
-      mount.removeEventListener('pointermove', onPointerMove)
-      mount.removeEventListener('pointerleave', onPointerLeave)
+      if (finePointer) {
+        mount.removeEventListener('pointermove', onPointerMove)
+        mount.removeEventListener('pointerleave', onPointerLeave)
+      }
 
       scene.traverse((object) => {
         if (object.geometry) object.geometry.dispose()

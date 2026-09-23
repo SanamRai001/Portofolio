@@ -1,5 +1,6 @@
 .HeroIsland {
   position: relative;
+  contain: layout paint style;
   min-height: 356px;
   overflow: hidden;
   border-bottom: 1px solid var(--line);
@@ -13,7 +14,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
   background:
     linear-gradient(180deg, transparent 65%, rgba(4, 10, 16, 0.26)),
