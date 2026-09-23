@@ -219,6 +219,23 @@ const HeroIsland = () => {
     const streamMaterial = waterfallMaterial.clone()
     streamMaterial.opacity = 0.5
 
+    const smokeMaterial = new THREE.MeshBasicMaterial({
+      color: 0xb9c4c8,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false,
+    })
+
+    const fireflyMaterial = new THREE.PointsMaterial({
+      color: 0xffd479,
+      size: compact ? 0.035 : 0.045,
+      transparent: true,
+      opacity: compact ? 0.48 : 0.7,
+      depthWrite: false,
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending,
+    })
+
     const islandBody = new THREE.Mesh(
       new THREE.CylinderGeometry(2.08, 1.62, 0.72, 9, 1, false),
       earthMaterial,
@@ -307,6 +324,21 @@ const HeroIsland = () => {
     const houseGlow = new THREE.PointLight(0xffb257, compact ? 2.2 : 3.2, 3.8)
     houseGlow.position.set(0.7, 1.04, 0.85)
     root.add(houseGlow)
+
+    const smokeGroup = new THREE.Group()
+    smokeGroup.position.set(-0.24, 1.02, -0.1)
+    house.add(smokeGroup)
+
+    const smokeGeometry = new THREE.SphereGeometry(0.11, 8, 7)
+    const smokePuffs = []
+
+    for (let index = 0; index < (compact ? 3 : 4); index += 1) {
+      const material = smokeMaterial.clone()
+      const puff = new THREE.Mesh(smokeGeometry, material)
+      puff.userData.phase = index / (compact ? 3 : 4)
+      smokeGroup.add(puff)
+      smokePuffs.push(puff)
+    }
 
     const tree = new THREE.Group()
     tree.position.set(-0.92, 0.78, -0.08)
@@ -471,6 +503,77 @@ const HeroIsland = () => {
     const motes = new THREE.Points(moteGeometry, moteMaterial)
     root.add(motes)
 
+    const fireflyCount = compact ? 4 : 9
+    const fireflyPositions = new Float32Array(fireflyCount * 3)
+    const fireflyBase = new Float32Array(fireflyCount * 3)
+    const fireflyPhases = new Float32Array(fireflyCount)
+
+    for (let index = 0; index < fireflyCount; index += 1) {
+      const angle = index * 2.17
+      const radius = 0.48 + (index % 4) * 0.18
+      const x = -0.36 + Math.cos(angle) * radius
+      const y = 0.72 + (index % 3) * 0.24
+      const z = 0.12 + Math.sin(angle) * radius * 0.72
+
+      fireflyPositions[index * 3] = x
+      fireflyPositions[index * 3 + 1] = y
+      fireflyPositions[index * 3 + 2] = z
+      fireflyBase[index * 3] = x
+      fireflyBase[index * 3 + 1] = y
+      fireflyBase[index * 3 + 2] = z
+      fireflyPhases[index] = index * 1.19
+    }
+
+    const fireflyGeometry = new THREE.BufferGeometry()
+    fireflyGeometry.setAttribute('position', new THREE.BufferAttribute(fireflyPositions, 3))
+    const fireflies = new THREE.Points(fireflyGeometry, fireflyMaterial)
+    root.add(fireflies)
+
+    let forgeTexture = null
+    let forgeMaterial = null
+    let forgeSprite = null
+    let forgeFrame = -1
+    let disposed = false
+
+    const interactiveTargets = [
+      { object: houseBody, type: 'house' },
+      { object: pond, type: 'pond' },
+    ]
+
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.load(
+      '/forge/forge-sprite.svg',
+      (texture) => {
+        if (disposed) {
+          texture.dispose()
+          return
+        }
+
+        forgeTexture = texture
+        forgeTexture.colorSpace = THREE.SRGBColorSpace
+        forgeTexture.repeat.set(1 / 8, 1 / 11)
+        forgeTexture.offset.set(0, 8 / 11)
+
+        forgeMaterial = new THREE.SpriteMaterial({
+          map: forgeTexture,
+          transparent: true,
+          alphaTest: 0.02,
+          depthWrite: false,
+        })
+
+        forgeSprite = new THREE.Sprite(forgeMaterial)
+        forgeSprite.position.set(-0.42, 0.94, 0.82)
+        forgeSprite.scale.set(0.62, 0.68, 1)
+        forgeSprite.renderOrder = 4
+        root.add(forgeSprite)
+        interactiveTargets.push({ object: forgeSprite, type: 'forge' })
+      },
+      undefined,
+      (error) => {
+        console.warn('Forge island cameo texture unavailable', error)
+      },
+    )
+
     const cloudA = makeCloud(cloudMaterial, 0.86)
     cloudA.position.set(-3.6, 2.65, -1.45)
     cloudA.userData = { startX: -4.2, span: 8.4, offset: 0.6, speed: 0.12, baseY: 2.65, phase: 0 }
@@ -489,6 +592,27 @@ const HeroIsland = () => {
     const clouds = [cloudA, cloudB, cloudC]
 
     const pointer = { x: 0, y: 0 }
+    const raycaster = new THREE.Raycaster()
+    let hoverTarget = null
+
+    const updateHoverTarget = () => {
+      scene.updateMatrixWorld(true)
+      raycaster.setFromCamera(pointer, camera)
+
+      const hits = raycaster.intersectObjects(
+        interactiveTargets.map((item) => item.object),
+        false,
+      )
+
+      hoverTarget = null
+
+      if (hits.length) {
+        const match = interactiveTargets.find((item) => item.object === hits[0].object)
+        hoverTarget = match?.type || null
+      }
+
+      mount.style.cursor = hoverTarget ? 'pointer' : 'default'
+    }
 
     const onPointerMove = (event) => {
       const bounds = mount.getBoundingClientRect()
@@ -496,11 +620,14 @@ const HeroIsland = () => {
 
       pointer.x = THREE.MathUtils.clamp(((event.clientX - bounds.left) / bounds.width - 0.5) * 2, -1, 1)
       pointer.y = THREE.MathUtils.clamp(((event.clientY - bounds.top) / bounds.height - 0.5) * 2, -1, 1)
+      updateHoverTarget()
     }
 
     const onPointerLeave = () => {
       pointer.x = 0
       pointer.y = 0
+      hoverTarget = null
+      mount.style.cursor = 'default'
     }
 
     mount.addEventListener('pointermove', onPointerMove, { passive: true })
@@ -565,11 +692,14 @@ const HeroIsland = () => {
         cloud.position.y = baseY + Math.sin(seconds * 0.28 + phase) * 0.045
       })
 
+      const pondHoverBoost = hoverTarget === 'pond' ? 1 : 0
+
       ripples.forEach((ripple, index) => {
-        const progress = (seconds * 0.2 + ripple.userData.phase) % 1
-        const spread = 0.88 + progress * 0.82
+        const speed = 0.2 + pondHoverBoost * 0.18
+        const progress = (seconds * speed + ripple.userData.phase) % 1
+        const spread = 0.88 + progress * (0.82 + pondHoverBoost * 0.22)
         ripple.scale.set(1.35 * spread, 0.78 * spread, 1)
-        rippleMaterials[index].opacity = (1 - progress) * 0.2
+        rippleMaterials[index].opacity = (1 - progress) * (0.2 + pondHoverBoost * 0.15)
       })
 
       pond.scale.x = 1.35 + Math.sin(seconds * 0.9) * 0.015
@@ -590,7 +720,46 @@ const HeroIsland = () => {
       moteAttribute.needsUpdate = true
       motes.rotation.y = seconds * 0.018
 
-      houseGlow.intensity = (compact ? 2.2 : 3.2) + Math.sin(seconds * 0.9) * 0.12
+      const fireflyAttribute = fireflyGeometry.getAttribute('position')
+      for (let index = 0; index < fireflyCount; index += 1) {
+        const phase = fireflyPhases[index]
+        fireflyPositions[index * 3] = fireflyBase[index * 3] + Math.sin(seconds * 0.64 + phase) * 0.11
+        fireflyPositions[index * 3 + 1] = fireflyBase[index * 3 + 1] + Math.sin(seconds * 1.08 + phase) * 0.13
+        fireflyPositions[index * 3 + 2] = fireflyBase[index * 3 + 2] + Math.cos(seconds * 0.53 + phase) * 0.09
+      }
+      fireflyAttribute.needsUpdate = true
+      fireflyMaterial.opacity = (compact ? 0.48 : 0.7) + Math.sin(seconds * 1.35) * 0.1
+
+      smokePuffs.forEach((puff) => {
+        const progress = (seconds * 0.11 + puff.userData.phase) % 1
+        puff.position.set(
+          Math.sin(seconds * 0.5 + puff.userData.phase * 6) * 0.08 + progress * 0.1,
+          progress * 1.1,
+          Math.cos(seconds * 0.35 + puff.userData.phase * 5) * 0.045,
+        )
+        const scale = 0.62 + progress * 1.45
+        puff.scale.setScalar(scale)
+        puff.material.opacity = (1 - progress) * 0.15
+      })
+
+      if (forgeTexture && forgeSprite) {
+        const forgeRow = hoverTarget === 'forge' ? 4 : 2
+        const frame = Math.floor(seconds * (hoverTarget === 'forge' ? 8 : 5)) % 8
+        const frameKey = forgeRow * 8 + frame
+
+        if (frameKey !== forgeFrame) {
+          forgeTexture.offset.x = frame / 8
+          forgeTexture.offset.y = (10 - forgeRow) / 11
+          forgeFrame = frameKey
+        }
+
+        forgeSprite.position.y = 0.94 + Math.sin(seconds * 1.1) * 0.018
+      }
+
+      const houseHoverBoost = hoverTarget === 'house' ? 1 : 0
+      const houseBase = compact ? 2.2 : 3.2
+      houseGlow.intensity += ((houseBase + houseHoverBoost * 2.4 + Math.sin(seconds * 0.9) * 0.12) - houseGlow.intensity) * 0.12
+      windowMaterial.emissiveIntensity += ((1.7 + houseHoverBoost * 1.8) - windowMaterial.emissiveIntensity) * 0.14
 
       renderer.render(scene, camera)
       animationFrame = window.requestAnimationFrame(renderFrame)
@@ -627,6 +796,7 @@ const HeroIsland = () => {
     startRendering()
 
     return () => {
+      disposed = true
       inViewport = false
       pageVisible = false
       stopRendering()
@@ -646,6 +816,11 @@ const HeroIsland = () => {
         }
       })
 
+      if (forgeTexture) forgeTexture.dispose()
+      forgeTexture = null
+      forgeMaterial = null
+      forgeSprite = null
+
       renderer.dispose()
       renderer.forceContextLoss()
       mount.replaceChildren()
@@ -658,10 +833,10 @@ const HeroIsland = () => {
     <div
       className={'HeroIsland' + (staticMode ? ' is-static' : '')}
       role="img"
-      aria-label="A small surreal floating island with a warm house, wind-swept tree and grass, pond, waterfall, rocks, drifting clouds, and soft floating motes."
+      aria-label="A small surreal floating island with a warm interactive house, wind-swept tree and grass, pond and waterfall, drifting clouds, fireflies, chimney smoke, and a tiny Forge companion."
     >
       <div className="HeroIslandMeta" aria-hidden="true">
-        <span>WORLD / 02</span>
+        <span>WORLD / 03</span>
         <span>{staticMode ? 'STILL WORLD' : 'MOVE GENTLY'}</span>
       </div>
 
@@ -682,11 +857,12 @@ const HeroIsland = () => {
             <i className="FallbackWindow" />
             <i className="FallbackPond" />
             <i className="FallbackWaterfall" />
+            <i className="FallbackForge" />
           </span>
         </div>
 
         <div className="HeroIslandCaption" aria-hidden="true">
-          <span>A small world, alive quietly.</span>
+          <span>Someone lives here now.</span>
           <strong>handmade in Three.js</strong>
         </div>
       </div>

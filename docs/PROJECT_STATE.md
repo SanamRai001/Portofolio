@@ -134,3 +134,25 @@ Active branch: `feat/hero-surreal-island-phase-2`.
 - Fireflies or shooting stars.
 - Click/hover secrets.
 - Advanced water/reflection shader.
+
+
+## Surreal hero world — Phase 3
+Active branch: `feat/hero-surreal-island-phase-3`.
+
+### Personality and atmosphere added
+- Added a tiny Forge cameo inside the 3D island using the existing `/forge/forge-sprite.svg` asset; no second mascot design or new image asset was introduced.
+- Forge idles/looks by the tree and switches to its authored wave row when hovered.
+- Added a small warm firefly field around the tree/house zone with deterministic low-cost motion.
+- Added soft procedural chimney smoke using a few reusable sphere puffs.
+- Added raycast hover affordances without OrbitControls or click gameplay.
+- Hovering the house smoothly increases window emissive intensity and the local amber house light.
+- Hovering the pond increases ripple speed, spread, and visibility.
+- Updated the reduced-motion CSS diorama so Forge remains present in static mode.
+- Explicit texture disposal was added for the island Forge sprite texture in addition to the existing geometry/material/WebGL cleanup.
+
+### Still deferred
+- Day/night cycle.
+- Shooting stars.
+- Additional secrets or click interactions.
+- Advanced water/reflection shader.
+- Any change to the global cursor-following Forge behavior.
