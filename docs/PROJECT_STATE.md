@@ -228,3 +228,26 @@ Active branch: `security/auth-hardening-phase-1`.
 
 ### Migration boundary
 The legacy plaintext compatibility path is temporary. Once the live demo account has successfully logged in and its stored password is confirmed hashed, remove plaintext compatibility in a later security phase.
+
+
+## Authentication hardening — Phase A3 JWT boundary
+Active branch: `security/auth-hardening-phase-2`.
+
+### JWT middleware hardening
+- Removed server-console logging of bearer tokens.
+- Added strict Bearer-header parsing rather than splitting any Authorization value on spaces.
+- Auth-disabled behavior still bypasses JWT verification exactly as the live Backend Lab requires.
+- Missing `JWT_SECRETKEY` now returns a controlled 500 response.
+- Missing/malformed bearer credentials return a stable 401 `Authentication required`.
+- Invalid or expired JWTs return a stable generic 401 without exposing verifier details.
+- Valid JWT payload continues to be assigned to `req.user`; the current one-hour token contract is unchanged.
+- Added focused middleware tests for disabled-auth bypass, Bearer parsing, missing token, valid JWT, and invalid JWT.
+- `npm run test:auth` now covers both password migration and JWT middleware tests.
+
+### Frontend expired-token recovery
+- The protected Projects request now detects a 401 while auth is enabled.
+- On that 401 it removes the stale localStorage token and reloads once, allowing the existing authentication overlay to reappear.
+- No global Axios interceptor or broader auth architecture change was introduced.
+
+### Known product boundary
+The Backend Lab intentionally leaves system/config controls public so visitors can experiment with toggles, including the auth feature flag. Authentication therefore demonstrates a protected request path; it is not presented as an administrative security boundary for the public portfolio.

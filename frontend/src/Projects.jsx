@@ -27,6 +27,12 @@ const Projects = ({ systemToggle }) => {
       } catch (error) {
         if (error.code === "ERR_CANCELED") return;
 
+        if (error.response?.status === 401 && systemToggle.auth) {
+          localStorage.removeItem("token");
+          window.location.reload();
+          return;
+        }
+
         console.error(error.message);
         setMessage("Something went wrong while reading the live project API.");
         setProjects([]);
@@ -40,7 +46,7 @@ const Projects = ({ systemToggle }) => {
     fetchData();
 
     return () => controller.abort();
-  }, [url, systemToggle.db]);
+  }, [url, systemToggle.auth, systemToggle.db]);
 
   return (
     <section className="MainProject" aria-labelledby="core-projects-title">
