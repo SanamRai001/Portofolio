@@ -34,7 +34,7 @@ export const verifyUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).select('+password')
 
     if (!user || user.is_active === false) {
       return res.status(401).json(INVALID_CREDENTIALS)

@@ -198,7 +198,7 @@ PORT=5000
 Run the backend:
 
 ```bash
-node server.js
+npm run dev
 ```
 
 The backend package currently does not define a dedicated `start` or `dev` script.
@@ -278,3 +278,18 @@ Backend · Systems · Full Stack · AI
 - Portfolio: https://sanam-rai.com.np
 - GitHub: https://github.com/SanamRai001
 - LinkedIn: https://www.linkedin.com/in/sanam-rai-6b2149212/
+
+
+### Backend security checks
+
+From `backend/`:
+
+```bash
+npm test
+```
+
+The backend test suite includes password hashing/migration and JWT middleware checks. A focused auth-only command is also available:
+
+```bash
+npm run test:auth
+```

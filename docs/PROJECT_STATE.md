@@ -251,3 +251,25 @@ Active branch: `security/auth-hardening-phase-2`.
 
 ### Known product boundary
 The Backend Lab intentionally leaves system/config controls public so visitors can experiment with toggles, including the auth feature flag. Authentication therefore demonstrates a protected request path; it is not presented as an administrative security boundary for the public portfolio.
+
+
+## Authentication hardening — Phase A4 model + CI safety
+Active branch: `security/auth-hardening-phase-3`.
+
+### User-model safety
+- Password is now `select: false` by default so ordinary Mongoose user queries do not retrieve it.
+- The login controller explicitly uses `.select('+password')` only at the credential-verification boundary.
+- Added a pre-save guard that hashes a changed plaintext password and leaves an already-bcrypt value unchanged.
+- Added a `toJSON` transform that removes the password field if a user document is serialized.
+- The existing seed script still hashes explicitly because Mongoose `insertMany` does not rely on document save middleware.
+
+### Executable backend workflow
+- Replaced the placeholder failing `npm test` script with Node's built-in test runner.
+- Added `npm start` and `npm run dev` scripts for the backend.
+- Kept `npm run test:auth` as the focused authentication suite.
+- Added `.github/workflows/backend-security-tests.yml` to run `npm ci` and `npm test` on backend-related pushes to master and pull requests.
+- Workflow uses Node 24 and read-only repository contents permission.
+- README local backend setup now uses the real dev script and documents the security test commands.
+
+### Verification boundary
+Vercel validates deployment/build integration but is not the authoritative backend test runner. The new GitHub Actions workflow is the intended executable gate for these Node tests.
