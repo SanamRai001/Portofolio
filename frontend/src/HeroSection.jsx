@@ -148,7 +148,7 @@ const HeroSection = () => {
             <div className="CodeLine"><span>mood</span><strong>quiet + curious</strong></div>
             <div className="CodeLine"><span>made with</span><strong>Three.js primitives</strong></div>
             <div className="CodeLine"><span>motion</span><strong>wind + water + drift</strong></div>
-            <div className="CodeLine"><span>life</span><strong>Forge + fireflies + smoke</strong></div>
+            <div className="CodeLine"><span>time</span><strong>dawn → day → night</strong></div>
           </div>
 
           <div className="HeroPanelNote">

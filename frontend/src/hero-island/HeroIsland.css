@@ -313,3 +313,24 @@
     display: block;
   }
 }
+
+
+.HeroIsland.is-static {
+  background:
+    radial-gradient(circle at 72% 24%, rgba(255, 184, 92, 0.08), transparent 28%),
+    linear-gradient(180deg, #25364d 0%, #59647a 45%, #8a645f 100%);
+}
+
+.HeroIsland.is-static::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  background-image:
+    radial-gradient(circle at 16% 19%, rgba(255,255,255,0.86) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 28% 31%, rgba(255,255,255,0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 68% 16%, rgba(255,255,255,0.8) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 28%, rgba(255,255,255,0.72) 0 1px, transparent 1.5px);
+}

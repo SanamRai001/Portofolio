@@ -60,8 +60,14 @@ const makeGrassTuft = (material, bladeGeometry, position, scale, phase) => {
   return tuft
 }
 
+const smoothstep = (edge0, edge1, value) => {
+  const t = THREE.MathUtils.clamp((value - edge0) / Math.max(edge1 - edge0, 0.0001), 0, 1)
+  return t * t * (3 - 2 * t)
+}
+
 const HeroIsland = () => {
   const mountRef = useRef(null)
+  const timeLabelRef = useRef(null)
   const [webglFailed, setWebglFailed] = useState(false)
   const reducedMotion = useReducedMotion()
 
@@ -71,6 +77,24 @@ const HeroIsland = () => {
 
     const compact = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches
     const scene = new THREE.Scene()
+
+    const atmosphere = {
+      dawn: new THREE.Color(0x7e7184),
+      day: new THREE.Color(0x6f9baa),
+      sunset: new THREE.Color(0xb66f61),
+      night: new THREE.Color(0x101827),
+      cloudDay: new THREE.Color(0xe8edf0),
+      cloudNight: new THREE.Color(0x68728d),
+      hemiDay: new THREE.Color(0xbcd9e5),
+      hemiNight: new THREE.Color(0x506281),
+      groundDay: new THREE.Color(0x17231f),
+      groundNight: new THREE.Color(0x0d1020),
+      sunDay: new THREE.Color(0xffe5bd),
+      sunSunset: new THREE.Color(0xff9e65),
+    }
+    const skyColor = atmosphere.day.clone()
+    const tempColor = new THREE.Color()
+    scene.background = skyColor
 
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40)
     const baseCamera = new THREE.Vector3(4.8, 3.25, 7.2)
@@ -123,6 +147,10 @@ const HeroIsland = () => {
     const fillLight = new THREE.PointLight(0x79dbea, 7, 12)
     fillLight.position.set(-4, 1.6, 4)
     scene.add(fillLight)
+
+    const moonLight = new THREE.DirectionalLight(0x8ba9ff, 0)
+    moonLight.position.set(-4.5, 5.6, -2.2)
+    scene.add(moonLight)
 
     const grassMaterial = new THREE.MeshStandardMaterial({
       color: 0x587b62,
@@ -529,6 +557,44 @@ const HeroIsland = () => {
     const fireflies = new THREE.Points(fireflyGeometry, fireflyMaterial)
     root.add(fireflies)
 
+    const starCount = compact ? 24 : 48
+    const starPositions = new Float32Array(starCount * 3)
+
+    for (let index = 0; index < starCount; index += 1) {
+      const column = index % 12
+      const row = Math.floor(index / 12)
+      starPositions[index * 3] = -5.2 + column * 0.95 + Math.sin(index * 1.7) * 0.22
+      starPositions[index * 3 + 1] = 1.25 + row * 0.82 + (index % 3) * 0.18
+      starPositions[index * 3 + 2] = -4.2 - (index % 5) * 0.28
+    }
+
+    const starGeometry = new THREE.BufferGeometry()
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3))
+    const starMaterial = new THREE.PointsMaterial({
+      color: 0xdde8ff,
+      size: compact ? 0.025 : 0.035,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      sizeAttenuation: true,
+    })
+    const stars = new THREE.Points(starGeometry, starMaterial)
+    scene.add(stars)
+
+    const shootingStarMaterial = new THREE.LineBasicMaterial({
+      color: 0xf4f7ff,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    })
+    const shootingStarGeometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(-0.9, 0.42, 0),
+    ])
+    const shootingStar = new THREE.Line(shootingStarGeometry, shootingStarMaterial)
+    shootingStar.position.set(-3.8, 3.8, -2.6)
+    scene.add(shootingStar)
+
     let forgeTexture = null
     let forgeMaterial = null
     let forgeSprite = null
@@ -594,6 +660,35 @@ const HeroIsland = () => {
     const pointer = { x: 0, y: 0 }
     const raycaster = new THREE.Raycaster()
     let hoverTarget = null
+    let atmosphereLabel = ''
+
+    const getAtmosphereState = (phase) => {
+      if (phase < 0.14) {
+        const t = smoothstep(0, 0.14, phase)
+        return { from: atmosphere.dawn, to: atmosphere.day, mix: t, label: 'DAWN' }
+      }
+
+      if (phase < 0.5) {
+        return { from: atmosphere.day, to: atmosphere.day, mix: 0, label: 'DAY' }
+      }
+
+      if (phase < 0.68) {
+        const t = smoothstep(0.5, 0.68, phase)
+        return { from: atmosphere.day, to: atmosphere.sunset, mix: t, label: 'SUNSET' }
+      }
+
+      if (phase < 0.78) {
+        const t = smoothstep(0.68, 0.78, phase)
+        return { from: atmosphere.sunset, to: atmosphere.night, mix: t, label: 'SUNSET' }
+      }
+
+      if (phase < 0.92) {
+        return { from: atmosphere.night, to: atmosphere.night, mix: 0, label: 'NIGHT' }
+      }
+
+      const t = smoothstep(0.92, 1, phase)
+      return { from: atmosphere.night, to: atmosphere.dawn, mix: t, label: 'DAWN' }
+    }
 
     const updateHoverTarget = () => {
       scene.updateMatrixWorld(true)
@@ -656,6 +751,60 @@ const HeroIsland = () => {
       if (!canRender()) return
 
       const seconds = time * 0.001
+      const atmosphereCycle = 72
+      const atmospherePhase = (seconds % atmosphereCycle) / atmosphereCycle
+      const atmosphereState = getAtmosphereState(atmospherePhase)
+      const nightRise = smoothstep(0.68, 0.79, atmospherePhase)
+      const nightFall = 1 - smoothstep(0.91, 1, atmospherePhase)
+      const nightFactor = THREE.MathUtils.clamp(nightRise * nightFall, 0, 1)
+      const sunsetFactor = THREE.MathUtils.clamp(
+        smoothstep(0.48, 0.61, atmospherePhase) * (1 - smoothstep(0.72, 0.8, atmospherePhase)),
+        0,
+        1,
+      )
+      const daylight = 1 - nightFactor
+
+      skyColor.copy(atmosphereState.from).lerp(atmosphereState.to, atmosphereState.mix)
+
+      ambient.color.copy(atmosphere.hemiDay).lerp(atmosphere.hemiNight, nightFactor)
+      ambient.groundColor.copy(atmosphere.groundDay).lerp(atmosphere.groundNight, nightFactor)
+      ambient.intensity = 0.72 + daylight * 0.98
+
+      tempColor.copy(atmosphere.sunDay).lerp(atmosphere.sunSunset, sunsetFactor)
+      keyLight.color.copy(tempColor)
+      keyLight.intensity = 0.18 + daylight * (compact ? 2.12 : 2.62)
+      const sunAngle = atmospherePhase * Math.PI * 2 - Math.PI * 0.35
+      keyLight.position.set(
+        Math.cos(sunAngle) * 5.4,
+        2.1 + Math.max(Math.sin(sunAngle), -0.15) * 5.2,
+        3.8,
+      )
+
+      moonLight.intensity = nightFactor * (compact ? 0.72 : 1.05)
+      fillLight.intensity = 4.2 + daylight * 2.8 + nightFactor * 1.6
+      fillLight.color.setHex(nightFactor > 0.5 ? 0x6f8ee8 : 0x79dbea)
+
+      cloudMaterial.color.copy(atmosphere.cloudDay).lerp(atmosphere.cloudNight, nightFactor)
+      cloudMaterial.opacity = 0.62 + daylight * 0.2
+
+      starMaterial.opacity = nightFactor * (compact ? 0.54 : 0.76)
+      stars.rotation.y = seconds * 0.0025
+
+      const shootingCycle = seconds % 46
+      const shootingActive = nightFactor > 0.55 && shootingCycle > 38 && shootingCycle < 39.6
+      if (shootingActive) {
+        const shootingProgress = (shootingCycle - 38) / 1.6
+        shootingStar.position.x = -3.8 + shootingProgress * 7.6
+        shootingStar.position.y = 3.8 - shootingProgress * 2.2
+        shootingStarMaterial.opacity = Math.sin(shootingProgress * Math.PI) * nightFactor * 0.72
+      } else {
+        shootingStarMaterial.opacity = 0
+      }
+
+      if (timeLabelRef.current && atmosphereLabel !== atmosphereState.label) {
+        atmosphereLabel = atmosphereState.label
+        timeLabelRef.current.textContent = atmosphereLabel
+      }
 
       const cameraTargetX = baseCamera.x + pointer.x * 0.48
       const cameraTargetY = baseCamera.y - pointer.y * 0.3
@@ -728,7 +877,8 @@ const HeroIsland = () => {
         fireflyPositions[index * 3 + 2] = fireflyBase[index * 3 + 2] + Math.cos(seconds * 0.53 + phase) * 0.09
       }
       fireflyAttribute.needsUpdate = true
-      fireflyMaterial.opacity = (compact ? 0.48 : 0.7) + Math.sin(seconds * 1.35) * 0.1
+      const fireflyBaseOpacity = 0.09 + nightFactor * (compact ? 0.5 : 0.78)
+      fireflyMaterial.opacity = fireflyBaseOpacity + Math.sin(seconds * 1.35) * 0.06
 
       smokePuffs.forEach((puff) => {
         const progress = (seconds * 0.11 + puff.userData.phase) % 1
@@ -757,9 +907,10 @@ const HeroIsland = () => {
       }
 
       const houseHoverBoost = hoverTarget === 'house' ? 1 : 0
-      const houseBase = compact ? 2.2 : 3.2
-      houseGlow.intensity += ((houseBase + houseHoverBoost * 2.4 + Math.sin(seconds * 0.9) * 0.12) - houseGlow.intensity) * 0.12
-      windowMaterial.emissiveIntensity += ((1.7 + houseHoverBoost * 1.8) - windowMaterial.emissiveIntensity) * 0.14
+      const houseBase = compact ? 1.35 : 1.8
+      const nightHouseBoost = nightFactor * (compact ? 3.1 : 4.4)
+      houseGlow.intensity += ((houseBase + nightHouseBoost + houseHoverBoost * 2.4 + Math.sin(seconds * 0.9) * 0.12) - houseGlow.intensity) * 0.12
+      windowMaterial.emissiveIntensity += ((0.85 + nightFactor * 2.45 + houseHoverBoost * 1.8) - windowMaterial.emissiveIntensity) * 0.14
 
       renderer.render(scene, camera)
       animationFrame = window.requestAnimationFrame(renderFrame)
@@ -833,11 +984,11 @@ const HeroIsland = () => {
     <div
       className={'HeroIsland' + (staticMode ? ' is-static' : '')}
       role="img"
-      aria-label="A small surreal floating island with a warm interactive house, wind-swept tree and grass, pond and waterfall, drifting clouds, fireflies, chimney smoke, and a tiny Forge companion."
+      aria-label="A small surreal floating island with its own dawn-to-night atmosphere, warm interactive house, wind-swept tree and grass, pond and waterfall, drifting clouds, stars, fireflies, chimney smoke, and a tiny Forge companion."
     >
       <div className="HeroIslandMeta" aria-hidden="true">
-        <span>WORLD / 03</span>
-        <span>{staticMode ? 'STILL WORLD' : 'MOVE GENTLY'}</span>
+        <span>WORLD / 04</span>
+        <span ref={timeLabelRef}>{staticMode ? 'STILL WORLD' : 'DAY'}</span>
       </div>
 
       <div className="HeroIslandStage">
@@ -862,7 +1013,7 @@ const HeroIsland = () => {
         </div>
 
         <div className="HeroIslandCaption" aria-hidden="true">
-          <span>Someone lives here now.</span>
+          <span>It keeps its own little time.</span>
           <strong>handmade in Three.js</strong>
         </div>
       </div>

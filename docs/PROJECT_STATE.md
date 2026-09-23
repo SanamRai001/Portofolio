@@ -156,3 +156,27 @@ Active branch: `feat/hero-surreal-island-phase-3`.
 - Additional secrets or click interactions.
 - Advanced water/reflection shader.
 - Any change to the global cursor-following Forge behavior.
+
+
+## Surreal hero world — Phase 4
+Active branch: `feat/hero-surreal-island-phase-4`.
+
+### Atmosphere cycle added
+- Added a deterministic 72-second dawn → day → sunset → night → dawn loop entirely inside the existing Three.js render loop.
+- Scene background color now transitions through authored atmosphere colors without a sky shader or post-processing pass.
+- Hemisphere light, directional sunlight, cool fill light, and a dedicated moonlight respond to the same atmosphere phase.
+- Sun direction moves across the scene while sunset warms its color and night lowers its contribution.
+- Clouds darken and soften slightly after sunset.
+- Added a small deterministic star field that fades in only at night.
+- Added one rare shooting-star pass during the night portion of the cycle using a single lightweight line primitive.
+- House window emissive strength and local amber light now increase naturally after dark.
+- Fireflies become much more visible at night and remain subtle during daylight.
+- The hero metadata reports DAWN / DAY / SUNSET / NIGHT without causing React renders every frame.
+- Reduced-motion/WebGL fallback stays static and uses a dusk-like CSS atmosphere rather than animating a cycle.
+- No shader, post-processing dependency, clock/time API, or backend change was introduced.
+
+### Still deferred
+- Extra click secrets.
+- Advanced reflective water.
+- More weather systems.
+- Any additional major hero feature before a production/performance pass.
