@@ -968,6 +968,7 @@ const HeroIsland = () => {
       })
 
       if (forgeTexture) forgeTexture.dispose()
+      smokeMaterial.dispose()
       forgeTexture = null
       forgeMaterial = null
       forgeSprite = null
