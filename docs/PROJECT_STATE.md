@@ -199,3 +199,32 @@ Active branch: `chore/hero-surreal-island-production-pass`.
 
 ### Completion boundary
 No new creative system was added. The surreal island should now be treated as feature-complete unless a deployed visual or performance regression is verified.
+
+
+## Authentication hardening — Phase A1/A2 foundation
+Active branch: `security/auth-hardening-phase-1`.
+
+### Audit findings
+- `POST /api/auth/login` is the only authentication entry point; there is no signup route.
+- Users are provisioned through `backend/data/seedUser.js` or directly in MongoDB.
+- The previous login implementation compared `users.password !== password`, so existing records may contain plaintext passwords.
+- `bcrypt` was already installed but was not used by the login controller or user seed.
+- The public frontend demo credentials differ from the repository seed credentials, so the live database must not be assumed to match `seedUser.js`.
+- Protected project requests use the existing one-hour JWT through `Authorization: Bearer <token>`; this contract is intentionally unchanged in this phase.
+
+### Safe migration implemented
+- Added `backend/utils/password.js` as the password boundary.
+- New/seeded passwords are bcrypt-hashed with 12 rounds.
+- Login verifies bcrypt hashes normally.
+- Legacy plaintext records remain login-compatible temporarily.
+- After a successful legacy plaintext login, that exact MongoDB record is conditionally upgraded to a bcrypt hash.
+- The upgrade write is best-effort: a temporary migration-write failure does not lock out a user who supplied valid credentials.
+- Invalid email/user and invalid password now return the same generic 401 response, reducing account-enumeration detail.
+- Explicitly inactive users are rejected.
+- Missing `JWT_SECRETKEY` returns a controlled 500 instead of relying on an unhandled signing error.
+- JWT response shape, one-hour expiry, frontend localStorage behavior, and auth-disabled behavior remain unchanged.
+- Added focused Node tests for bcrypt hashing, bcrypt verification, and the temporary legacy migration path.
+- Added `npm run test:auth` and `npm run seed:users` scripts.
+
+### Migration boundary
+The legacy plaintext compatibility path is temporary. Once the live demo account has successfully logged in and its stored password is confirmed hashed, remove plaintext compatibility in a later security phase.
