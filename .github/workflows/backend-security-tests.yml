@@ -2,8 +2,6 @@ name: Backend Security Tests
 
 on:
   push:
-    branches:
-      - master
     paths:
       - 'backend/**'
       - '.github/workflows/backend-security-tests.yml'
