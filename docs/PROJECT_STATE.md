@@ -559,3 +559,23 @@ Active branch: `fix/project-api-contract`.
 ### Route cleanup
 - Removed the unused `rateLimitMiddleware` import from the project route.
 - Rate limiting remains configuration-only by design.
+
+
+## Hero island runtime crash fix
+Active branch: `fix/hero-island-runtime-crash`.
+
+### Live visual diagnosis
+- A real headless Chromium run against the deployed portfolio confirmed the HeroIsland canvas mounted at approximately 382 × 356 CSS pixels and was not using the static fallback.
+- The browser reported repeated page errors: `pondMaterial is not defined`.
+- The scene creates the pond with `waterMaterial`, but the animation loop later attempted to update `pondMaterial.opacity`.
+- Because the exception occurred before `renderer.render(scene, camera)`, the Three.js canvas stayed blank even though the house, island, tree, pond, clouds and lighting were all constructed correctly in source.
+
+### Fix
+- Replaced the invalid `pondMaterial` reference with the real `waterMaterial`.
+- Added a guarded animation callback. Any future runtime exception in the frame loop switches the component to the existing static fallback instead of leaving an empty canvas.
+- Added `webglFailed` to the effect guard/dependencies so runtime failure triggers proper Three.js cleanup before the fallback remains active.
+
+### Prevention
+- The existing ESLint configuration already enables `no-undef`, which would have caught this exact bug.
+- Added `npm run lint` to the frontend GitHub Actions gate between regression tests and production build.
+- This phase should not be considered complete until lint, frontend tests, Vite build, Vercel, and a fresh live Chromium visual diagnostic all pass.
