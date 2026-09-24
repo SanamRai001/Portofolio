@@ -70,7 +70,7 @@ const Projects = ({ systemToggle }) => {
           <p className="SectionKicker">Live data path</p>
           <h2 id="core-projects-title">Core Projects</h2>
           <p>
-            This section is fetched through the backend and reflects the database, authentication, caching, logging, rate-limit, and pagination configuration above.
+            This section is fetched through the backend and reflects database, authentication, caching, logging, and pagination behavior. The rate-limit flag remains configuration-only because its middleware is not mounted on this route.
           </p>
         </div>
 
