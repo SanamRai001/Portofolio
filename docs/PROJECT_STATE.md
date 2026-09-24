@@ -297,3 +297,27 @@ Active branch: `security/auth-hardening-phase-4`.
 
 ### Final removal condition
 Do not remove the temporary plaintext-login compatibility path until the live backend environment reports `legacy=0` after the migration has been applied. Once that condition is verified, the next phase can make login bcrypt-only.
+
+
+## Authentication hardening — Phase A6 JWT scope + input bounds
+Active branch: `security/auth-hardening-phase-5`.
+
+### Login input boundary
+- Added a reusable login-input normalizer.
+- Surrounding email whitespace is trimmed without lowercasing or otherwise rewriting the stored identity value.
+- Email input is capped at 320 characters.
+- Password input is capped at 256 characters.
+- Missing, non-string, empty, or oversized credentials are rejected before any MongoDB lookup or password verification.
+- Added focused tests for normalization and length bounds.
+
+### JWT scope hardening
+- New tokens explicitly use HS256.
+- New tokens include a stable issuer: `sanam-portfolio-api`.
+- New tokens include a stable audience: `sanam-portfolio-frontend`.
+- New tokens include the Mongo user id as the JWT subject while preserving the existing email payload.
+- Verification explicitly requires the approved algorithm, issuer, and audience.
+- Added tests for valid scoped JWTs, wrong audience, and an unapproved signing algorithm.
+- Existing pre-A6 tokens may receive a 401 because they lack the new scope claims; the existing frontend stale-token recovery clears them and returns the user to the login overlay.
+
+### Rate-limit decision
+The existing optional rate-limit middleware was not reused as a login brute-force limiter because the repository does not document the production reverse-proxy topology. Guessing `trust proxy` or IP semantics could create a shared/global lockout. Login-specific throttling should be added only after deployment proxy behavior is known.

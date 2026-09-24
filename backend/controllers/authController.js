@@ -1,7 +1,14 @@
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
+import {
+  JWT_ALGORITHM,
+  JWT_AUDIENCE,
+  JWT_EXPIRES_IN,
+  JWT_ISSUER,
+} from '../config/authConfig.js'
 import User from '../models/userModel.js'
+import { normalizeLoginInput } from '../utils/authInput.js'
 import { hashPassword, verifyStoredPassword } from '../utils/password.js'
 
 dotenv.config()
@@ -19,19 +26,19 @@ export const verifyUser = async (req, res) => {
     })
   }
 
-  const { email, password } = req.body ?? {}
+  const credentials = normalizeLoginInput(
+    req.body?.email,
+    req.body?.password,
+  )
 
-  if (
-    typeof email !== 'string' ||
-    typeof password !== 'string' ||
-    email.length === 0 ||
-    password.length === 0
-  ) {
+  if (!credentials) {
     return res.status(400).json({
       success: false,
-      message: 'Email and password are required',
+      message: 'Invalid login input',
     })
   }
+
+  const { email, password } = credentials
 
   try {
     const user = await User.findOne({ email }).select('+password')
@@ -70,7 +77,13 @@ export const verifyUser = async (req, res) => {
     const token = jwt.sign(
       { email: user.email },
       process.env.JWT_SECRETKEY,
-      { expiresIn: '1h' },
+      {
+        algorithm: JWT_ALGORITHM,
+        audience: JWT_AUDIENCE,
+        expiresIn: JWT_EXPIRES_IN,
+        issuer: JWT_ISSUER,
+        subject: String(user._id),
+      },
     )
 
     return res.json({

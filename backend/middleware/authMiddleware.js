@@ -1,6 +1,12 @@
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 
+import {
+  JWT_ALGORITHM,
+  JWT_AUDIENCE,
+  JWT_ISSUER,
+} from '../config/authConfig.js'
+
 dotenv.config()
 
 export const readBearerToken = (authorizationHeader) => {
@@ -33,7 +39,15 @@ const authenticate = (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRETKEY)
+    req.user = jwt.verify(
+      token,
+      process.env.JWT_SECRETKEY,
+      {
+        algorithms: [JWT_ALGORITHM],
+        audience: JWT_AUDIENCE,
+        issuer: JWT_ISSUER,
+      },
+    )
     return next()
   } catch {
     return res.status(401).json({
