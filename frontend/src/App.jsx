@@ -28,7 +28,13 @@ const App = () => {
   return (
     <>
       {showAuthOverlay && (
-        <div className="AuthOverlay" role="dialog" aria-modal="true" aria-label="Backend lab authentication">
+        <div
+          className="AuthOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-dialog-title"
+          aria-describedby="auth-dialog-description"
+        >
           <Form systemToggle={systemToggle} />
         </div>
       )}
