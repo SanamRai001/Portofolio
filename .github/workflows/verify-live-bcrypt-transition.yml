@@ -1,0 +1,55 @@
+name: Verify Live Bcrypt Transition
+
+on:
+  push:
+    branches:
+      - security/password-migration-check
+    paths:
+      - '.github/workflows/verify-live-bcrypt-transition.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-bcrypt-transition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Verify deployed transition and migrate viewer if needed
+        shell: bash
+        env:
+          API_BASE: https://portofolio-zsky.onrender.com
+          DEMO_EMAIL: Viewer@gmail.com
+          DEMO_PASSWORD: Viewer@123#
+        run: |
+          set -euo pipefail
+
+          for ATTEMPT in 1 2 3 4 5 6 7 8; do
+            RESPONSE_FILE="$(mktemp)"
+
+            HTTP_CODE="$(
+              curl -sS                 --connect-timeout 15                 --max-time 45                 -o "$RESPONSE_FILE"                 -w "%{http_code}"                 -H "Content-Type: application/json"                 --data "$(jq -nc --arg email "$DEMO_EMAIL" --arg password "$DEMO_PASSWORD" '{email:$email,password:$password}')"                 "$API_BASE/api/auth/login" || true
+            )"
+
+            AUTH_VERSION="$(jq -r '.authVersion // empty' "$RESPONSE_FILE" 2>/dev/null || true)"
+            SUCCESS="$(jq -r '.success // false' "$RESPONSE_FILE" 2>/dev/null || true)"
+            HAS_TOKEN="$(jq -r 'if (.token | type) == "string" and (.token | length) > 0 then "true" else "false" end' "$RESPONSE_FILE" 2>/dev/null || echo false)"
+
+            rm -f "$RESPONSE_FILE"
+
+            if [ "$HTTP_CODE" = "200" ] &&                [ "$SUCCESS" = "true" ] &&                [ "$HAS_TOKEN" = "true" ] &&                [ "$AUTH_VERSION" = "bcrypt-transition-v1" ]; then
+              echo "Live bcrypt transition verified successfully."
+              echo "The demo viewer can receive a JWT only after bcrypt-backed verification/persistence."
+              exit 0
+            fi
+
+            echo "Attempt $ATTEMPT: live backend transition not ready yet (HTTP $HTTP_CODE, authVersion=${AUTH_VERSION:-none})."
+
+            if [ "$ATTEMPT" -lt 8 ]; then
+              sleep 20
+            fi
+          done
+
+          echo "::error::Live backend did not verify bcrypt-transition-v1 within the retry window."
+          exit 1
