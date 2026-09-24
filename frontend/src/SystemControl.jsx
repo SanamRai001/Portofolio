@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Gauge, ShieldCheck, Database, ScrollText, TimerReset, Boxes } from 'lucide-react'
 import Toggle from './reusable/Toggle'
 import SystemCore from './SystemCore'
@@ -10,7 +10,7 @@ import './BackendLabVisual.css'
 const toggleList = [
   { key: "db", head: "Database", sub: "Switch between persistent and non-persistent project data", icon: Database },
   { key: "auth", head: "Authentication", sub: "Require JWT-backed access for protected behavior", icon: ShieldCheck },
-  { key: "rateLimit", head: "Rate Limiting", sub: "Enable request throttling at the API layer", icon: TimerReset },
+  { key: "rateLimit", head: "Rate Limit Flag", sub: "Stored configuration only; limiter middleware is not mounted on the project route", icon: TimerReset },
   { key: "logging", head: "Request Logging", sub: "Expose live request activity from the backend", icon: ScrollText },
   { key: "cache", head: "Caching", sub: "Serve eligible responses through the cache layer", icon: Boxes },
   { key: "pagination", head: "Pagination", sub: "Return project data through paginated responses", icon: Gauge }
@@ -35,11 +35,25 @@ const SystemControl = ({ handleToggle: notifyToggle, suspended = false }) => {
   const [activeControl, setActiveControl] = useState("db");
   const [controls, setControls] = useState([]);
   const [syncState, setSyncState] = useState("Connecting...");
+  const [syncing, setSyncing] = useState(false);
+  const syncInFlightRef = useRef(false);
 
-  const selected = controls.find((control) => control.key === activeControl);
+  const selectedFromApi = controls.find((control) => control.key === activeControl);
+  const selected = activeControl === "rateLimit"
+    ? {
+        title: "Rate Limit Flag",
+        description: "Stores the request-throttling configuration flag for the architecture demo.",
+        details: "The limiter implementation exists, but it is intentionally not mounted on the project route in the current portfolio build."
+      }
+    : selectedFromApi;
   const enabledCount = useMemo(() => Object.values(toggle).filter(Boolean).length, [toggle]);
 
   const handleToggle = async (key, value) => {
+    if (syncInFlightRef.current) return;
+
+    syncInFlightRef.current = true;
+    setSyncing(true);
+
     const previous = toggle;
     const next = { ...toggle, [key]: value };
 
@@ -49,19 +63,22 @@ const SystemControl = ({ handleToggle: notifyToggle, suspended = false }) => {
     emitForgeReaction("build", { duration: 950, source: "backend-lab" });
 
     try {
-      const res = await axios.post(API + "/api/system", next);
-      const synced = res.data?.data || next;
+      const res = await axios.post(API + "/api/system", { [key]: value });
+      const synced = res.data?.data || {};
       const merged = { ...next, ...synced };
       setToggle(merged);
       notifyToggle(merged);
       setSyncState("Backend synced ✓");
       emitForgeReaction("celebrate", { duration: 1050, source: "backend-lab" });
     } catch (error) {
-      console.log("Error", error);
+      console.error("System config sync failed:", error.message);
       setToggle(previous);
       notifyToggle(previous);
       setSyncState("Sync failed — change reverted");
       emitForgeReaction("recovery", { duration: 1450, source: "backend-lab" });
+    } finally {
+      syncInFlightRef.current = false;
+      setSyncing(false);
     }
   }
 
@@ -115,7 +132,7 @@ const SystemControl = ({ handleToggle: notifyToggle, suspended = false }) => {
 
           <div className="RuntimeCard" aria-live="polite">
             <span>runtime state</span>
-            <strong>{enabledCount}/6 features enabled</strong>
+            <strong>{enabledCount}/6 config flags enabled</strong>
             <small>{syncState}</small>
           </div>
         </div>
@@ -143,6 +160,7 @@ const SystemControl = ({ handleToggle: notifyToggle, suspended = false }) => {
                   onHover={() => setActiveControl(item.key)}
                   onFocus={() => setActiveControl(item.key)}
                   icon={<Icon size={18} aria-hidden="true" />}
+                  disabled={syncing}
                 />
               )
             })}
