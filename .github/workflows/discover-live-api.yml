@@ -1,0 +1,65 @@
+name: Discover Live Portfolio API
+
+on:
+  push:
+    branches:
+      - security/password-migration-check
+    paths:
+      - '.github/workflows/discover-live-api.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  discover-live-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Discover API base from deployed frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SITE="https://sanam-rai.com.np"
+          HTML="$(curl -fsSL "$SITE")"
+
+          mapfile -t SCRIPTS < <(
+            printf '%s' "$HTML" |
+              grep -oE '<script[^>]+src="[^"]+"' |
+              sed -E 's/.*src="([^"]+)".*/\1/' |
+              sort -u
+          )
+
+          if [ "${#SCRIPTS[@]}" -eq 0 ]; then
+            echo "::error::No deployed JS bundle script URLs found."
+            exit 1
+          fi
+
+          MATCHES=""
+
+          for SRC in "${SCRIPTS[@]}"; do
+            if [[ "$SRC" == http* ]]; then
+              URL="$SRC"
+            else
+              URL="$SITE$SRC"
+            fi
+
+            JS="$(curl -fsSL "$URL")"
+            FOUND="$(printf '%s' "$JS" | grep -oE 'https://[A-Za-z0-9._-]+\.onrender\.com' | sort -u || true)"
+
+            if [ -n "$FOUND" ]; then
+              MATCHES="$MATCHES"$'\n'"$FOUND"
+            fi
+          done
+
+          API_BASE="$(printf '%s\n' "$MATCHES" | sed '/^$/d' | sort -u | head -n 1)"
+
+          if [ -z "$API_BASE" ]; then
+            echo "::error::No public Render API URL found in deployed JS bundles."
+            exit 1
+          fi
+
+          echo "API_BASE=$API_BASE"
+          echo "Querying public system state..."
+          curl -fsSL "$API_BASE/api/system"
