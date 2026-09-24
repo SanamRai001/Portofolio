@@ -579,3 +579,10 @@ Active branch: `fix/hero-island-runtime-crash`.
 - The existing ESLint configuration already enables `no-undef`, which would have caught this exact bug.
 - Added `npm run lint` to the frontend GitHub Actions gate between regression tests and production build.
 - This phase should not be considered complete until lint, frontend tests, Vite build, Vercel, and a fresh live Chromium visual diagnostic all pass.
+
+
+### Lint gate cleanup
+- Enabling lint in CI surfaced three pre-existing React hook warnings.
+- Reduced-motion state already used a lazy initializer, so the redundant synchronous state write inside its effect was removed.
+- WebGL-constructor failure state changes in HeroIsland and SystemCore are now deferred to a microtask rather than performed synchronously inside the effect body.
+- These changes preserve behavior while allowing the existing React hooks lint rules to become an enforced CI gate.
