@@ -40,8 +40,8 @@ const Form = ({ systemToggle }) => {
       <form className="AuthCard" onSubmit={handleSubmit} aria-busy={loading}>
         <div className="AuthCardHead">
           <p className="SectionKicker">Protected backend mode</p>
-          <h1>Authenticate to continue</h1>
-          <p>Authentication is enabled in the live architecture lab. Use the demo viewer account to continue testing the system.</p>
+          <h1 id="auth-dialog-title">Authenticate to continue</h1>
+          <p id="auth-dialog-description">Authentication is enabled in the live architecture lab. Use the demo viewer account to continue testing the system.</p>
         </div>
 
         <div className="DemoCredentials" aria-label="Demo viewer credentials">
