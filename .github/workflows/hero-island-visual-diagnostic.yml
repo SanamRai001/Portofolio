@@ -1,4 +1,5 @@
 name: Hero Island Visual Diagnostic
+# rerun after production hero fix
 
 on:
   push:
