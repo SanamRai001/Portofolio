@@ -407,3 +407,24 @@ Active branch: `fix/auth-overlay-final-hardening`.
 
 ### Assessment
 After this phase, no additional auth-overlay rendering change is recommended unless a real browser/device regression is observed. Larger changes such as HttpOnly-cookie auth or proxy-aware brute-force protection are architecture/security upgrades, not fixes for the current portfolio demo.
+
+
+## Authentication hardening — bcrypt transition verification
+Active branch: `security/password-migration-verify`.
+
+### Purpose
+- Direct production DB access is unavailable from this session.
+- The live Render API was recovered from the deployed frontend: `https://portofolio-zsky.onrender.com`.
+- Live `GET /api/system` confirms authentication is currently enabled.
+- GitHub Actions does not have a `DB_URI` repository secret, so direct dry-run migration cannot execute there.
+
+### Transitional verification behavior
+- Added `AUTH_TRANSITION_VERSION=bcrypt-transition-v1` to successful login responses temporarily.
+- Legacy plaintext login is now fail-closed during this transition.
+- If a password needs migration, the bcrypt hash must be conditionally persisted successfully before any JWT is issued.
+- A concurrent-change conflict or database write failure returns the existing generic authentication-service failure instead of issuing a token.
+- Already-bcrypt users skip the migration write and can log in normally.
+- Added focused tests for successful conditional persistence and failure when the write does not modify exactly one record.
+
+### Verification plan
+After this transition is deployed to Render, a successful live demo login that returns `authVersion=bcrypt-transition-v1` proves that the deployed backend is running this code and that the viewer account is bcrypt-backed before its JWT is issued. Then the temporary plaintext verification branch can be removed and runtime authentication can become bcrypt-only.

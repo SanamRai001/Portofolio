@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
 import {
+  AUTH_TRANSITION_VERSION,
   JWT_ALGORITHM,
   JWT_AUDIENCE,
   JWT_EXPIRES_IN,
@@ -9,7 +10,8 @@ import {
 } from '../config/authConfig.js'
 import User from '../models/userModel.js'
 import { normalizeLoginInput } from '../utils/authInput.js'
-import { hashPassword, verifyStoredPassword } from '../utils/password.js'
+import { verifyStoredPassword } from '../utils/password.js'
+import { persistLegacyPasswordUpgrade } from '../utils/passwordUpgrade.js'
 
 dotenv.config()
 
@@ -54,16 +56,17 @@ export const verifyUser = async (req, res) => {
     }
 
     if (verification.needsUpgrade) {
-      const upgradedPassword = await hashPassword(password)
-
-      try {
-        await User.updateOne(
-          { _id: user._id, password: user.password },
-          { $set: { password: upgradedPassword } },
-        )
-      } catch (upgradeError) {
-        console.warn('Legacy password upgrade failed', upgradeError.message)
-      }
+      await persistLegacyPasswordUpgrade({
+        id: user._id,
+        storedPassword: user.password,
+        plainPassword: password,
+        updatePassword: ({ id, expectedPassword, nextPassword }) => (
+          User.updateOne(
+            { _id: id, password: expectedPassword },
+            { $set: { password: nextPassword } },
+          )
+        ),
+      })
     }
 
     if (!process.env.JWT_SECRETKEY) {
@@ -89,6 +92,7 @@ export const verifyUser = async (req, res) => {
     return res.json({
       success: true,
       message: 'User logged in successfully',
+      authVersion: AUTH_TRANSITION_VERSION,
       token,
     })
   } catch (error) {
