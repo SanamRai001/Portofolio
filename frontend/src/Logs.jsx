@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import API from "./config/api";
 
-const Logs = ({ systemToggle }) => {
+const Logs = ({ systemToggle, suspended = false }) => {
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!systemToggle.logging) return;
+    if (!systemToggle.logging || suspended) return;
 
     let active = true;
 
@@ -40,7 +40,7 @@ const Logs = ({ systemToggle }) => {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [systemToggle.logging]);
+  }, [systemToggle.logging, suspended]);
 
   if (!systemToggle.logging) return null;
 

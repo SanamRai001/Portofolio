@@ -45,7 +45,7 @@ const App = () => {
               <SystemControl handleToggle={handleToggle} />
             </div>
 
-            <Logs systemToggle={systemToggle} />
+            <Logs systemToggle={systemToggle} suspended={showAuthOverlay} />
 
             <div id="projects">
               <Projects systemToggle={systemToggle} />

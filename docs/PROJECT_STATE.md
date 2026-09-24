@@ -355,3 +355,9 @@ This fix addresses the concrete render/compositing path visible in source. Verce
 - When auth is enabled and no token exists, it does not call the protected endpoint at all; the login overlay owns that state.
 - Authorization is only sent when a real token string exists.
 - A 401 still clears/reloads when a previously stored token exists, preserving expired-token recovery.
+
+
+### Background polling cleanup
+- Live-log polling previously continued every 2 seconds when logging was enabled, even while the auth overlay made the application background inert.
+- `Logs` now receives the same suspended state and tears down its interval/visibility listener while the login dialog is active.
+- This prevents avoidable React state updates and network work underneath the blurred modal.
