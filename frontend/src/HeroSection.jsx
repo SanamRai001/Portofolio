@@ -75,7 +75,7 @@ const HeroSection = ({ suspended = false }) => {
       const res = await axios.get(API + "/api/system");
       setStatus(res.data?.success ? "Backend online ✓" : "Backend responded without a success state");
     } catch (error) {
-      console.log("Error", error);
+      console.error("Backend ping failed:", error.message);
       setStatus("Backend connection failed");
     }
   }
