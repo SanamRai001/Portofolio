@@ -24,6 +24,7 @@ const Toggle = (props) => {
         role="switch"
         aria-checked={props.value}
         aria-label={"Toggle " + props.toggleName}
+        disabled={props.disabled}
       >
         <span className="ToggleBall" aria-hidden="true" />
       </button>
