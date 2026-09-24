@@ -16,7 +16,7 @@ const data = [
   {
     name: "Backend-Controlled Portfolio System",
     description:
-      "A dynamic portfolio application where system features — JWT authentication, in-memory caching, rate limiting, pagination, and request logging — can each be toggled on or off independently at runtime through a backend control panel. Demonstrates production-level API architecture thinking.",
+      "A dynamic portfolio application where JWT authentication, in-memory caching, pagination, and request logging can be toggled at runtime through a backend control panel. A rate-limit configuration flag is also exposed honestly as config-only because the limiter middleware is not mounted on the project route.",
     techStacks: ["React", "Node.js", "Express", "MongoDB", "JWT"],
     github: "https://github.com/SanamRai001/Portofolio",
     liveDemo: "https://sanam-rai.com.np",
