@@ -458,3 +458,39 @@ Active branch: `security/bcrypt-only-auth`.
 
 ### Completion condition
 After this commit is deployed, verify that the working viewer still logs in successfully and that the temporary `authVersion` field is absent. That proves Render advanced from the transition build to the bcrypt-only build.
+
+
+## Backend Lab correctness — validated configuration contract
+Active branch: `fix/backend-lab-config-contract`.
+
+### Audit findings
+- The public Backend Lab intentionally allows visitors to change runtime demo flags, but `POST /api/system` previously accepted the entire request body and passed it directly into `$set`.
+- The frontend sent the full six-flag object for every single toggle change.
+- Rapid toggle clicks could create overlapping writes and allow a slower earlier response to overwrite a newer UI state.
+- `SystemControl` depended on an unstable callback from `App`, so App renders could retrigger its initial system/control fetch effect.
+- `updatedAt` was initialized by the schema but was not refreshed by config updates.
+- Some UI/seed copy still described rate limiting as active request throttling even though the project route intentionally does not mount `rateLimitMiddleware`.
+
+### Contract hardening
+- Added a six-key whitelist for `auth`, `db`, `cache`, `logging`, `rateLimit`, and `pagination`.
+- Config updates must be non-empty objects containing only those keys.
+- Every supplied value must be boolean.
+- Invalid/unknown config writes return HTTP 400 before MongoDB.
+- Mongo updates use validators and refresh `updatedAt`.
+- Read/update failures return controlled HTTP 500 responses.
+- Added focused Node tests for partial updates, empty bodies, unknown fields, and non-boolean values.
+
+### Frontend race protection
+- Each switch now sends only the changed flag.
+- A ref-backed in-flight guard serializes writes.
+- Switch buttons are disabled while a config write is pending.
+- Failed writes restore the previous local/global state.
+- The App → SystemControl notification callback is stable with `useCallback`, preventing unnecessary refetches caused by callback identity changes.
+- Full Axios error objects are no longer logged for config-sync failures.
+
+### Truthful rate-limit presentation
+- Renamed the UI control to `Rate Limit Flag`.
+- UI text states that the flag is stored but the limiter is not mounted on the project route.
+- Core Projects explanatory copy says the same.
+- Future control/project seed text has been corrected too.
+- No rate-limit middleware was mounted in this phase because production proxy/IP semantics have not been verified.
