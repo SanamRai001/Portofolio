@@ -361,3 +361,24 @@ This fix addresses the concrete render/compositing path visible in source. Verce
 - Live-log polling previously continued every 2 seconds when logging was enabled, even while the auth overlay made the application background inert.
 - `Logs` now receives the same suspended state and tears down its interval/visibility listener while the login dialog is active.
 - This prevents avoidable React state updates and network work underneath the blurred modal.
+
+
+## Auth overlay regression coverage
+Active branch: `test/auth-overlay-regression`.
+
+### Shared runtime decision
+- Added `frontend/src/authRuntime.js` so App overlay ownership and Projects request gating use one deterministic auth-state contract.
+- Unknown auth state: no overlay and no project request yet.
+- Auth disabled: project request is allowed without a token.
+- Auth enabled + no token: login overlay owns the screen, background runtime is suspended, and the protected Projects request is blocked.
+- Auth enabled + token: protected request and normal background runtime are allowed.
+- Empty-string tokens are treated as missing.
+
+### Tests and CI
+- Added Node built-in regression tests with no new frontend testing dependency.
+- Added `npm run test:auth-runtime`.
+- Added `.github/workflows/frontend-auth-runtime-tests.yml`.
+- The workflow runs the auth-runtime tests and a full Vite build on frontend-related branch pushes and pull requests.
+
+### Browser verification limitation
+The execution environment includes headless Chromium, but outbound navigation to both the production domain and the exact Vercel preview is administratively blocked. Therefore an interactive deployed mouse/login test is not claimed; CI regression coverage is used as the executable guardrail available in this environment.

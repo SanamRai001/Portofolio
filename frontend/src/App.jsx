@@ -9,6 +9,7 @@ import Projects from './Projects'
 import Form from './Form'
 import InfoSection from './InfoSection'
 import Logs from './Logs'
+import { deriveAuthRuntimeState } from './authRuntime'
 
 const App = () => {
   const [systemToggle, setSystemToggle] = useState({});
@@ -17,7 +18,11 @@ const App = () => {
     setSystemToggle(toggle);
   }, []);
 
-  const showAuthOverlay = systemToggle.auth && !localStorage.getItem("token");
+  const authRuntime = deriveAuthRuntimeState(
+    systemToggle.auth,
+    localStorage.getItem("token"),
+  );
+  const showAuthOverlay = authRuntime.showAuthOverlay;
 
   return (
     <>

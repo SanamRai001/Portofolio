@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react';
 import API from "./config/api";
 import ProjectCard from './reusable/ProjectCard';
+import { deriveAuthRuntimeState } from './authRuntime';
 
 const Projects = ({ systemToggle }) => {
   const url = API + "/api/projects";
@@ -13,13 +14,14 @@ const Projects = ({ systemToggle }) => {
     const controller = new AbortController();
 
     const fetchData = async () => {
-      if (typeof systemToggle.auth !== "boolean") {
+      const token = localStorage.getItem("token");
+      const authRuntime = deriveAuthRuntimeState(systemToggle.auth, token);
+
+      if (!authRuntime.authKnown) {
         return;
       }
 
-      const token = localStorage.getItem("token");
-
-      if (systemToggle.auth && !token) {
+      if (!authRuntime.canRequestProjects) {
         setProjects([]);
         setMessage("");
         setLoading(false);
