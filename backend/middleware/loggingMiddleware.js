@@ -1,24 +1,30 @@
-import {performance} from 'node:perf_hooks';
-import { addLogs } from '../utils/logStore.js';
+import { performance } from 'node:perf_hooks'
 
-const loggingMiddleware = (req, res, next) =>{
-    if(req.systemConfig?.logging === true){
-        const  start = performance.now();
-        const logging = ()=>{
-            let logs = "";
-            const end = performance.now();
-            const timeTaken = end - start;
-            logs = `[LOG] ${req.method} ${req.originalUrl} | ${res.statusCode} | ${Math.round(timeTaken)}ms | ${req.ip}`;            
-            res.logs = logs;
-            addLogs(logs);
-            console.log(logs);
-        }
-        res.on("finish", logging);
-    }
-    else{
-        console.log("logging middleware not working");
-    }
-    next();
+import { addLogs } from '../utils/logStore.js'
+import { formatPublicRequestLog } from '../utils/requestLog.js'
+
+const loggingMiddleware = (req, res, next) => {
+  if (req.systemConfig?.logging !== true) {
+    return next()
+  }
+
+  const startedAt = performance.now()
+
+  res.once('finish', () => {
+    const requestPath = `${req.baseUrl || ''}${req.path || ''}` || '/'
+    const durationMs = performance.now() - startedAt
+    const log = formatPublicRequestLog({
+      method: req.method,
+      path: requestPath,
+      statusCode: res.statusCode,
+      durationMs,
+    })
+
+    addLogs(log)
+    console.log(log)
+  })
+
+  return next()
 }
 
-export default loggingMiddleware;
+export default loggingMiddleware
