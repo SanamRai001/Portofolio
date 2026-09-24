@@ -10,7 +10,8 @@
     "test:auth": "node --test utils/password.test.js utils/passwordMigration.test.js utils/authInput.test.js data/deactivateUnsafeSeedUsers.test.js middleware/authMiddleware.test.js",
     "seed:users": "node data/seedUser.js",
     "migrate:passwords": "node data/migrateLegacyPasswords.js --dry-run",
-    "migrate:passwords:apply": "node data/migrateLegacyPasswords.js --apply"
+    "migrate:passwords:apply": "node data/migrateLegacyPasswords.js --apply",
+    "test:backend-lab": "node --test utils/systemConfigInput.test.js"
   },
   "author": "",
   "license": "ISC",
