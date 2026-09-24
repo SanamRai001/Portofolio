@@ -7,14 +7,14 @@ import HeroIsland from './hero-island/HeroIsland'
 import { gsap, MOTION } from './motion'
 import useReducedMotion from './motion/useReducedMotion'
 
-const HeroSection = () => {
+const HeroSection = ({ suspended = false }) => {
   const [status, setStatus] = useState(null);
   const heroRef = useRef(null);
   const reducedMotion = useReducedMotion();
 
   useLayoutEffect(() => {
     const hero = heroRef.current;
-    if (!hero || reducedMotion) return undefined;
+    if (!hero || reducedMotion || suspended) return undefined;
 
     const context = gsap.context(() => {
       const timeline = gsap.timeline({
@@ -67,7 +67,7 @@ const HeroSection = () => {
     }, hero);
 
     return () => context.revert();
-  }, [reducedMotion]);
+  }, [reducedMotion, suspended]);
 
   const getData = async () => {
     try {
@@ -142,7 +142,7 @@ const HeroSection = () => {
             <span>world.preview</span>
           </div>
 
-          <HeroIsland />
+          <HeroIsland suspended={suspended} />
 
           <div className="HeroPanelBody">
             <div className="CodeLine"><span>mood</span><strong>quiet + curious</strong></div>
@@ -158,7 +158,7 @@ const HeroSection = () => {
         </aside>
       </div>
 
-      <LivingForge />
+      <LivingForge suspended={suspended} />
     </section>
   )
 }

@@ -19,6 +19,13 @@
   opacity: 0.08;
 }
 
+.LivingForge[data-suspended="true"],
+.LivingForgeSparkLayer[data-suspended="true"] {
+  visibility: hidden;
+  opacity: 0;
+  animation: none !important;
+}
+
 .LivingForgeAura {
   position: absolute;
   inset: 24px 18px 12px;

@@ -65,7 +65,7 @@ const smoothstep = (edge0, edge1, value) => {
   return t * t * (3 - 2 * t)
 }
 
-const HeroIsland = () => {
+const HeroIsland = ({ suspended = false }) => {
   const mountRef = useRef(null)
   const timeLabelRef = useRef(null)
   const [webglFailed, setWebglFailed] = useState(false)
@@ -73,7 +73,7 @@ const HeroIsland = () => {
 
   useEffect(() => {
     const mount = mountRef.current
-    if (!mount || reducedMotion) return undefined
+    if (!mount || reducedMotion || suspended) return undefined
 
     const compact = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches
     const finePointer = window.matchMedia('(pointer: fine)').matches
@@ -992,9 +992,9 @@ const HeroIsland = () => {
       renderer.forceContextLoss()
       mount.replaceChildren()
     }
-  }, [reducedMotion])
+  }, [reducedMotion, suspended])
 
-  const staticMode = reducedMotion || webglFailed
+  const staticMode = suspended || reducedMotion || webglFailed
 
   return (
     <div

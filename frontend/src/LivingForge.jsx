@@ -10,7 +10,7 @@ const SPARK_COLORS = ["#57DDF2", "#FFB85C", "#35C8B4"];
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-const LivingForge = () => {
+const LivingForge = ({ suspended = false }) => {
   const forgeRef = useRef(null);
   const sparkLayerRef = useRef(null);
 
@@ -18,6 +18,12 @@ const LivingForge = () => {
     const forge = forgeRef.current;
     const sparkLayer = sparkLayerRef.current;
     if (!forge || !sparkLayer) return undefined;
+
+    if (suspended) {
+      forge.dataset.state = "idle";
+      sparkLayer.replaceChildren();
+      return undefined;
+    }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const finePointer = window.matchMedia("(pointer: fine)");
@@ -279,15 +285,26 @@ const LivingForge = () => {
       sparkTimers.clear();
       sparkLayer.replaceChildren();
     };
-  }, []);
+  }, [suspended]);
 
   return (
     <>
-      <div className="LivingForge" ref={forgeRef} data-state="idle" aria-hidden="true">
+      <div
+        className="LivingForge"
+        ref={forgeRef}
+        data-state="idle"
+        data-suspended={suspended ? "true" : "false"}
+        aria-hidden="true"
+      >
         <span className="LivingForgeAura" />
         <span className="LivingForgeSprite" />
       </div>
-      <div className="LivingForgeSparkLayer" ref={sparkLayerRef} aria-hidden="true" />
+      <div
+        className="LivingForgeSparkLayer"
+        ref={sparkLayerRef}
+        data-suspended={suspended ? "true" : "false"}
+        aria-hidden="true"
+      />
     </>
   )
 }

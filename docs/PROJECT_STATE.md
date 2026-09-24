@@ -321,3 +321,27 @@ Active branch: `security/auth-hardening-phase-5`.
 
 ### Rate-limit decision
 The existing optional rate-limit middleware was not reused as a login brute-force limiter because the repository does not document the production reverse-proxy topology. Guessing `trust proxy` or IP semantics could create a shared/global lockout. Login-specific throttling should be added only after deployment proxy behavior is known.
+
+
+## Auth overlay repaint bug audit and fix
+Active branch: `fix/auth-overlay-motion-repaint`.
+
+### Root cause
+- Mouse movement did not update React application state; no pointer-driven `setSystemToggle` or App render loop was found.
+- The global Forge still installed a `window.pointermove` listener while the authentication dialog was open.
+- Each pointer movement updated Forge transform/state, ran requestAnimationFrame movement, and could create spark DOM nodes.
+- The same animated content sat behind both `.Blurred { filter: blur(5px) }` and the authentication overlay's `backdrop-filter: blur(12px)`.
+- Moving/compositing content underneath those large filtered surfaces can invalidate and repaint a substantial viewport area, visually resembling a full application rerender.
+- The hero Three.js island also continued its ambient render loop behind the blocked/blurred page, adding avoidable GPU compositing work.
+
+### Fix
+- `App` now passes the authentication-blocked state to `HeroSection`.
+- Hero GSAP entrance work is suspended while the auth overlay is active.
+- `HeroIsland` tears down/does not start WebGL while suspended and displays its existing non-animated fallback.
+- `LivingForge` does not attach global pointer, resize, reaction, observer, timer, or RAF behavior while suspended.
+- Entering suspended mode triggers the normal React effect cleanup, removing any listeners/RAF/timers/sparks that were already active.
+- Forge and its spark layer are hidden while suspended to avoid compositor work under the blurred login backdrop.
+- The authentication dialog layout, blur treatment, credentials, backend behavior, and post-login behavior are unchanged.
+
+### Verification boundary
+This fix addresses the concrete render/compositing path visible in source. Vercel build validation is required before merge; browser performance-panel measurements are not claimed from the repository-only audit.

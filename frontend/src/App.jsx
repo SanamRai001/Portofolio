@@ -37,7 +37,7 @@ const App = () => {
 
         <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")}>
           <main id="main-content" tabIndex="-1">
-            <HeroSection />
+            <HeroSection suspended={showAuthOverlay} />
             <ArchitectureStory />
             <InfoSection />
 
