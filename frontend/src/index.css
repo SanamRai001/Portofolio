@@ -1534,3 +1534,9 @@ img {
     margin-top: 30px;
   }
 }
+
+
+.ToggleButton:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
