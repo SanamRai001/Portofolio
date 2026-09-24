@@ -21,10 +21,10 @@ const data = [
   },
   {
     key: "rateLimit",
-    title: "Rate Limiting",
-    description: "Limits number of incoming requests per IP/user.",
+    title: "Rate Limit Flag",
+    description: "Stores the request-throttling configuration flag for the architecture demo.",
     details:
-      "Prevents API abuse by restricting excessive requests within a time window."
+      "The limiter implementation exists, but it is intentionally not mounted on the project route in the current portfolio build."
   },
   {
     key: "logging",
