@@ -115,7 +115,7 @@ const HeroIsland = ({ suspended = false }) => {
       })
     } catch (error) {
       console.warn('Hero island WebGL unavailable', error)
-      setWebglFailed(true)
+      queueMicrotask(() => setWebglFailed(true))
       return undefined
     }
 
