@@ -23,6 +23,7 @@ const App = () => {
     localStorage.getItem("token"),
   );
   const showAuthOverlay = authRuntime.showAuthOverlay;
+  const suspendBackground = authRuntime.suspendBackground;
 
   return (
     <>
@@ -42,15 +43,15 @@ const App = () => {
 
         <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")}>
           <main id="main-content" tabIndex="-1">
-            <HeroSection suspended={showAuthOverlay} />
-            <ArchitectureStory />
+            <HeroSection suspended={suspendBackground} />
+            <ArchitectureStory suspended={suspendBackground} />
             <InfoSection />
 
             <div id="system-controls">
-              <SystemControl handleToggle={handleToggle} />
+              <SystemControl handleToggle={handleToggle} suspended={suspendBackground} />
             </div>
 
-            <Logs systemToggle={systemToggle} suspended={showAuthOverlay} />
+            <Logs systemToggle={systemToggle} suspended={suspendBackground} />
 
             <div id="projects">
               <Projects systemToggle={systemToggle} />

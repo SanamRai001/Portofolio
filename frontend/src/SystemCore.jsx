@@ -15,6 +15,7 @@ const SystemCore = ({
   activeChapterRef = null,
   variant = 'panel',
   systemState = null,
+  suspended = false,
 }) => {
   const mountRef = useRef(null)
   const systemStateRef = useRef(systemState)
@@ -27,7 +28,7 @@ const SystemCore = ({
 
   useEffect(() => {
     const mount = mountRef.current
-    if (!mount || reducedMotion) return undefined
+    if (!mount || reducedMotion || suspended) return undefined
 
     const compact = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches
     const scene = new THREE.Scene()
@@ -398,9 +399,9 @@ const SystemCore = ({
       renderer.forceContextLoss()
       mount.replaceChildren()
     }
-  }, [activeChapterRef, reducedMotion, storyProgressRef, variant])
+  }, [activeChapterRef, reducedMotion, storyProgressRef, suspended, variant])
 
-  const staticMode = reducedMotion || webglFailed
+  const staticMode = suspended || reducedMotion || webglFailed
   const mappedEnabledCount = systemState
     ? ['auth', 'cache', 'db', 'logging'].filter((key) => Boolean(systemState[key])).length
     : 0

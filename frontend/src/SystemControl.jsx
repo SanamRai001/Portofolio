@@ -23,7 +23,7 @@ const mappedControls = [
   { key: 'logging', label: 'RUNTIME', detail: 'observability' },
 ];
 
-const SystemControl = ({ handleToggle: notifyToggle }) => {
+const SystemControl = ({ handleToggle: notifyToggle, suspended = false }) => {
   const [toggle, setToggle] = useState({
     auth: false,
     db: false,
@@ -176,7 +176,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
 
         <div className="BackendLabVisual" aria-label="Live backend configuration visualization">
           <div className="BackendLabCore">
-            <SystemCore variant="lab" systemState={toggle} />
+            <SystemCore variant="lab" systemState={toggle} suspended={suspended} />
           </div>
 
           <div className="BackendLabMap">

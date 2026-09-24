@@ -47,7 +47,7 @@ const CHAPTERS = [
   },
 ]
 
-const ArchitectureStory = () => {
+const ArchitectureStory = ({ suspended = false }) => {
   const sectionRef = useRef(null)
   const progressRef = useRef(0)
   const activeChapterRef = useRef(0)
@@ -57,7 +57,7 @@ const ArchitectureStory = () => {
 
   useLayoutEffect(() => {
     const section = sectionRef.current
-    if (!section || reducedMotion) return undefined
+    if (!section || reducedMotion || suspended) return undefined
 
     const context = gsap.context(() => {
       const cards = gsap.utils.toArray('.ArchitectureStoryChapter')
@@ -106,7 +106,7 @@ const ArchitectureStory = () => {
     }, section)
 
     return () => context.revert()
-  }, [reducedMotion])
+  }, [reducedMotion, suspended])
 
   return (
     <section
@@ -130,6 +130,7 @@ const ArchitectureStory = () => {
               variant="story"
               storyProgressRef={progressRef}
               activeChapterRef={activeChapterRef}
+              suspended={suspended}
             />
           </div>
 

@@ -382,3 +382,28 @@ Active branch: `test/auth-overlay-regression`.
 
 ### Browser verification limitation
 The execution environment includes headless Chromium, but outbound navigation to both the production domain and the exact Vercel preview is administratively blocked. Therefore an interactive deployed mouse/login test is not claimed; CI regression coverage is used as the executable guardrail available in this environment.
+
+
+## Auth overlay final hardening audit
+Active branch: `fix/auth-overlay-final-hardening`.
+
+### Remaining issues found
+- The Backend Lab `SystemCore` remained eligible to render WebGL behind the authentication blur. This matters because Auth is toggled from that exact section, so the lab core can still be in the viewport when the modal appears.
+- The Architecture Story also owned GSAP/ScrollTrigger and a `SystemCore`; although usually offscreen at the moment Auth is enabled, it should obey the same global suspension contract.
+- The login form logged the full Axios error object. Axios errors can include request configuration and serialized request body, so submitted credentials could be exposed in the visitor's DevTools console.
+- Login success trusted `response.data.token` without validation. If a malformed/missing value were stored, localStorage could contain values such as `"undefined"` and produce a bad transient auth state.
+- The previous auth-runtime helper treated every non-empty string as a token.
+
+### Final hardening
+- `App` now uses the explicit `suspendBackground` value from the shared auth runtime and passes it to Hero, Architecture Story, Backend Lab, and Logs.
+- `ArchitectureStory` suspends GSAP/ScrollTrigger setup while auth owns the screen.
+- Shared `SystemCore` now supports `suspended`, tears down/does not start WebGL while suspended, and falls back to its existing static representation.
+- Backend Lab passes suspension to its live `SystemCore`.
+- Removed full Axios error logging from the login form.
+- Added `isUsableToken()` to accept only non-empty three-segment JWT-shaped strings and reject empty/`undefined`/`null`/garbage sentinels.
+- Login does not store or reload on a malformed token response.
+- Stored tokens are trimmed before persistence.
+- Expanded auth-runtime regression tests for JWT-shaped and malformed/sentinel token values.
+
+### Assessment
+After this phase, no additional auth-overlay rendering change is recommended unless a real browser/device regression is observed. Larger changes such as HttpOnly-cookie auth or proxy-aware brute-force protection are architecture/security upgrades, not fixes for the current portfolio demo.

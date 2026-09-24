@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import API from "./config/api";
 import axios from 'axios';
+import { isUsableToken } from './authRuntime';
 
 const Form = ({ systemToggle }) => {
   const [email, setEmail] = useState("");
@@ -16,11 +17,17 @@ const Form = ({ systemToggle }) => {
     try {
       const user = { email, password };
       const response = await axios.post(API + "/api/auth/login", user);
-      const token = response.data.token;
-      localStorage.setItem("token", token);
+      const token = response.data?.token;
+
+      if (!isUsableToken(token)) {
+        setError("Login succeeded without a valid session token. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem("token", token.trim());
       window.location.reload();
     } catch (requestError) {
-      console.log("Error", requestError);
       setError(requestError.response?.data?.message || "Login failed. Check your credentials.");
       setLoading(false);
     }

@@ -1,7 +1,20 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { deriveAuthRuntimeState } from './authRuntime.js'
+import {
+  deriveAuthRuntimeState,
+  isUsableToken,
+} from './authRuntime.js'
+
+test('isUsableToken accepts a JWT-shaped token only', () => {
+  assert.equal(isUsableToken('header.payload.signature'), true)
+  assert.equal(isUsableToken(' header.payload.signature '), true)
+  assert.equal(isUsableToken(''), false)
+  assert.equal(isUsableToken('undefined'), false)
+  assert.equal(isUsableToken('null'), false)
+  assert.equal(isUsableToken('not-a-jwt'), false)
+  assert.equal(isUsableToken(null), false)
+})
 
 test('unknown auth state does not show overlay or request projects yet', () => {
   assert.deepEqual(
@@ -35,8 +48,8 @@ test('auth enabled without a token owns the screen and blocks protected requests
   assert.equal(state.suspendBackground, true)
 })
 
-test('auth enabled with a token allows protected requests and background runtime', () => {
-  const state = deriveAuthRuntimeState(true, 'valid-looking-token')
+test('auth enabled with a JWT-shaped token allows protected requests and background runtime', () => {
+  const state = deriveAuthRuntimeState(true, 'header.payload.signature')
 
   assert.equal(state.authKnown, true)
   assert.equal(state.hasToken, true)
@@ -45,10 +58,12 @@ test('auth enabled with a token allows protected requests and background runtime
   assert.equal(state.suspendBackground, false)
 })
 
-test('empty-string tokens are treated as missing', () => {
-  const state = deriveAuthRuntimeState(true, '')
+test('invalid stored token sentinels are treated as missing', () => {
+  for (const token of ['', 'undefined', 'null', 'garbage']) {
+    const state = deriveAuthRuntimeState(true, token)
 
-  assert.equal(state.hasToken, false)
-  assert.equal(state.canRequestProjects, false)
-  assert.equal(state.showAuthOverlay, true)
+    assert.equal(state.hasToken, false)
+    assert.equal(state.canRequestProjects, false)
+    assert.equal(state.showAuthOverlay, true)
+  }
 })
