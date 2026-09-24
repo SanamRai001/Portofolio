@@ -1,0 +1,55 @@
+name: Verify Final Live Bcrypt Auth
+
+on:
+  push:
+    branches:
+      - security/password-migration-check
+    paths:
+      - '.github/workflows/verify-final-live-bcrypt-auth.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-final-live-bcrypt-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Verify final bcrypt-only Render deployment
+        shell: bash
+        env:
+          API_BASE: https://portofolio-zsky.onrender.com
+          DEMO_EMAIL: viewer@portfolio.dev
+          DEMO_PASSWORD: viewer123
+        run: |
+          set -euo pipefail
+
+          for ATTEMPT in 1 2 3 4 5 6 7 8; do
+            RESPONSE_FILE="$(mktemp)"
+
+            HTTP_CODE="$(
+              curl -sS                 --connect-timeout 15                 --max-time 45                 -o "$RESPONSE_FILE"                 -w "%{http_code}"                 -H "Content-Type: application/json"                 --data "$(jq -nc --arg email "$DEMO_EMAIL" --arg password "$DEMO_PASSWORD" '{email:$email,password:$password}')"                 "$API_BASE/api/auth/login" || true
+            )"
+
+            SUCCESS="$(jq -r '.success // false' "$RESPONSE_FILE" 2>/dev/null || true)"
+            AUTH_VERSION="$(jq -r '.authVersion // empty' "$RESPONSE_FILE" 2>/dev/null || true)"
+            HAS_TOKEN="$(jq -r 'if (.token | type) == "string" and (.token | length) > 0 then "true" else "false" end' "$RESPONSE_FILE" 2>/dev/null || echo false)"
+
+            rm -f "$RESPONSE_FILE"
+
+            if [ "$HTTP_CODE" = "200" ] &&                [ "$SUCCESS" = "true" ] &&                [ "$HAS_TOKEN" = "true" ] &&                [ -z "$AUTH_VERSION" ]; then
+              echo "Final bcrypt-only live authentication verified."
+              echo "Viewer login succeeds and the temporary transition marker is absent."
+              exit 0
+            fi
+
+            echo "Attempt $ATTEMPT: final backend not ready yet (HTTP $HTTP_CODE, authVersion=${AUTH_VERSION:-none})."
+
+            if [ "$ATTEMPT" -lt 8 ]; then
+              sleep 20
+            fi
+          done
+
+          echo "::error::Final bcrypt-only deployment was not verified within the retry window."
+          exit 1
