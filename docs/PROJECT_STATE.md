@@ -273,3 +273,27 @@ Active branch: `security/auth-hardening-phase-3`.
 
 ### Verification boundary
 Vercel validates deployment/build integration but is not the authoritative backend test runner. The new GitHub Actions workflow is the intended executable gate for these Node tests.
+
+
+## Authentication hardening — Phase A5 legacy-data migration tooling
+Active branch: `security/auth-hardening-phase-4`.
+
+### Why A5 is migration-first
+- The deployed frontend receives `VITE_API_URL` from Vercel environment configuration; the live backend base URL is not committed to the repository.
+- The public demo credentials also differ from the repository's historical seed data.
+- Because the live MongoDB record cannot be proven migrated from repository state alone, bcrypt-only authentication must not be enabled blindly.
+
+### Migration tooling
+- Added `backend/utils/passwordMigration.js` with a testable migration core.
+- Legacy records are identified only when their password field is a non-empty string that is not already a bcrypt hash.
+- Migration defaults to dry-run and performs no hashing/writes in that mode.
+- Apply mode bcrypt-hashes each remaining legacy plaintext value without needing to know the user's credential externally.
+- Every database write is conditional on both `_id` and the exact previously scanned password, avoiding overwrites if a record changes concurrently.
+- Migration output reports only counts; passwords are never printed.
+- Added `npm run migrate:passwords` for dry-run.
+- Added `npm run migrate:passwords:apply` for explicit mutation.
+- Added focused tests for legacy detection, no-write dry-run behavior, successful migration, and conditional-update conflicts.
+- `npm run test:auth` now includes password migration tests.
+
+### Final removal condition
+Do not remove the temporary plaintext-login compatibility path until the live backend environment reports `legacy=0` after the migration has been applied. Once that condition is verified, the next phase can make login bcrypt-only.

@@ -293,3 +293,20 @@ The backend test suite includes password hashing/migration and JWT middleware ch
 ```bash
 npm run test:auth
 ```
+
+
+### Legacy password migration
+
+The authentication hardening keeps a temporary compatibility path for pre-existing plaintext user records. Before removing that compatibility, inspect the live database from the backend environment:
+
+```bash
+npm run migrate:passwords
+```
+
+This is a dry run and does not modify data. If the reported legacy count is expected, apply the migration explicitly:
+
+```bash
+npm run migrate:passwords:apply
+```
+
+The migration never prints passwords. Each write is conditional on the stored password still matching the value that was scanned, so concurrent changes are not overwritten.
