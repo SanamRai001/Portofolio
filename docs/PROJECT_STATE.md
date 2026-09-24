@@ -428,3 +428,33 @@ Active branch: `security/password-migration-verify`.
 
 ### Verification plan
 After this transition is deployed to Render, a successful live demo login that returns `authVersion=bcrypt-transition-v1` proves that the deployed backend is running this code and that the viewer account is bcrypt-backed before its JWT is issued. Then the temporary plaintext verification branch can be removed and runtime authentication can become bcrypt-only.
+
+
+## Authentication hardening — final bcrypt-only runtime
+Active branch: `security/bcrypt-only-auth`.
+
+### Live verification completed before removal
+- The deployed Render backend is `https://portofolio-zsky.onrender.com`.
+- Live auth is enabled.
+- The credentials previously shown in the UI (`Viewer@gmail.com / Viewer@123#`) and the lowercase Gmail variant both return 401.
+- The repository viewer seed account (`viewer@portfolio.dev / viewer123`) returns 200, a valid JWT, and the temporary `bcrypt-transition-v1` marker.
+- Because the transitional controller issued a JWT only after a required legacy write successfully persisted, that successful live response proves the viewer account is bcrypt-backed.
+
+### Bcrypt-only runtime
+- Removed plaintext password comparison from runtime authentication.
+- Runtime verification now rejects any stored value that is not a bcrypt hash.
+- Removed the temporary legacy-upgrade path and transition response marker.
+- Kept the standalone migration tooling for maintenance/dry-run use; it is no longer part of login behavior.
+- Updated password tests to assert that plaintext stored values are rejected.
+
+### Demo-account safety
+- The login modal now shows the actual working public demo viewer account: `viewer@portfolio.dev / viewer123`.
+- Future seed runs are viewer-only and use an idempotent upsert.
+- Public seed admin/superadmin accounts are no longer created by the seed script.
+- Added an idempotent startup cleanup that deactivates the known privileged seed identities `admin@portfolio.dev` and `superadmin@portfolio.dev` when their roles are admin/super_admin.
+- Startup cleanup runs after DB connection and before the server starts listening.
+- Cleanup failure is fail-closed through backend startup failure, so the final deployment does not knowingly serve traffic while the known unsafe privileged seed cleanup is incomplete.
+- Added focused tests for the cleanup query and idempotent no-op behavior.
+
+### Completion condition
+After this commit is deployed, verify that the working viewer still logs in successfully and that the temporary `authVersion` field is absent. That proves Render advanced from the transition build to the bcrypt-only build.

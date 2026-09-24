@@ -46,8 +46,8 @@ const Form = ({ systemToggle }) => {
 
         <div className="DemoCredentials" aria-label="Demo viewer credentials">
           <span>Viewer account</span>
-          <code>Viewer@gmail.com</code>
-          <code>Viewer@123#</code>
+          <code>viewer@portfolio.dev</code>
+          <code>viewer123</code>
         </div>
 
         <div className="Field">
