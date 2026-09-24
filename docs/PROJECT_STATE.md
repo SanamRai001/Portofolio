@@ -494,3 +494,26 @@ Active branch: `fix/backend-lab-config-contract`.
 - Core Projects explanatory copy says the same.
 - Future control/project seed text has been corrected too.
 - No rate-limit middleware was mounted in this phase because production proxy/IP semantics have not been verified.
+
+
+## SEO/shareability + document semantics
+Active branch: `chore/seo-social-semantics`.
+
+### Metadata truthfulness
+- Removed the stale implication that request rate limiting is active in the current portfolio route.
+- Meta description now describes the live backend lab as transparent runtime configuration rather than active throttling.
+- Open Graph description was updated to match the actual runtime behavior.
+
+### Social previews
+- Added an Open Graph image using the existing public `/projects/portfolio-system.png` asset.
+- Added Open Graph image alt text.
+- Upgraded Twitter card type to `summary_large_image`.
+- Added Twitter image and image alt metadata.
+- Added image/description fields to the existing Person structured-data record.
+
+### Dialog semantics
+- Authentication overlay now uses the visible heading and description through `aria-labelledby` and `aria-describedby`.
+- No visual layout or interaction behavior changed.
+
+### Logging cleanup
+- Hero backend ping no longer logs a full Axios error object; only the error message is emitted.
