@@ -73,7 +73,7 @@ const HeroIsland = ({ suspended = false }) => {
 
   useEffect(() => {
     const mount = mountRef.current
-    if (!mount || reducedMotion || suspended) return undefined
+    if (!mount || reducedMotion || suspended || webglFailed) return undefined
 
     const compact = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches
     const finePointer = window.matchMedia('(pointer: fine)').matches
@@ -866,7 +866,7 @@ const HeroIsland = ({ suspended = false }) => {
 
       pond.scale.x = 1.35 + Math.sin(seconds * 0.9) * 0.015
       pond.scale.y = 0.78 + Math.sin(seconds * 1.16 + 0.6) * 0.012
-      pondMaterial.opacity = 0.76 + Math.sin(seconds * 1.3) * 0.035
+      waterMaterial.opacity = 0.76 + Math.sin(seconds * 1.3) * 0.035
 
       streamMaterial.opacity = 0.47 + Math.sin(seconds * 1.7) * 0.04
       waterfallMaterial.opacity = 0.58 + Math.sin(seconds * 1.42 + 0.4) * 0.06
@@ -926,7 +926,17 @@ const HeroIsland = ({ suspended = false }) => {
       windowMaterial.emissiveIntensity += ((0.85 + nightFactor * 2.45 + houseHoverBoost * 1.8) - windowMaterial.emissiveIntensity) * 0.14
 
       renderer.render(scene, camera)
-      animationFrame = window.requestAnimationFrame(renderFrame)
+      animationFrame = window.requestAnimationFrame(safeRenderFrame)
+    }
+
+    const safeRenderFrame = (time) => {
+      try {
+        renderFrame(time)
+      } catch (error) {
+        animationFrame = 0
+        console.error('Hero island render failed', error)
+        setWebglFailed(true)
+      }
     }
 
     const stopRendering = () => {
@@ -937,7 +947,7 @@ const HeroIsland = ({ suspended = false }) => {
 
     const startRendering = () => {
       if (!canRender() || animationFrame) return
-      animationFrame = window.requestAnimationFrame(renderFrame)
+      animationFrame = window.requestAnimationFrame(safeRenderFrame)
     }
 
     const visibilityObserver = new IntersectionObserver(
@@ -992,7 +1002,7 @@ const HeroIsland = ({ suspended = false }) => {
       renderer.forceContextLoss()
       mount.replaceChildren()
     }
-  }, [reducedMotion, suspended])
+  }, [reducedMotion, suspended, webglFailed])
 
   const staticMode = suspended || reducedMotion || webglFailed
 
