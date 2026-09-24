@@ -1,45 +1,68 @@
-import systemConfig from '../config/systemConfig.js';
-import System from '../models/systemModel.js';
+import System from '../models/systemModel.js'
+import { parseSystemConfigUpdate } from '../utils/systemConfigInput.js'
 
-export const updateSystemConfig = async (req, res) =>{
-    const  toggles = req.body;
-    try{
-        const insertResult = await System.findOneAndUpdate(
-        {},
-        { $set: toggles },
-        { upsert: true, new: true }
-        );
-        console.log("System toggle is inserted.");
-        res.json({
-        success: true,
-        message: "System config updated",
-        data: insertResult
-        });
-    }
-    catch(error){
-        console.error("Error", error);
-        res.json({
+export const updateSystemConfig = async (req, res) => {
+  const parsed = parseSystemConfigUpdate(req.body)
+
+  if (!parsed.ok) {
+    return res.status(400).json({
+      success: false,
+      message: parsed.message,
+    })
+  }
+
+  try {
+    const updated = await System.findOneAndUpdate(
+      {},
+      {
+        $set: {
+          ...parsed.data,
+          updatedAt: new Date(),
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true,
+        setDefaultsOnInsert: true,
+      },
+    )
+
+    return res.json({
+      success: true,
+      message: 'System config updated',
+      data: updated,
+    })
+  } catch (error) {
+    console.error('System config update failed', error.message)
+    return res.status(500).json({
+      success: false,
+      message: 'System config update failed',
+    })
+  }
+}
+
+export const readSystemConfig = async (_req, res) => {
+  try {
+    const config = await System.findOne()
+
+    if (!config) {
+      return res.status(500).json({
         success: false,
-        message: "Update failed",
-        });
+        message: 'System config missing',
+      })
     }
 
-    
-};
-export const readSystemConfig = async (req, res) =>{
-    try{
-        const read = await System.findOne();
-        res.json({
-            success: true,
-            message: "System config fetched",
-            data: read
-        });
-    }
-    catch(error){
-        res.status(500).json({
-            success: false,
-            message: "System config failed",
-        })
-    }
-};
-
+    return res.json({
+      success: true,
+      message: 'System config fetched',
+      data: config,
+    })
+  } catch (error) {
+    console.error('System config read failed', error.message)
+    return res.status(500).json({
+      success: false,
+      message: 'System config failed',
+    })
+  }
+}
