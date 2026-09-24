@@ -45,7 +45,7 @@ const SystemCore = ({
       })
     } catch (error) {
       console.warn('System Core WebGL unavailable', error)
-      setWebglFailed(true)
+      queueMicrotask(() => setWebglFailed(true))
       return undefined
     }
 
