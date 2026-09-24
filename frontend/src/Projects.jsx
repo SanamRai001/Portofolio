@@ -48,8 +48,11 @@ const Projects = ({ systemToggle }) => {
           return;
         }
 
-        console.error(error.message);
-        setMessage("Something went wrong while reading the live project API.");
+        console.error("Project API request failed:", error.message);
+        setMessage(
+          error.response?.data?.message ||
+            "Something went wrong while reading the live project API."
+        );
         setProjects([]);
       } finally {
         if (!controller.signal.aborted) {
@@ -61,7 +64,14 @@ const Projects = ({ systemToggle }) => {
     fetchData();
 
     return () => controller.abort();
-  }, [url, systemToggle.auth, systemToggle.db]);
+  }, [
+    url,
+    systemToggle.auth,
+    systemToggle.db,
+    systemToggle.cache,
+    systemToggle.logging,
+    systemToggle.pagination,
+  ]);
 
   return (
     <section className="MainProject" aria-labelledby="core-projects-title">
