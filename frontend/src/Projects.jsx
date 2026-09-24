@@ -13,13 +13,26 @@ const Projects = ({ systemToggle }) => {
     const controller = new AbortController();
 
     const fetchData = async () => {
+      if (typeof systemToggle.auth !== "boolean") {
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+
+      if (systemToggle.auth && !token) {
+        setProjects([]);
+        setMessage("");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const response = await axios.get(url, {
           signal: controller.signal,
-          headers: {
-            'Authorization': "Bearer " + localStorage.getItem("token")
-          }
+          headers: token
+            ? { 'Authorization': "Bearer " + token }
+            : undefined
         });
 
         setProjects(Array.isArray(response.data.data) ? response.data.data : []);

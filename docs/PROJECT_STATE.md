@@ -345,3 +345,13 @@ Active branch: `fix/auth-overlay-motion-repaint`.
 
 ### Verification boundary
 This fix addresses the concrete render/compositing path visible in source. Vercel build validation is required before merge; browser performance-panel measurements are not claimed from the repository-only audit.
+
+
+### Additional auth reload-loop bug found during the same audit
+- `Projects` previously requested the protected API even when authentication was enabled but localStorage had no token.
+- That produced `Authorization: Bearer null`, correctly received a 401, then hit the stale-token recovery path and called `window.location.reload()`.
+- After reload the same conditions could repeat, creating a real page reload loop behind the login overlay.
+- `Projects` now waits until the auth configuration is known.
+- When auth is enabled and no token exists, it does not call the protected endpoint at all; the login overlay owns that state.
+- Authorization is only sent when a real token string exists.
+- A 401 still clears/reloads when a previously stored token exists, preserving expired-token recovery.
