@@ -21,7 +21,6 @@ const useReducedMotion = () => {
     const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY)
     const onChange = (event) => setReducedMotion(event.matches)
 
-    setReducedMotion(mediaQuery.matches)
     mediaQuery.addEventListener('change', onChange)
 
     return () => mediaQuery.removeEventListener('change', onChange)
