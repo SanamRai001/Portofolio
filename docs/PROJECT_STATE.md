@@ -517,3 +517,45 @@ Active branch: `chore/seo-social-semantics`.
 
 ### Logging cleanup
 - Hero backend ping no longer logs a full Axios error object; only the error message is emitted.
+
+
+## Project API contract hardening
+Active branch: `fix/project-api-contract`.
+
+### Audit findings
+- Pagination used raw `parseInt` values with no lower/upper bounds.
+- Negative, zero, malformed, or extremely large pagination values could produce confusing slices or unnecessary work.
+- Project controller failures returned HTTP 200 even when the database was disabled or a query failed.
+- The project route still imported `rateLimitMiddleware` even though it was intentionally not mounted.
+- The frontend only refetched projects when auth/database flags changed, so cache, logging, and pagination toggles could leave stale demo behavior.
+- Disabled logging printed noisy console messages for every project request.
+- Public request logs included `req.ip` and `req.originalUrl`; because `/api/logs` is public, that could expose visitor IP addresses and arbitrary query-string values to other visitors.
+
+### Project query contract
+- Added a strict pagination parser.
+- Pagination-disabled mode ignores pagination query params and preserves the full-list behavior.
+- Pagination-enabled mode defaults to page 1 / limit 3.
+- `pageNumber` must be an integer from 1 to 10000.
+- `limit` must be an integer from 1 to 24.
+- Invalid pagination returns HTTP 400 with a stable message.
+- Added focused tests for defaults, valid slices, malformed values, negatives/zero, and oversized limits.
+
+### HTTP semantics
+- Database-disabled project requests now return HTTP 503 with the existing user-facing meaning.
+- Unexpected project query failures return HTTP 500.
+- Successful database/cache responses remain HTTP 200 and retain the existing `success/message/data` envelope.
+- Project queries use `.lean()` so the cache stores plain objects rather than Mongoose documents.
+
+### Public-log privacy
+- Removed visitor IP addresses from public request logs.
+- Query strings are no longer stored; the log records only the route path.
+- Logging-disabled requests are silent instead of printing noise.
+- Added a pure formatting test to guard the public-log shape.
+
+### Frontend synchronization
+- Core Projects now refetches when cache, logging, or pagination configuration changes in addition to auth/database.
+- Non-401 API errors display the backend's safe message when available, so `Database is disabled.` remains understandable after moving to HTTP 503.
+
+### Route cleanup
+- Removed the unused `rateLimitMiddleware` import from the project route.
+- Rate limiting remains configuration-only by design.
