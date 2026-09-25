@@ -1,37 +1,36 @@
 # PROJECT_STATE
 
-## Objective / scope
-Backend-focused lightweight `/` plus isolated Galaxy **G1 only** at `/galaxy`. Preserve backend/security contracts; no G2 or branch deletion.
+## Objective / authorization
+Implement **G2 only — Solar System Foundation**, extending existing G1. No G3 camera travel, hover selection, final planet content, satellites/moons, timeline or final black hole. Do not merge or delete branches in this phase.
 
-## Branch and authorization
-- Authoritative branch: `master`.
-- Source: `feat/galaxy-g1-foundation`; integration: `refactor/backend-focused-homepage`.
-- On 2026-09-25 the user explicitly changed the verification order: merge first, then inspect production. This superseded the earlier pre-merge visual gate.
-- Fresh fetch found master at `24b40f7`; the tested integration branch was its descendant. Safely fast-forwarded master to `6ff9586237b17ef22bf859c0bde7138d93a5e2a2`. No force push, reset or branch deletion.
+## Branch / inspected baseline
+- Continuing the existing `feat/galaxy-g1-foundation` branch, as explicitly requested; no new implementation or branch.
+- Fetched all refs; clean initial tree. Existing branch `662ff87` was an ancestor of authoritative `master` (`70cb2dc`). Fast-forwarded it to master to preserve the shipped backend homepage and security/API work.
+- G1 source inspected: lifecycle/disposal, starfield, camera, fallback, pause, reduced motion and route splitting. All 10 G1 tests and lint passed before changes. G1 interactive GPU visuals were never fully accepted because the available browser disables WebGL; do not label that gap as passed.
 
-## Completed phases
-- G1: isolated lazy Galaxy stars/camera/performance controls and WebGL fallback. No planets or camera travel.
-- H1 (`8d6e93f`): static engineering hero, ordered request pipeline, DOM Backend Lab map, project case studies; removed homepage WebGL, GSAP/pinned scrolling and global Forge. Existing reusable scene/Forge files remain isolated.
-- H2 (`af6adaf`): one progressive-enhancement IntersectionObserver; 460ms / 16px reveal; reduced-motion, focus, hidden-tab and auth suspension cleanup. Removed unused GSAP dependency/helpers. Added 8 DOM tests and fixed React 19 boolean `inert` handling.
-- H3: merged and deployed to production under the revised user instruction; performed available live checks below.
-- Backend source, Galaxy implementation, security/API contracts and SEO assets remain unchanged by the homepage refactor. Rate Limit Flag remains configuration-only.
+## Implemented G2
+- Shared `data/solarSystem.js`: central Core/Sanam Sun, four named planets, distant Lab signal; size, orbit, appearance and map data.
+- `utils/orbits.js`: deterministic bounded per-body clocks, one position function shared by meshes/paths/fallback; independent pause/rate controls ready for future integration. No G3 controls are wired.
+- `SolarSystem.js` / `CelestialBody.js`: warm procedural Sun, restrained corona, one central point light and minimal cool ambient fill. Identity has organic ocean colors/atmosphere; Skills has metallic segmented bands; Projects is larger and rocky; Journey has weathered bands/two rings. Lab is a dark distant body with a subtle tilted ring.
+- Four thin neutral orbit paths; distinct slow speeds, radii, phases and inclinations. Low-cost vertex colors/generated geometry; no downloaded textures, dependencies, bloom or shadow maps.
+- Overview camera fits full swept orbital envelopes. Portrait uses a more edge-on, vertically oriented composition and 1.28× planet sizes. A wider portrait lens permits a closer camera while fitting the swept system. Parallax remains small and bounded.
+- HUD remains outside the scene stage: six informational map entries, existing pause/still/exit controls. Fixed G1 fallback layout ordering by keeping header above a dedicated stage.
+- SVG fallback consumes the same body/orbit/projection data and represents all six objects with rings, day/night gradients and surface cues. Original G1 WebGL and fallback starfield data preserved.
+- Original render loop, performance profiles and disposal remain unchanged. No backend/homepage source changes.
 
-## Verification
-- Re-ran on merged master: 6 auth-runtime + 10 Galaxy + 8 homepage DOM + 28 backend tests passed; ESLint and Vite build/bundle guard passed.
-- Master frontend CI `36090473113`: success. Backend CI is path-filtered; backend tests passed locally and its source was unchanged.
-- Production Vercel deployment `6653067199`: success for `6ff9586`.
-- Homepage emitted JS static graph: 274.76 kB raw / 90.19 kB gzip, versus ~968 / ~285 before refactor. CSS 30.41 / 7.39 kB. Build guard confirms no Galaxy, Three.js, GSAP or Forge in homepage imports. Galaxy scene remains separately deferred (~521 kB raw).
-- https://sanam-rai.com.np redirects to https://www.sanam-rai.com.np/ and serves the new content. Observed 3 Galaxy links, zero canvases, valid inert attribute behind the active auth dialog, no horizontal overflow at the available 1363×936 viewport. Auth dialog visually inspected.
-- Direct `/galaxy` visit and refresh render the static star fallback with working navigation. Exit returns to the new homepage. No horizontal overflow at 1363×936.
+## Local verification
+- 13 Galaxy tests, 6 auth-runtime tests, 8 homepage DOM tests and 28 backend tests passed (55 total); lint and production build passed.
+- Added coverage: 20,000 orbit steps, finite bounded positions, invalid deltas, independent pause/rate/resume, swept-frustum bounds at stages corresponding to 1440×900 / 1280×800 / 390×844, geometry budget and resource disposal.
+- Bundle guard passed: homepage excludes Three.js/Galaxy/GSAP/Forge. Homepage JS ~90.18 kB gzip. Galaxy route ~4.09 kB gzip; deferred scene ~134.91 kB gzip. Existing large scene-chunk warning remains isolated to Galaxy.
+- Rendered actual SVG fallback component to static images at desktop/laptop/mobile stage sizes and visually inspected all three compositions: six separated bodies, Sun anchor, orbit hierarchy, larger portrait body presentation. These are SVG composition checks, not browser screenshots or GPU validation.
 
-## Limits / risks
-- Live backend auth is enabled; the overlay covers the homepage. Did not change shared backend flags or bypass login. Full post-login visual inspection remains pending.
-- Cloud browser has WebGL disabled; Galaxy correctly falls back. Console reports expected WebGL initialization failure on Galaxy and browser-extension metadata errors. Interactive 3D rendering is not visually verified here.
-- Required 1440×900, 1280×800 and 390×844 checks remain pending; the current browser surface does not advertise viewport resizing. Do not describe responsive acceptance or all browser-console checks as passed.
-- Earlier protected preview/local browser access issues are superseded by the successful public production check, not by a completed full visual acceptance.
+## Browser verification limits
+- Supported local preview starts, but browser `/galaxy` navigation still fails with `ERR_BLOCKED_BY_CLIENT`; preview stopped afterward.
+- Existing Vercel branch previews require sign-in; no permission to bypass or change protection. Available cloud browser has WebGL disabled.
+- Full 1440×900, 1280×800 and 390×844 browser/HUD/console checks and actual 3D shader/lighting acceptance remain unverified. Numeric framing and build success do not replace them.
 
-## Next phase
-Complete authenticated desktop/laptop/mobile visual review and check Galaxy on a WebGL-capable browser. Keep G2 out of scope unless requested. No further functional changes are currently pending.
+## Next step / stop boundary
+Publish G2 on the existing feature branch; check CI/Vercel. Complete browser/GPU visual acceptance when accessible. **Ready for G3: NO until that verification is complete and the user explicitly authorizes G3.** Do not begin G3 or auto-merge.
 
 ## Branch cleanup
-Both `feat/galaxy-g1-foundation` and `refactor/backend-focused-homepage` are ancestors of master and safe cleanup candidates. Retained; deletion requires explicit user authorization.
+Master includes earlier G1/homepage integration. This Galaxy branch now contains new G2 work and is no longer safe to delete. Other merged branches remain untouched.

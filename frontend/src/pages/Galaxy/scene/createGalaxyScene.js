@@ -1,5 +1,6 @@
 import { Color, Scene, WebGLRenderer } from 'three'
 import { createCameraRig } from './CameraRig.js'
+import { createSolarSystem } from './SolarSystem.js'
 import { createStarField } from './StarField.js'
 import { createRenderLoop } from '../utils/renderLoop.js'
 import { disposeScene } from '../utils/disposeScene.js'
@@ -33,7 +34,8 @@ export function createGalaxyScene(mount, profile, { onReady, onError }) {
     mount.appendChild(renderer.domElement)
     const rig = createCameraRig()
     const stars = createStarField(profile)
-    scene.add(stars.group)
+    const solar = createSolarSystem(profile)
+    scene.add(stars.group, solar.group)
     let paused = false, inView = true, pageActive = true, ready = false
 
     loop = createRenderLoop({
@@ -45,6 +47,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError }) {
         if (!paused && !profile.reducedMotion) {
           rig.update(delta)
           stars.update(delta)
+          solar.update(delta)
         }
         renderer.render(scene, rig.camera)
         if (!ready) { ready = true; onReady() }
@@ -61,6 +64,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError }) {
       const { width, height } = mount.getBoundingClientRect()
       if (!width || !height) return
       rig.resize(width, height)
+      solar.resize(width / height < 0.85)
       renderer.setSize(width, height)
       loop.invalidate()
     }
