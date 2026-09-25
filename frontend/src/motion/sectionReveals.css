@@ -1,0 +1,9 @@
+@keyframes sectionEnter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.SectionRevealEntering { animation: sectionEnter 460ms ease-out; }
+.SectionRevealEntering:focus-within { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .SectionRevealEntering { animation: none; }
+}

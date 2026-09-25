@@ -6,7 +6,7 @@
 
 A backend-focused full-stack portfolio built as an **interactive software system**, not only a static showcase.
 
-The site combines a real Express/MongoDB backend lab with a motion-driven React experience: an interactive Three.js system core, scroll-based architecture storytelling, an editorial project showcase, and **Forge**, a small contextual companion that reacts to meaningful system events.
+The `/` homepage presents backend engineering, a live Express/MongoDB lab, a readable request lifecycle, and project case studies. The separate `/galaxy` route contains the experimental Three.js G1 star field. Each route loads its own presentation code; the homepage does not load Three.js.
 
 **Live:** https://sanam-rai.com.np
 
@@ -30,50 +30,11 @@ The lab is designed to make backend architecture visible rather than presenting 
 
 > Rate limiting is currently represented as configuration state only; its middleware is not attached to the project route.
 
-### Interactive System Core
-A lightweight Three.js visualization represents:
+### Readable architecture and runtime state
+The homepage uses semantic HTML/CSS for the request pipeline and the Backend Lab's live configuration map. There is no WebGL canvas, pinned scrolling, GSAP timeline, or cursor-following mascot on `/`. One shared IntersectionObserver adds a 460ms fade with 16px movement; content is visible by default and reduced motion disables the effect.
 
-```text
-             AUTH
-              ●
-              │
-CACHE ● ── API CORE ── ● DATABASE
-              │
-           RUNTIME
-              ●
-```
-
-The core responds to architecture-story progress and real Backend Lab state while staying performance-conscious:
-
-- capped device pixel ratio
-- reduced geometry on compact/coarse-pointer devices
-- rendering pauses off-screen
-- rendering pauses in hidden browser tabs
-- static fallback for reduced motion or unavailable WebGL
-- explicit geometry/material/renderer cleanup
-
-### Architecture Story
-GSAP + ScrollTrigger turn the system into a readable engineering narrative:
-
-```text
-API CORE → AUTH → CACHE → DATABASE → RUNTIME
-```
-
-Native scrolling is preserved; there is no scroll hijacking.
-
-### Forge
-Forge is a small living companion built from an authored sprite sheet.
-
-It can:
-
-- follow the pointer while keeping distance
-- idle and look around
-- leave subtle movement sparks
-- react to project changes
-- react to backend configuration apply/success/failure
-- simplify itself for mobile and reduced-motion users
-
-Forge is intentionally contextual rather than a chat popup or UI obstruction.
+### Galaxy G1
+`/galaxy` is a separately loaded experimental route with stars, subtle camera parallax, performance caps, a pause control, reduced-motion support, and a WebGL fallback. G1 does not include planets or camera travel. Reusable earlier scene/Forge sources and assets remain isolated for possible reuse.
 
 ### Editorial Project Storytelling
 Selected work is presented as engineering case studies instead of a standard three-card grid.
@@ -120,8 +81,8 @@ The frontend and backend are intentionally separate applications inside one repo
 
 - React 19
 - Vite 7
-- GSAP 3 + ScrollTrigger
-- Three.js
+- CSS + IntersectionObserver (homepage)
+- Three.js (Galaxy only)
 - Tailwind CSS 4
 - Axios
 - Lucide React
@@ -201,7 +162,7 @@ Run the backend:
 npm run dev
 ```
 
-The backend package currently does not define a dedicated `start` or `dev` script.
+Use `npm start` to run the backend without the development watcher.
 
 ### 3. Frontend
 
@@ -258,15 +219,7 @@ Current known engineering debt is tracked in:
 
 ## Development status
 
-The immersive redesign is feature-complete.
-
-Future work is expected to focus on:
-
-- verified regressions
-- project/content updates
-- backend hardening
-- tests
-- explicitly approved cleanup
+The integration branch contains Galaxy G1 and the backend-focused homepage. Merge and production verification are gated on automated checks and actual desktop, laptop, and mobile browser verification. See `docs/PROJECT_STATE.md` for the current verified status.
 
 ---
 
@@ -297,7 +250,7 @@ npm run test:auth
 
 ### Legacy password migration
 
-The authentication hardening keeps a temporary compatibility path for pre-existing plaintext user records. Before removing that compatibility, inspect the live database from the backend environment:
+Authentication accepts bcrypt hashes only. To inspect any legacy plaintext records requiring migration, run from the backend environment:
 
 ```bash
 npm run migrate:passwords
@@ -310,3 +263,17 @@ npm run migrate:passwords:apply
 ```
 
 The migration never prints passwords. Each write is conditional on the stored password still matching the value that was scanned, so concurrent changes are not overwritten.
+
+### Frontend checks
+
+From `frontend/`:
+
+```bash
+npm run test:auth-runtime
+npm run test:galaxy
+npm run test:homepage
+npm run lint
+npm run build
+```
+
+The build checks the emitted module graph to keep Galaxy/Three.js and removed cinematic code out of the homepage imports. DOM tests cover Lab synchronization/rollback, auth isolation, project requests, and reveal lifecycle; they do not replace browser visual verification.

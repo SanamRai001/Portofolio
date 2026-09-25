@@ -34,5 +34,15 @@ Integrate existing Galaxy G1 with a fast backend/systems homepage. Preserve back
 - No production backend data/configuration was changed for testing.
 - Historical phase narrative remains available in git history rather than accumulating here.
 
-## Exact next phase
-H2: add one progressive-enhancement reveal observer, no RAF or scroll listeners; add DOM regression coverage for lab/API/auth and reveal lifecycle; remove verified-unused motion helper code; run all gates and attempt supported browser QA. Only after visual acceptance, fetch master again, verify CI/Vercel, then merge safely and verify production.
+## Completed phase H2 — restrained motion and regression coverage
+- One shared IntersectionObserver adds a 460ms / 16px entry effect. Content is visible by default; focused sections, reduced motion, hidden tabs and auth suspension settle without animation. No scroll listeners or RAF loop.
+- Removed unused GSAP helper/CSS and dependency after reference checks; shared Galaxy reduced-motion hook is unchanged.
+- Added 8 rendered DOM tests for API-backed content, serialized config writes, rollback, auth isolation, bearer requests/refetch, request cancellation/error display and reveal lifecycle. CI includes them.
+- DOM tests exposed and fixed a React 19 boolean `inert` bug in the existing auth overlay. No API contract changes.
+- Updated README to reflect the separated routes and bcrypt-only authentication.
+- Local verification: lint, 6 auth-runtime tests, 10 Galaxy tests, 8 homepage tests, 28 backend tests and production build/bundle guard passed.
+- Final homepage JS graph: 274.76 kB raw / 90.19 kB gzip; homepage CSS: 30.41 kB raw / 7.39 kB gzip. Galaxy scene remains 520.82 kB raw / 131.33 kB gzip, loaded separately.
+- Supported local preview starts, but browser navigation again returns `ERR_BLOCKED_BY_CLIENT`. No desktop/laptop/mobile screenshot, layout, overflow or browser-console acceptance is claimed.
+
+## Exact next step / merge gate
+Publish integration commits, verify GitHub CI and Vercel deployment. Obtain authorized access to a renderable preview for required 1440×900, 1280×800 and 390×844 browser checks. Prior automatic approval review rejected Vercel sign-in because explicit permission was absent. Do not retry sign-in without authorization; do not bypass access controls. Merge remains conditional on successful visual acceptance. After that, fetch master again, safely merge, and verify production. No branch is approved for deletion.

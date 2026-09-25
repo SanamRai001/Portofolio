@@ -1400,7 +1400,7 @@ img {
   font-size: 0.8rem;
   font-weight: 750;
   transform: translateY(-160%);
-  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: transform 160ms ease-out;
 }
 
 .SkipLink:focus {
