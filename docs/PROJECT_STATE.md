@@ -44,5 +44,14 @@ Integrate existing Galaxy G1 with a fast backend/systems homepage. Preserve back
 - Final homepage JS graph: 274.76 kB raw / 90.19 kB gzip; homepage CSS: 30.41 kB raw / 7.39 kB gzip. Galaxy scene remains 520.82 kB raw / 131.33 kB gzip, loaded separately.
 - Supported local preview starts, but browser navigation again returns `ERR_BLOCKED_BY_CLIENT`. No desktop/laptop/mobile screenshot, layout, overflow or browser-console acceptance is claimed.
 
-## Exact next step / merge gate
-Publish integration commits, verify GitHub CI and Vercel deployment. Obtain authorized access to a renderable preview for required 1440×900, 1280×800 and 390×844 browser checks. Prior automatic approval review rejected Vercel sign-in because explicit permission was absent. Do not retry sign-in without authorization; do not bypass access controls. Merge remains conditional on successful visual acceptance. After that, fetch master again, safely merge, and verify production. No branch is approved for deletion.
+## Remote verification and merge gate
+- Published H1 `8d6e93f` and H2 `af6adafd562dc6e54b6ebca275152bb7a19f8673` on `refactor/backend-focused-homepage`; local and remote code trees match.
+- Frontend CI run `36089707585`: success (auth, Galaxy, homepage DOM tests, lint, build).
+- Vercel deployment `6652941857`: success for `af6adaf`.
+- Preview: https://portofolio-oolo170qp-sanamrai001s-projects.vercel.app — browser redirects to Vercel sign-in. Portfolio rendering was not reached.
+- Backend suite: 28 passed locally; backend source unchanged. Backend CI is path-filtered and was not triggered by this frontend-only change.
+- Fresh master fetch remained at `24b40f7add62c12d3f94acf450a6e5ba0c41ed4b`; it is an ancestor of the integration branch. No merge, production promotion, branch deletion or production data/config mutation occurred.
+- The supported local preview was stopped after the browser access failure.
+
+## Exact next step
+ Obtain authorized access to a renderable preview for required 1440×900, 1280×800 and 390×844 browser checks. Prior automatic approval review rejected Vercel sign-in because explicit permission was absent. Do not retry sign-in without authorization; do not bypass access controls. Merge remains conditional on successful visual acceptance. After that, fetch master again, safely merge, and verify production. No branch is approved for deletion.
