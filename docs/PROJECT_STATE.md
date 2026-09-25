@@ -6,7 +6,7 @@ Build `/galaxy` as an isolated immersive portfolio in small phases. Preserve the
 ## Branch and baseline
 - Working branch: `feat/galaxy-g1-foundation`.
 - Base: `master` at `24b40f7` (clean checkout before changes).
-- Latest implementation: the G1 commit containing this file; resolve its SHA from git.
+- Implementation commit: `14b976081e64dfaa4554f302c1d208df4d429c3c` (saved on the same GitHub branch).
 - Repository code/git is authoritative. Historical phase details remain in this file's git history.
 
 ## G1 — implementation complete; visual acceptance pending
@@ -31,9 +31,10 @@ Build `/galaxy` as an isolated immersive portfolio in small phases. Preserve the
 - G1: frontend lint, 6 auth-runtime tests, 10 Galaxy regression tests passed.
 - Galaxy tests cover device profiles, DPR, one-frame ownership, hidden pause/resume, paused invalidation, frame throttling, teardown, error handling, bounded camera framing, deterministic 3D layers, and shared GPU disposal.
 - Production build and emitted-manifest guard passed: initial entry excludes experiences/Three.js; homepage static imports exclude Galaxy route/scene; Galaxy excludes the homepage; scene remains dynamically loaded.
-- Frontend CI now runs Galaxy tests and the build isolation guard alongside existing auth and lint gates.
+- Frontend CI runs Galaxy tests and the build isolation guard alongside auth/lint. GitHub Actions run `36087401221` passed for `14b9760`.
+- Vercel automatic Preview deployment `6652577225` succeeded for `14b9760`: `https://portofolio-opqi21itr-sanamrai001s-projects.vercel.app`. This is a branch preview, not a production promotion.
 - Backend diff is empty. Backend was not connected to a live database or mutated during this task.
-- Browser visual QA: **blocked**. Supported supervised preview reports running, but the cloud browser rejects its address with `ERR_BLOCKED_BY_CLIENT`. Desktop/mobile appearance, live WebGL context loss, browser memory behavior, and interactive navigation have NOT been visually verified.
+- Browser visual QA: **blocked**. Supported supervised preview reports running, but the cloud browser rejects its address with `ERR_BLOCKED_BY_CLIENT`. The successful Vercel preview redirects to Vercel login. A secure sign-in request was rejected by automatic approval review because Vercel authentication/private-deployment access was not explicitly authorized. No authentication or access-control bypass was attempted. Desktop/mobile appearance, live WebGL context loss, browser memory behavior, and interactive navigation have NOT been visually verified.
 
 ## Risks and boundaries
 - G1 is not ready for visual acceptance or merge until browser QA passes. CPU tests do not prove GPU rendering, accessibility, or physical-device performance.
@@ -44,6 +45,6 @@ Build `/galaxy` as an isolated immersive portfolio in small phases. Preserve the
 - Many remote branches are fully merged into master (including Forge, immersive phases 1–6, island phases 1–4, and several security/fix branches). Cleanup is worth a separate review. No branches deleted.
 
 ## Exact next action
-1. Complete G1 visual QA at desktop and mobile sizes: open `/galaxy` directly/reload, check visible stars and controls, keyboard focus, pause/still/resume, reduced motion, unavailable WebGL/context loss, repeated entry/exit, back/forward, and unchanged homepage/backend UI.
+1. Obtain explicit authorization for secure Vercel sign-in, or use restored supported preview access. Complete G1 visual QA at desktop and mobile sizes: open `/galaxy` directly/reload, check visible stars and controls, keyboard focus, pause/still/resume, reduced motion, unavailable WebGL/context loss, repeated entry/exit, back/forward, and unchanged homepage/backend UI.
 2. Only after G1 review and explicit continuation: **G2 — Sun, orbit system, four placeholder planets, scale hierarchy and solar-system overview framing**.
 3. Stop here for this request. G2 has not started; master has not been merged or deployed by this task.
