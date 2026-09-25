@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/check-galaxy-bundle.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:auth-runtime": "node --test src/authRuntime.test.js"
+    "test:auth-runtime": "node --test src/authRuntime.test.js",
+    "test:galaxy": "node --test src/pages/Galaxy/galaxy.test.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

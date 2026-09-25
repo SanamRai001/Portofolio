@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react'
+import './index.css'
+import './motion/motion.css'
 import NavBar from './NavBar'
 import HeroSection from './HeroSection'
 import ArchitectureStory from './ArchitectureStory'

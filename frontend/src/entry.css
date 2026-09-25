@@ -1,0 +1,16 @@
+/* The only shared route styling. Homepage and Galaxy own their styles. */
+body { margin: 0; }
+.EntryState {
+  box-sizing: border-box;
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: #020204;
+  color: #e5e5e9;
+  font: 1rem/1.6 system-ui, sans-serif;
+}
+.EntryState h1 { font-size: 1.4rem; }
+.EntryState a { color: #dfc497; }
+.EntryState button { font: inherit; padding: .6rem; cursor: pointer; }

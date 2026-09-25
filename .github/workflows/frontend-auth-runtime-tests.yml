@@ -38,6 +38,9 @@ jobs:
       - name: Run auth runtime regression tests
         run: npm run test:auth-runtime
 
+      - name: Run Galaxy foundation regression tests
+        run: npm run test:galaxy
+
       - name: Lint frontend
         run: npm run lint
 
