@@ -29,8 +29,14 @@ Implement **G2 only — Solar System Foundation**, extending existing G1. No G3 
 - Existing Vercel branch previews require sign-in; no permission to bypass or change protection. Available cloud browser has WebGL disabled.
 - Full 1440×900, 1280×800 and 390×844 browser/HUD/console checks and actual 3D shader/lighting acceptance remain unverified. Numeric framing and build success do not replace them.
 
+## Published verification
+- G2 implementation pushed: `1e4ca7b84fd85894859a318edbe4fa3a81d805cd` on the existing Galaxy branch.
+- Frontend CI `36092240737`: success; Vercel preview deployment `6653346405`: success.
+- Opened https://portofolio-k2tdhxcs8-sanamrai001s-projects.vercel.app/galaxy in the browser: redirects to Vercel login. No G2 browser rendering observed; previous automatic review rejected Vercel sign-in without explicit authorization.
+- Master remains `70cb2dc`; no G2 production merge, backend mutation or branch deletion.
+
 ## Next step / stop boundary
-Publish G2 on the existing feature branch; check CI/Vercel. Complete browser/GPU visual acceptance when accessible. **Ready for G3: NO until that verification is complete and the user explicitly authorizes G3.** Do not begin G3 or auto-merge.
+Complete browser/GPU visual acceptance when accessible. **Ready for G3: NO until that verification is complete and the user explicitly authorizes G3.** Do not begin G3 or auto-merge.
 
 ## Branch cleanup
 Master includes earlier G1/homepage integration. This Galaxy branch now contains new G2 work and is no longer safe to delete. Other merged branches remain untouched.
