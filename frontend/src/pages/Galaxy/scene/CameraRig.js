@@ -23,8 +23,11 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
     if (body) {
       getAnchor(selected, endTarget)
       const { distance, azimuth, elevation } = body.focus
+      // Keep the day side readable throughout an orbit; azimuth is an offset
+      // from the direction toward the Sun, not a fixed world-space bearing.
+      const bearing = azimuth + (selected === 'core' ? 0 : Math.atan2(-endTarget.x, -endTarget.z))
       const d = distance * (body.orbit ? view.bodyScale : 1)
-      end.set(Math.sin(azimuth) * Math.cos(elevation), Math.sin(elevation), Math.cos(azimuth) * Math.cos(elevation)).multiplyScalar(d).add(endTarget)
+      end.set(Math.sin(bearing) * Math.cos(elevation), Math.sin(elevation), Math.cos(bearing) * Math.cos(elevation)).multiplyScalar(d).add(endTarget)
       end.y = Math.max(end.y, CAMERA_CLEARANCE)
       fov = reducedMotion ? view.fov : body.focus.fov
     }

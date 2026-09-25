@@ -90,6 +90,10 @@ test('camera paths remain above swept geometry for all targets, mobile, and inte
         assert.equal(h.nav.getSnapshot().mode, 'body_focused')
         const anchor = h.system.getAnchor(body.id, new Vector3())
         assert.ok(h.rig.target.distanceTo(anchor) < 1e-8)
+        if (body.orbit) {
+          const offset = h.rig.camera.position.clone().sub(anchor)
+          assert.ok(offset.x * -anchor.x + offset.z * -anchor.z > 0, 'focus faces the illuminated hemisphere')
+        }
         const extent = body.radius * (body.ring?.[1] || 1.12) * (body.orbit && width / height < .85 ? 1.28 : 1)
         const distance = h.rig.camera.position.distanceTo(anchor)
         const apparent = extent / (distance * Math.tan(h.rig.camera.fov * Math.PI / 360))
