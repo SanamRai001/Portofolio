@@ -1,57 +1,37 @@
 # PROJECT_STATE
 
-## Objective and authorization
-Integrate existing Galaxy G1 with a fast backend/systems homepage. Preserve backend/security contracts and Galaxy behavior. User authorizes merging into authoritative `master` **only after tests, CI/Vercel and desktop/laptop/mobile visual verification pass**. Do not add Galaxy G2 or delete branches.
+## Objective / scope
+Backend-focused lightweight `/` plus isolated Galaxy **G1 only** at `/galaxy`. Preserve backend/security contracts; no G2 or branch deletion.
 
-## Repository baseline
-- Default/authoritative branch verified: `master` at `24b40f7add62c12d3f94acf450a6e5ba0c41ed4b`.
-- Galaxy source: `feat/galaxy-g1-foundation` at `662ff87`; implementation `14b9760`.
-- Integration branch: `refactor/backend-focused-homepage`, created from Galaxy source after a fresh fetch. Master had no newer commits to integrate; worktree was clean.
-- Galaxy is G1 only. Full solar system is not implemented. Preserve stars/camera/performance/fallback, do not describe later phases as complete.
+## Branch and authorization
+- Authoritative branch: `master`.
+- Source: `feat/galaxy-g1-foundation`; integration: `refactor/backend-focused-homepage`.
+- On 2026-09-25 the user explicitly changed the verification order: merge first, then inspect production. This superseded the earlier pre-merge visual gate.
+- Fresh fetch found master at `24b40f7`; the tested integration branch was its descendant. Safely fast-forwarded master to `6ff9586237b17ef22bf859c0bde7138d93a5e2a2`. No force push, reset or branch deletion.
 
-## Completed phase H1 — static homepage separation
-- Hero is a static engineering request contract with the existing API ping and explicit Galaxy entry.
-- Architecture is an ordered DOM middleware map with cache/database/failure paths matching actual backend route/controller order.
-- Removed homepage wiring for HeroIsland, SystemCore, cursor-following Forge, reaction dispatch, GSAP and ScrollTrigger.
-- Replaced Backend Lab's WebGL presentation with a DOM definition list using the same toggle state. Request synchronization, one-write guard, rollback, auth and project-fetch behavior are preserved.
-- Replaced pinned/scroll-driven project storytelling with compact problem/architecture/engineering-decision case studies using existing repository projects; API-driven Core Projects remains separate.
-- Preserved dark technical brand, existing SEO/social metadata, assets, routing and public demo credentials. Removed obsolete cinematic/sticky-section CSS and mobile spacing reserved for Forge.
-- Corrected a stale static portfolio project description that implied enforced throttling. Rate Limit Flag remains configuration-only.
-- Reusable island/SystemCore/Forge sources and assets remain unimported for possible future reuse. Galaxy files and backend files have no diff.
+## Completed phases
+- G1: isolated lazy Galaxy stars/camera/performance controls and WebGL fallback. No planets or camera travel.
+- H1 (`8d6e93f`): static engineering hero, ordered request pipeline, DOM Backend Lab map, project case studies; removed homepage WebGL, GSAP/pinned scrolling and global Forge. Existing reusable scene/Forge files remain isolated.
+- H2 (`af6adaf`): one progressive-enhancement IntersectionObserver; 460ms / 16px reveal; reduced-motion, focus, hidden-tab and auth suspension cleanup. Removed unused GSAP dependency/helpers. Added 8 DOM tests and fixed React 19 boolean `inert` handling.
+- H3: merged and deployed to production under the revised user instruction; performed available live checks below.
+- Backend source, Galaxy implementation, security/API contracts and SEO assets remain unchanged by the homepage refactor. Rate Limit Flag remains configuration-only.
 
-## H1 verification
-- `npm run lint`: passed.
-- `npm run test:auth-runtime`: 6 passed; `npm run test:galaxy`: 10 passed.
-- `npm run build`: passed; strengthened emitted-bundle guard excludes Three.js/WebGL, GSAP/ScrollTrigger, Forge and Galaxy from homepage static imports/code.
-- Homepage JS static graph: approximately 968 kB → 273 kB raw, 285 kB → 90 kB gzip. Homepage CSS: 50.5 kB → 30.0 kB raw. Build sizes, not measured network or device performance.
-- Three.js remains in Galaxy's deferred scene (~521 kB raw), so Vite's >500 kB chunk warning remains Galaxy-only.
-- Browser visual checks are still pending. Prior G1 preview failed with `ERR_BLOCKED_BY_CLIENT`; Vercel preview was sign-in protected and automatic review rejected starting sign-in without explicit user authorization.
+## Verification
+- Re-ran on merged master: 6 auth-runtime + 10 Galaxy + 8 homepage DOM + 28 backend tests passed; ESLint and Vite build/bundle guard passed.
+- Master frontend CI `36090473113`: success. Backend CI is path-filtered; backend tests passed locally and its source was unchanged.
+- Production Vercel deployment `6653067199`: success for `6ff9586`.
+- Homepage emitted JS static graph: 274.76 kB raw / 90.19 kB gzip, versus ~968 / ~285 before refactor. CSS 30.41 / 7.39 kB. Build guard confirms no Galaxy, Three.js, GSAP or Forge in homepage imports. Galaxy scene remains separately deferred (~521 kB raw).
+- https://sanam-rai.com.np redirects to https://www.sanam-rai.com.np/ and serves the new content. Observed 3 Galaxy links, zero canvases, valid inert attribute behind the active auth dialog, no horizontal overflow at the available 1363×936 viewport. Auth dialog visually inspected.
+- Direct `/galaxy` visit and refresh render the static star fallback with working navigation. Exit returns to the new homepage. No horizontal overflow at 1363×936.
 
-## Risks / decisions
-- Do not merge based only on automated tests. Required visual viewports: 1440×900, 1280×800, 390×844; check both routes, lab, projects, auth overlay, focus, scroll/overflow, and console errors.
-- Preserve native document links for route separation and browser back/forward. No router replacement or API contract changes.
-- Keep backend validation, bcrypt-only auth, JWT scope, privacy-safe logging, pagination HTTP semantics, public demo configuration and production CORS unchanged.
-- No production backend data/configuration was changed for testing.
-- Historical phase narrative remains available in git history rather than accumulating here.
+## Limits / risks
+- Live backend auth is enabled; the overlay covers the homepage. Did not change shared backend flags or bypass login. Full post-login visual inspection remains pending.
+- Cloud browser has WebGL disabled; Galaxy correctly falls back. Console reports expected WebGL initialization failure on Galaxy and browser-extension metadata errors. Interactive 3D rendering is not visually verified here.
+- Required 1440×900, 1280×800 and 390×844 checks remain pending; the current browser surface does not advertise viewport resizing. Do not describe responsive acceptance or all browser-console checks as passed.
+- Earlier protected preview/local browser access issues are superseded by the successful public production check, not by a completed full visual acceptance.
 
-## Completed phase H2 — restrained motion and regression coverage
-- One shared IntersectionObserver adds a 460ms / 16px entry effect. Content is visible by default; focused sections, reduced motion, hidden tabs and auth suspension settle without animation. No scroll listeners or RAF loop.
-- Removed unused GSAP helper/CSS and dependency after reference checks; shared Galaxy reduced-motion hook is unchanged.
-- Added 8 rendered DOM tests for API-backed content, serialized config writes, rollback, auth isolation, bearer requests/refetch, request cancellation/error display and reveal lifecycle. CI includes them.
-- DOM tests exposed and fixed a React 19 boolean `inert` bug in the existing auth overlay. No API contract changes.
-- Updated README to reflect the separated routes and bcrypt-only authentication.
-- Local verification: lint, 6 auth-runtime tests, 10 Galaxy tests, 8 homepage tests, 28 backend tests and production build/bundle guard passed.
-- Final homepage JS graph: 274.76 kB raw / 90.19 kB gzip; homepage CSS: 30.41 kB raw / 7.39 kB gzip. Galaxy scene remains 520.82 kB raw / 131.33 kB gzip, loaded separately.
-- Supported local preview starts, but browser navigation again returns `ERR_BLOCKED_BY_CLIENT`. No desktop/laptop/mobile screenshot, layout, overflow or browser-console acceptance is claimed.
+## Next phase
+Complete authenticated desktop/laptop/mobile visual review and check Galaxy on a WebGL-capable browser. Keep G2 out of scope unless requested. No further functional changes are currently pending.
 
-## Remote verification and merge gate
-- Published H1 `8d6e93f` and H2 `af6adafd562dc6e54b6ebca275152bb7a19f8673` on `refactor/backend-focused-homepage`; local and remote code trees match.
-- Frontend CI run `36089707585`: success (auth, Galaxy, homepage DOM tests, lint, build).
-- Vercel deployment `6652941857`: success for `af6adaf`.
-- Preview: https://portofolio-oolo170qp-sanamrai001s-projects.vercel.app — browser redirects to Vercel sign-in. Portfolio rendering was not reached.
-- Backend suite: 28 passed locally; backend source unchanged. Backend CI is path-filtered and was not triggered by this frontend-only change.
-- Fresh master fetch remained at `24b40f7add62c12d3f94acf450a6e5ba0c41ed4b`; it is an ancestor of the integration branch. No merge, production promotion, branch deletion or production data/config mutation occurred.
-- The supported local preview was stopped after the browser access failure.
-
-## Exact next step
- Obtain authorized access to a renderable preview for required 1440×900, 1280×800 and 390×844 browser checks. Prior automatic approval review rejected Vercel sign-in because explicit permission was absent. Do not retry sign-in without authorization; do not bypass access controls. Merge remains conditional on successful visual acceptance. After that, fetch master again, safely merge, and verify production. No branch is approved for deletion.
+## Branch cleanup
+Both `feat/galaxy-g1-foundation` and `refactor/backend-focused-homepage` are ancestors of master and safe cleanup candidates. Retained; deletion requires explicit user authorization.
