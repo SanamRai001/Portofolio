@@ -21,6 +21,7 @@ const Footer = () => {
               <a href="#about">About</a>
               <a href="#system-controls">Backend Lab</a>
               <a href="#projects">Projects</a>
+              <a href="/galaxy">Galaxy</a>
               <a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer">Resume</a>
             </div>
 

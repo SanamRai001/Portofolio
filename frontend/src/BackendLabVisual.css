@@ -1,186 +1,22 @@
-.BackendLabVisual {
-  margin: 16px 0 24px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
-  border: 1px solid rgba(87, 221, 242, 0.12);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: rgba(5, 12, 19, 0.72);
-}
-
-.BackendLabCore {
-  min-width: 0;
-  border-right: 1px solid var(--line);
-}
-
-.SystemCore--lab {
-  height: 100%;
-  min-height: 390px;
-  border-bottom: 0;
-  background:
-    radial-gradient(circle at 50% 48%, rgba(87, 221, 242, 0.095), transparent 44%),
-    rgba(4, 10, 16, 0.7);
-}
-
-.SystemCore--lab .SystemCoreStage {
-  height: 320px;
-}
-
-.SystemCore--lab .SystemCoreLabel {
-  transition:
-    opacity var(--motion-duration-fast) var(--motion-ease-standard),
-    border-color var(--motion-duration-fast) var(--motion-ease-standard),
-    color var(--motion-duration-fast) var(--motion-ease-standard);
-}
-
-.SystemCore--lab .SystemCoreLabel.is-disabled {
-  opacity: 0.34;
-  border-color: rgba(255, 255, 255, 0.035);
-  color: #52616c;
-}
-
-.SystemCore--lab .SystemCoreLabel.is-enabled {
-  opacity: 1;
-  border-color: rgba(87, 221, 242, 0.22);
-  color: #c6dce4;
-}
-
-.BackendLabMap {
-  padding: 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.BackendLabMap h3 {
-  margin: 8px 0 10px;
-  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
-  letter-spacing: -0.04em;
-}
-
-.BackendLabMap > div:first-child > p:last-child {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.65;
-}
-
-.BackendLabMappedStates {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.BackendLabMappedState {
-  min-height: 82px;
-  padding: 12px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-content: center;
-  gap: 4px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.055);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.018);
-  transition:
-    border-color var(--motion-duration-fast) var(--motion-ease-standard),
-    background-color var(--motion-duration-fast) var(--motion-ease-standard);
-}
-
-.BackendLabMappedState span {
-  color: #93a5b1;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.67rem;
-  letter-spacing: 0.07em;
-}
-
-.BackendLabMappedState small {
-  grid-column: 1;
-  color: #5f707c;
-  font-size: 0.67rem;
-}
-
-.BackendLabMappedState strong {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  color: #52616c;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
-}
-
-.BackendLabMappedState.is-enabled {
-  border-color: rgba(87, 221, 242, 0.18);
-  background: rgba(87, 221, 242, 0.035);
-}
-
-.BackendLabMappedState.is-enabled strong {
-  color: var(--cyan);
-}
-
-.BackendLabConfigOnly {
-  padding-top: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  border-top: 1px solid var(--line);
-}
-
-.BackendLabConfigOnly > span {
-  margin-right: 2px;
-  color: #607484;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-}
-
-.BackendLabConfigOnly code {
-  padding: 5px 7px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.035);
-  color: #8698a4;
-  font-size: 0.65rem;
-}
-
-.BackendLabTruthNote {
-  margin: 0;
-  color: #667986;
-  font-size: 0.7rem;
-  line-height: 1.55;
-}
-
-@media (max-width: 980px) {
-  .BackendLabVisual {
-    grid-template-columns: 1fr;
-  }
-
-  .BackendLabCore {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .SystemCore--lab {
-    min-height: 0;
-  }
-}
-
-@media (max-width: 520px) {
-  .BackendLabMap {
-    padding: 20px 16px;
-  }
-
-  .BackendLabMappedStates {
-    grid-template-columns: 1fr;
-  }
-
-  .SystemCore--lab .SystemCoreStage {
-    height: 270px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .SystemCore--lab .SystemCoreLabel,
-  .BackendLabMappedState {
-    transition: none;
-  }
+.BackendLabVisual { margin: 24px 0 0; display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.BackendLabCore { min-width: 0; padding: 32px; border-right: 1px solid var(--line); }
+.BackendLabCore h3 { margin: 16px 0; font-size: 1.65rem; letter-spacing: -.035em; line-height: 1.2; }
+.BackendLabCore > p:not(.InspectorLabel) { color: var(--muted); font-size: .875rem; line-height: 1.7; }
+.BackendLabCore code { display: block; margin-top: 24px; font-size: .875rem; color: var(--cyan); }
+.BackendLabMap { min-width: 0; padding: 24px; }
+.BackendLabMappedStates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.BackendLabMappedState { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 6px; }
+.BackendLabMappedState dt { font-size: .875rem; color: var(--text-soft); }
+.BackendLabMappedState small { display: block; margin-top: 4px; font-size: .75rem; color: var(--muted); }
+.BackendLabMappedState dd { margin: 0; font: .75rem ui-monospace, monospace; color: var(--muted); }
+.BackendLabMappedState.is-enabled { border-color: rgba(87, 221, 242, .28); }
+.BackendLabMappedState.is-enabled dd { color: var(--cyan); }
+.BackendLabConfigOnly { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding-top: 20px; font: .75rem/1.6 ui-monospace, monospace; color: var(--text-soft); }
+.BackendLabConfigOnly > span { color: var(--muted); }
+.BackendLabTruthNote { color: var(--muted); font-size: .8125rem; line-height: 1.65; margin: 14px 0 0; }
+@media (max-width: 720px) {
+  .BackendLabVisual { grid-template-columns: 1fr; }
+  .BackendLabCore { padding: 24px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .BackendLabMap { padding: 20px; }
+  .BackendLabMappedStates { grid-template-columns: 1fr; }
 }

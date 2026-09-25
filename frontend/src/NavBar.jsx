@@ -13,7 +13,7 @@ const NavBar = () => {
         <ul className="NavLinks">
           <li><a href="#about" className="NavItem">About</a></li>
           <li><a href="#system-controls" className="NavItem NavItemPrimary">Backend Lab</a></li>
-          <li><a href="#projects" className="NavItem">Projects</a></li>
+          <li><a href="#selected-work" className="NavItem">Projects</a></li>
           <li><a href="/galaxy" className="NavItem">Galaxy</a></li>
           <li><a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer" className="NavItem">Resume</a></li>
         </ul>

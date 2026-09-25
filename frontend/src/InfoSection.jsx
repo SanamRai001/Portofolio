@@ -1,6 +1,4 @@
 import { Braces, DatabaseZap, Workflow } from 'lucide-react'
-import initialProjects from "./data/initialproject"
-import ProjectStory from './ProjectStory'
 
 const identity = [
   {
@@ -21,7 +19,6 @@ const identity = [
 ];
 
 const InfoSection = () => {
-  const selectedProjects = initialProjects.slice(0, 3);
 
   return (
     <section className="InfoSection" id="about" aria-labelledby="engineering-identity-title">
@@ -49,17 +46,7 @@ const InfoSection = () => {
           })}
         </div>
 
-        <div className="SelectedWorkHeader">
-          <div>
-            <p className="SectionKicker">Selected work</p>
-            <h2>Projects I use to learn real engineering trade-offs.</h2>
-          </div>
-          <p>
-            Three builds, viewed as systems rather than thumbnails. The separate Core Projects section still comes from the live backend API.
-          </p>
-        </div>
 
-        <ProjectStory projects={selectedProjects} />
       </div>
     </section>
   )

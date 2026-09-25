@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react'
 import './index.css'
-import './motion/motion.css'
 import NavBar from './NavBar'
 import HeroSection from './HeroSection'
 import ArchitectureStory from './ArchitectureStory'
@@ -8,6 +7,7 @@ import SystemControl from './SystemControl'
 import Footer from './Footer'
 import TechStack from './TechStack'
 import Projects from './Projects'
+import ProjectStory from './ProjectStory'
 import Form from './Form'
 import InfoSection from './InfoSection'
 import Logs from './Logs'
@@ -51,15 +51,17 @@ const App = () => {
 
         <div className={"SiteShell" + (showAuthOverlay ? " Blurred" : "")}>
           <main id="main-content" tabIndex="-1">
-            <HeroSection suspended={suspendBackground} />
-            <ArchitectureStory suspended={suspendBackground} />
+            <HeroSection />
             <InfoSection />
+            <ArchitectureStory />
 
             <div id="system-controls">
-              <SystemControl handleToggle={handleToggle} suspended={suspendBackground} />
+              <SystemControl handleToggle={handleToggle} />
             </div>
 
             <Logs systemToggle={systemToggle} suspended={suspendBackground} />
+
+            <ProjectStory />
 
             <div id="projects">
               <Projects systemToggle={systemToggle} />

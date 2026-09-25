@@ -1,169 +1,36 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import SystemCore from './SystemCore'
-import { gsap, ScrollTrigger, MOTION } from './motion'
-import useReducedMotion from './motion/useReducedMotion'
 import './ArchitectureStory.css'
 
-const CHAPTERS = [
-  {
-    key: 'api',
-    number: '01',
-    label: 'API CORE',
-    title: 'Every interface eventually reaches a system.',
-    body: 'Requests enter through a deliberate contract. The API core validates intent, coordinates domain behavior, and keeps the interface separated from infrastructure details.',
-    detail: 'HTTP → validation → domain',
-  },
-  {
-    key: 'auth',
-    number: '02',
-    label: 'AUTH',
-    title: 'Trust is a boundary, not a button.',
-    body: 'Authentication decides who a request represents. Authorization decides what that identity is allowed to do before protected application behavior continues.',
-    detail: 'identity → policy → access',
-  },
-  {
-    key: 'cache',
-    number: '03',
-    label: 'CACHE',
-    title: 'Fast paths should still be predictable.',
-    body: 'Caching reduces repeated work without becoming the source of truth. Misses fall through cleanly, hits stay cheap, and invalidation remains an explicit system decision.',
-    detail: 'lookup → hit / miss → fallback',
-  },
-  {
-    key: 'database',
-    number: '04',
-    label: 'DATABASE',
-    title: 'Persistence is where state becomes responsibility.',
-    body: 'Data boundaries, indexes, validation, and tenant-safe queries determine whether a backend stays reliable after the happy path ends.',
-    detail: 'query → persist → verify',
-  },
-  {
-    key: 'runtime',
-    number: '05',
-    label: 'RUNTIME',
-    title: 'Production behavior is part of the architecture.',
-    body: 'Logs, limits, failures, configuration, and observability decide whether a system can be understood and recovered when real traffic arrives.',
-    detail: 'observe → constrain → recover',
-  },
+const steps = [
+  ['01', 'Request', 'GET /api/projects', 'The client sends a request to a stable API contract.'],
+  ['02', 'Configuration', 'systemMiddleware', 'Read the runtime flags that govern this request.'],
+  ['03', 'Identity', 'authenticate', 'Verify the JWT when authentication is enabled.'],
+  ['04', 'Observability', 'loggingMiddleware', 'Record the route safely when logging is enabled.'],
+  ['05', 'Data contract', 'getProjects', 'Validate pagination and check database availability.'],
 ]
 
-const ArchitectureStory = ({ suspended = false }) => {
-  const sectionRef = useRef(null)
-  const progressRef = useRef(0)
-  const activeChapterRef = useRef(0)
-  const activeIndexRef = useRef(0)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const reducedMotion = useReducedMotion()
-
-  useLayoutEffect(() => {
-    const section = sectionRef.current
-    if (!section || reducedMotion || suspended) return undefined
-
-    const context = gsap.context(() => {
-      const cards = gsap.utils.toArray('.ArchitectureStoryChapter')
-
-      const progressTrigger = ScrollTrigger.create({
-        trigger: section,
-        start: 'top 62%',
-        end: 'bottom 38%',
-        onUpdate: (self) => {
-          progressRef.current = self.progress
-
-          const nextIndex = Math.min(
-            CHAPTERS.length - 1,
-            Math.floor(self.progress * CHAPTERS.length),
-          )
-
-          activeChapterRef.current = nextIndex
-
-          if (nextIndex !== activeIndexRef.current) {
-            activeIndexRef.current = nextIndex
-            setActiveIndex(nextIndex)
-          }
-        },
-      })
-
-      cards.forEach((card) => {
-        gsap.fromTo(
-          card,
-          { autoAlpha: 0.46, y: MOTION.distance.md },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: MOTION.duration.base,
-            ease: MOTION.ease.standard,
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 78%',
-              end: 'top 48%',
-              toggleActions: 'play none none reverse',
-            },
-          },
-        )
-      })
-
-      return () => progressTrigger.kill()
-    }, section)
-
-    return () => context.revert()
-  }, [reducedMotion, suspended])
-
+export default function ArchitectureStory() {
   return (
-    <section
-      className="ArchitectureStory"
-      id="architecture-story"
-      ref={sectionRef}
-      aria-labelledby="architecture-story-title"
-    >
-      <div className="ArchitectureStoryShell">
-        <div className="ArchitectureStoryVisual">
-          <div className="ArchitectureStoryIntro">
-            <span className="SectionKicker">SYSTEM / 01—05</span>
-            <h2 id="architecture-story-title">How a request becomes reliable behavior.</h2>
-            <p>
-              The same system core opens as you scroll. Each layer has a job; none of them should quietly become everything.
-            </p>
-          </div>
-
-          <div className="ArchitectureStoryCore">
-            <SystemCore
-              variant="story"
-              storyProgressRef={progressRef}
-              activeChapterRef={activeChapterRef}
-              suspended={suspended}
-            />
-          </div>
-
-          <div className="ArchitectureStoryProgress" aria-hidden="true">
-            {CHAPTERS.map((chapter, index) => (
-              <span
-                className={index <= activeIndex ? 'is-active' : ''}
-                key={chapter.key}
-              />
-            ))}
-          </div>
+    <section className="ArchitectureStory" id="architecture-story" aria-labelledby="architecture-story-title">
+      <div className="SectionShell">
+        <div className="SectionHeading SectionHeadingSplit">
+          <div><p className="SectionKicker">Request lifecycle</p><h2 id="architecture-story-title">One request. Clear responsibilities.</h2></div>
+          <p>The actual project API in this portfolio: configuration, identity, safe logging, and a deliberate data path.</p>
         </div>
-
-        <div className="ArchitectureStoryChapters">
-          {CHAPTERS.map((chapter, index) => (
-            <article
-              className={'ArchitectureStoryChapter' + (index === activeIndex ? ' is-active' : '')}
-              key={chapter.key}
-              aria-current={index === activeIndex ? 'step' : undefined}
-            >
-              <div className="ArchitectureStoryChapterMeta">
-                <span>{chapter.number}</span>
-                <span>{chapter.label}</span>
-              </div>
-              <h3>{chapter.title}</h3>
-              <p>{chapter.body}</p>
-              <code>{chapter.detail}</code>
-            </article>
+        <ol className="RequestPipeline" aria-label="Project request middleware order">
+          {steps.map(([number, title, code, description]) => (
+            <li key={number}><span className="PipelineNumber">{number}</span><h3>{title}</h3><code>{code}</code><p>{description}</p></li>
           ))}
+        </ol>
+        <div className="RequestOutcomes">
+          <div className="RequestOutcomesIntro"><span className="InspectorLabel">Data resolution</span><h3>Fast path. Source of truth. Explicit failure.</h3></div>
+          <dl>
+            <div><dt>Cache hit</dt><dd>Use cached projects; apply pagination when enabled.</dd></div>
+            <div><dt>Cache miss / off</dt><dd>Query MongoDB; fill the cache when enabled, then paginate.</dd></div>
+            <div><dt>Failure</dt><dd>400 invalid pagination · 401 failed auth · 503 database disabled · 500 query failure.</dd></div>
+          </dl>
         </div>
+        <p className="ArchitectureNote">Rate limiting is a configuration flag in this demo. The project route does not enforce throttling.</p>
       </div>
     </section>
   )
 }
-
-export default ArchitectureStory

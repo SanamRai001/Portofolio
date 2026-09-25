@@ -1,166 +1,64 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import axios from 'axios'
-import { ArrowDownRight, Activity, Download, ExternalLink } from 'lucide-react'
-import API from "./config/api";
-import LivingForge from './LivingForge'
-import HeroIsland from './hero-island/HeroIsland'
-import { gsap, MOTION } from './motion'
-import useReducedMotion from './motion/useReducedMotion'
+import { ArrowDownRight, Activity, Download, ArrowUpRight } from 'lucide-react'
+import API from './config/api'
 
-const HeroSection = ({ suspended = false }) => {
-  const [status, setStatus] = useState(null);
-  const heroRef = useRef(null);
-  const reducedMotion = useReducedMotion();
-
-  useLayoutEffect(() => {
-    const hero = heroRef.current;
-    if (!hero || reducedMotion || suspended) return undefined;
-
-    const context = gsap.context(() => {
-      const timeline = gsap.timeline({
-        defaults: {
-          ease: MOTION.ease.enter,
-          duration: MOTION.duration.base,
-        },
-      });
-
-      timeline
-        .from('.Eyebrow', {
-          autoAlpha: 0,
-          y: MOTION.distance.sm,
-          duration: MOTION.duration.fast,
-        })
-        .from('#hero-title > span', {
-          autoAlpha: 0,
-          y: MOTION.distance.md,
-        }, '-=0.12')
-        .from('#hero-title > strong', {
-          autoAlpha: 0,
-          y: MOTION.distance.lg,
-        }, '-=0.3')
-        .from('.HeroLead', {
-          autoAlpha: 0,
-          y: MOTION.distance.sm,
-        }, '-=0.3')
-        .from('.HeroActions .Button', {
-          autoAlpha: 0,
-          y: MOTION.distance.sm,
-          stagger: MOTION.stagger.tight,
-          duration: MOTION.duration.fast,
-        }, '-=0.3')
-        .from('.HeroSystemRow > span', {
-          autoAlpha: 0,
-          y: MOTION.distance.xs,
-          stagger: MOTION.stagger.tight,
-          duration: MOTION.duration.fast,
-        }, '-=0.24')
-        .from('.BackendPing', {
-          autoAlpha: 0,
-          y: MOTION.distance.xs,
-          duration: MOTION.duration.fast,
-        }, '-=0.2')
-        .from('.HeroPanel', {
-          autoAlpha: 0,
-          x: MOTION.distance.md,
-          duration: MOTION.duration.slow,
-        }, '-=0.7');
-    }, hero);
-
-    return () => context.revert();
-  }, [reducedMotion, suspended]);
+const HeroSection = () => {
+  const [status, setStatus] = useState(null)
 
   const getData = async () => {
     try {
-      setStatus("Pinging backend...");
-      const res = await axios.get(API + "/api/system");
-      setStatus(res.data?.success ? "Backend online ✓" : "Backend responded without a success state");
+      setStatus('Pinging backend...')
+      const res = await axios.get(API + '/api/system')
+      setStatus(res.data?.success ? 'Backend online ✓' : 'Backend responded without a success state')
     } catch (error) {
-      console.error("Backend ping failed:", error.message);
-      setStatus("Backend connection failed");
+      console.error('Backend ping failed:', error.message)
+      setStatus('Backend connection failed')
     }
   }
 
   return (
-    <section className="HeroSection" id="top" aria-labelledby="hero-title" ref={heroRef}>
+    <section className="HeroSection" id="top" aria-labelledby="hero-title">
       <div className="HeroGrid" aria-hidden="true" />
-
       <div className="HeroInner">
         <div className="HeroCopy">
-          <div className="Eyebrow" data-motion-reveal>
-            <span className="StatusDot" aria-hidden="true" />
-            Backend-focused full stack developer
-          </div>
-
+          <p className="Eyebrow">Backend-focused · Full-stack developer</p>
           <h1 id="hero-title">
-            <span data-motion-reveal>Sanam Rai</span>
-            <strong data-motion-reveal>I build the systems behind the interface.</strong>
+            <span>Sanam Rai</span>
+            <strong>I build the systems behind the interface.</strong>
           </h1>
-
-          <p className="HeroLead" data-motion-reveal>
-            I design APIs, data flows, authentication, and reliable backend behavior, then connect them to interfaces that make the system easy to understand and use.
+          <p className="HeroLead">
+            APIs that move data. Rules that protect it. Systems that remain understandable when something goes wrong.
+            I work with Node.js, TypeScript, and databases to turn product needs into clear backend behavior.
           </p>
-
-          <div className="HeroActions" data-motion-reveal>
-            <a href="#system-controls" className="Button ButtonPrimary">
-              Open Backend Lab
-              <ArrowDownRight size={18} aria-hidden="true" />
-            </a>
-
-            <a href="#projects" className="Button ButtonSecondary">
-              View Projects
-              <ExternalLink size={17} aria-hidden="true" />
-            </a>
-
-            <a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer" className="Button ButtonGhost">
-              Resume
-              <Download size={16} aria-hidden="true" />
-            </a>
+          <div className="HeroActions">
+            <a href="#system-controls" className="Button ButtonPrimary">Open Backend Lab <ArrowDownRight size={18} aria-hidden="true" /></a>
+            <a href="#selected-work" className="Button ButtonSecondary">View Projects <ArrowUpRight size={17} aria-hidden="true" /></a>
+            <a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer" className="Button ButtonGhost">Resume <Download size={16} aria-hidden="true" /></a>
           </div>
-
-          <div className="HeroSystemRow" aria-label="Primary engineering stack" data-motion-reveal>
-            <span>Node.js</span>
-            <span>Express</span>
-            <span>MongoDB</span>
-            <span>JWT</span>
-            <span>API architecture</span>
+          <div className="HeroSystemRow" aria-label="Engineering focus">
+            <span>API contracts</span><span>Authentication</span><span>Data integrity</span><span>Architecture</span>
           </div>
-
-          <div className="BackendPing" data-motion-reveal>
-            <button type="button" className="BackendPingButton" onClick={getData}>
-              <Activity size={17} aria-hidden="true" />
-              Ping live backend
-            </button>
-            <span className="BackendPingStatus" aria-live="polite">
-              {status || "Runtime check available"}
-            </span>
+          <div className="BackendPing">
+            <button type="button" className="BackendPingButton" onClick={getData}><Activity size={17} aria-hidden="true" />Ping live backend</button>
+            <span className="BackendPingStatus" aria-live="polite">{status || 'Runtime check available'}</span>
           </div>
         </div>
-
-        <aside className="HeroPanel" aria-label="Interactive miniature world" data-motion-reveal>
-          <div className="HeroPanelHead">
-            <span className="TerminalDots" aria-hidden="true"><i /><i /><i /></span>
-            <span>world.preview</span>
+        <aside className="HeroPanel" aria-labelledby="hero-contract-title">
+          <div className="HeroPanelHead"><span id="hero-contract-title">portfolio / request contract</span><span>01</span></div>
+          <div className="ContractBody">
+            <p className="ContractMethod"><span>GET</span> /api/projects</p>
+            <ol className="ContractSteps">
+              <li><span>01</span><div><strong>Define the boundary</strong><p>Validate inputs and verify identity when auth is enabled.</p></div></li>
+              <li><span>02</span><div><strong>Resolve the data</strong><p>Check configuration, use the cache, or query MongoDB.</p></div></li>
+              <li><span>03</span><div><strong>Make the result explicit</strong><p>Return a predictable response. Keep failures observable.</p></div></li>
+            </ol>
           </div>
-
-          <HeroIsland suspended={suspended} />
-
-          <div className="HeroPanelBody">
-            <div className="CodeLine"><span>mood</span><strong>quiet + curious</strong></div>
-            <div className="CodeLine"><span>made with</span><strong>Three.js primitives</strong></div>
-            <div className="CodeLine"><span>motion</span><strong>wind + water + drift</strong></div>
-            <div className="CodeLine"><span>time</span><strong>dawn → day → night</strong></div>
-          </div>
-
-          <div className="HeroPanelNote">
-            <span className="PanelPulse" aria-hidden="true" />
-            A small surreal world for the playful side of building. The technical system demo still lives below.
-          </div>
+          <div className="HeroPanelNote">A map of the live demo below. Use the lab to change its behavior.</div>
         </aside>
+        <a className="GalaxyInvitation" href="/galaxy"><span>The experimental side</span>Explore Galaxy <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
-
-      <LivingForge suspended={suspended} />
     </section>
   )
 }
-
 export default HeroSection

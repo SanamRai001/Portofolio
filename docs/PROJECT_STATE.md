@@ -1,50 +1,38 @@
 # PROJECT_STATE
 
-## Objective
-Build `/galaxy` as an isolated immersive portfolio in small phases. Preserve the existing homepage, Forge, island, SystemCore, architecture story, and all backend demonstrations. Current authorization: **G1 only; do not start G2**.
+## Objective and authorization
+Integrate existing Galaxy G1 with a fast backend/systems homepage. Preserve backend/security contracts and Galaxy behavior. User authorizes merging into authoritative `master` **only after tests, CI/Vercel and desktop/laptop/mobile visual verification pass**. Do not add Galaxy G2 or delete branches.
 
-## Branch and baseline
-- Working branch: `feat/galaxy-g1-foundation`.
-- Base: `master` at `24b40f7` (clean checkout before changes).
-- Implementation commit: `14b976081e64dfaa4554f302c1d208df4d429c3c` (saved on the same GitHub branch).
-- Repository code/git is authoritative. Historical phase details remain in this file's git history.
+## Repository baseline
+- Default/authoritative branch verified: `master` at `24b40f7add62c12d3f94acf450a6e5ba0c41ed4b`.
+- Galaxy source: `feat/galaxy-g1-foundation` at `662ff87`; implementation `14b9760`.
+- Integration branch: `refactor/backend-focused-homepage`, created from Galaxy source after a fresh fetch. Master had no newer commits to integrate; worktree was clean.
+- Galaxy is G1 only. Full solar system is not implemented. Preserve stars/camera/performance/fallback, do not describe later phases as complete.
 
-## G1 — implementation complete; visual acceptance pending
-- Added `/galaxy` and `/galaxy/` with native document links, a Galaxy navbar entry, a lazy React route, and a lazy scene import. Existing hash navigation remains native.
-- Split homepage styles out of the shared entry. Galaxy does not import the backend application, GSAP, Forge, homepage CSS, or public project API.
-- Added full-viewport `#020204` space, three deterministic 3D star layers, restrained camera parallax, responsive framing, minimal identity/exit controls, pause motion, and a still-view option.
-- Centralized camera, starfield, renderer lifecycle, performance profile, and GPU disposal in separate modules.
-- Low power hints: compact viewport, coarse pointer, <=4 GB memory or <=4 logical cores when available. DPR <=1 low power / <=1.5 desktop; 900 / 2720 stars; 30 / 60 fps targets.
-- Reduced motion draws on demand without ambient motion/parallax. Hidden/offscreen/page-cached scenes stop scheduling frames. Resize invalidates a paused scene once.
-- Unmount/still view removes observers, listeners, RAF, geometry, materials, textures, canvas and context. Renderer/import/context-loss failures reach a static sky with real homepage links.
-- Added frontend-root Vercel rewrites for both Galaxy URL forms. Production settings are not changed.
-- No Sun, planets, orbit paths, system map, travel/selection state machine, project moons, or homepage cleanup: these are later phases.
+## Completed phase H1 — static homepage separation
+- Hero is a static engineering request contract with the existing API ping and explicit Galaxy entry.
+- Architecture is an ordered DOM middleware map with cache/database/failure paths matching actual backend route/controller order.
+- Removed homepage wiring for HeroIsland, SystemCore, cursor-following Forge, reaction dispatch, GSAP and ScrollTrigger.
+- Replaced Backend Lab's WebGL presentation with a DOM definition list using the same toggle state. Request synchronization, one-write guard, rollback, auth and project-fetch behavior are preserved.
+- Replaced pinned/scroll-driven project storytelling with compact problem/architecture/engineering-decision case studies using existing repository projects; API-driven Core Projects remains separate.
+- Preserved dark technical brand, existing SEO/social metadata, assets, routing and public demo credentials. Removed obsolete cinematic/sticky-section CSS and mobile spacing reserved for Forge.
+- Corrected a stale static portfolio project description that implied enforced throttling. Rate Limit Flag remains configuration-only.
+- Reusable island/SystemCore/Forge sources and assets remain unimported for possible future reuse. Galaxy files and backend files have no diff.
 
-## Architecture decisions
-- No routing dependency for two isolated experiences: native links perform full document navigation, with normal browser back/forward. A minimal lazy entry selects the route. Unknown paths retain previous homepage behavior.
-- Three.js was already eagerly used by the homepage. It remains there to preserve existing experiments. The enforceable G1 boundary is **no Galaxy-specific code/assets on the homepage**, not removing its existing Three.js dependency.
-- Fallback intentionally uses stars and existing portfolio destinations only. A solar-system map and Galaxy-specific content links would prematurely implement G2+.
-- No added packages, textures, models, audio, bloom, shadows, or postprocessing.
+## H1 verification
+- `npm run lint`: passed.
+- `npm run test:auth-runtime`: 6 passed; `npm run test:galaxy`: 10 passed.
+- `npm run build`: passed; strengthened emitted-bundle guard excludes Three.js/WebGL, GSAP/ScrollTrigger, Forge and Galaxy from homepage static imports/code.
+- Homepage JS static graph: approximately 968 kB → 273 kB raw, 285 kB → 90 kB gzip. Homepage CSS: 50.5 kB → 30.0 kB raw. Build sizes, not measured network or device performance.
+- Three.js remains in Galaxy's deferred scene (~521 kB raw), so Vite's >500 kB chunk warning remains Galaxy-only.
+- Browser visual checks are still pending. Prior G1 preview failed with `ERR_BLOCKED_BY_CLIENT`; Vercel preview was sign-in protected and automatic review rejected starting sign-in without explicit user authorization.
 
-## Verification
-- Baseline: frontend lint, 6 auth-runtime tests, 28 backend tests, production build passed.
-- G1: frontend lint, 6 auth-runtime tests, 10 Galaxy regression tests passed.
-- Galaxy tests cover device profiles, DPR, one-frame ownership, hidden pause/resume, paused invalidation, frame throttling, teardown, error handling, bounded camera framing, deterministic 3D layers, and shared GPU disposal.
-- Production build and emitted-manifest guard passed: initial entry excludes experiences/Three.js; homepage static imports exclude Galaxy route/scene; Galaxy excludes the homepage; scene remains dynamically loaded.
-- Frontend CI runs Galaxy tests and the build isolation guard alongside auth/lint. GitHub Actions run `36087401221` passed for `14b9760`.
-- Vercel automatic Preview deployment `6652577225` succeeded for `14b9760`: `https://portofolio-opqi21itr-sanamrai001s-projects.vercel.app`. This is a branch preview, not a production promotion.
-- Backend diff is empty. Backend was not connected to a live database or mutated during this task.
-- Browser visual QA: **blocked**. Supported supervised preview reports running, but the cloud browser rejects its address with `ERR_BLOCKED_BY_CLIENT`. The successful Vercel preview redirects to Vercel login. A secure sign-in request was rejected by automatic approval review because Vercel authentication/private-deployment access was not explicitly authorized. No authentication or access-control bypass was attempted. Desktop/mobile appearance, live WebGL context loss, browser memory behavior, and interactive navigation have NOT been visually verified.
+## Risks / decisions
+- Do not merge based only on automated tests. Required visual viewports: 1440×900, 1280×800, 390×844; check both routes, lab, projects, auth overlay, focus, scroll/overflow, and console errors.
+- Preserve native document links for route separation and browser back/forward. No router replacement or API contract changes.
+- Keep backend validation, bcrypt-only auth, JWT scope, privacy-safe logging, pagination HTTP semantics, public demo configuration and production CORS unchanged.
+- No production backend data/configuration was changed for testing.
+- Historical phase narrative remains available in git history rather than accumulating here.
 
-## Risks and boundaries
-- G1 is not ready for visual acceptance or merge until browser QA passes. CPU tests do not prove GPU rendering, accessibility, or physical-device performance.
-- Existing shared Three.js chunk is ~546 kB raw / 137 kB gzip and triggers Vite's >500 kB warning. G1 route JS is ~4.4 kB, scene JS ~4.3 kB, route CSS ~3.4 kB before gzip. These are build sizes, not measured browser transfer or frame rates.
-- Direct-route Vercel behavior still needs a deployed preview smoke check; rewrite assumes the existing frontend-root project.
-- Device profile is chosen on scene mount; viewport resize updates camera/canvas, not the star budget.
-- Existing backend security: bcrypt-only login and scoped JWTs; public configuration is intentional for the demo. Rate limiting remains configuration-only, not enforced on project routes. Preserve these truthful distinctions.
-- Many remote branches are fully merged into master (including Forge, immersive phases 1–6, island phases 1–4, and several security/fix branches). Cleanup is worth a separate review. No branches deleted.
-
-## Exact next action
-1. Obtain explicit authorization for secure Vercel sign-in, or use restored supported preview access. Complete G1 visual QA at desktop and mobile sizes: open `/galaxy` directly/reload, check visible stars and controls, keyboard focus, pause/still/resume, reduced motion, unavailable WebGL/context loss, repeated entry/exit, back/forward, and unchanged homepage/backend UI.
-2. Only after G1 review and explicit continuation: **G2 — Sun, orbit system, four placeholder planets, scale hierarchy and solar-system overview framing**.
-3. Stop here for this request. G2 has not started; master has not been merged or deployed by this task.
+## Exact next phase
+H2: add one progressive-enhancement reveal observer, no RAF or scroll listeners; add DOM regression coverage for lab/API/auth and reveal lifecycle; remove verified-unused motion helper code; run all gates and attempt supported browser QA. Only after visual acceptance, fetch master again, verify CI/Vercel, then merge safely and verify production.

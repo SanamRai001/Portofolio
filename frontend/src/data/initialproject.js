@@ -11,7 +11,7 @@ const initialProjects = [
   {
     _id: "2",
     name: "Backend-Controlled Portfolio System",
-    description: "A dynamic portfolio application where system features — JWT authentication, in-memory caching, rate limiting, pagination, and request logging — can each be toggled on or off independently at runtime through a backend control panel. Demonstrates production-level API architecture thinking.",
+    description: "A dynamic portfolio application where system features — JWT authentication, in-memory caching, pagination, and safe request logging — can each be toggled on or off independently at runtime through a backend control panel. The rate-limit flag is configuration-only; throttling is not enforced on the project route.",
     techStacks: ["React", "Node.js", "Express", "MongoDB", "JWT"],
     github: "https://github.com/SanamRai001/Portofolio",
     liveDemo: "https://sanam-rai.com.np",

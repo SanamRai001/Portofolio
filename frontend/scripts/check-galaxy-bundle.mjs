@@ -23,4 +23,11 @@ assert.ok(!imports(home).has(galaxy), 'Homepage must not preload Galaxy')
 assert.ok(!imports(home).has(scene), 'Homepage must not preload Galaxy scene')
 assert.ok(!imports(galaxy).has(home), 'Galaxy must not load backend portfolio')
 assert.ok(!imports(galaxy).has(scene), 'WebGL scene must stay behind error handling')
-console.log('Galaxy build isolation passed: lazy route + lazy scene; no Galaxy in homepage imports.')
+// Check actual emitted code as Three.js may be folded into a generically named
+// chunk. Static graph checks alone cannot detect that case.
+for (const key of imports(home)) {
+  const source = await readFile(new URL('../dist/' + manifest[key].file, import.meta.url), 'utf8')
+  assert.ok(!/WebGLRenderer|WebGLRenderingContext|webglcontextlost|ScrollTrigger|gsap\.registerPlugin|forge:reaction/.test(source), `Heavy runtime leaked into homepage: ${key}`)
+  assert.ok(!/Galaxy|three|gsap|HeroIsland|SystemCore|LivingForge/.test(key), `Heavy chunk leaked into homepage: ${key}`)
+}
+console.log('Route isolation passed: homepage excludes Galaxy, Three.js, GSAP and Forge; Galaxy remains lazy.')
