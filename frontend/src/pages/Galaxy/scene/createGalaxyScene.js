@@ -1,11 +1,12 @@
-import { Color, Scene, WebGLRenderer } from 'three'
+import { Color, Raycaster, Scene, Vector2, WebGLRenderer } from 'three'
 import { createCameraRig } from './CameraRig.js'
 import { createSolarSystem } from './SolarSystem.js'
 import { createStarField } from './StarField.js'
 import { createRenderLoop } from '../utils/renderLoop.js'
+import { attachPointerInteractions } from '../navigation/InteractionController.js'
 import { disposeScene } from '../utils/disposeScene.js'
 
-export function createGalaxyScene(mount, profile, { onReady, onError }) {
+export function createGalaxyScene(mount, profile, { onReady, onError, navigation }) {
   const scene = new Scene()
   scene.background = new Color('#020204')
   const renderer = new WebGLRenderer({
@@ -32,23 +33,25 @@ export function createGalaxyScene(mount, profile, { onReady, onError }) {
   try {
     renderer.setPixelRatio(profile.dpr)
     mount.appendChild(renderer.domElement)
-    const rig = createCameraRig()
     const stars = createStarField(profile)
     const solar = createSolarSystem(profile)
+    const rig = createCameraRig({ getAnchor: solar.getAnchor, onComplete: navigation.complete, reducedMotion: profile.reducedMotion })
     scene.add(stars.group, solar.group)
     let paused = false, inView = true, pageActive = true, ready = false
 
+    let interaction
     loop = createRenderLoop({
       requestFrame: (callback) => window.requestAnimationFrame(callback),
       cancelFrame: (frame) => window.cancelAnimationFrame(frame),
       fps: profile.fps,
       onError: fail,
       render(delta) {
-        if (!paused && !profile.reducedMotion) {
-          rig.update(delta)
-          stars.update(delta)
-          solar.update(delta)
-        }
+        const animate = !paused && !profile.reducedMotion
+        solar.update(delta, animate)
+        if (animate) stars.update(delta)
+        // Navigation works even while ambient/orbital motion is paused.
+        rig.update(delta)
+        interaction?.refreshHover()
         renderer.render(scene, rig.camera)
         if (!ready) { ready = true; onReady() }
       },
@@ -57,7 +60,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError }) {
     function syncLoop() {
       loop.setState({
         active: inView && pageActive && !document.hidden,
-        continuous: !paused && !profile.reducedMotion,
+        continuous: (!paused && !profile.reducedMotion) || rig.travelling,
       })
     }
     function resize() {
@@ -81,22 +84,46 @@ export function createGalaxyScene(mount, profile, { onReady, onError }) {
     listen(window, 'pagehide', () => { pageActive = false; syncLoop() })
     listen(window, 'pageshow', () => { pageActive = true; syncLoop() })
     listen(renderer.domElement, 'webglcontextlost', fail)
-    if (profile.parallax) {
-      listen(mount, 'pointermove', (event) => {
-        if (paused || event.pointerType === 'touch') return
+    const raycaster = new Raycaster(), pointer = new Vector2()
+    raycaster.layers.set(1)
+    interaction = attachPointerInteractions(mount, {
+      navigation, invalidate: () => loop.invalidate(),
+      pick(x, y) {
         const rect = mount.getBoundingClientRect()
-        rig.point((event.clientX - rect.left) / rect.width * 2 - 1,
-          1 - (event.clientY - rect.top) / rect.height * 2)
-      })
-      listen(mount, 'pointerleave', () => rig.point(0, 0))
+        if (!rect.width || !rect.height) return null
+        pointer.set((x - rect.left) / rect.width * 2 - 1, 1 - (y - rect.top) / rect.height * 2)
+        solar.group.updateMatrixWorld(true)
+        rig.camera.updateMatrixWorld()
+        raycaster.setFromCamera(pointer, rig.camera)
+        return raycaster.intersectObjects(solar.hitMeshes, false)[0]?.object.userData.bodyId || null
+      },
+      onPoint(point) {
+        if (!profile.parallax || paused) return
+        const rect = mount.getBoundingClientRect()
+        rig.point(point ? (point.x - rect.left) / rect.width * 2 - 1 : 0,
+          point ? 1 - (point.y - rect.top) / rect.height * 2 : 0)
+      },
+    })
+    disposers.push(() => interaction.dispose())
+    let transitionId = -1
+    function syncNavigation() {
+      const state = navigation.getSnapshot()
+      solar.setInteraction(state, paused || profile.reducedMotion)
+      if (state.transitionId !== transitionId) {
+        transitionId = state.transitionId
+        rig.navigate(state)
+      }
+      syncLoop()
+      loop.invalidate()
     }
+    disposers.push(navigation.subscribe(syncNavigation))
     resize()
-    syncLoop()
+    syncNavigation()
     return {
       dispose,
       setPaused(value) {
         paused = value
-        if (profile.reducedMotion) rig.reset()
+        solar.setInteraction(navigation.getSnapshot(), paused || profile.reducedMotion)
         syncLoop()
       },
     }

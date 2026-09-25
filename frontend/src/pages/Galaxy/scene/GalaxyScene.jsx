@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { readPerformanceProfile } from '../utils/performance.js'
 
-export default function GalaxyScene({ paused, reducedMotion, onReady, onError }) {
+export default function GalaxyScene({ paused, reducedMotion, onReady, onError, navigation }) {
   const mountRef = useRef(null)
   const runtimeRef = useRef(null)
   const pausedRef = useRef(paused)
@@ -18,6 +18,7 @@ export default function GalaxyScene({ paused, reducedMotion, onReady, onError })
     import('./createGalaxyScene.js').then(({ createGalaxyScene }) => {
       if (cancelled) return
       runtimeRef.current = createGalaxyScene(mount, readPerformanceProfile(reducedMotion), {
+        navigation,
         onReady: () => { if (!cancelled) onReady() },
         onError: () => { if (!cancelled) onError() },
       })
@@ -29,7 +30,7 @@ export default function GalaxyScene({ paused, reducedMotion, onReady, onError })
       runtimeRef.current?.dispose()
       runtimeRef.current = null
     }
-  }, [reducedMotion, onReady, onError])
+  }, [reducedMotion, onReady, onError, navigation])
 
   return <div ref={mountRef} className="GalaxyScene" aria-hidden="true" />
 }

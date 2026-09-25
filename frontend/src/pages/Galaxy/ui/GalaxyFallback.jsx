@@ -5,7 +5,7 @@ import { getOverview, projectOverview } from '../utils/overview.js'
 import { seededRandom } from '../utils/random.js'
 const random = seededRandom(2709)
 const stars = Array.from({ length: 180 }, () => ({ x: random() * 1440, y: random() * 900, radius: 0.4 + random() * 0.9, opacity: 0.15 + random() * 0.6 }))
-export function SolarDiagram({ width, height, prefix }) {
+export function SolarDiagram({ width, height, prefix, selectedBodyId = null }) {
   const view = getOverview(width, height)
   function project(point) {
     const p = projectOverview(point, view)
@@ -34,7 +34,8 @@ export function SolarDiagram({ width, height, prefix }) {
       <radialGradient id={`${prefix}-corona`}><stop offset=".6" stopColor="#ffc36f" stopOpacity=".15" /><stop offset="1" stopColor="#ffc36f" stopOpacity="0" /></radialGradient>
     </defs>
     <g fill="none" stroke="#68717d" strokeWidth=".7" opacity=".4">{PLANETS.map(body => <path key={body.id} d={path(body.orbit)} />)}</g>
-    {bodies.map(body => <g key={body.id} data-body={body.id}>
+    {bodies.map(body => <g key={body.id} data-body={body.id} opacity={selectedBodyId && selectedBodyId !== body.id ? .7 : 1}>
+      {selectedBodyId === body.id && <circle cx={body.x} cy={body.y} r={body.r * (body.ring ? 2.4 : 1.85)} fill="none" stroke={body.color} strokeWidth=".8" strokeDasharray="2 5" opacity=".65" />}
       {body.id === 'core' && <circle cx={body.x} cy={body.y} r={body.r * 1.6} fill={`url(#${prefix}-corona)`} />}
       {body.ring && <ellipse cx={body.x} cy={body.y} rx={body.r * 2.15} ry={body.r * .62} transform={`rotate(-24 ${body.x} ${body.y})`} fill="none" stroke={body.color} strokeWidth={body.r * .25} opacity=".4" />}
       <circle cx={body.x} cy={body.y} r={body.r} fill={body.id === 'lab' ? '#06050a' : `url(#${prefix}-${body.id})`} stroke={body.color} strokeWidth={body.id === 'identity' ? 1.4 : .4} strokeOpacity=".35" />
@@ -45,7 +46,7 @@ export function SolarDiagram({ width, height, prefix }) {
     </g>)}
   </svg>
 }
-export default function GalaxyFallback() {
+export default function GalaxyFallback({ selectedBodyId }) {
   const ref = useRef(null), prefix = useId().replaceAll(':', '')
   const [size, setSize] = useState({ width: 1000, height: 560 })
   useEffect(() => {
@@ -60,6 +61,6 @@ export default function GalaxyFallback() {
     <svg className="GalaxyStaticSky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       {stars.map((star, index) => <circle key={index} cx={star.x} cy={star.y} r={star.radius} fill="#e5e8ef" opacity={star.opacity} />)}
     </svg>
-    <SolarDiagram {...size} prefix={prefix} />
+    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} />
   </div>
 }

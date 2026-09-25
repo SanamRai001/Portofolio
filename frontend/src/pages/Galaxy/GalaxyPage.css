@@ -17,7 +17,16 @@
 .GalaxySystemMap { border-top:1px solid #24252b; padding-top:12px; }
 .GalaxyMapHeading { display:flex; justify-content:space-between; gap:12px; color:var(--galaxy-muted); font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.15em; }
 .GalaxySystemMap ol { list-style:none; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:18px; margin:18px 0 0; padding:0; }
-.GalaxySystemMap li { display:flex; gap:12px; min-width:0; }
+.GalaxySystemMap li { min-width:0; }
+.GalaxySystemMap button { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding:5px 0; border:0; border-bottom:1px solid transparent; border-radius:0; background:none; color:inherit; text-align:left; cursor:pointer; }
+.GalaxySystemMap.has-selection button[aria-pressed='false'] { opacity:.58; }
+.GalaxySystemMap button:hover, .GalaxySystemMap button:focus-visible, .GalaxySystemMap button[aria-pressed='true'] { opacity:1; border-bottom-color:var(--body-color); }
+.GalaxyTarget { position:absolute; top:12px; left:0; right:0; z-index:1; pointer-events:none; }
+.GalaxyBack { display:inline-flex; align-items:center; gap:20px; min-height:44px; padding:0 12px 0 0; background:#020204cc; border:0; color:var(--galaxy-ink); font:11px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; pointer-events:auto; }
+.GalaxyBack span { color:var(--galaxy-muted); font-size:9px; }
+.GalaxyTargetLabel { max-width:250px; padding:8px 0; }
+.GalaxyTargetLabel > p:nth-child(2) { margin-top:3px; font-size:18px; letter-spacing:.1em; text-transform:uppercase; }
+.GalaxyTargetLabel small { display:block; margin-top:3px; color:var(--galaxy-muted); font-size:11px; }
 .GalaxyMapIndex { color:var(--body-color); font:11px/1.9 ui-monospace,monospace; }
 .GalaxySystemMap strong { display:block; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.09em; }
 .GalaxySystemMap small { display:block; color:var(--galaxy-muted); font-size:11px; }
@@ -35,7 +44,10 @@
  .GalaxyExit { font-size:12px; gap:9px; }
  .GalaxyStage { min-height:460px; height:calc(100svh - 350px); }
  .GalaxySystemMap ol { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 10px; }
- .GalaxySystemMap li { gap:7px; }
+ .GalaxySystemMap button { gap:7px; }
+ .GalaxyTarget { top:4px; }
+ .GalaxyTargetLabel > p:nth-child(2) { font-size:15px; }
+ .GalaxyBack span { display:none; }
  .GalaxySystemMap strong { font-size:10px; }
  .GalaxySystemMap small { font-size:10px; }
  .GalaxyFooter { flex-wrap:wrap; align-items:start; gap:12px; padding-top:22px; }
