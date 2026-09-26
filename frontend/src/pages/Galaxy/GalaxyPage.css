@@ -57,6 +57,7 @@
 
 /* Core is an open composition, with the star and copy occupying separate space. */
 .GalaxyStage.is-core { flex:none; height:auto; min-height:max(570px, calc(100svh - 270px)); }
+.GalaxyStage.is-core::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,transparent 42%,#020204b8 59%,#020204d9 100%); }
 .CoreIdentity { position:relative; z-index:2; width:42%; max-width:480px; margin:0 1% 0 auto; padding:70px 0 46px; visibility:hidden; opacity:0; }
 .CoreIdentity.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
 .CoreIdentity::before { content:''; display:block; width:52px; height:1px; margin-bottom:22px; background:linear-gradient(90deg,#d9b77c,#d9b77c00); }
@@ -75,6 +76,7 @@
 .GalaxySrOnly { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @keyframes core-reveal { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 @media(max-width:760px) {
+ .GalaxyStage.is-core::after { display:none; }
  .GalaxyStage.is-core { flex:none; min-height:0; height:auto; padding-top:320px; }
  .GalaxyStage.is-core > .GalaxyScene, .GalaxyStage.is-core > .GalaxyFallback { height:320px; }
  .CoreIdentity { width:100%; max-width:none; margin:0; padding:12px 0 34px; }

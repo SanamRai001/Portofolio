@@ -214,10 +214,24 @@ test('Core reserves copy space, resizes into a stacked composition and clears it
     const point = h.system.getAnchor('core', new Vector3()).project(h.rig.camera)
     assert.ok(Math.abs(point.x + .46) < 1e-8)
     assert.ok(Math.abs(point.y) < 1e-8)
+    const corona = h.system.targets.get('core').visuals.getObjectByName('core-corona')
+    // Actual mesh vertices must clear both the screen edge and the DOM copy area.
+    function bounds() {
+      h.system.group.updateMatrixWorld(true)
+      const attribute = corona.geometry.attributes.position
+      const projected = Array.from({ length: attribute.count }, (_, i) => new Vector3().fromBufferAttribute(attribute, i).applyMatrix4(corona.matrixWorld).project(h.rig.camera))
+      return { left: Math.min(...projected.map(p => p.x)), right: Math.max(...projected.map(p => p.x)), top: Math.max(...projected.map(p => p.y)), bottom: Math.min(...projected.map(p => p.y)) }
+    }
+    const desktopBounds = bounds()
+    assert.ok(desktopBounds.left > -1 && desktopBounds.right < .1)
+    assert.ok(desktopBounds.top < .8 && desktopBounds.bottom > -.8)
     h.rig.resize(346, 320, 390)
     h.rig.camera.updateMatrixWorld()
     const mobile = h.system.getAnchor('core', new Vector3()).project(h.rig.camera)
     assert.ok(Math.abs(mobile.x) < 1e-8 && Math.abs(mobile.y + .2) < 1e-8)
+    const mobileBounds = bounds()
+    assert.ok(mobileBounds.left > -.9 && mobileBounds.right < .9)
+    assert.ok(mobileBounds.top < .5 && mobileBounds.bottom > -.85)
     h.nav.focusBody('identity')
     for (let i = 0; i < 85; i++) h.step()
     assert.equal(h.rig.camera.view?.enabled, false)

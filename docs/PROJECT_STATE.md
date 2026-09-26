@@ -23,12 +23,21 @@
 - Desktop retains two inexpensive corona shells; low-power has one. No particles, texture downloads, postprocessing, new dependencies or extra RAF loops.
 - Pause/reduced motion freeze surface time and apply interaction feedback immediately; deselection restores base glow. Core's stage takes its natural content height to keep links clear of the system map at shorter desktop heights and enlarged text sizes.
 
-## Phase verification
-- 30 Galaxy tests, lint and production build pass after these phases. New coverage: arrival-gated Core content, rapid Core/Identity/Core/Projects changes, fallback content and return, keyboard focus restoration, fresh entry, desktop/mobile projection, reduced motion and reset after retarget.
-- Added Sun tests cover bounded/reversible activity, frozen surface time, rapid changes, low-power resource reduction/disposal and unchanged illumination/orbital behavior. Route isolation passes. Full regression suite and available visual inspection are next.
+## Final local verification
+- **72 tests pass:** 30 Galaxy, 6 auth-runtime, 8 homepage DOM and 28 backend. Lint, production build and diff whitespace checks pass. New coverage: arrival-gated Core content, rapid Core/Identity/Core/Projects changes, fallback content and return, keyboard focus restoration, fresh entry, desktop/mobile projection, reduced motion and reset after retarget.
+- Added Sun tests cover bounded/reversible activity, frozen surface time, rapid changes, low-power resource reduction/disposal and unchanged illumination/orbital behavior. Route isolation passes. Additional vertex-projection checks keep the actual Sun corona clear of screen edges, desktop copy and mobile return controls, including reduced motion.
 
-## Next phase / risks
-Complete full regression checks, inspect actual fallback output and publish the reviewed G4 branch. Actual browser/GPU performance, shaders, console and full-page responsive acceptance remain outstanding.
+## Visual evidence / performance
+- Inspected actual selected-Core SVG output at stages 1360×630 (1440×900 viewport target), 1200×570 (1280×800) and 346×320 (390×844 mobile Sun region). This verifies fallback artwork/composition only, not the full browser layout or shader.
+- Static inspection showed a background planet could compete with desktop copy; added a soft, pointer-transparent gradient behind the copy region, with no card boundary. Mobile keeps text below the canvas and does not need the gradient.
+- Retried the supported local preview for G4: server starts, but browser navigation still fails `ERR_BLOCKED_BY_CLIENT`. Server stopped after inspection. No protected Vercel retry or access-control workaround.
+- Full-page 1440×900 / 1280×800 / 390×844 HUD/overflow checks, GPU shader compilation/rendering, browser console, physical touch and actual frame stability remain unverified. JSDOM, numerical tests and build success do not replace these checks.
+- G4 vs G3 gzip: Galaxy route 6.50 kB vs 5.34; deferred scene 137.83 kB vs 136.91; Galaxy CSS 2.22 kB vs 1.52. Homepage JS and CSS remain effectively unchanged; route guard excludes Galaxy/Three.js from homepage.
+- Desktop geometry unchanged; low-power removes one Sun shell and one noise octave. No dependencies, downloaded textures, particles or additional animation loops. Existing >500 kB deferred scene warning remains. GPU performance is not measured.
+- Motion.dev accessibility guidance informed the short reveal/reduced-motion treatment; implemented with existing hooks and CSS, without installing Motion.
+
+## Publication / next step
+Publish the reviewed G4 commits to the existing branch, then record CI/deployment results. Complete browser/GPU acceptance when authorized access is available. No backend or homepage source changes.
 
 ## Stop boundary
 No G4 merge or production deployment. Existing branch contains unmerged G2/G3/G4 work and must be preserved. **Ready for G5: NO.**
