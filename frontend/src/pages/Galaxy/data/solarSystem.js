@@ -1,7 +1,9 @@
+import { CORE, CORE_COMPOSITION } from './core.js'
+
 const focus = (distance, azimuth, elevation, fov = 38) => Object.freeze({ distance, azimuth, elevation, fov })
 
 // Scene units and radians/second; deliberately slower than an astronomy demo.
-export const SUN = Object.freeze({ id: 'core', focus: focus(12, 0.3, 0.7), label: 'Core', meaning: 'Sanam / Core', radius: 2.1, color: '#ffd69b' })
+export const SUN = Object.freeze({ id: CORE.id, focus: Object.freeze({ ...focus(12, 0.3, 0.7), composition: CORE_COMPOSITION }), label: CORE.label, meaning: `${CORE.shortName} / ${CORE.label}`, radius: 2.1, color: '#ffd69b' })
 export const PLANETS = Object.freeze([
   { id: 'identity', focus: focus(6.2, -0.4, 0.9), label: 'Identity', meaning: 'Identity', radius: 0.78, color: '#5eaaa1', surface: 'ocean', orbit: { radius: 5.6, speed: 0.035, phase: 2.6, inclination: 0.06 } },
   { id: 'skills', focus: focus(6.8, 0.5, 0.9), label: 'Skills', meaning: 'Skills', radius: 0.88, color: '#a6b5cb', surface: 'engineered', orbit: { radius: 8.7, speed: 0.024, phase: 5.7, inclination: -0.08 } },

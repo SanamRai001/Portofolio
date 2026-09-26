@@ -1,4 +1,6 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react'
+import { CORE } from '../data/core.js'
+import CoreIdentity from './CoreIdentity.jsx'
 import { SYSTEM_MAP } from '../data/solarSystem.js'
 
 export default function GalaxyNavigation({ navigation, staticView, children }) {
@@ -6,11 +8,14 @@ export default function GalaxyNavigation({ navigation, staticView, children }) {
   const buttons = useRef(new Map()), backButton = useRef(null)
   const selected = SYSTEM_MAP.find(body => body.id === state.selectedBodyId)
   const hovered = SYSTEM_MAP.find(body => body.id === state.hoveredBodyId)
+  const coreSelected = state.selectedBodyId === CORE.id
+  const coreRevealed = coreSelected && state.mode === 'body_focused'
+  const coreHovered = !selected && hovered?.id === CORE.id
   const returning = state.mode === 'returning_overview'
 
   function goBack() {
     const id = state.selectedBodyId
-    const restore = document.activeElement === backButton.current
+    const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity'))
     navigation.goBack()
     if (restore) buttons.current.get(id)?.focus()
   }
@@ -18,7 +23,7 @@ export default function GalaxyNavigation({ navigation, staticView, children }) {
     function escape(event) {
       if (event.key !== 'Escape' || !navigation.getSnapshot().selectedBodyId) return
       const id = navigation.getSnapshot().selectedBodyId
-      const restore = document.activeElement === backButton.current
+      const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity'))
       navigation.goBack()
       if (restore) buttons.current.get(id)?.focus()
     }
@@ -31,15 +36,16 @@ export default function GalaxyNavigation({ navigation, staticView, children }) {
 
   const status = selected ? (state.mode === 'focusing_body' ? 'Navigating' : staticView ? 'Static selection' : 'Signal locked') : returning ? 'Returning to system' : 'Overview'
   return <>
-    <div className="GalaxyStage">
+    <div className={`GalaxyStage${coreSelected ? ' is-core' : ''}`}>
       {children(state.selectedBodyId)}
+      {coreSelected && <CoreIdentity revealed={coreRevealed} />}
       <div className="GalaxyTarget">
         {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
         <div className="GalaxyTargetLabel" role="status" aria-live="polite" aria-atomic="true">
           {(selected || hovered || returning) && <>
-            <p className="GalaxyEyebrow">{selected ? status : returning ? status : 'Signal detected'}</p>
-            <p>{selected?.label || hovered?.label}</p>
-            {selected && <small>{selected.id === 'core' ? 'Sanam Rai' : selected.id === 'lab' ? 'Unknown signal · Content locked' : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
+            <p className="GalaxyEyebrow">{selected ? status : returning ? status : coreHovered ? CORE.signal : 'Signal detected'}</p>
+            {!coreRevealed && <p>{coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
+            {selected && !coreSelected && <small>{selected.id === 'lab' ? 'Unknown signal · Content locked' : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
           </>}
         </div>
       </div>
@@ -52,7 +58,7 @@ export default function GalaxyNavigation({ navigation, staticView, children }) {
           onClick={() => navigation.focusBody(body.id)}
           onFocus={() => navigation.setHover(body.id, 'keyboard')} onBlur={() => navigation.setHover(null, 'keyboard')}>
           <span className="GalaxyMapIndex" aria-hidden="true">{state.selectedBodyId === body.id ? '●' : String(index).padStart(2, '0')}</span>
-          <span><strong>{body.label}</strong><small>{body.id === 'core' ? 'Sanam / Core' : body.id === 'lab' ? 'Unknown signal' : `Planet ${String(index).padStart(2, '0')}`}</small></span>
+          <span><strong>{body.label}</strong><small>{body.id === CORE.id ? body.meaning : body.id === 'lab' ? 'Unknown signal' : `Planet ${String(index).padStart(2, '0')}`}</small></span>
         </button>
       </li>)}</ol>
     </section>

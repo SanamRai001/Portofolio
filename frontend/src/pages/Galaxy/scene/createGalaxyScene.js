@@ -66,7 +66,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     function resize() {
       const { width, height } = mount.getBoundingClientRect()
       if (!width || !height) return
-      rig.resize(width, height)
+      rig.resize(width, height, window.innerWidth)
       solar.resize(width / height < 0.85)
       renderer.setSize(width, height)
       loop.invalidate()

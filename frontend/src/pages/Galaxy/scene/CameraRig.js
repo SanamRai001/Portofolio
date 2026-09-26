@@ -1,4 +1,5 @@
-import { MathUtils, PerspectiveCamera, Vector3 } from 'three'
+import { MathUtils, PerspectiveCamera, Vector2, Vector3 } from 'three'
+import { focusComposition } from '../data/core.js'
 import { getOverview } from '../utils/overview.js'
 import { SYSTEM_MAP, SOLAR_STYLE } from '../data/solarSystem.js'
 
@@ -13,9 +14,12 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
   const camera = new PerspectiveCamera(46, 1, 0.1, 650)
   const home = new Vector3(), desired = new Vector3(), target = new Vector3()
   const end = new Vector3(), endTarget = new Vector3(), controlA = new Vector3(), controlB = new Vector3()
+  const offset = new Vector2(), endOffset = new Vector2()
+  let viewportWidth = 1280, canvasWidth = 1280, canvasHeight = 800
   let view, selected = null, transition = null
 
   function destination() {
+    endOffset.set(0, 0)
     endTarget.set(0, 0, 0)
     end.copy(home)
     let fov = view.fov
@@ -26,35 +30,47 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
       // Keep the day side readable throughout an orbit; azimuth is an offset
       // from the direction toward the Sun, not a fixed world-space bearing.
       const bearing = azimuth + (selected === 'core' ? 0 : Math.atan2(-endTarget.x, -endTarget.z))
-      const d = distance * (body.orbit ? view.bodyScale : 1)
+      fov = reducedMotion ? view.fov : body.focus.fov
+      const composition = focusComposition(body, viewportWidth)
+      const d = composition
+        ? Math.hypot(body.radius, body.radius / (Math.tan(fov * Math.PI / 360) * composition.heightFraction))
+        : distance * (body.orbit ? view.bodyScale : 1)
+      if (composition) endOffset.set(composition.x, composition.y)
       end.set(Math.sin(bearing) * Math.cos(elevation), Math.sin(elevation), Math.cos(bearing) * Math.cos(elevation)).multiplyScalar(d).add(endTarget)
       end.y = Math.max(end.y, CAMERA_CLEARANCE)
-      fov = reducedMotion ? view.fov : body.focus.fov
     }
     return fov
   }
+  function project() {
+    // Off-axis projection reserves DOM space without moving the tracked anchor
+    // or creating a second camera. Offsets ease with the same flight clock.
+    if (offset.lengthSq() === 0) camera.clearViewOffset()
+    else camera.setViewOffset(canvasWidth, canvasHeight, -offset.x * canvasWidth / 2, offset.y * canvasHeight / 2, canvasWidth, canvasHeight)
+    camera.updateProjectionMatrix()
+  }
   function begin(id, immediate = false) {
-    transition = { id, elapsed: 0, start: camera.position.clone(), target: target.clone(), fov: camera.fov }
+    transition = { id, elapsed: 0, start: camera.position.clone(), target: target.clone(), offset: offset.clone(), fov: camera.fov }
     if (reducedMotion || immediate) {
       camera.fov = destination()
-      camera.position.copy(end); target.copy(endTarget)
-      camera.lookAt(target); camera.updateProjectionMatrix()
+      camera.position.copy(end); target.copy(endTarget); offset.copy(endOffset)
+      camera.lookAt(target); project()
       transition = null
       onComplete(id)
     }
   }
-  function resize(width, height) {
+  function resize(width, height, windowWidth = width) {
     if (!(width > 0 && height > 0)) return
+    viewportWidth = windowWidth; canvasWidth = width; canvasHeight = height
     view = getOverview(width, height)
     camera.aspect = width / height
     camera.up.fromArray(view.up)
     home.fromArray(view.direction).multiplyScalar(view.distance)
     desired.copy(home)
     if (transition) begin(transition.id)
-    else if (selected) { camera.fov = destination(); camera.position.copy(end); target.copy(endTarget) }
-    else { camera.fov = view.fov; camera.position.copy(home); target.set(0, 0, 0) }
+    else if (selected) { camera.fov = destination(); camera.position.copy(end); target.copy(endTarget); offset.copy(endOffset) }
+    else { camera.fov = view.fov; camera.position.copy(home); target.set(0, 0, 0); offset.set(0, 0) }
     camera.lookAt(target)
-    camera.updateProjectionMatrix()
+    project()
   }
   resize(1280, 800)
   return {
@@ -82,7 +98,8 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
           .addScaledVector(controlA, 3 * v * v * u).addScaledVector(controlB, 3 * v * u * u).addScaledVector(end, u ** 3)
         target.lerpVectors(flight.target, endTarget, u)
         camera.fov = MathUtils.lerp(flight.fov, fov, u)
-        camera.updateProjectionMatrix()
+        offset.lerpVectors(flight.offset, endOffset, u)
+        project()
         if (t === 1) { transition = null; desired.copy(home); onComplete(flight.id) }
       } else if (selected) {
         destination(); camera.position.copy(end); target.copy(endTarget)

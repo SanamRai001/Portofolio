@@ -1,35 +1,28 @@
 # PROJECT_STATE
 
 ## Objective / authorization
-Implement **G3 only — Interaction Engine + Camera Navigation**, per the user's attached G3 brief. Continue the existing Galaxy implementation and branch. No G4 content, satellites, moons, project details, timeline or final Lab experience. Do not merge or delete branches.
+**G4 only — Core / Sun Identity**, explicitly requested in the user's 2026-09-26 brief. Extend `feat/galaxy-g1-foundation`; do not rebuild, merge, delete branches or start G5. Identity Planet content, satellites, moons, Journey and final Lab remain deferred.
 
 ## Inspected baseline
-- Existing branch `feat/galaxy-g1-foundation`, clean at `3e45745`; G2 implementation `1e4ca7`. Master remains `70cb2dc`.
-- Inspected G1/G2 route splitting, starfield, Sun/four planets/Lab, config-driven deterministic orbits, portrait framing, reduced motion, fallback and disposal. All baseline frontend tests (27), lint and production build passed before G3. No blocking G2 code regression found.
-- G1/G2 GPU/browser visual acceptance was incomplete. User explicitly authorized G3 in the new brief; this does not turn the prior visual gap into a pass.
+- Clean branch at `d5f5206`; final G3 code `876a9b3`. Freshly fetched remote branch matches local; master remains `70cb2dc`.
+- G1–G3 source inspected: lazy route, preserved starfield/system, deterministic orbits, shared navigation, tracked camera, map, pointer/touch, Escape, reduced motion, fallback and disposal.
+- Before G4: all 38 frontend tests (24 Galaxy, 6 auth, 8 homepage), lint and production build passed. No blocking code regression found.
+- G1–G3 browser/GPU acceptance is still incomplete. Local preview fails `ERR_BLOCKED_BY_CLIENT`; protected Vercel redirects were rejected by automatic approval review, including after the ambiguous “continue” reply. No bypass or sign-in. User now explicitly authorizes G4 implementation; prior visual checks are not relabeled as passed.
 
-## Implemented G3
-- `navigation/NavigationController.js` owns semantic state: `overview` → `focusing_body` → `body_focused` → `returning_overview`. `focusBody`, `goBack`/`returnToOverview`, hover sources and sequence-checked completion form one shared API. Latest selection replaces the active destination; stale completion events are ignored.
-- `CameraRig.js` owns camera, look target, FOV and one 1.3-second eased cubic flight. Every body supplies immutable focus distance/Sun-relative azimuth/elevation/FOV. Approaches retain a readable illuminated hemisphere as planets orbit. Destinations continuously sample moving focus anchors; focused views keep tracking. Paths and endpoints remain above a configuration-derived swept-geometry clearance. Overview parallax only applies in overview.
-- Each of six bodies has a visual group, separate moving focus anchor and a 1.5× low-poly raycast sphere. Interaction spheres occupy layer 1 and never render through the layer-0 camera. No new visual shaders, postprocessing or textures.
-- Orbit clocks retain immutable base speeds and independent phases. Current multiplier eases toward target: normal 1, hovered 0.45, selected 0; selection never teleports a body. Returning releases the selected multiplier. Other orbit lines and HUD buttons dim subtly.
-- Desktop hover uses a restrained 2% visual scale increase, pointer cursor and temporary HUD label. Keyboard focus supplies equivalent feedback. No permanent floating labels.
-- Pointer controller rejects movement over 9px, long presses, multiple pointers and cancelled gestures. No pointer capture, preventDefault or scroll trapping. Sun and Lab share the same selection API as planets.
-- Native system-map buttons expose selection via `aria-pressed`. Tab/Enter/Space use native semantics; Escape and ← System share `goBack`. Return restores map focus when needed. Temporary identifiers only: Core/Sanam Rai, planet number, or locked unknown Lab signal.
-- Reduced motion snaps directly without a travel arc or FOV change; orbits remain frozen. Pausing ambient motion still permits navigation. Static/WebGL-error fallback settles the same navigation state, highlights its selected SVG body, and keeps map/return/keyboard controls functional.
-- Existing one RAF loop, visibility pause, DPR limits, low-power settings and resource disposal retained. Changed invalidation to avoid resetting continuous elapsed time on pointer updates. All new event subscriptions are removed on disposal; React subscribes only to semantic state.
+## Completed phase — Core content and composition
+- `data/core.js` is the single source for name, role, brand tagline, two concise statements, BIT/Nepal metadata and existing portfolio/GitHub links.
+- Semantic `CoreIdentity` uses an h2 beneath the Galaxy h1. Open typography and a small guide line, no profile card. It is hidden/inert during approach and revealed after the shared controller reaches `body_focused` (380ms; immediate for reduced motion). No focus theft.
+- Existing G3 `focusBody('core')`, retarget and return API retained. Sun hover says Core signal / Sanam Rai; map selection remains authoritative. Escape restores map focus when leaving Core links; other selections immediately remove stale Core content.
+- Camera rig adds generic config-driven off-axis projection, eased by its existing flight clock. Desktop places the Sun left with 50% stage-height diameter; mobile gives it a dedicated 320px stage above content. Camera keeps the real focus anchor and safe travel altitude. Resize and retarget restore correct projection.
+- Static fallback uses the same composition data and identity component; selected Core has a larger warm body, restrained surface contours and surrounding orbital context. No Three.js import is added to the DOM/fallback bundle.
+- Layout retains native scrolling, semantic map controls and the existing single frame loop. No dependencies or postprocessing added.
 
-## Local verification
-- **66 tests passed:** 24 Galaxy (13 preserved + 11 new), 6 auth-runtime, 8 homepage DOM, 28 backend. Lint and production build passed; diff whitespace check passed.
-- New tests cover stale completion, rapid retargeting, return interruption, hover priority, velocity easing/recovery, camera clearance and finite coordinates over all six targets/multiple orbital phases at three viewport stage sizes, live-anchor tracking, paused/reduced navigation, resize, layer-isolated raycasts, cancelled/multitouch gestures, event cleanup, clock starvation, map/fallback state and repeated HUD mount/unmount.
-- Requested viewport equivalents: 1440×900 → 1360×630 stage; 1280×800 → 1200×530 stage; 390×844 → 346×494 stage. Numerical camera checks are not browser layout checks.
-- Route bundle guard passed: homepage excludes Galaxy/Three.js/GSAP/Forge. Homepage JS unchanged (~90.18 kB gzip). Galaxy route ~5.34 kB gzip; deferred scene ~136.91 kB gzip (+~2.00 kB over G2). Existing >500 kB scene-chunk warning remains isolated to Galaxy. Low-power geometry remains under 12,000 triangles including invisible hits.
+## Phase verification
+- 27 Galaxy tests and lint pass after this phase. New coverage: arrival-gated Core content, rapid Core/Identity/Core/Projects changes, fallback content and return, keyboard focus restoration, fresh entry, desktop/mobile projection, reduced motion and reset after retarget.
+- Baseline production build/route isolation passed. G4 final build, Sun rendering checks, full regression suite and available visual inspection are next.
 
-## Visual verification / limits
-- Rendered the actual SVG fallback's selected Projects state at all three stage dimensions and visually inspected it: selected marker, body hierarchy, rings and portrait arrangement remain readable. This does not verify browser HUD layout or WebGL.
-- Supported local preview starts, but opening `/galaxy` in the available browser fails with `ERR_BLOCKED_BY_CLIENT` before the app loads.
-- G3 Vercel preview deployment succeeded. Opening its `/galaxy` route was automatically rejected when it redirected to Vercel: review said preview verification does not authorize opening the Vercel service/account surface. No sign-in or bypass attempted. Available cloud browser previously reported WebGL disabled.
-- Actual GPU shader/rendering, camera-motion feel, target picking on a physical device, full-page 1440×900 / 1280×800 / 390×844 overflow/HUD checks, browser console and route re-entry remain unverified. JSDOM/native semantics and mathematical checks are not substitutes.
+## Next phase / risks
+Upgrade only the Sun's procedural surface and restrained hover/focus corona; preserve existing point light and ambient fill. Keep low-power work bounded and all effects inside the current loop. Then complete automated checks and available visual evidence. Actual browser/GPU performance, shaders, console and full-page responsive acceptance remain outstanding.
 
-## Publication / stop boundary
-G3 implementation `5f2eba8` and final Sun-facing camera refinement `876a9b3941edd1c1239e4cb0b8e8b6b74e0a71cd` published on the existing branch. Final frontend CI `36103570119`: **success**; Vercel combined status: **success**. Final code also passed all 24 Galaxy tests, lint and production build locally. Earlier full regression run passed the other 42 unchanged-area tests. No production merge or backend mutation. **Ready for G4: NO — browser/GPU acceptance remains outstanding.** Do not start G4 without explicit authorization. Preserve the branch: it contains unmerged G2/G3 work.
+## Stop boundary
+No G4 merge or production deployment. Existing branch contains unmerged G2/G3/G4 work and must be preserved. **Ready for G5: NO.**

@@ -3,6 +3,7 @@ import useReducedMotion from '../../motion/useReducedMotion.js'
 import GalaxyScene from './scene/GalaxyScene.jsx'
 import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
+import { CORE } from './data/core.js'
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
 
@@ -19,14 +20,14 @@ export default function GalaxyPage() {
 
   useEffect(() => {
     const previousTitle = document.title
-    document.title = 'Galaxy | Sanam Rai'
+    document.title = `Galaxy | ${CORE.name}`
     return () => { document.title = previousTitle }
   }, [])
 
   return (
     <main className="GalaxyPage" aria-labelledby="galaxy-title">
       <header className="GalaxyHeader">
-        <h1 id="galaxy-title"><span>Sanam</span><span aria-hidden="true">/</span>Galaxy</h1>
+        <h1 id="galaxy-title"><span>{CORE.shortName}</span><span aria-hidden="true">/</span>Galaxy</h1>
         <a className="GalaxyExit" href="/">Exit to portfolio <span aria-hidden="true">↗</span></a>
       </header>
 

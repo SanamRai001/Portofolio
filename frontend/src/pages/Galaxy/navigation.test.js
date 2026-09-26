@@ -204,3 +204,27 @@ test('frequent pointer invalidation cannot starve the continuous animation clock
   assert.ok(deltas.slice(1).every(delta => delta > 0))
   loop.dispose()
 })
+
+test('Core reserves copy space, resizes into a stacked composition and clears its projection on retarget', () => {
+  for (const reduced of [false, true]) {
+    const h = rigHarness(1360, 630, reduced)
+    h.nav.focusBody('core')
+    for (let i = 0; i < 85; i++) h.step()
+    h.rig.camera.updateMatrixWorld()
+    const point = h.system.getAnchor('core', new Vector3()).project(h.rig.camera)
+    assert.ok(Math.abs(point.x + .46) < 1e-8)
+    assert.ok(Math.abs(point.y) < 1e-8)
+    h.rig.resize(346, 320, 390)
+    h.rig.camera.updateMatrixWorld()
+    const mobile = h.system.getAnchor('core', new Vector3()).project(h.rig.camera)
+    assert.ok(Math.abs(mobile.x) < 1e-8 && Math.abs(mobile.y + .2) < 1e-8)
+    h.nav.focusBody('identity')
+    for (let i = 0; i < 85; i++) h.step()
+    assert.equal(h.rig.camera.view?.enabled, false)
+    h.nav.focusBody('core'); h.step(); h.nav.goBack()
+    for (let i = 0; i < 85; i++) h.step()
+    assert.equal(h.rig.camera.view?.enabled, false)
+    assert.equal(h.nav.getSnapshot().mode, 'overview')
+    release(h.system)
+  }
+})
