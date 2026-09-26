@@ -17,12 +17,18 @@
 - Static fallback uses the same composition data and identity component; selected Core has a larger warm body, restrained surface contours and surrounding orbital context. No Three.js import is added to the DOM/fallback bundle.
 - Layout retains native scrolling, semantic map controls and the existing single frame loop. No dependencies or postprocessing added.
 
+## Completed phase — Sun rendering and feedback
+- Sun surface now uses bounded, texture-free 3D value noise with slow domain distortion and a deep-amber/gold/ivory palette. Shader applies the renderer's tone/color-space transforms. Desktop uses three noise octaves; low-power uses two with fewer sphere segments.
+- Hover and selection ease only the Sun's activity/corona uniforms. Focus increases corona strength by at most 16% and surface drift by 30%; the central point light and cool ambient fill are unchanged. Other bodies remain in the scene and their orbit lines dim through G3.
+- Desktop retains two inexpensive corona shells; low-power has one. No particles, texture downloads, postprocessing, new dependencies or extra RAF loops.
+- Pause/reduced motion freeze surface time and apply interaction feedback immediately; deselection restores base glow. Core's stage takes its natural content height to keep links clear of the system map at shorter desktop heights and enlarged text sizes.
+
 ## Phase verification
-- 27 Galaxy tests and lint pass after this phase. New coverage: arrival-gated Core content, rapid Core/Identity/Core/Projects changes, fallback content and return, keyboard focus restoration, fresh entry, desktop/mobile projection, reduced motion and reset after retarget.
-- Baseline production build/route isolation passed. G4 final build, Sun rendering checks, full regression suite and available visual inspection are next.
+- 30 Galaxy tests, lint and production build pass after these phases. New coverage: arrival-gated Core content, rapid Core/Identity/Core/Projects changes, fallback content and return, keyboard focus restoration, fresh entry, desktop/mobile projection, reduced motion and reset after retarget.
+- Added Sun tests cover bounded/reversible activity, frozen surface time, rapid changes, low-power resource reduction/disposal and unchanged illumination/orbital behavior. Route isolation passes. Full regression suite and available visual inspection are next.
 
 ## Next phase / risks
-Upgrade only the Sun's procedural surface and restrained hover/focus corona; preserve existing point light and ambient fill. Keep low-power work bounded and all effects inside the current loop. Then complete automated checks and available visual evidence. Actual browser/GPU performance, shaders, console and full-page responsive acceptance remain outstanding.
+Complete full regression checks, inspect actual fallback output and publish the reviewed G4 branch. Actual browser/GPU performance, shaders, console and full-page responsive acceptance remain outstanding.
 
 ## Stop boundary
 No G4 merge or production deployment. Existing branch contains unmerged G2/G3/G4 work and must be preserved. **Ready for G5: NO.**

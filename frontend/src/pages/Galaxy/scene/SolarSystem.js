@@ -39,6 +39,7 @@ export function createSolarSystem(profile) {
     getAnchor(id, point) { return targets.get(id)?.focusAnchor.getWorldPosition(point) },
     setInteraction(state, instant = false) {
       hovered = state.hoveredBodyId
+      sun.setInteraction(hovered === SUN.id, state.selectedBodyId === SUN.id, instant)
       for (const body of PLANETS) {
         simulation.setRate(body.id, orbitRateTarget(body.id, state))
         orbits.get(body.id).material.opacity = state.selectedBodyId && state.selectedBodyId !== body.id ? 0.1 : SOLAR_STYLE.orbitOpacity
@@ -47,9 +48,9 @@ export function createSolarSystem(profile) {
     },
     resize(portrait) { bodies.forEach(body => body.scale.setScalar(portrait ? SOLAR_STYLE.mobileBodyScale : 1)) },
     update(delta, animate = true) {
+      sun.update(delta, animate)
       if (animate) {
         simulation.update(delta)
-        sun.update(delta)
         bodies.forEach((body, id) => body.position.fromArray(simulation.position(id)))
       }
       targets.forEach((body, id) => {
