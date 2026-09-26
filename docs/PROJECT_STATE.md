@@ -33,11 +33,11 @@
 - Retried the supported local preview for G4: server starts, but browser navigation still fails `ERR_BLOCKED_BY_CLIENT`. Server stopped after inspection. No protected Vercel retry or access-control workaround.
 - Full-page 1440×900 / 1280×800 / 390×844 HUD/overflow checks, GPU shader compilation/rendering, browser console, physical touch and actual frame stability remain unverified. JSDOM, numerical tests and build success do not replace these checks.
 - G4 vs G3 gzip: Galaxy route 6.50 kB vs 5.34; deferred scene 137.83 kB vs 136.91; Galaxy CSS 2.22 kB vs 1.52. Homepage JS and CSS remain effectively unchanged; route guard excludes Galaxy/Three.js from homepage.
-- Desktop geometry unchanged; low-power removes one Sun shell and one noise octave. No dependencies, downloaded textures, particles or additional animation loops. Existing >500 kB deferred scene warning remains. GPU performance is not measured.
+- Desktop geometry unchanged (15,792 rendered mesh triangles); low-power removes one Sun shell and one noise octave (6,128 rendered mesh triangles, excluding invisible hits). No dependencies, downloaded textures, particles or additional animation loops. Existing >500 kB deferred scene warning remains. GPU performance is not measured.
 - Motion.dev accessibility guidance informed the short reveal/reduced-motion treatment; implemented with existing hooks and CSS, without installing Motion.
 
 ## Publication / next step
-Publish the reviewed G4 commits to the existing branch, then record CI/deployment results. Complete browser/GPU acceptance when authorized access is available. No backend or homepage source changes.
+G4 published on the existing branch: content/composition `7806292`, Sun upgrade `b4848b0`, final visual-readability/bounds code `e78f395c1ea29afd260087101343eece5e325e80`. Final frontend CI `36240170202`: **success**. Vercel preview status: **success**. Complete browser/GPU acceptance when authorized access is available. No backend or homepage source changes.
 
 ## Stop boundary
 No G4 merge or production deployment. Existing branch contains unmerged G2/G3/G4 work and must be preserved. **Ready for G5: NO.**
