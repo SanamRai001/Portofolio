@@ -232,7 +232,7 @@ test('Core reserves copy space, resizes into a stacked composition and clears it
     const mobileBounds = bounds()
     assert.ok(mobileBounds.left > -.9 && mobileBounds.right < .9)
     assert.ok(mobileBounds.top < .5 && mobileBounds.bottom > -.85)
-    h.nav.focusBody('skills')
+    h.nav.focusBody('projects')
     for (let i = 0; i < 85; i++) h.step()
     assert.equal(h.rig.camera.view?.enabled, false)
     h.nav.focusBody('core'); h.step(); h.nav.goBack()
@@ -258,10 +258,40 @@ test('Identity shares off-axis framing and stays clear of copy and mobile return
       const vertices = atmosphere.geometry.attributes.position
       const points = Array.from({ length: vertices.count }, (_, i) => new Vector3().fromBufferAttribute(vertices, i).applyMatrix4(atmosphere.matrixWorld).project(h.rig.camera))
       assert.ok(points.every(p => Number.isFinite(p.x) && p.x > -.95 && p.x < (viewport < 760 ? .95 : .06) && p.y > -.85 && p.y < (viewport < 760 ? .45 : .8)))
-      h.nav.focusBody('skills')
+      h.nav.focusBody('projects')
       for (let i = 0; i < 85; i++) h.step()
       assert.equal(h.rig.camera.view?.enabled, false)
       release(h.system)
     }
+  }
+})
+
+test('Skills frames the whole constellation at desktop and mobile without moving the camera on skill selection', () => {
+  for (const reduced of [false, true]) for (const [width, height, viewport] of [[1360, 800, 1440], [1200, 800, 1280], [346, 320, 390]]) {
+    const h = rigHarness(width, height, reduced)
+    h.rig.resize(width, height, viewport)
+    h.nav.focusBody('skills')
+    for (let i = 0; i < 85; i++) h.step()
+    const constellation = h.system.targets.get('skills').visuals.getObjectByName('skills-satellites')
+    assert.equal(constellation.visible, true)
+    // Sweep the satellites' paths: validates every possible orbital phase.
+    h.system.group.updateMatrixWorld(true); h.rig.camera.updateMatrixWorld()
+    for (const ring of constellation.children.filter(child => child.isLineLoop)) {
+      const points = ring.geometry.attributes.position
+      for (let i = 0; i < points.count; i++) {
+        const point = new Vector3().fromBufferAttribute(points, i).applyMatrix4(ring.matrixWorld).project(h.rig.camera)
+        assert.ok(point.x > -.95 && point.x < (viewport < 760 ? .95 : .06), `horizontal ${point.x}`)
+        assert.ok(point.y > -.85 && point.y < (viewport < 760 ? .4 : .85), `vertical ${point.y}`)
+      }
+    }
+    const transition = h.nav.getSnapshot().transitionId, camera = h.rig.camera.position.clone()
+    h.nav.selectSkill('node'); h.step()
+    assert.equal(h.nav.getSnapshot().transitionId, transition)
+    assert.ok(h.rig.camera.position.distanceTo(camera) < .001)
+    h.nav.focusBody('projects')
+    for (let i = 0; i < 85; i++) h.step()
+    assert.equal(constellation.visible, false)
+    assert.equal(h.rig.camera.view?.enabled, false)
+    release(h.system)
   }
 })

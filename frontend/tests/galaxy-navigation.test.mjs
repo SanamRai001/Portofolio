@@ -31,7 +31,7 @@ beforeEach(async () => {
 afterEach(async () => { await act(async () => root.unmount()); dom.window.close() })
 const button = name => container.querySelector(`button[aria-label="${name}"]`)
 const render = async (staticView = true) => act(async () => root.render(React.createElement(components.GalaxyNavigation, { navigation, staticView },
-  selectedBodyId => React.createElement(components.SolarDiagram, { width: 346, height: 494, prefix: 'test', selectedBodyId }))))
+  (selectedBodyId, state) => React.createElement(components.SolarDiagram, { width: 346, height: 494, prefix: 'test', selectedBodyId, selectedSkillId: state.selectedSkillId, hoveredSkillId: state.hoveredSkillId, onSkillSelect: navigation.selectSkill, onSkillHover: navigation.setSkillHover }))))
 const click = async node => act(async () => node.dispatchEvent(new window.MouseEvent('click', { bubbles: true })))
 const escape = async () => act(async () => window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' })))
 
@@ -228,4 +228,16 @@ test('Skills resets local selections after rapid retarget, fallback entry and un
   await render()
   assert.equal(container.querySelector('.SkillsContent'), null)
   assert.equal(navigation.getSnapshot().selectedSkillId, null)
+})
+
+test('fallback satellite clicks share Skills selection with the native technology directory', async () => {
+  await render()
+  await click(button('Skills'))
+  assert.equal(container.querySelectorAll('[data-skill]').length, 10)
+  await click(container.querySelector('[data-skill="postgres"] rect'))
+  assert.equal(navigation.getSnapshot().selectedSkillId, 'postgres')
+  assert.equal(container.querySelector('.SkillDetail h3').textContent, 'PostgreSQL')
+  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /selected PostgreSQL/)
+  await click(button('Identity'))
+  assert.equal(container.querySelectorAll('[data-skill]').length, 0)
 })

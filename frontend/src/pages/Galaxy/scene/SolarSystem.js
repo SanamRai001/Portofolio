@@ -2,6 +2,7 @@ import { AmbientLight, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh,
 import { SUN, PLANETS, LAB, SOLAR_STYLE } from '../data/solarSystem.js'
 import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { orbitRateTarget } from '../navigation/NavigationController.js'
+import { createSkillsPlanet } from './SkillsPlanet.js'
 import { createIdentityPlanet } from './IdentityPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
 
@@ -26,7 +27,7 @@ export function createSolarSystem(profile) {
   // Constant falloff preserves G2's art direction and readable terminators.
   group.add(new PointLight('#ffe0b2', SOLAR_STYLE.sunLight, 0, 0), new AmbientLight('#9cb3dc', SOLAR_STYLE.ambient))
   for (const body of PLANETS) {
-    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower) : null
+    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower) : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower) : null
     if (presentation) presentations.set(body.id, presentation)
     const root = register(body, presentation ? presentation.group : createCelestialBody(body, profile.lowPower))
     root.position.fromArray(simulation.position(body.id))
@@ -39,13 +40,14 @@ export function createSolarSystem(profile) {
   register(LAB, createLab(LAB))
   return {
     group, simulation, bodies, targets,
-    hitMeshes: [...targets.values()].map(body => body.interactionMesh),
+    get hitMeshes() { return [...targets.values()].map(body => body.interactionMesh).concat(presentations.get('skills').hitMeshes) },
     getAnchor(id, point) { return targets.get(id)?.focusAnchor.getWorldPosition(point) },
     setInteraction(state, instant = false) {
       hovered = state.hoveredBodyId
       sun.setInteraction(hovered === SUN.id, state.selectedBodyId === SUN.id, instant)
       for (const body of PLANETS) {
-        presentations.get(body.id)?.setInteraction(hovered === body.id, state.selectedBodyId === body.id, instant)
+        presentations.get(body.id)?.setSelection?.(state, instant)
+        presentations.get(body.id)?.setInteraction?.(hovered === body.id, state.selectedBodyId === body.id, instant)
         simulation.setRate(body.id, orbitRateTarget(body.id, state))
         orbits.get(body.id).material.opacity = state.selectedBodyId && state.selectedBodyId !== body.id ? 0.1 : SOLAR_STYLE.orbitOpacity
       }

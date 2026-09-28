@@ -31,6 +31,6 @@ export const SKILL_NODES = Object.freeze(entries.map(([id, label, category, summ
 export const SKILLS_FRAME_RADIUS = 2.65
 export const SKILLS_COMPOSITION = Object.freeze({ breakpoint: 760,
   desktop: Object.freeze({ x: -.46, y: -.06, heightFraction: .58 }),
-  mobile: Object.freeze({ x: 0, y: -.24, heightFraction: .55 }),
+  mobile: Object.freeze({ x: 0, y: -.24, heightFraction: .74 }),
 })
 export const skillById = id => SKILL_NODES.find(skill => skill.id === id)

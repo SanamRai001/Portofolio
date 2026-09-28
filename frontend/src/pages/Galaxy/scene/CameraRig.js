@@ -32,8 +32,9 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
       const bearing = azimuth + (selected === 'core' ? 0 : Math.atan2(-endTarget.x, -endTarget.z))
       fov = reducedMotion ? view.fov : body.focus.fov
       const composition = focusComposition(body, viewportWidth)
+      const frameRadius = (body.focus.frameRadius || body.radius) * (body.orbit ? view.bodyScale : 1)
       const d = composition
-        ? Math.hypot(body.radius, body.radius / (Math.tan(fov * Math.PI / 360) * composition.heightFraction))
+        ? Math.hypot(frameRadius, frameRadius / (Math.tan(fov * Math.PI / 360) * composition.heightFraction))
         : distance * (body.orbit ? view.bodyScale : 1)
       if (composition) endOffset.set(composition.x, composition.y)
       end.set(Math.sin(bearing) * Math.cos(elevation), Math.sin(elevation), Math.cos(bearing) * Math.cos(elevation)).multiplyScalar(d).add(endTarget)

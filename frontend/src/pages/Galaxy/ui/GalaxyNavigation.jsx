@@ -57,7 +57,7 @@ export default function GalaxyNavigation({ navigation, staticView, children }) {
             {!coreRevealed && <p>{skillSignal ? skillSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
             {!selected && hovered?.id === SKILLS.id && <small>{SKILLS.hover}</small>}
             {identityHovered && <small>{IDENTITY.hover}</small>}
-            {selected && !coreSelected && <small>{selected.id === 'lab' ? 'Unknown signal · Content locked' : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
+            {selected && !coreSelected && <small>{skillSignal ? `${SKILLS.label} / ${skillSignal.category}` : selected.id === 'lab' ? 'Unknown signal · Content locked' : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
           </>}
         </div>
       </div>

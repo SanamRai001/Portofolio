@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { CORE, focusComposition } from '../data/core.js'
+import { SKILLS, SKILL_NODES, SKILL_ORBITS, skillById } from '../data/skills.js'
 import { IDENTITY, IDENTITY_APPEARANCE } from '../data/identity.js'
 import { SUN, PLANETS, LAB, SYSTEM_MAP } from '../data/solarSystem.js'
 import { orbitPosition } from '../utils/orbits.js'
@@ -7,29 +8,36 @@ import { getOverview, projectOverview } from '../utils/overview.js'
 import { seededRandom } from '../utils/random.js'
 const random = seededRandom(2709)
 const stars = Array.from({ length: 180 }, () => ({ x: random() * 1440, y: random() * 900, radius: 0.4 + random() * 0.9, opacity: 0.15 + random() * 0.6 }))
-export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width }) {
+export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width, selectedSkillId = null, hoveredSkillId = null, onSkillSelect, onSkillHover }) {
   const view = getOverview(width, height)
   const focused = SYSTEM_MAP.find(body => body.id === selectedBodyId)
   const composition = focused ? focusComposition(focused, viewportWidth) : null
   const anchor = composition ? projectOverview(focused.orbit ? orbitPosition(focused.orbit) : focused.position || [0, 0, 0], view) : { x: 0, y: 0 }
-  const zoom = composition ? composition.heightFraction * view.tanY * anchor.depth / (focused.radius * (focused.orbit ? view.bodyScale : 1)) : 1
+  const zoom = composition ? composition.heightFraction * view.tanY * anchor.depth / ((focused.focus.frameRadius || focused.radius) * (focused.orbit ? view.bodyScale : 1)) : 1
   const center = { x: (1 + (composition?.x || 0)) * width / 2, y: (1 - (composition?.y || 0)) * height / 2 }
   function project(point) {
     const p = projectOverview(point, view)
     return { x: center.x + (p.x - anchor.x) * width / 2 * zoom, y: center.y + (p.y - anchor.y) * height / 2 * zoom, depth: p.depth }
   }
-  function path(orbit) {
+  const skillsFocused = selectedBodyId === SKILLS.id
+  const skillsBody = PLANETS.find(body => body.id === SKILLS.id)
+  const skillsPosition = orbitPosition(skillsBody.orbit)
+  const nodePosition = orbit => orbitPosition(orbit).map((value, index) => value * view.bodyScale + skillsPosition[index])
+  function path(orbit, origin = null) {
     return Array.from({ length: 129 }, (_, i) => {
-      const p = project(orbitPosition(orbit, i / 128 * Math.PI * 2))
+      const point = orbitPosition(orbit, i / 128 * Math.PI * 2)
+      const p = project(origin ? point.map((value, axis) => value * view.bodyScale + origin[axis]) : point)
       return `${i ? 'L' : 'M'}${p.x.toFixed(2)},${p.y.toFixed(2)}`
     }).join(' ') + 'Z'
   }
-  const bodies = [SUN, ...PLANETS, LAB].map(body => {
+  const satelliteBodies = skillsFocused ? SKILL_NODES.map(skill => ({ ...skill, id: `skill:${skill.id}`, skillId: skill.id, orbit: null, position: nodePosition(skill.orbit), radius: skill.radius * view.bodyScale })) : []
+  const bodies = [SUN, ...PLANETS, LAB, ...satelliteBodies].map(body => {
     const p = project(body.orbit ? orbitPosition(body.orbit) : body.position || [0, 0, 0])
     return { ...body, ...p, r: zoom * body.radius * (body.orbit ? view.bodyScale : 1) * height / (2 * view.tanY * p.depth) }
   }).sort((a, b) => b.depth - a.depth)
   const sunPosition = project([0, 0, 0])
-  return <svg className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.name}, a fictional ocean world` : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab signal`}>
+  function signal(event) { return event.target.closest?.('[data-skill]')?.getAttribute('data-skill') || null }
+  return <svg onClick={event => { const id = signal(event); if (id) onSkillSelect?.(id) }} onPointerMove={event => { if (event.pointerType !== 'touch') onSkillHover?.(signal(event)) }} onPointerLeave={() => onSkillHover?.(null)} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: ten technology satellites${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.name}, a fictional ocean world` : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab signal`}>
     <defs>
       {bodies.map(body => {
         const dx = sunPosition.x - body.x, dy = sunPosition.y - body.y, length = Math.hypot(dx, dy) || 1
@@ -46,7 +54,12 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
       <radialGradient id={`${prefix}-corona`}><stop offset=".6" stopColor="#ffc36f" stopOpacity=".15" /><stop offset="1" stopColor="#ffc36f" stopOpacity="0" /></radialGradient>
     </defs>
     <g fill="none" stroke="#68717d" strokeWidth=".7" opacity=".4">{PLANETS.map(body => <path key={body.id} d={path(body.orbit)} />)}</g>
-    {bodies.map(body => <g key={body.id} data-body={body.id} opacity={selectedBodyId && selectedBodyId !== body.id ? selectedBodyId === IDENTITY.id ? .25 : .7 : 1}>
+    {skillsFocused && <g fill="none" stroke="#8292a2" strokeWidth=".65" opacity=".32">{SKILL_ORBITS.map((orbit, index) => <path key={index} d={path(orbit, skillsPosition)} />)}</g>}
+    {bodies.map(body => body.skillId ? <g key={body.id} data-skill={body.skillId} style={{ cursor: 'pointer' }}>
+      <circle cx={body.x} cy={body.y} r={Math.max(12, body.r * 2)} fill="transparent" />
+      <rect x={body.x - body.r} y={body.y - body.r * .65} width={body.r * 2} height={body.r * 1.3} rx={body.r * .12} fill={body.skillId === selectedSkillId ? '#e3c28c' : body.color} stroke="#d0e0ef" strokeWidth=".6" />
+      {(body.skillId === selectedSkillId || body.skillId === hoveredSkillId) && <circle cx={body.x} cy={body.y} r={body.r * 2.2} fill="none" stroke="#bdcfe0" strokeWidth=".7" />}
+    </g> : <g key={body.id} data-body={body.id} opacity={selectedBodyId && selectedBodyId !== body.id ? (selectedBodyId === IDENTITY.id || skillsFocused) ? .25 : .7 : 1}>
       {selectedBodyId === body.id && !focusComposition(body, viewportWidth) && <circle cx={body.x} cy={body.y} r={body.r * (body.ring ? 2.4 : 1.85)} fill="none" stroke={body.color} strokeWidth=".8" strokeDasharray="2 5" opacity=".65" />}
       {body.id === 'core' && <circle cx={body.x} cy={body.y} r={body.r * 1.6} fill={`url(#${prefix}-corona)`} />}
       {body.ring && <ellipse cx={body.x} cy={body.y} rx={body.r * 2.15} ry={body.r * .62} transform={`rotate(-24 ${body.x} ${body.y})`} fill="none" stroke={body.color} strokeWidth={body.r * .25} opacity=".4" />}
@@ -69,7 +82,7 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
     </g>)}
   </svg>
 }
-export default function GalaxyFallback({ selectedBodyId }) {
+export default function GalaxyFallback({ selectedBodyId, selectedSkillId, hoveredSkillId, navigation }) {
   const ref = useRef(null), prefix = useId().replaceAll(':', '')
   const [size, setSize] = useState({ width: 1000, height: 560 })
   useEffect(() => {
@@ -84,6 +97,6 @@ export default function GalaxyFallback({ selectedBodyId }) {
     <svg className="GalaxyStaticSky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       {stars.map((star, index) => <circle key={index} cx={star.x} cy={star.y} r={star.radius} fill="#e5e8ef" opacity={star.opacity} />)}
     </svg>
-    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} />
+    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} selectedSkillId={selectedSkillId} hoveredSkillId={hoveredSkillId} onSkillSelect={navigation?.selectSkill} onSkillHover={navigation?.setSkillHover} />
   </div>
 }

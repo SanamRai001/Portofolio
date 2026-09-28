@@ -32,8 +32,8 @@ export default function GalaxyPage() {
       </header>
 
       <GalaxyNavigation navigation={navigation} staticView={fallback}>
-        {selectedBodyId => <>
-          {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} /> : <GalaxyScene navigation={navigation} paused={paused} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
+        {(selectedBodyId, state) => <>
+          {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} navigation={navigation} /> : <GalaxyScene navigation={navigation} paused={paused} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
           {!fallback && !ready && <p className="GalaxyLoading" role="status">Opening the solar system…</p>}
         </>}
       </GalaxyNavigation>
