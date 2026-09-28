@@ -33,7 +33,7 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Final gzip: Galaxy route 10.26 kB, deferred scene 139.12 kB, Galaxy CSS 3.11 kB. Homepage route isolation passes; existing deferred >500 kB warning remains.
 
 ## Publication / next step
-Publish G6 commits on the existing branch, verify CI and stop. No G7 implementation, merge or production deployment. Complete browser/GPU acceptance when access is available.
+G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. Working tree synchronized with remote. No G7 implementation, merge or production deployment. Complete browser/GPU acceptance when access is available.
 
 ## Known limits / branch hygiene
 Actual browser console, GPU appearance/frame rate, full-page layout/overflow and physical touch remain unverified. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Ready for G7: NO.**
