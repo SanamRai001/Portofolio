@@ -34,7 +34,7 @@
 - Galaxy route is approximately 8 kB gzip, deferred scene 138.5 kB and Galaxy CSS 2.8 kB. Homepage bundle isolation passes. Existing >500 kB deferred scene build warning remains; actual GPU frame time is unmeasured.
 
 ## Publication / next step
-Publish G5 on the existing branch and check CI. Do not merge or deploy to production. The old `refactor/backend-focused-homepage` branch is already merged into master and can be cleaned up only with user approval; no branches deleted.
+G5 published on the existing branch: content/composition `9b430de`, Identity rendering `2d3c3f2`, final code `31b61481f0ecf06b96fdd133b0b37e8b9305da36`. Frontend CI `36439003234`: **success**. Vercel preview status: **success**. Working tree synchronized with remote; no merge or production deployment. The old `refactor/backend-focused-homepage` branch is already merged into master and can be cleaned up only with user approval; no branches deleted.
 Stop after G5. Complete browser/GPU acceptance when preview access is available; G6 requires explicit authorization.
 
 ## Remaining acceptance risks
