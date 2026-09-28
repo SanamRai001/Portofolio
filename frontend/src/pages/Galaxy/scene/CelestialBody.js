@@ -58,17 +58,19 @@ export function createSun(body, lowPower) {
           p = p.yzx * 2.03 + vec3(3.1, 1.7, 4.2); amplitude *= .48;
         }
         float facing = max(dot(normalize(n), normalize(eye)), 0.);
-        float filaments = smoothstep(.39, .72, field);
-        vec3 color = mix(amber, gold, .44 + .4 * facing);
-        // Faint granulation and dark channels add scale without a bloom pass.
+        float filaments = smoothstep(.48, .75, field);
+        vec3 color = mix(amber, gold, .38 + .38 * facing);
+        color *= .77 + .39 * field;
+        // Fine convection cells and dark channels add surface scale without bloom.
         #if SUN_OCTAVES > 2
-          float granules = noise(surface * 28. + vec3(time * .015));
-          float channels = 1. - smoothstep(.08, .23, abs(field - .48));
-          color *= 1. - channels * .12;
-          color = mix(color, ivory, smoothstep(.51, .77, granules) * .13);
+          float cells = noise(surface * 15. + vec3(time * .012));
+          float granules = noise(surface * 43. + vec3(time * .019));
+          float channels = 1. - smoothstep(.06, .18, abs(field - .49));
+          color *= 1. - channels * .19 + (cells - .5) * .21 + (granules - .5) * .13;
+          color = mix(color, ivory, smoothstep(.62, .88, granules) * .11);
         #endif
-        color = mix(color, ivory, filaments * (.48 + .04 * activity));
-        color += gold * pow(1. - facing, 3.) * .065;
+        color = mix(color, ivory, filaments * (.22 + .04 * activity));
+        color += gold * pow(1. - facing, 3.) * .045;
         gl_FragColor = vec4(color, 1.);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
