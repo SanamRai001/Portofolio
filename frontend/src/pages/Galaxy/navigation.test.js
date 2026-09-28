@@ -232,7 +232,7 @@ test('Core reserves copy space, resizes into a stacked composition and clears it
     const mobileBounds = bounds()
     assert.ok(mobileBounds.left > -.9 && mobileBounds.right < .9)
     assert.ok(mobileBounds.top < .5 && mobileBounds.bottom > -.85)
-    h.nav.focusBody('identity')
+    h.nav.focusBody('skills')
     for (let i = 0; i < 85; i++) h.step()
     assert.equal(h.rig.camera.view?.enabled, false)
     h.nav.focusBody('core'); h.step(); h.nav.goBack()
