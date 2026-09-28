@@ -225,3 +225,19 @@ test('G2 configuration and rendered bodies preserve hierarchy, materials and cle
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
   assert.equal(disposed, geometryCount)
 })
+
+test('Projects keeps its procedural surface until the asset loads and freezes axial motion with reduced motion', () => {
+  const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const surface = system.targets.get('projects').visuals.getObjectByName('projects-surface')
+  assert.ok(surface)
+  assert.equal(surface.material.vertexColors, true)
+  assert.equal(surface.material.map, null)
+  system.update(.05, true)
+  assert.ok(surface.rotation.y > 0)
+  const frozen = surface.rotation.y
+  system.update(.05, false)
+  assert.equal(surface.rotation.y, frozen)
+  system.dispose()
+  const scene = new Scene(); scene.add(system.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})

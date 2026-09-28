@@ -1,7 +1,7 @@
 # PROJECT_STATE
 
 ## Objective / authorization
-**G6 implemented; G2–G6 merged into `master`**, explicitly authorized by “merge with main branch” on 2026-09-28. The repo default branch is named `master`. Preserve the Galaxy feature branch; do not start G7 or delete branches.
+**G6 implemented; G2–G6 merged into `master`**. The repo default branch is named `master`. Current branch `feat/galaxy-cinematic-surface-spike` is a narrow visual experiment requested after the user asked for more convincing planetary realism inspired by MaybeBoudha. Preserve the earlier Galaxy feature branch; do not start G7 or delete branches.
 Original Galaxy brief defines G6 as technology satellites, hover labels and selected-skill details. No proficiency percentages. Project moons/details, Journey and final Lab remain deferred.
 
 ## Baseline / prior decisions
@@ -32,8 +32,16 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Focused Skills adds 120 rendered mesh triangles and 13 potential draw submissions (10 satellites, 3 paths). Full system: 18,360 desktop / 6,680 low-power triangles in Skills view; overview remains 18,240 / 6,560. GPU frame time is unmeasured.
 - Final gzip: Galaxy route 10.26 kB, deferred scene 139.12 kB, Galaxy CSS 3.11 kB. Homepage route isolation passes; existing deferred >500 kB warning remains.
 
-## Publication / next step
+## Visual experiment — Sun + Projects (2026-09-28)
+- Retained the G1–G6 scene, navigation, orbit clocks, visibility pause, reduced-motion behavior, fallback and responsive composition. No new planet content, moons, routes or camera behavior.
+- Added fine granulation and subdued darker channels to the desktop Sun shader; the low-power shader keeps its existing two-octave path and corona count.
+- Projects receives one original fictional rocky-surface image asset in desktop (1536×768, 280 KiB) and mobile (768×384, 72 KiB) WebP tiers. Prompt direction: equirectangular diffuse basalt/ironstone map with eroded ridges and basins, warm copper sediment, no prepainted planet lighting or lettering. Built-in image generation produced the source; checked the resulting map visually. The browser loads the map lazily; the existing procedural surface remains while loading or if it fails. A very light bump response and slow deterministic axial rotation add relief without changing the orbit or camera.
+- Loaded textures are owned by scene disposal. An outstanding asynchronous load cannot update a disposed scene. Asset readiness invalidates the shared render loop, including reduced-motion mode. No new package, extra loop or global postprocessing.
+- Baseline `master` was clean at `a4885a6`; created `feat/galaxy-cinematic-surface-spike` before edits. Frontend lint, 46 Galaxy tests, 8 homepage tests, 6 auth-runtime tests, 28 backend tests, production build and homepage route-isolation gate pass. Static image assets are present in the production build. No runtime browser/GPU or final desktop/mobile composition acceptance: supported browser rejects local preview with `ERR_BLOCKED_BY_CLIENT`; actual surface seam and frame time remain unmeasured.
+- **Decision:** keep this as a reviewable experiment off `master`; inspect a real 1440×900 and 390×844 WebGL session or user screenshots before merging/propagating the asset workflow to Identity, Skills and Journey. In particular, verify the generated map's longitude seam as Projects rotates. Do not call this visual acceptance or G7 completion.
+
+## Previous publication
 G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. PR **#2** merged G2–G6 into `master` at `2ba08baedb182e4cfdc2d40c59c1a9eaf2ba0d6b`. PR CI `36441658241` and post-merge CI `36441741414`: **success**; merged-commit Vercel deployment status: **success**. Source branch preserved. No G7 implementation. Complete browser/GPU acceptance when access is available; deployment success does not establish visual acceptance.
 
 ## Known limits / branch hygiene
-Actual browser console, GPU appearance/frame rate, full-page layout/overflow and physical touch remain unverified. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Ready for G7: NO.**
+Actual browser console, GPU appearance/frame rate, full-page layout/overflow and physical touch remain unverified. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Next: visual acceptance of the Sun + Projects experiment; G7 remains deferred.**

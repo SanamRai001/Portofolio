@@ -20,6 +20,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     disposed = true
     loop?.dispose()
     disposers.reverse().forEach((cleanup) => cleanup())
+    solar?.dispose()
     disposeScene(scene, renderer)
   }
   function fail() {
@@ -31,11 +32,12 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     disposers.push(() => target.removeEventListener(event, callback))
   }
 
+  let solar
   try {
     renderer.setPixelRatio(profile.dpr)
     mount.appendChild(renderer.domElement)
     const stars = createStarField(profile)
-    const solar = createSolarSystem(profile)
+    solar = createSolarSystem(profile, { onSurfaceReady: () => loop?.invalidate() })
     const rig = createCameraRig({ getAnchor: solar.getAnchor, onComplete: navigation.complete, reducedMotion: profile.reducedMotion })
     scene.add(stars.group, solar.group)
     let paused = false, inView = true, pageActive = true, ready = false

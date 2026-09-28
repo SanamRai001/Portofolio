@@ -60,6 +60,13 @@ export function createSun(body, lowPower) {
         float facing = max(dot(normalize(n), normalize(eye)), 0.);
         float filaments = smoothstep(.39, .72, field);
         vec3 color = mix(amber, gold, .44 + .4 * facing);
+        // Faint granulation and dark channels add scale without a bloom pass.
+        #if SUN_OCTAVES > 2
+          float granules = noise(surface * 28. + vec3(time * .015));
+          float channels = 1. - smoothstep(.08, .23, abs(field - .48));
+          color *= 1. - channels * .12;
+          color = mix(color, ivory, smoothstep(.51, .77, granules) * .13);
+        #endif
         color = mix(color, ivory, filaments * (.48 + .04 * activity));
         color += gold * pow(1. - facing, 3.) * .065;
         gl_FragColor = vec4(color, 1.);
@@ -118,7 +125,9 @@ export function createCelestialBody(body, lowPower) {
   geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
   geometry.computeVertexNormals()
   const material = new MeshStandardMaterial({ vertexColors: true, roughness: body.surface === 'engineered' ? 0.4 : 0.85, metalness: body.surface === 'engineered' ? 0.48 : 0.04 })
-  group.add(new Mesh(geometry, material))
+  const surface = new Mesh(geometry, material)
+  surface.name = `${body.id}-surface`
+  group.add(surface)
   if (body.surface === 'ocean') group.add(shell(body.radius * 1.05, '#6bc3ba', 0.28, segments))
   if (body.ring) {
     group.add(ring(body.radius * body.ring[0], body.radius * 1.8, '#a998ba', 0.32, 96))

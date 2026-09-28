@@ -4,9 +4,10 @@ import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { orbitRateTarget } from '../navigation/NavigationController.js'
 import { createSkillsPlanet } from './SkillsPlanet.js'
 import { createIdentityPlanet } from './IdentityPlanet.js'
+import { createProjectsPlanet } from './ProjectsPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
 
-export function createSolarSystem(profile) {
+export function createSolarSystem(profile, { onSurfaceReady } = {}) {
   const group = new Group(), simulation = createOrbitSimulation(PLANETS), bodies = new Map(), targets = new Map(), orbits = new Map()
   const presentations = new Map()
   let hovered = null
@@ -27,7 +28,9 @@ export function createSolarSystem(profile) {
   // Constant falloff preserves G2's art direction and readable terminators.
   group.add(new PointLight('#ffe0b2', SOLAR_STYLE.sunLight, 0, 0), new AmbientLight('#9cb3dc', SOLAR_STYLE.ambient))
   for (const body of PLANETS) {
-    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower) : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower) : null
+    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower)
+      : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower)
+        : body.id === 'projects' ? createProjectsPlanet(body, profile.lowPower, onSurfaceReady) : null
     if (presentation) presentations.set(body.id, presentation)
     const root = register(body, presentation ? presentation.group : createCelestialBody(body, profile.lowPower))
     root.position.fromArray(simulation.position(body.id))
@@ -40,6 +43,7 @@ export function createSolarSystem(profile) {
   register(LAB, createLab(LAB))
   return {
     group, simulation, bodies, targets,
+    dispose() { presentations.forEach(presentation => presentation.dispose?.()) },
     get hitMeshes() { return [...targets.values()].map(body => body.interactionMesh).concat(presentations.get('skills').hitMeshes) },
     getAnchor(id, point) { return targets.get(id)?.focusAnchor.getWorldPosition(point) },
     setInteraction(state, instant = false) {
