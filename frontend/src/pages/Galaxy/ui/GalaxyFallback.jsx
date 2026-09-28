@@ -39,13 +39,14 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
           <stop offset="1" stopColor={body.id === 'core' ? '#bb652d' : '#070a11'} />
         </radialGradient>
       })}
+      <radialGradient id={`${prefix}-identity-air`}><stop offset=".86" stopColor={IDENTITY_APPEARANCE.atmosphere} stopOpacity="0" /><stop offset=".93" stopColor={IDENTITY_APPEARANCE.atmosphere} stopOpacity=".3" /><stop offset="1" stopColor={IDENTITY_APPEARANCE.atmosphere} stopOpacity="0" /></radialGradient>
       <radialGradient id={`${prefix}-identity-shade`} cx="75%" cy="35%" r="80%"><stop offset="0" stopColor="#050912" stopOpacity="0" /><stop offset=".45" stopColor="#050912" stopOpacity=".12" /><stop offset="1" stopColor="#050912" stopOpacity=".94" /></radialGradient>
       <clipPath id={`${prefix}-identity-surface`}><circle r="1" /></clipPath>
       <clipPath id={`${prefix}-core-surface`}>{bodies.filter(body => body.id === CORE.id).map(body => <circle key={body.id} cx={body.x} cy={body.y} r={body.r} />)}</clipPath>
       <radialGradient id={`${prefix}-corona`}><stop offset=".6" stopColor="#ffc36f" stopOpacity=".15" /><stop offset="1" stopColor="#ffc36f" stopOpacity="0" /></radialGradient>
     </defs>
     <g fill="none" stroke="#68717d" strokeWidth=".7" opacity=".4">{PLANETS.map(body => <path key={body.id} d={path(body.orbit)} />)}</g>
-    {bodies.map(body => <g key={body.id} data-body={body.id} opacity={selectedBodyId && selectedBodyId !== body.id ? .7 : 1}>
+    {bodies.map(body => <g key={body.id} data-body={body.id} opacity={selectedBodyId && selectedBodyId !== body.id ? selectedBodyId === IDENTITY.id ? .25 : .7 : 1}>
       {selectedBodyId === body.id && !focusComposition(body, viewportWidth) && <circle cx={body.x} cy={body.y} r={body.r * (body.ring ? 2.4 : 1.85)} fill="none" stroke={body.color} strokeWidth=".8" strokeDasharray="2 5" opacity=".65" />}
       {body.id === 'core' && <circle cx={body.x} cy={body.y} r={body.r * 1.6} fill={`url(#${prefix}-corona)`} />}
       {body.ring && <ellipse cx={body.x} cy={body.y} rx={body.r * 2.15} ry={body.r * .62} transform={`rotate(-24 ${body.x} ${body.y})`} fill="none" stroke={body.color} strokeWidth={body.r * .25} opacity=".4" />}
@@ -54,7 +55,7 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
         {[0.2, 0.65, 1.15].map((shift, i) => <path key={i} d={`M${body.x - body.r},${body.y - body.r * shift} C${body.x},${body.y + body.r * .5} ${body.x + body.r * .2},${body.y - body.r * .7} ${body.x + body.r},${body.y + body.r * shift}`} />)}
       </g>}
       {body.id === IDENTITY.id && <g transform={`translate(${body.x} ${body.y}) scale(${body.r})`}>
-        <circle r={IDENTITY_APPEARANCE.atmosphereScale} fill="none" stroke={IDENTITY_APPEARANCE.atmosphere} strokeWidth=".035" opacity={selectedBodyId === IDENTITY.id ? '.4' : '.25'} />
+        <circle r="1.1" fill={`url(#${prefix}-identity-air)`} opacity={selectedBodyId === IDENTITY.id ? 1 : .75} />
         <g clipPath={`url(#${prefix}-identity-surface)`}>
           <circle r="1" fill={IDENTITY_APPEARANCE.ocean} />
           <path d="M-1-.5 C-.7-.9-.52-.32-.3-.54 S.04-.88.27-.61 Q.4-.38.16-.19 Q-.13-.25-.04.04 Q.04.31-.18.4 Q-.39.53-.41.15 Q-.78.25-.67-.13 Q-.98-.14-1-.5 M.51.16 Q.86-.14 1.07.19 L1 .67 Q.72.5.58.79 Q.33.93.36.65 Q.54.45.51.16" fill={IDENTITY_APPEARANCE.land} />

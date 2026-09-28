@@ -24,8 +24,18 @@
 - Low power reduces surface from 64×32 to 32×16 segments and atmosphere from 40×20 to 24×12. Both resources use existing disposal.
 - Rendering phase verification: 37 Galaxy tests and lint pass. New checks cover deterministic continuous terrain, material feedback bounds, rotation freeze, rapid retarget reset/orbit recovery, reduced geometry/disposal and actual projected mesh bounds at desktop/mobile sizes (normal and reduced motion).
 
-## Next phase
-Finish full regression/build checks, inspect available visual evidence, publish the branch and stop before G6.
+## Final verification / visual evidence
+- **79 tests pass:** 37 Galaxy, 6 auth-runtime, 8 homepage DOM, 28 backend. Lint, production build, route isolation and whitespace checks pass. No homepage/backend source or dependency changes.
+- Inspected the actual fallback SVG at 1360×850 and 1200×850 desktop scene sizes, plus 346×320 mobile scene (viewport targets 1440×900, 1280×800 and 390×844). This is artwork/composition evidence only, not full-page browser verification. Long Identity content intentionally allows normal page scrolling.
+- Inspection prompted a softer fallback atmosphere and a dimmer distant Sun while Identity is selected. Core's own presentation remains unchanged. Learning-loop arrows now sit between labels.
+- Supported preview server started successfully on 2026-09-28, but browser navigation again failed `ERR_BLOCKED_BY_CLIENT`. Stopped preview afterward. No protected Vercel retry or access-control workaround.
+- Numerical mesh projection checks cover desktop/mobile, reduced motion and return controls. DOM tests cover rapid switching, fallback, Escape, cleanup and reentry; these do not prove actual layout, touch or GPU behavior.
+- Rendered mesh triangles: 18,240 desktop / 6,560 low-power (G4: 15,792 / 6,128), excluding invisible hit targets. Two Identity meshes in both modes; no added draw calls relative to the previous Identity. Geometry cost is paid once; only rotation and atmosphere strength update per frame.
+- Galaxy route is approximately 8 kB gzip, deferred scene 138.5 kB and Galaxy CSS 2.8 kB. Homepage bundle isolation passes. Existing >500 kB deferred scene build warning remains; actual GPU frame time is unmeasured.
+
+## Publication / next step
+Publish G5 on the existing branch and check CI. Do not merge or deploy to production. The old `refactor/backend-focused-homepage` branch is already merged into master and can be cleaned up only with user approval; no branches deleted.
+Stop after G5. Complete browser/GPU acceptance when preview access is available; G6 requires explicit authorization.
 
 ## Remaining acceptance risks
 Actual GPU render/shader checks, browser console, full-page 1440×900 / 1280×800 / 390×844 HUD/overflow checks and physical touch remain unverified. Numerical and DOM tests do not replace browser acceptance. **Ready for G6: NO.**

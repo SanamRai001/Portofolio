@@ -10,7 +10,7 @@ export default function IdentityContent({ revealed, onReturn }) {
     <div className="IdentityThought"><h3>How I think</h3><p>{IDENTITY.intro}</p></div>
     <div className="IdentityLearning"><h3>How I learn</h3><p>{IDENTITY.learning}</p>
       <div className="IdentityLoop">
-        <svg viewBox="0 0 360 140" preserveAspectRatio="none" aria-hidden="true"><path d="M60 36 H300 Q344 36 344 70 Q344 104 300 104 H60 Q16 104 16 70 Q16 36 60 36" /><path className="IdentityLoopArrows" d="m174 32 6 4-6 4 m12 60-6 4 6 4" /></svg>
+        <svg viewBox="0 0 360 140" preserveAspectRatio="none" aria-hidden="true"><path d="M60 36 H300 Q344 36 344 70 Q344 104 300 104 H60 Q16 104 16 70 Q16 36 60 36" /><path className="IdentityLoopArrows" d="M114 32 l6 4-6 4 M234 32 l6 4-6 4 M126 100 l-6 4 6 4 M246 100 l-6 4 6 4" /></svg>
         <ol aria-label="Learning cycle">{IDENTITY.learningStyle.map((step, index) => <li key={step}><span aria-hidden="true">0{index + 1}</span><strong>{step}</strong></li>)}</ol>
       </div>
     </div>
