@@ -51,6 +51,11 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-projects.png`, fullPage: true })
       await page.getByRole('button', { name: 'Core', exact: true }).click()
       await page.locator('.CoreIdentity.is-revealed').waitFor()
+      await page.screenshot({ path: `${output}/${view.name}-core-immediate.png`, fullPage: true })
+      // A paused WebGL canvas can be captured before the compositor presents
+      // the frame scheduled by the resize/layout change. Keep both captures
+      // so a true blank Core remains distinguishable from a screenshot race.
+      await page.waitForTimeout(500)
       await page.screenshot({ path: `${output}/${view.name}-core.png`, fullPage: true })
 
       const layout = await page.evaluate(() => ({

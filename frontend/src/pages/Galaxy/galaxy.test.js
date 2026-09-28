@@ -233,6 +233,12 @@ test('Projects keeps its procedural surface until the asset loads and freezes ax
   assert.ok(surface)
   assert.equal(surface.material.vertexColors, true)
   assert.equal(surface.material.map, null)
+  const positions = surface.geometry.attributes.position
+  const radius = SYSTEM_MAP.find(body => body.id === 'projects').radius
+  for (let i = 0; i < positions.count; i++) {
+    const length = Math.hypot(positions.getX(i), positions.getY(i), positions.getZ(i))
+    assert.ok(Math.abs(length - radius) < 1e-5, 'textured surface must not pinch at pole triangles')
+  }
   system.update(.05, true)
   assert.ok(surface.rotation.y > 0)
   const frozen = surface.rotation.y

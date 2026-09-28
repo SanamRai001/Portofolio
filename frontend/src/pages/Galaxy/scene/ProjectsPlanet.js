@@ -28,7 +28,7 @@ export function blendProjectsLongitudeSeam(material) {
 // Keep the existing procedural planet visible while its original surface asset loads.
 // The same light and geometry remain in use after the material receives the map.
 export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) {
-  const group = createCelestialBody(body, lowPower)
+  const group = createCelestialBody(body, lowPower, { smoothRock: true })
   const surface = group.getObjectByName(`${body.id}-surface`)
   let disposed = false, loaded = false, texture
 

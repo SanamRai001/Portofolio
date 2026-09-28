@@ -103,8 +103,10 @@ export function createSun(body, lowPower) {
     },
   }
 }
-export function createCelestialBody(body, lowPower) {
-  const group = new Group(), segments = lowPower ? 24 : 40
+export function createCelestialBody(body, lowPower, { smoothRock = false } = {}) {
+  // The textured Projects body uses its bump map for relief. Coarse vertex
+  // displacement pinches the sphere's pole triangles in focused views.
+  const group = new Group(), segments = smoothRock ? (lowPower ? 40 : 64) : (lowPower ? 24 : 40)
   const geometry = new SphereGeometry(body.radius, segments, segments / 2)
   const positions = geometry.attributes.position, colors = []
   const base = new Color(body.color), accent = new Color(body.surface === 'ocean' ? '#183840' : '#363945')
@@ -115,7 +117,7 @@ export function createCelestialBody(body, lowPower) {
     if (body.surface === 'ocean') pattern = 0.35 + 0.45 * Math.max(0, Math.sin(x * 6 + z * 4) * Math.cos(y * 8 + z * 3))
     if (body.surface === 'engineered') pattern = Math.abs(Math.sin(y * 22)) < 0.25 || Math.abs(Math.sin(Math.atan2(z, x) * 10)) < 0.18 ? 0.9 : 0.27
     if (body.surface === 'weathered') pattern = 0.5 + Math.sin(y * 24 + grain) * 0.18
-    if (body.surface === 'rock') {
+    if (body.surface === 'rock' && !smoothRock) {
       const r = 1 + grain * 0.035
       positions.setXYZ(i, positions.getX(i) * r, positions.getY(i) * r, positions.getZ(i) * r)
     }
