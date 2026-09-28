@@ -1,41 +1,23 @@
 # PROJECT_STATE
 
-## Objective / branch
-**G5 only — Identity Planet.** Continue `feat/galaxy-g1-foundation` from G4 `0ccbc4d`; no rebuild, merge, branch deletion or G6. Skills satellites, project moons/details, Journey content and final Lab remain deferred.
+## Objective / authorization
+**G6 only — Skills planet**, authorized by “okay go to next phase” on 2026-09-28. Continue `feat/galaxy-g1-foundation`; do not rebuild, merge, delete branches or start G7.
+Original Galaxy brief defines G6 as technology satellites, hover labels and selected-skill details. No proficiency percentages. Project moons/details, Journey and final Lab remain deferred.
 
-## Verified baseline
-- Local and fetched remote matched `0ccbc4d`; master remains `70cb2dc`. G2–G4 are on this unmerged branch.
-- Inspected G1–G4 source, navigation, camera, fallback, cleanup, performance controls and assets. All 44 frontend tests (30 Galaxy, 6 auth, 8 homepage), lint, build and route isolation passed before edits. No blocking code regression found.
-- G1–G4 browser/GPU acceptance remains incomplete: supported local preview previously failed `ERR_BLOCKED_BY_CLIENT`; automatic approval review rejected protected Vercel account navigation. No workaround or sign-in attempted. The explicit G5 brief authorizes implementation, not a claim that these checks passed.
+## Baseline / prior decisions
+- Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. Master remains `70cb2dc`; G2–G5 unmerged.
+- Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
+- Browser/GPU acceptance is still incomplete. Supported preview repeatedly fails `ERR_BLOCKED_BY_CLIENT`; automatic approval review rejected protected Vercel account navigation. No bypass/sign-in. User explicitly authorizes G6 despite that unresolved visual gate; do not relabel prior checks passed.
 
-## Completed phase — Identity content and composition
-- `data/identity.js` owns personal copy, background, grounded traits, learning cycle, portrait status, composition and appearance settings. Uses only supplied facts; no skills grid, timeline or invented biography.
-- Semantic `IdentityContent` appears only after the existing G3 controller reaches `body_focused`. Hidden/inert during approach; immediate reduced-motion reveal; no focus theft. Leaving removes it. Both return controls and Escape use shared navigation and restore map focus when needed.
-- Six-step DOM learning loop retains ordered-list semantics: Learn → Build → Break → Understand → Fix → Repeat. Thin decorative SVG connectors; no animation loop or dependency.
-- No verified personal portrait exists among inspected assets (code artwork/logo). Intentional circular “Portrait signal / Image pending” slot; no fabricated face or image alt.
-- Reuses G4 config-driven camera composition. Desktop world left, text right; mobile dedicated 320px scene above normal scrolling content. Shared content-layout class preserves Core geometry. Existing camera safety altitude and single flight controller retained.
-- Fallback selects the same Identity content, enlarges/repositions the fictional ocean world using focus config, preserves orbital context and native map controls. Core fallback composition retained.
-- Content phase verification: 32 Galaxy tests and lint passed, including arrival gating, rapid Identity/Core/Identity/Journey, fallback, semantic cycle, return focus and unmount/reentry. Production build and route isolation passed.
+## Completed phase — Skills content / selection
+- Structured `data/skills.js` owns ten signals: Node.js, TypeScript, Express, React, MySQL, PostgreSQL, MongoDB, Architecture, Git/GitHub and Testing. Grounded in `TechStack.jsx`, existing project examples and repository tests/workflows; no invented experience levels.
+- Concise role/focus details, semantic native-button directory, single live details region, keyboard/pointer hover and selected feedback. No logo wall or percentage bars.
+- Shared navigation now owns Skills-local hover/selection. Selection is valid only after Skills arrival, does not change camera transition ID and resets on retarget/return. Escape and native return controls preserve map focus. Core/Identity behavior remains intact.
+- Content uses existing arrival gating, stacked mobile flow and reduced-motion reveal. Geometry and satellite orbit configuration are separate from rendering.
+- Content verification: 39 Galaxy tests and lint passed, including all ten selections, unchanged camera transition, arrival gating, rapid retarget, fallback return and unmount/reentry. Production build and homepage route isolation passed.
 
-## Completed phase — Identity rendering
-- Deterministic continuous 3D noise creates fictional dark oceans and muted green/teal land. Vertex colours are baked once at mesh creation; MeshStandardMaterial retains the existing Sun light, terminator and cool fill.
-- Two meshes only: surface and restrained Fresnel atmosphere. Selected atmosphere strengthens by at most 28%, hover by 14%; deselection restores baseline. Local rotation is 0.022 radians/second, slowing to 18% selected and 50% hovered; paused/reduced motion freezes it.
-- Shared `SolarSystem` presentation controllers run inside the existing frame loop; no React frame state, extra timers, particles, downloaded textures or postprocessing. Camera roots, anchors, hit targets and orbital simulation remain shared.
-- Low power reduces surface from 64×32 to 32×16 segments and atmosphere from 40×20 to 24×12. Both resources use existing disposal.
-- Rendering phase verification: 37 Galaxy tests and lint pass. New checks cover deterministic continuous terrain, material feedback bounds, rotation freeze, rapid retarget reset/orbit recovery, reduced geometry/disposal and actual projected mesh bounds at desktop/mobile sizes (normal and reduced motion).
+## Next phase
+Integrate lightweight 3D satellites through the existing orbit simulation/frame loop, pointer selection, focus framing and static fallback. Test bounded geometry, pause/reduced motion, cleanup and responsive composition, then publish G6 and stop.
 
-## Final verification / visual evidence
-- **79 tests pass:** 37 Galaxy, 6 auth-runtime, 8 homepage DOM, 28 backend. Lint, production build, route isolation and whitespace checks pass. No homepage/backend source or dependency changes.
-- Inspected the actual fallback SVG at 1360×850 and 1200×850 desktop scene sizes, plus 346×320 mobile scene (viewport targets 1440×900, 1280×800 and 390×844). This is artwork/composition evidence only, not full-page browser verification. Long Identity content intentionally allows normal page scrolling.
-- Inspection prompted a softer fallback atmosphere and a dimmer distant Sun while Identity is selected. Core's own presentation remains unchanged. Learning-loop arrows now sit between labels.
-- Supported preview server started successfully on 2026-09-28, but browser navigation again failed `ERR_BLOCKED_BY_CLIENT`. Stopped preview afterward. No protected Vercel retry or access-control workaround.
-- Numerical mesh projection checks cover desktop/mobile, reduced motion and return controls. DOM tests cover rapid switching, fallback, Escape, cleanup and reentry; these do not prove actual layout, touch or GPU behavior.
-- Rendered mesh triangles: 18,240 desktop / 6,560 low-power (G4: 15,792 / 6,128), excluding invisible hit targets. Two Identity meshes in both modes; no added draw calls relative to the previous Identity. Geometry cost is paid once; only rotation and atmosphere strength update per frame.
-- Galaxy route is approximately 8 kB gzip, deferred scene 138.5 kB and Galaxy CSS 2.8 kB. Homepage bundle isolation passes. Existing >500 kB deferred scene build warning remains; actual GPU frame time is unmeasured.
-
-## Publication / next step
-G5 published on the existing branch: content/composition `9b430de`, Identity rendering `2d3c3f2`, final code `31b61481f0ecf06b96fdd133b0b37e8b9305da36`. Frontend CI `36439003234`: **success**. Vercel preview status: **success**. Working tree synchronized with remote; no merge or production deployment. The old `refactor/backend-focused-homepage` branch is already merged into master and can be cleaned up only with user approval; no branches deleted.
-Stop after G5. Complete browser/GPU acceptance when preview access is available; G6 requires explicit authorization.
-
-## Remaining acceptance risks
-Actual GPU render/shader checks, browser console, full-page 1440×900 / 1280×800 / 390×844 HUD/overflow checks and physical touch remain unverified. Numerical and DOM tests do not replace browser acceptance. **Ready for G6: NO.**
+## Known limits / branch hygiene
+Actual browser console, GPU appearance/frame rate, full-page layout/overflow and physical touch remain unverified. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Ready for G7: NO.**

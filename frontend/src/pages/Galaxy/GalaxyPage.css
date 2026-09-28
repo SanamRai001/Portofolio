@@ -126,3 +126,26 @@
 @media(prefers-reduced-motion:reduce) {
  .IdentityContent.is-revealed { animation:none; }
 }
+
+/* Skills is a constellation with a stable, keyboard-accessible signal directory. */
+.SkillsContent { position:relative; z-index:2; width:44%; max-width:520px; margin:0 1% 0 auto; padding:72px 0 42px; visibility:hidden; opacity:0; }
+.SkillsContent.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
+.SkillsContent h2 { max-width:14ch; margin:14px 0 18px; font-size:clamp(32px,3.4vw,48px); font-weight:450; letter-spacing:-.045em; line-height:1.15; }
+.SkillsContent .SkillsIntro { max-width:45ch; color:#b8bdc4; font-size:15px; line-height:1.8; }
+.SkillsDirectory { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 20px; margin:26px 0; }
+.SkillsDirectory button { display:flex; align-items:center; gap:12px; min-width:0; min-height:48px; padding:8px 0; border:0; border-bottom:1px solid #303840; border-radius:0; background:none; color:#c6ccd4; text-align:left; font:inherit; font-size:14px; line-height:1.5; cursor:pointer; }
+.SkillsDirectory button > span:first-child { color:#8094a5; font:10px/1.6 ui-monospace,monospace; }
+.SkillsDirectory button:hover, .SkillsDirectory button:focus-visible, .SkillsDirectory button[aria-pressed='true'] { color:#edf1f6; border-color:#a9c2d4; }
+.SkillsDirectory button[aria-pressed='true'] > span:first-child { color:#e0b77e; }
+.SkillDetail { min-height:230px; padding:20px 0 0; border-top:1px solid #596674; }
+.SkillDetail h3 { margin:10px 0; color:#e0e7ec; font-size:26px; font-weight:450; letter-spacing:-.03em; }
+.SkillDetail > p:not(.GalaxyEyebrow) { margin-top:12px; color:#b8bdc4; font-size:15px; line-height:1.8; }
+.SkillDetail ul { display:flex; flex-wrap:wrap; gap:8px 20px; list-style:none; padding:0; margin:18px 0 0; color:#a9b9c7; font-size:12px; }
+.SkillDetail li { padding-left:10px; border-left:1px solid #647c8e; }
+@media(max-width:760px) {
+ .SkillsContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
+ .SkillsContent h2 { font-size:36px; }
+ .SkillsDirectory { gap:0 16px; }
+ .SkillDetail { min-height:240px; }
+}
+@media(prefers-reduced-motion:reduce) { .SkillsContent.is-revealed { animation:none; } }

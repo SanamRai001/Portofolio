@@ -1,3 +1,4 @@
+import { SKILLS, skillById } from '../data/skills.js'
 import { SYSTEM_MAP } from '../data/solarSystem.js'
 
 export const isTravelling = state => state.mode === 'focusing_body' || state.mode === 'returning_overview'
@@ -6,8 +7,10 @@ export const orbitRateTarget = (id, state) => state.selectedBodyId === id ? 0 : 
 // Semantic state only. Camera/orbit clocks stay in the scene's single frame loop.
 export function createNavigationController() {
   const ids = new Set(SYSTEM_MAP.map(body => body.id)), listeners = new Set()
-  let state = Object.freeze({ mode: 'overview', selectedBodyId: null, previousBodyId: null, hoveredBodyId: null, transitionId: 0 })
+  let state = Object.freeze({ mode: 'overview', selectedBodyId: null, previousBodyId: null, hoveredBodyId: null, transitionId: 0, selectedSkillId: null, hoveredSkillId: null })
   const hover = { pointer: null, keyboard: null }
+  const skillHover = { pointer: null, keyboard: null }
+  function clearSkills() { skillHover.pointer = skillHover.keyboard = null; return { selectedSkillId: null, hoveredSkillId: null } }
   function publish(change) {
     if (Object.entries(change).every(([key, value]) => state[key] === value)) return
     state = Object.freeze({ ...state, ...change })
@@ -16,16 +19,25 @@ export function createNavigationController() {
   function goBack() {
     if (!state.selectedBodyId) return
     hover.pointer = hover.keyboard = null
-    publish({ mode: 'returning_overview', previousBodyId: state.selectedBodyId, selectedBodyId: null, hoveredBodyId: null, transitionId: state.transitionId + 1 })
+    publish({ ...clearSkills(), mode: 'returning_overview', previousBodyId: state.selectedBodyId, selectedBodyId: null, hoveredBodyId: null, transitionId: state.transitionId + 1 })
   }
   return {
     getSnapshot: () => state,
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener) },
     focusBody(id) {
       if (!ids.has(id) || state.selectedBodyId === id) return
-      publish({ mode: 'focusing_body', previousBodyId: state.selectedBodyId, selectedBodyId: id, transitionId: state.transitionId + 1 })
+      publish({ ...clearSkills(), mode: 'focusing_body', previousBodyId: state.selectedBodyId, selectedBodyId: id, transitionId: state.transitionId + 1 })
     },
     goBack, returnToOverview: goBack,
+    selectSkill(id) {
+      if (state.selectedBodyId !== SKILLS.id || state.mode !== 'body_focused' || !skillById(id)) return
+      publish({ selectedSkillId: id })
+    },
+    setSkillHover(id, source = 'pointer') {
+      if (!(source in skillHover) || state.selectedBodyId !== SKILLS.id || state.mode !== 'body_focused' || (id !== null && !skillById(id))) return
+      skillHover[source] = id
+      publish({ hoveredSkillId: skillHover.pointer || skillHover.keyboard })
+    },
     complete(transitionId) {
       if (transitionId !== state.transitionId || !isTravelling(state)) return
       publish({ mode: state.selectedBodyId ? 'body_focused' : 'overview' })
