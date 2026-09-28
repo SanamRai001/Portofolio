@@ -9,6 +9,7 @@ import { SUN, PLANETS, LAB, SYSTEM_MAP } from './data/solarSystem.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
+import { blendProjectsLongitudeSeam } from './scene/ProjectsPlanet.js'
 import { createStarField } from './scene/StarField.js'
 
 function loopHarness(options = {}) {
@@ -240,4 +241,15 @@ test('Projects keeps its procedural surface until the asset loads and freezes ax
   system.dispose()
   const scene = new Scene(); scene.add(system.group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+test('Projects map smooths its longitude join while retaining the standard material lighting', () => {
+  const material = {}
+  blendProjectsLongitudeSeam(material)
+  const shader = { fragmentShader: 'before\n#include <map_fragment>\nafter' }
+  material.onBeforeCompile(shader)
+  assert.match(shader.fragmentShader, /texture2D\(map, vMapUv\)/)
+  assert.match(shader.fragmentShader, /texture2D\(map, vec2\(1\. - vMapUv\.x, vMapUv\.y\)\)/)
+  assert.match(shader.fragmentShader, /diffuseColor \*= sampledDiffuseColor/)
+  assert.ok(shader.fragmentShader.startsWith('before\n') && shader.fragmentShader.endsWith('\nafter'))
 })
