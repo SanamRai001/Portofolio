@@ -1,11 +1,11 @@
 # PROJECT_STATE
 
 ## Objective / authorization
-**G6 only — Skills planet**, authorized by “okay go to next phase” on 2026-09-28. Continue `feat/galaxy-g1-foundation`; do not rebuild, merge, delete branches or start G7.
+**G6 implemented; G2–G6 merged into `master`**, explicitly authorized by “merge with main branch” on 2026-09-28. The repo default branch is named `master`. Preserve the Galaxy feature branch; do not start G7 or delete branches.
 Original Galaxy brief defines G6 as technology satellites, hover labels and selected-skill details. No proficiency percentages. Project moons/details, Journey and final Lab remain deferred.
 
 ## Baseline / prior decisions
-- Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. Master remains `70cb2dc`; G2–G5 unmerged.
+- Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
 - Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
 - Browser/GPU acceptance is still incomplete. Supported preview repeatedly fails `ERR_BLOCKED_BY_CLIENT`; automatic approval review rejected protected Vercel account navigation. No bypass/sign-in. User explicitly authorizes G6 despite that unresolved visual gate; do not relabel prior checks passed.
 
@@ -33,7 +33,7 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Final gzip: Galaxy route 10.26 kB, deferred scene 139.12 kB, Galaxy CSS 3.11 kB. Homepage route isolation passes; existing deferred >500 kB warning remains.
 
 ## Publication / next step
-G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. Working tree synchronized with remote. No G7 implementation, merge or production deployment. Complete browser/GPU acceptance when access is available.
+G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. PR **#2** merged G2–G6 into `master` at `2ba08baedb182e4cfdc2d40c59c1a9eaf2ba0d6b`. PR CI `36441658241` and post-merge CI `36441741414`: **success**; merged-commit Vercel deployment status: **success**. Source branch preserved. No G7 implementation. Complete browser/GPU acceptance when access is available; deployment success does not establish visual acceptance.
 
 ## Known limits / branch hygiene
 Actual browser console, GPU appearance/frame rate, full-page layout/overflow and physical touch remain unverified. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Ready for G7: NO.**
