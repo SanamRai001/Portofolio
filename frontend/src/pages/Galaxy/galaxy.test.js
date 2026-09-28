@@ -5,6 +5,10 @@ import { getPerformanceProfile } from './utils/performance.js'
 import { createRenderLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
+import { SUN, PLANETS, LAB, SYSTEM_MAP } from './data/solarSystem.js'
+import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
+import { getOverview, projectOverview } from './utils/overview.js'
+import { createSolarSystem } from './scene/SolarSystem.js'
 import { createStarField } from './scene/StarField.js'
 
 function loopHarness(options = {}) {
@@ -112,18 +116,18 @@ test('a runtime render failure stops the loop and reports fallback exactly once'
   assert.equal(h.scheduled.size, 0)
 })
 
-test('camera remains bounded, resets to overview and adapts to portrait', () => {
+test('overview camera stays bounded, resets and composes portrait separately', () => {
   const rig = createCameraRig()
+  const home = rig.camera.position.clone()
   rig.point(100, -100)
   rig.update(100)
-  assert.ok(rig.camera.position.x <= 1.8)
-  assert.ok(rig.camera.position.y >= -1.1)
-  assert.equal(rig.camera.position.z, 28)
+  assert.ok(rig.camera.position.distanceTo(home) < 0.7)
   rig.reset()
-  assert.deepEqual(rig.camera.position.toArray(), [0, 0, 28])
-  rig.resize(390, 844)
-  assert.equal(rig.camera.aspect, 390 / 844)
-  assert.equal(rig.camera.fov, 62)
+  assert.deepEqual(rig.camera.position.toArray(), home.toArray())
+  rig.resize(390, 520)
+  assert.equal(rig.camera.aspect, 390 / 520)
+  assert.equal(rig.camera.fov, 58)
+  assert.equal(rig.camera.up.x, 1)
 })
 
 test('star layers are deterministic, finite and separated in real 3D depth', () => {
@@ -160,4 +164,64 @@ test('shared GPU resources are disposed once and the canvas/context are released
   })
   assert.deepEqual(counts, { geometry: 1, material: 1, texture: 1, renderer: 1, context: 1, canvas: 1 })
   assert.equal(scene.children.length, 0)
+})
+
+
+test('G2 orbits remain finite and bounded; paused and slowed bodies keep independent clocks', () => {
+  const a = createOrbitSimulation(PLANETS), b = createOrbitSimulation(PLANETS)
+  a.setPaused('identity', true)
+  a.setRate('skills', 0.5)
+  const frozen = a.position('identity')
+  for (let i = 0; i < 20000; i++) { a.update(0.05); b.update(0.05) }
+  assert.deepEqual(a.position('identity'), frozen)
+  assert.notDeepEqual(a.position('skills'), b.position('skills'))
+  assert.deepEqual(a.position('projects'), b.position('projects'))
+  for (const body of PLANETS) {
+    const p = a.position(body.id)
+    assert.ok(p.every(Number.isFinite))
+    assert.ok(Math.abs(Math.hypot(...p) - body.orbit.radius) < 1e-9)
+  }
+  const previous = a.position('projects')
+  a.update(NaN); a.update(Infinity); a.update(-1)
+  assert.deepEqual(a.position('projects'), previous)
+  a.setPaused('identity', false); a.update(0.05)
+  assert.ok(Math.hypot(...a.position('identity').map((v, i) => v - frozen[i])) < 0.02)
+})
+
+test('G2 overview contains full swept orbital envelopes at desktop, laptop and phone stage sizes', () => {
+  for (const [width, height] of [[1360,630],[1200,530],[346,494]]) {
+    const view = getOverview(width, height)
+    for (const body of PLANETS) for (let step = 0; step < 360; step++) {
+      const p = projectOverview(orbitPosition(body.orbit, step * Math.PI / 180), view)
+      const radius = body.radius * (body.ring?.[1] || 1.12) * view.bodyScale
+      assert.ok(Math.abs(p.x) + radius / (p.depth * view.tanX) < 0.92, body.id + ' horizontal')
+      assert.ok(Math.abs(p.y) + radius / (p.depth * view.tanY) < 0.92, body.id + ' vertical')
+    }
+    const lab = projectOverview(LAB.position, view)
+    assert.ok(Math.abs(lab.x) < 0.9 && Math.abs(lab.y) < 0.9)
+  }
+})
+
+test('G2 configuration and rendered bodies preserve hierarchy, materials and cleanup', () => {
+  assert.equal(PLANETS.length, 4)
+  assert.equal(SYSTEM_MAP.length, 6)
+  assert.equal(new Set(PLANETS.map(body => body.surface)).size, 4)
+  assert.ok(SUN.radius > Math.max(...PLANETS.map(body => body.radius)))
+  const system = createSolarSystem(getPerformanceProfile({ width: 390 }))
+  assert.equal(system.bodies.size, 4)
+  assert.equal(system.group.children.filter(child => child.isLineLoop).length, 4)
+  system.resize(true)
+  system.update(0.05)
+  let geometryCount = 0, disposed = 0, triangles = 0
+  system.group.traverse(object => {
+    if (object.geometry) {
+      geometryCount++
+      object.geometry.addEventListener('dispose', () => { disposed++ })
+      if (object.isMesh) triangles += (object.geometry.index?.count || 0) / 3
+    }
+  })
+  assert.ok(triangles < 12000)
+  const scene = new Scene(); scene.add(system.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+  assert.equal(disposed, geometryCount)
 })

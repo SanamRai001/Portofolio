@@ -1,37 +1,39 @@
 # PROJECT_STATE
 
-## Objective / scope
-Backend-focused lightweight `/` plus isolated Galaxy **G1 only** at `/galaxy`. Preserve backend/security contracts; no G2 or branch deletion.
+## Objective / authorization
+**G6 only — Skills planet**, authorized by “okay go to next phase” on 2026-09-28. Continue `feat/galaxy-g1-foundation`; do not rebuild, merge, delete branches or start G7.
+Original Galaxy brief defines G6 as technology satellites, hover labels and selected-skill details. No proficiency percentages. Project moons/details, Journey and final Lab remain deferred.
 
-## Branch and authorization
-- Authoritative branch: `master`.
-- Source: `feat/galaxy-g1-foundation`; integration: `refactor/backend-focused-homepage`.
-- On 2026-09-25 the user explicitly changed the verification order: merge first, then inspect production. This superseded the earlier pre-merge visual gate.
-- Fresh fetch found master at `24b40f7`; the tested integration branch was its descendant. Safely fast-forwarded master to `6ff9586237b17ef22bf859c0bde7138d93a5e2a2`. No force push, reset or branch deletion.
+## Baseline / prior decisions
+- Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. Master remains `70cb2dc`; G2–G5 unmerged.
+- Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
+- Browser/GPU acceptance is still incomplete. Supported preview repeatedly fails `ERR_BLOCKED_BY_CLIENT`; automatic approval review rejected protected Vercel account navigation. No bypass/sign-in. User explicitly authorizes G6 despite that unresolved visual gate; do not relabel prior checks passed.
 
-## Completed phases
-- G1: isolated lazy Galaxy stars/camera/performance controls and WebGL fallback. No planets or camera travel.
-- H1 (`8d6e93f`): static engineering hero, ordered request pipeline, DOM Backend Lab map, project case studies; removed homepage WebGL, GSAP/pinned scrolling and global Forge. Existing reusable scene/Forge files remain isolated.
-- H2 (`af6adaf`): one progressive-enhancement IntersectionObserver; 460ms / 16px reveal; reduced-motion, focus, hidden-tab and auth suspension cleanup. Removed unused GSAP dependency/helpers. Added 8 DOM tests and fixed React 19 boolean `inert` handling.
-- H3: merged and deployed to production under the revised user instruction; performed available live checks below.
-- Backend source, Galaxy implementation, security/API contracts and SEO assets remain unchanged by the homepage refactor. Rate Limit Flag remains configuration-only.
+## Completed phase — Skills content / selection
+- Structured `data/skills.js` owns ten signals: Node.js, TypeScript, Express, React, MySQL, PostgreSQL, MongoDB, Architecture, Git/GitHub and Testing. Grounded in `TechStack.jsx`, existing project examples and repository tests/workflows; no invented experience levels.
+- Concise role/focus details, semantic native-button directory, single live details region, keyboard/pointer hover and selected feedback. No logo wall or percentage bars.
+- Shared navigation now owns Skills-local hover/selection. Selection is valid only after Skills arrival, does not change camera transition ID and resets on retarget/return. Escape and native return controls preserve map focus. Core/Identity behavior remains intact.
+- Content uses existing arrival gating, stacked mobile flow and reduced-motion reveal. Geometry and satellite orbit configuration are separate from rendering.
+- Content verification: 39 Galaxy tests and lint passed, including all ten selections, unchanged camera transition, arrival gating, rapid retarget, fallback return and unmount/reentry. Production build and homepage route isolation passed.
 
-## Verification
-- Re-ran on merged master: 6 auth-runtime + 10 Galaxy + 8 homepage DOM + 28 backend tests passed; ESLint and Vite build/bundle guard passed.
-- Master frontend CI `36090473113`: success. Backend CI is path-filtered; backend tests passed locally and its source was unchanged.
-- Production Vercel deployment `6653067199`: success for `6ff9586`.
-- Homepage emitted JS static graph: 274.76 kB raw / 90.19 kB gzip, versus ~968 / ~285 before refactor. CSS 30.41 / 7.39 kB. Build guard confirms no Galaxy, Three.js, GSAP or Forge in homepage imports. Galaxy scene remains separately deferred (~521 kB raw).
-- https://sanam-rai.com.np redirects to https://www.sanam-rai.com.np/ and serves the new content. Observed 3 Galaxy links, zero canvases, valid inert attribute behind the active auth dialog, no horizontal overflow at the available 1363×936 viewport. Auth dialog visually inspected.
-- Direct `/galaxy` visit and refresh render the static star fallback with working navigation. Exit returns to the new homepage. No horizontal overflow at 1363×936.
+## Completed phase — Satellite rendering / fallback
+- Preserved the metallic engineered Skills body. Ten small artificial satellites share one box geometry, with three thin inclined orbital paths. Satellites appear and become pickable only after Skills arrival, keeping the overview uncluttered.
+- Reuses `createOrbitSimulation` and the existing single frame loop: independent deterministic clocks, selected node paused, hovered node slowed to 35%, reduced motion/pause frozen, hidden constellation clocks suspended. Leaving clears selection feedback and removes local hit targets immediately.
+- Pointer/touch input uses the existing tap/drag cancellation controller through a small adapter. Satellite selection does not retarget the camera. Native 48px-minimum controls provide all signals even when a node is occluded or too small to tap comfortably.
+- Generic focus `frameRadius` fits the whole constellation; no separate camera. Desktop stays left of content, mobile uses a larger apparent constellation in the existing 320px upper region. Semantic content scrolls normally below.
+- Static fallback consumes the same orbit/node data, supports satellite clicks and the same native controls/details, and highlights hover/selection without permanent floating labels. HUD identifies a signal's Skills/category context.
+- Low-power reduces body geometry and orbit segments. Shared resources are disposed exactly once; no dependencies, textures, postprocessing, timers or animation loops added.
 
-## Limits / risks
-- Live backend auth is enabled; the overlay covers the homepage. Did not change shared backend flags or bypass login. Full post-login visual inspection remains pending.
-- Cloud browser has WebGL disabled; Galaxy correctly falls back. Console reports expected WebGL initialization failure on Galaxy and browser-extension metadata errors. Interactive 3D rendering is not visually verified here.
-- Required 1440×900, 1280×800 and 390×844 checks remain pending; the current browser surface does not advertise viewport resizing. Do not describe responsive acceptance or all browser-console checks as passed.
-- Earlier protected preview/local browser access issues are superseded by the successful public production check, not by a completed full visual acceptance.
+## Final local verification / visual evidence
+- **87 tests pass:** 45 Galaxy, 6 auth-runtime, 8 homepage DOM and 28 backend. Lint, production build, homepage route isolation and whitespace checks pass. No homepage/backend/dependency source changes.
+- New checks cover every skill, invalid/in-flight selection, pointer/keyboard hover precedence, stable camera transitions, retarget reset, frozen/bounded orbits, hidden picking, reduced resource cost/disposal, SVG clicks and full orbital-path projection at desktop/mobile sizes in normal/reduced motion.
+- Inspected actual fallback SVG at desktop stages 1360×800 and 1200×800, plus mobile 346×320 (viewport targets 1440×900, 1280×800, 390×844). Enlarged mobile framing after inspection. This verifies fallback artwork/composition only, not full-page layout, GPU appearance or touch. Some nodes naturally pass behind the body; the directory exposes all ten.
+- Browser restriction established earlier in this same session remains unresolved; did not repeat blocked navigation or attempt protected Vercel access. Browser console and full-page HUD/overflow acceptance remain outstanding.
+- Focused Skills adds 120 rendered mesh triangles and 13 potential draw submissions (10 satellites, 3 paths). Full system: 18,360 desktop / 6,680 low-power triangles in Skills view; overview remains 18,240 / 6,560. GPU frame time is unmeasured.
+- Final gzip: Galaxy route 10.26 kB, deferred scene 139.12 kB, Galaxy CSS 3.11 kB. Homepage route isolation passes; existing deferred >500 kB warning remains.
 
-## Next phase
-Complete authenticated desktop/laptop/mobile visual review and check Galaxy on a WebGL-capable browser. Keep G2 out of scope unless requested. No further functional changes are currently pending.
+## Publication / next step
+G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. Working tree synchronized with remote. No G7 implementation, merge or production deployment. Complete browser/GPU acceptance when access is available.
 
-## Branch cleanup
-Both `feat/galaxy-g1-foundation` and `refactor/backend-focused-homepage` are ancestors of master and safe cleanup candidates. Retained; deletion requires explicit user authorization.
+## Known limits / branch hygiene
+Actual browser console, GPU appearance/frame rate, full-page layout/overflow and physical touch remain unverified. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Ready for G7: NO.**

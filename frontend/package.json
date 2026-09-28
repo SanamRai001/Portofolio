@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:auth-runtime": "node --test src/authRuntime.test.js",
-    "test:galaxy": "node --test src/pages/Galaxy/galaxy.test.js",
+    "test:galaxy": "node --test src/pages/Galaxy/*.test.js tests/galaxy-navigation.test.mjs",
     "test:homepage": "node --test tests/homepage.test.mjs"
   },
   "dependencies": {

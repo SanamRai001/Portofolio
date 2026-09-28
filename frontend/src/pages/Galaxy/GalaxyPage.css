@@ -1,55 +1,151 @@
-.GalaxyPage {
-  --galaxy-ink: #e6e5e3;
-  --galaxy-muted: #9b9aa3;
-  --galaxy-gold: #d9c59f;
-  position: relative;
-  isolation: isolate;
-  box-sizing: border-box;
-  min-height: 100svh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: max(28px, env(safe-area-inset-top)) max(40px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(40px, env(safe-area-inset-left));
-  overflow: clip;
-  background: #020204;
-  color: var(--galaxy-ink);
-  font: 400 16px/1.6 Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  -webkit-font-smoothing: antialiased;
+.GalaxyPage { --galaxy-ink:#e6e5e3; --galaxy-muted:#999ba6; --galaxy-gold:#d9c59f; position:relative; isolation:isolate; box-sizing:border-box; min-height:100svh; min-height:100dvh; display:flex; flex-direction:column; padding:max(24px, env(safe-area-inset-top)) max(40px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(40px, env(safe-area-inset-left)); background:#020204; color:var(--galaxy-ink); font:400 16px/1.6 Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; -webkit-font-smoothing:antialiased; }
+.GalaxyPage *, .GalaxyPage *::before, .GalaxyPage *::after { box-sizing:border-box; }
+.GalaxyPage a { color:inherit; text-decoration:none; }
+.GalaxyPage p, .GalaxyPage h1 { margin:0; }
+.GalaxyPage :is(a,button):focus-visible { outline:2px solid var(--galaxy-gold); outline-offset:5px; }
+.GalaxyHeader { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.GalaxyHeader h1 { display:flex; gap:16px; font-size:14px; font-weight:450; letter-spacing:.13em; text-transform:uppercase; }
+.GalaxyHeader h1 span { color:var(--galaxy-muted); }
+.GalaxyExit { display:inline-flex; align-items:center; gap:22px; min-height:44px; font-size:14px; }
+.GalaxyExit span { color:var(--galaxy-gold); font-size:20px; }
+.GalaxyExit:hover { color:var(--galaxy-gold); }
+.GalaxyStage { position:relative; isolation:isolate; flex:1; min-height:420px; height:calc(100svh - 270px); }
+.GalaxyScene, .GalaxyFallback, .GalaxyStaticSky, .GalaxySolarDiagram { position:absolute; inset:0; width:100%; height:100%; }
+.GalaxyScene canvas { display:block; width:100%; height:100%; }
+.GalaxyStaticSky { z-index:-1; }
+.GalaxyLoading { position:absolute; top:48%; left:0; right:0; text-align:center; color:var(--galaxy-muted); font-size:14px; }
+.GalaxySystemMap { border-top:1px solid #24252b; padding-top:12px; }
+.GalaxyMapHeading { display:flex; justify-content:space-between; gap:12px; color:var(--galaxy-muted); font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.15em; }
+.GalaxySystemMap ol { list-style:none; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:18px; margin:18px 0 0; padding:0; }
+.GalaxySystemMap li { min-width:0; }
+.GalaxySystemMap button { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding:5px 0; border:0; border-bottom:1px solid transparent; border-radius:0; background:none; color:inherit; text-align:left; cursor:pointer; }
+.GalaxySystemMap.has-selection button[aria-pressed='false'] { opacity:.58; }
+.GalaxySystemMap button:hover, .GalaxySystemMap button:focus-visible, .GalaxySystemMap button[aria-pressed='true'] { opacity:1; border-bottom-color:var(--body-color); }
+.GalaxyTarget { position:absolute; top:12px; left:0; right:0; z-index:1; pointer-events:none; }
+.GalaxyBack { display:inline-flex; align-items:center; gap:20px; min-height:44px; padding:0 12px 0 0; background:#020204cc; border:0; color:var(--galaxy-ink); font:11px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; pointer-events:auto; }
+.GalaxyBack span { color:var(--galaxy-muted); font-size:9px; }
+.GalaxyTargetLabel { max-width:250px; padding:8px 0; }
+.GalaxyTargetLabel > p:nth-child(2) { margin-top:3px; font-size:18px; letter-spacing:.1em; text-transform:uppercase; }
+.GalaxyTargetLabel small { display:block; margin-top:3px; color:var(--galaxy-muted); font-size:11px; }
+.GalaxyMapIndex { color:var(--body-color); font:11px/1.9 ui-monospace,monospace; }
+.GalaxySystemMap strong { display:block; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.09em; }
+.GalaxySystemMap small { display:block; color:var(--galaxy-muted); font-size:11px; }
+.GalaxyFooter { display:flex; justify-content:space-between; align-items:end; gap:24px; padding-top:26px; }
+.GalaxyPage .GalaxyEyebrow { color:var(--galaxy-muted); font:10px/1.5 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.2em; }
+.GalaxyCaption > p:last-child { margin-top:7px; font-size:clamp(18px,2.3vw,26px); font-weight:350; letter-spacing:-.035em; }
+.GalaxyControls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px 22px; }
+.GalaxyControls button { min-height:44px; padding:5px 0; border:0; border-bottom:1px solid #52525f; border-radius:0; background:transparent; color:var(--galaxy-muted); font:inherit; font-size:13px; cursor:pointer; }
+.GalaxyControls button:hover, .GalaxyControls button[aria-pressed='true'] { color:var(--galaxy-gold); border-bottom-color:var(--galaxy-gold); }
+.GalaxyMotionNote, .GalaxyFallbackNote { color:var(--galaxy-muted); font-size:12px; }
+@media(max-width:760px) {
+ .GalaxyPage { padding:18px 22px 24px; }
+ .GalaxyHeader { flex-wrap:wrap; gap:8px; }
+ .GalaxyHeader h1 { font-size:11px; gap:8px; }
+ .GalaxyExit { font-size:12px; gap:9px; }
+ .GalaxyStage { min-height:460px; height:calc(100svh - 350px); }
+ .GalaxySystemMap ol { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 10px; }
+ .GalaxySystemMap button { gap:7px; }
+ .GalaxyTarget { top:4px; }
+ .GalaxyTargetLabel > p:nth-child(2) { font-size:15px; }
+ .GalaxyBack span { display:none; }
+ .GalaxySystemMap strong { font-size:10px; }
+ .GalaxySystemMap small { font-size:10px; }
+ .GalaxyFooter { flex-wrap:wrap; align-items:start; gap:12px; padding-top:22px; }
+ .GalaxyCaption { flex-basis:100%; }
+ .GalaxyControls { justify-content:flex-start; }
 }
-.GalaxyPage *, .GalaxyPage *::before, .GalaxyPage *::after { box-sizing: border-box; }
-.GalaxyPage a { color: inherit; text-decoration: none; }
-.GalaxyPage p, .GalaxyPage h1, .GalaxyPage h2 { margin: 0; }
-.GalaxyPage :is(a, button):focus-visible { outline: 2px solid var(--galaxy-gold); outline-offset: 5px; }
-.GalaxyScene, .GalaxyStaticSky { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
-.GalaxyScene canvas { display: block; width: 100%; height: 100%; }
-.GalaxyHeader, .GalaxyFooter { display: flex; justify-content: space-between; align-items: center; gap: 24px; pointer-events: none; }
-.GalaxyHeader :is(a, button), .GalaxyFooter :is(a, button) { pointer-events: auto; }
-.GalaxyHeader h1 { display: flex; gap: 16px; font-size: 14px; font-weight: 450; letter-spacing: .13em; text-transform: uppercase; }
-.GalaxyHeader h1 span { color: var(--galaxy-muted); }
-.GalaxyExit { display: inline-flex; align-items: center; gap: 22px; min-height: 44px; font-size: 14px; }
-.GalaxyExit span { color: var(--galaxy-gold); font-size: 20px; }
-.GalaxyExit:hover { color: var(--galaxy-gold); }
-.GalaxyFooter { align-items: end; padding-top: 28px; }
-.GalaxyPage .GalaxyEyebrow { color: var(--galaxy-muted); font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; letter-spacing: .2em; }
-.GalaxyCaption > p:last-child { margin-top: 9px; font-size: clamp(20px, 2.5vw, 28px); font-weight: 350; letter-spacing: -.035em; }
-.GalaxyControls { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 22px; }
-.GalaxyControls button { min-height: 44px; padding: 5px 0; border: 0; border-bottom: 1px solid #52525f; border-radius: 0; background: transparent; color: var(--galaxy-muted); font: inherit; font-size: 14px; cursor: pointer; }
-.GalaxyControls button:hover, .GalaxyControls button[aria-pressed='true'] { color: var(--galaxy-gold); border-bottom-color: var(--galaxy-gold); }
-.GalaxyMotionNote { font-size: 14px; color: var(--galaxy-muted); }
-.GalaxyLoading { position: absolute; top: 48%; left: 0; right: 0; text-align: center; color: var(--galaxy-muted); font-size: 14px; }
-.GalaxyFallback { max-width: 460px; margin: 12vh 0; }
-.GalaxyFallback h2 { margin: 14px 0; font-size: clamp(32px, 5vw, 52px); line-height: 1.15; font-weight: 350; letter-spacing: -.045em; }
-.GalaxyFallback > p:not(.GalaxyEyebrow) { color: var(--galaxy-muted); max-width: 340px; }
-.GalaxyFallback nav { display: grid; gap: 8px; max-width: 320px; margin-top: 28px; }
-.GalaxyFallback a { display: flex; justify-content: space-between; gap: 24px; min-height: 44px; align-items: center; border-bottom: 1px solid #27272d; }
-.GalaxyFallback a:hover, .GalaxyFallback a span { color: var(--galaxy-gold); }
-@media (max-width: 600px) {
-  .GalaxyPage { padding: max(18px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom)); }
-  .GalaxyHeader { gap: 12px; flex-wrap: wrap; }
-  .GalaxyHeader h1 { font-size: 12px; gap: 10px; }
-  .GalaxyExit { font-size: 14px; gap: 9px; }
-  .GalaxyFooter { align-items: start; flex-direction: column; gap: 20px; }
-  .GalaxyControls { justify-content: flex-start; }
-  .GalaxyFallback { margin: 9vh 0; }
+
+/* Core is an open composition, with the star and copy occupying separate space. */
+.GalaxyStage.has-body-content { flex:none; height:auto; min-height:max(570px, calc(100svh - 270px)); }
+.GalaxyStage.has-body-content::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,transparent 42%,#020204b8 59%,#020204d9 100%); }
+.CoreIdentity { position:relative; z-index:2; width:42%; max-width:480px; margin:0 1% 0 auto; padding:70px 0 46px; visibility:hidden; opacity:0; }
+.CoreIdentity.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
+.CoreIdentity::before { content:''; display:block; width:52px; height:1px; margin-bottom:22px; background:linear-gradient(90deg,#d9b77c,#d9b77c00); }
+.GalaxyPage .CoreKicker { color:var(--galaxy-gold); font:11px/1.6 ui-monospace,monospace; letter-spacing:.16em; text-transform:uppercase; }
+.CoreKicker span { color:var(--galaxy-muted); }
+.CoreIdentity h2 { margin:12px 0 8px; font-size:clamp(34px,3.8vw,54px); font-weight:450; line-height:1.1; letter-spacing:-.045em; }
+.GalaxyPage .CoreRole { max-width:26ch; color:#c9c8cd; font-size:18px; line-height:1.5; }
+.GalaxyPage .CoreStatement { margin-top:26px; max-width:29ch; font-size:21px; font-weight:400; line-height:1.5; letter-spacing:-.02em; }
+.GalaxyPage .CoreDescription { margin-top:14px; max-width:43ch; color:#aaaab5; font-size:15px; line-height:1.8; }
+.GalaxyPage .CoreTagline { margin-top:24px; color:var(--galaxy-gold); font-size:14px; letter-spacing:.06em; }
+.CoreMetadata { display:flex; flex-wrap:wrap; gap:6px 18px; padding:0; margin:12px 0 0; list-style:none; color:var(--galaxy-muted); font-size:12px; }
+.CoreLinks { display:flex; flex-wrap:wrap; gap:8px 26px; margin-top:20px; }
+.CoreLinks a { display:inline-flex; align-items:center; gap:10px; min-height:44px; border-bottom:1px solid #42404a; font-size:13px; }
+.CoreLinks a:hover { color:var(--galaxy-gold); border-color:var(--galaxy-gold); }
+.CoreLinks a > span[aria-hidden] { color:var(--galaxy-gold); }
+.GalaxySrOnly { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@keyframes core-reveal { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:760px) {
+ .GalaxyStage.has-body-content::after { display:none; }
+ .GalaxyStage.has-body-content { flex:none; min-height:0; height:auto; padding-top:320px; }
+ .GalaxyStage.has-body-content > .GalaxyScene, .GalaxyStage.has-body-content > .GalaxyFallback { height:320px; }
+ .CoreIdentity { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
+ .CoreIdentity::before { margin-bottom:18px; }
+ .CoreIdentity h2 { font-size:38px; }
+ .GalaxyPage .CoreRole { font-size:17px; }
+ .GalaxyPage .CoreStatement { margin-top:22px; font-size:20px; }
+ .GalaxyPage .CoreDescription { font-size:15px; }
 }
+@media(prefers-reduced-motion:reduce) {
+ .CoreIdentity.is-revealed { animation:none; }
+}
+
+/* Identity keeps its world in view; the personal signal uses normal document flow. */
+.IdentityContent { position:relative; z-index:2; width:44%; max-width:520px; margin:0 1% 0 auto; padding:72px 0 42px; visibility:hidden; opacity:0; }
+.IdentityContent.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
+.IdentityHeading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:14px 0 28px; }
+.IdentityHeading > div:first-child { min-width:0; }
+.IdentityContent h2 { margin:0 0 10px; font-size:clamp(32px,3.4vw,48px); font-weight:450; letter-spacing:-.045em; line-height:1.1; }
+.IdentityMetadata { list-style:none; padding:0; margin:0; color:#a8b8b8; font-size:12px; }
+.IdentityPortrait { flex:0 0 88px; width:88px; height:88px; border:1px solid #405756; border-radius:50%; display:flex; flex-direction:column; justify-content:center; text-align:center; font:8px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; color:#adbfbd; }
+.IdentityPortrait small { color:var(--galaxy-muted); font-size:8px; }
+.IdentityContent h3 { margin:0 0 9px; color:#b7cfca; font:11px/1.6 ui-monospace,monospace; letter-spacing:.12em; text-transform:uppercase; }
+.IdentityContent p:not(.GalaxyEyebrow) { max-width:49ch; color:#b8bdc4; font-size:14px; line-height:1.8; }
+.IdentityContent .IdentityThought p { font-size:18px; color:#e0e6e5; line-height:1.65; }
+.IdentityLearning, .IdentityCuriosity { margin-top:26px; }
+.IdentityLoop { position:relative; margin:12px 0 6px; }
+.IdentityLoop svg { position:absolute; width:100%; height:100%; fill:none; stroke:#465f5e; stroke-width:1; }
+.IdentityLoopArrows { stroke:#9bbdb6; }
+.IdentityLoop ol { position:relative; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2,68px); list-style:none; padding:0 10px; margin:0; }
+.IdentityLoop li { align-self:center; justify-self:center; display:flex; flex-direction:column; align-items:center; background:#020204; padding:0 7px; }
+.IdentityLoop li:nth-child(4) { grid-column:3; grid-row:2; }
+.IdentityLoop li:nth-child(5) { grid-column:2; grid-row:2; }
+.IdentityLoop li:nth-child(6) { grid-column:1; grid-row:2; }
+.IdentityLoop li span { color:#8ca7a3; font:9px/1.6 ui-monospace,monospace; }
+.IdentityLoop li strong { font-size:12px; font-weight:400; }
+.IdentityTraits { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; padding-top:20px; margin:24px 0 8px; border-top:1px solid #2b3738; }
+.IdentityTraits dt { color:#b7cfca; font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; }
+.IdentityTraits dd { margin:8px 0 0; color:#a1aab2; font-size:12px; line-height:1.75; }
+.IdentityReturn { min-height:44px; margin-top:16px; padding:0; border:0; border-bottom:1px solid #435755; background:none; color:#b7cfca; font:12px/1.6 ui-monospace,monospace; cursor:pointer; }
+@media(max-width:760px) {
+ .IdentityContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
+ .IdentityHeading { gap:12px; }
+ .IdentityContent h2 { font-size:36px; }
+ .IdentityTraits { gap:12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .IdentityContent.is-revealed { animation:none; }
+}
+
+/* Skills is a constellation with a stable, keyboard-accessible signal directory. */
+.SkillsContent { position:relative; z-index:2; width:44%; max-width:520px; margin:0 1% 0 auto; padding:72px 0 42px; visibility:hidden; opacity:0; }
+.SkillsContent.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
+.SkillsContent h2 { max-width:14ch; margin:14px 0 18px; font-size:clamp(32px,3.4vw,48px); font-weight:450; letter-spacing:-.045em; line-height:1.15; }
+.SkillsContent .SkillsIntro { max-width:45ch; color:#b8bdc4; font-size:15px; line-height:1.8; }
+.SkillsDirectory { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 20px; margin:26px 0; }
+.SkillsDirectory button { display:flex; align-items:center; gap:12px; min-width:0; min-height:48px; padding:8px 0; border:0; border-bottom:1px solid #303840; border-radius:0; background:none; color:#c6ccd4; text-align:left; font:inherit; font-size:14px; line-height:1.5; cursor:pointer; }
+.SkillsDirectory button > span:first-child { color:#8094a5; font:10px/1.6 ui-monospace,monospace; }
+.SkillsDirectory button:hover, .SkillsDirectory button:focus-visible, .SkillsDirectory button[aria-pressed='true'] { color:#edf1f6; border-color:#a9c2d4; }
+.SkillsDirectory button[aria-pressed='true'] > span:first-child { color:#e0b77e; }
+.SkillDetail { min-height:230px; padding:20px 0 0; border-top:1px solid #596674; }
+.SkillDetail h3 { margin:10px 0; color:#e0e7ec; font-size:26px; font-weight:450; letter-spacing:-.03em; }
+.SkillDetail > p:not(.GalaxyEyebrow) { margin-top:12px; color:#b8bdc4; font-size:15px; line-height:1.8; }
+.SkillDetail ul { display:flex; flex-wrap:wrap; gap:8px 20px; list-style:none; padding:0; margin:18px 0 0; color:#a9b9c7; font-size:12px; }
+.SkillDetail li { padding-left:10px; border-left:1px solid #647c8e; }
+@media(max-width:760px) {
+ .SkillsContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
+ .SkillsContent h2 { font-size:36px; }
+ .SkillsDirectory { gap:0 16px; }
+ .SkillDetail { min-height:240px; }
+}
+@media(prefers-reduced-motion:reduce) { .SkillsContent.is-revealed { animation:none; } }

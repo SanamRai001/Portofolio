@@ -30,6 +30,7 @@ export function createRenderLoop({ render, requestFrame, cancelFrame, fps = 60, 
   return {
     setState(next) {
       if (disposed) return
+      if (active === next.active && continuous === next.continuous) return
       active = next.active
       continuous = next.continuous
       if (frame !== null) cancelFrame(frame)
@@ -37,7 +38,7 @@ export function createRenderLoop({ render, requestFrame, cancelFrame, fps = 60, 
       lastTime = null
       schedule()
     },
-    invalidate() { lastTime = null; schedule() },
+    invalidate() { if (!continuous) lastTime = null; schedule() },
     dispose() {
       disposed = true
       if (frame !== null) cancelFrame(frame)
