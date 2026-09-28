@@ -134,3 +134,6 @@ export function createLab(body) {
   group.position.fromArray(body.position)
   return group
 }
+
+// Shared inexpensive Fresnel shell; no additional rendering loop.
+export { shell as createAtmosphere }

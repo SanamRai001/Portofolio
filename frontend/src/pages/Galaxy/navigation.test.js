@@ -242,3 +242,26 @@ test('Core reserves copy space, resizes into a stacked composition and clears it
     release(h.system)
   }
 })
+
+test('Identity shares off-axis framing and stays clear of copy and mobile return controls', () => {
+  for (const reduced of [false, true]) {
+    for (const [width, height, viewport] of [[1360, 850, 1440], [1200, 850, 1280], [346, 320, 390]]) {
+      const h = rigHarness(width, height, reduced)
+      h.rig.resize(width, height, viewport)
+      h.nav.focusBody('identity')
+      for (let i = 0; i < 85; i++) h.step()
+      h.system.group.updateMatrixWorld(true); h.rig.camera.updateMatrixWorld()
+      const center = h.system.getAnchor('identity', new Vector3()).project(h.rig.camera)
+      assert.ok(Math.abs(center.x - (viewport < 760 ? 0 : -.46)) < 1e-8)
+      assert.ok(Math.abs(center.y - (viewport < 760 ? -.22 : .08)) < 1e-8)
+      const atmosphere = h.system.targets.get('identity').visuals.getObjectByName('identity-atmosphere')
+      const vertices = atmosphere.geometry.attributes.position
+      const points = Array.from({ length: vertices.count }, (_, i) => new Vector3().fromBufferAttribute(vertices, i).applyMatrix4(atmosphere.matrixWorld).project(h.rig.camera))
+      assert.ok(points.every(p => Number.isFinite(p.x) && p.x > -.95 && p.x < (viewport < 760 ? .95 : .06) && p.y > -.85 && p.y < (viewport < 760 ? .45 : .8)))
+      h.nav.focusBody('skills')
+      for (let i = 0; i < 85; i++) h.step()
+      assert.equal(h.rig.camera.view?.enabled, false)
+      release(h.system)
+    }
+  }
+})

@@ -17,8 +17,15 @@
 - Fallback selects the same Identity content, enlarges/repositions the fictional ocean world using focus config, preserves orbital context and native map controls. Core fallback composition retained.
 - Content phase verification: 32 Galaxy tests and lint passed, including arrival gating, rapid Identity/Core/Identity/Journey, fallback, semantic cycle, return focus and unmount/reentry. Production build and route isolation passed.
 
+## Completed phase — Identity rendering
+- Deterministic continuous 3D noise creates fictional dark oceans and muted green/teal land. Vertex colours are baked once at mesh creation; MeshStandardMaterial retains the existing Sun light, terminator and cool fill.
+- Two meshes only: surface and restrained Fresnel atmosphere. Selected atmosphere strengthens by at most 28%, hover by 14%; deselection restores baseline. Local rotation is 0.022 radians/second, slowing to 18% selected and 50% hovered; paused/reduced motion freezes it.
+- Shared `SolarSystem` presentation controllers run inside the existing frame loop; no React frame state, extra timers, particles, downloaded textures or postprocessing. Camera roots, anchors, hit targets and orbital simulation remain shared.
+- Low power reduces surface from 64×32 to 32×16 segments and atmosphere from 40×20 to 24×12. Both resources use existing disposal.
+- Rendering phase verification: 37 Galaxy tests and lint pass. New checks cover deterministic continuous terrain, material feedback bounds, rotation freeze, rapid retarget reset/orbit recovery, reduced geometry/disposal and actual projected mesh bounds at desktop/mobile sizes (normal and reduced motion).
+
 ## Next phase
-Upgrade only Identity rendering: deterministic organic terrain, restrained atmosphere response and slow local rotation through the existing scene update. Verify low-power, pause/reduced motion, retarget reset and disposal. Then run all regressions/build, inspect available visual evidence, publish branch and stop before G6.
+Finish full regression/build checks, inspect available visual evidence, publish the branch and stop before G6.
 
 ## Remaining acceptance risks
 Actual GPU render/shader checks, browser console, full-page 1440×900 / 1280×800 / 390×844 HUD/overflow checks and physical touch remain unverified. Numerical and DOM tests do not replace browser acceptance. **Ready for G6: NO.**

@@ -2,10 +2,12 @@ import { AmbientLight, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh,
 import { SUN, PLANETS, LAB, SOLAR_STYLE } from '../data/solarSystem.js'
 import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { orbitRateTarget } from '../navigation/NavigationController.js'
+import { createIdentityPlanet } from './IdentityPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
 
 export function createSolarSystem(profile) {
   const group = new Group(), simulation = createOrbitSimulation(PLANETS), bodies = new Map(), targets = new Map(), orbits = new Map()
+  const presentations = new Map()
   let hovered = null
   function register(body, visuals) {
     const root = new Group(), focusAnchor = new Object3D()
@@ -24,7 +26,9 @@ export function createSolarSystem(profile) {
   // Constant falloff preserves G2's art direction and readable terminators.
   group.add(new PointLight('#ffe0b2', SOLAR_STYLE.sunLight, 0, 0), new AmbientLight('#9cb3dc', SOLAR_STYLE.ambient))
   for (const body of PLANETS) {
-    const root = register(body, createCelestialBody(body, profile.lowPower))
+    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower) : null
+    if (presentation) presentations.set(body.id, presentation)
+    const root = register(body, presentation ? presentation.group : createCelestialBody(body, profile.lowPower))
     root.position.fromArray(simulation.position(body.id))
     bodies.set(body.id, root)
     const points = Array.from({ length: SOLAR_STYLE.segments }, (_, i) => new Vector3(...orbitPosition(body.orbit, i / SOLAR_STYLE.segments * Math.PI * 2)))
@@ -41,6 +45,7 @@ export function createSolarSystem(profile) {
       hovered = state.hoveredBodyId
       sun.setInteraction(hovered === SUN.id, state.selectedBodyId === SUN.id, instant)
       for (const body of PLANETS) {
+        presentations.get(body.id)?.setInteraction(hovered === body.id, state.selectedBodyId === body.id, instant)
         simulation.setRate(body.id, orbitRateTarget(body.id, state))
         orbits.get(body.id).material.opacity = state.selectedBodyId && state.selectedBodyId !== body.id ? 0.1 : SOLAR_STYLE.orbitOpacity
       }
@@ -49,6 +54,7 @@ export function createSolarSystem(profile) {
     resize(portrait) { bodies.forEach(body => body.scale.setScalar(portrait ? SOLAR_STYLE.mobileBodyScale : 1)) },
     update(delta, animate = true) {
       sun.update(delta, animate)
+      presentations.forEach(presentation => presentation.update(delta, animate))
       if (animate) {
         simulation.update(delta)
         bodies.forEach((body, id) => body.position.fromArray(simulation.position(id)))
