@@ -1,4 +1,4 @@
-import { AdditiveBlending, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, RingGeometry, ShaderMaterial, SphereGeometry } from 'three'
+import { AdditiveBlending, ClampToEdgeWrapping, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, RingGeometry, ShaderMaterial, SphereGeometry, SRGBColorSpace, TextureLoader } from 'three'
 import { SUN_APPEARANCE } from '../data/core.js'
 
 function shell(radius, color, strength, segments) {
@@ -15,19 +15,21 @@ function ring(inner, outer, color, opacity, segments) {
   mesh.rotation.y = 0.2
   return mesh
 }
-export function createSun(body, lowPower) {
-  const style = SUN_APPEARANCE, group = new Group(), segments = lowPower ? 32 : 48
+export function createSun(body, lowPower, onSurfaceReady = () => {}) {
+  const style = SUN_APPEARANCE, group = new Group(), segments = lowPower ? 40 : 64
   let targetActivity = 0
+  let disposed = false, loaded = false, texture
   const material = new ShaderMaterial({
     defines: { SUN_OCTAVES: lowPower ? 2 : 3 },
     uniforms: {
-      time: { value: 0 }, activity: { value: 0 },
+      time: { value: 0 }, activity: { value: 0 }, surfaceMap: { value: null }, hasSurfaceMap: { value: false },
       amber: { value: new Color(style.amber) }, gold: { value: new Color(style.gold) }, ivory: { value: new Color(style.ivory) },
     },
     vertexShader: `
-      varying vec3 surface; varying vec3 n; varying vec3 eye;
+      varying vec3 surface; varying vec3 n; varying vec3 eye; varying vec2 surfaceUv;
       void main() {
         surface = normalize(position);
+        surfaceUv = uv;
         vec4 v = modelViewMatrix * vec4(position, 1.);
         n = normalize(normalMatrix * normal); eye = -v.xyz;
         gl_Position = projectionMatrix * v;
@@ -35,8 +37,9 @@ export function createSun(body, lowPower) {
     `,
     fragmentShader: `
       uniform float time; uniform float activity;
+      uniform sampler2D surfaceMap; uniform bool hasSurfaceMap;
       uniform vec3 amber; uniform vec3 gold; uniform vec3 ivory;
-      varying vec3 surface; varying vec3 n; varying vec3 eye;
+      varying vec3 surface; varying vec3 n; varying vec3 eye; varying vec2 surfaceUv;
       float hash(vec3 p) {
         p = fract(p * .1031); p += dot(p, p.yzx + 33.33);
         return fract((p.x + p.y) * p.z);
@@ -70,6 +73,18 @@ export function createSun(body, lowPower) {
           color = mix(color, ivory, smoothstep(.62, .88, granules) * .11);
         #endif
         color = mix(color, ivory, filaments * (.22 + .04 * activity));
+        if (hasSurfaceMap) {
+          // Gently drift the authored photosphere across the sphere. Both
+          // sides of the longitude join resolve to the same blended texel.
+          float u = fract(surfaceUv.x + time * .0018);
+          vec3 detail = texture2D(surfaceMap, vec2(u, surfaceUv.y)).rgb;
+          float edge = min(u, 1. - u);
+          if (edge < .025) {
+            vec3 opposite = texture2D(surfaceMap, vec2(1. - u, surfaceUv.y)).rgb;
+            detail = mix(detail, opposite, .5 * (1. - smoothstep(0., .025, edge)));
+          }
+          color = mix(color, detail * (.64 + .31 * facing), .72);
+        }
         color += gold * pow(1. - facing, 3.) * .045;
         gl_FragColor = vec4(color, 1.);
         #include <tonemapping_fragment>
@@ -80,6 +95,19 @@ export function createSun(body, lowPower) {
   const surface = new Mesh(new SphereGeometry(body.radius, segments, segments / 2), material)
   surface.name = 'core-surface'
   group.add(surface)
+  if (typeof document !== 'undefined') {
+    const path = lowPower ? '/galaxy/sun-surface-mobile.webp' : '/galaxy/sun-surface.webp'
+    texture = new TextureLoader().load(path, (map) => {
+      if (disposed) { map.dispose(); return }
+      loaded = true
+      map.colorSpace = SRGBColorSpace
+      map.wrapS = RepeatWrapping
+      map.wrapT = ClampToEdgeWrapping
+      material.uniforms.surfaceMap.value = map
+      material.uniforms.hasSurfaceMap.value = true
+      onSurfaceReady()
+    }, undefined, () => texture?.dispose())
+  }
   const corona = shell(body.radius * style.innerScale, style.corona, style.innerStrength, segments)
   corona.name = 'core-corona'
   group.add(corona)
@@ -92,6 +120,11 @@ export function createSun(body, lowPower) {
   }
   return {
     group,
+    dispose() {
+      disposed = true
+      // The scene owns the installed texture through the shader uniform.
+      if (!loaded) texture?.dispose()
+    },
     setInteraction(hovered, selected, instant = false) {
       targetActivity = selected ? style.focusActivity : hovered ? style.hoverActivity : 0
       if (instant) present(targetActivity)

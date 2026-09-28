@@ -74,6 +74,30 @@ try {
     }
     if (results.at(-1).errors.length) failed = true
   }
+
+  // Observe the real orbit/spin clock over approximately one axial turn.
+  // This specifically exposes longitude joins that a frozen frame can hide.
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
+  const page = await context.newPage()
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  try {
+    await page.goto(`${origin}/galaxy`, { waitUntil: 'networkidle' })
+    await page.locator('.GalaxyLoading').waitFor({ state: 'hidden' })
+    await page.getByRole('button', { name: 'Projects', exact: true }).click()
+    await page.waitForFunction(() => document.querySelector('.GalaxyMapHeading span:last-child')?.textContent === 'Signal locked')
+    for (let phase = 0; phase < 8; phase++) {
+      if (phase) await page.waitForTimeout(20_000)
+      await page.screenshot({ path: `${output}/projects-turn-${phase}.png`, fullPage: true })
+    }
+    results.push({ view: 'desktop animated Projects, eight frames over 140 seconds', errors })
+  } catch (error) {
+    results.push({ view: 'desktop animated Projects', errors: [...errors, error.message] })
+  } finally {
+    await context.close()
+  }
+  if (results.at(-1).errors.length) failed = true
 } finally {
   await browser.close()
   await writeFile(`${output}/results.json`, JSON.stringify(results, null, 2))

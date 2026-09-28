@@ -14,4 +14,4 @@ export const PLANETS = Object.freeze([
 ].map(body => Object.freeze({ ...body, orbit: Object.freeze(body.orbit) })))
 export const LAB = Object.freeze({ id: 'lab', focus: focus(5.6, -0.5, 0.85), label: 'The Lab', meaning: 'Unknown signal', radius: 0.65, color: '#897da4', position: [20, 1.4, -9] })
 export const SYSTEM_MAP = Object.freeze([SUN, ...PLANETS, LAB])
-export const SOLAR_STYLE = Object.freeze({ orbitColor: '#68717d', orbitOpacity: 0.23, segments: 128, mobileBodyScale: 1.28, sunLight: 2.8, ambient: 0.23 })
+export const SOLAR_STYLE = Object.freeze({ orbitColor: '#68717d', orbitOpacity: 0.23, segments: 128, mobileBodyScale: 1.28, overviewBodyScale: 1.24, mobileOverviewBodyScale: 1.12, sunLight: 2.8, ambient: 0.23 })

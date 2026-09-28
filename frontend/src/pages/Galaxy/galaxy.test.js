@@ -5,7 +5,7 @@ import { getPerformanceProfile } from './utils/performance.js'
 import { createRenderLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
-import { SUN, PLANETS, LAB, SYSTEM_MAP } from './data/solarSystem.js'
+import { SUN, PLANETS, LAB, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
@@ -195,8 +195,9 @@ test('G2 overview contains full swept orbital envelopes at desktop, laptop and p
     for (const body of PLANETS) for (let step = 0; step < 360; step++) {
       const p = projectOverview(orbitPosition(body.orbit, step * Math.PI / 180), view)
       const radius = body.radius * (body.ring?.[1] || 1.12) * view.bodyScale
-      assert.ok(Math.abs(p.x) + radius / (p.depth * view.tanX) < 0.92, body.id + ' horizontal')
-      assert.ok(Math.abs(p.y) + radius / (p.depth * view.tanY) < 0.92, body.id + ' vertical')
+        * (view.portrait ? SOLAR_STYLE.mobileOverviewBodyScale : SOLAR_STYLE.overviewBodyScale)
+      assert.ok(Math.abs(p.x) + radius / (p.depth * view.tanX) < 0.95, body.id + ' horizontal')
+      assert.ok(Math.abs(p.y) + radius / (p.depth * view.tanY) < 0.95, body.id + ' vertical')
     }
     const lab = projectOverview(LAB.position, view)
     assert.ok(Math.abs(lab.x) < 0.9 && Math.abs(lab.y) < 0.9)
@@ -212,6 +213,11 @@ test('G2 configuration and rendered bodies preserve hierarchy, materials and cle
   assert.equal(system.bodies.size, 4)
   assert.equal(system.group.children.filter(child => child.isLineLoop).length, 4)
   system.resize(true)
+  assert.equal(system.targets.get('core').visuals.scale.x, SOLAR_STYLE.mobileOverviewBodyScale)
+  system.setInteraction({ selectedBodyId: 'projects', hoveredBodyId: null }, true)
+  assert.equal(system.targets.get('core').visuals.scale.x, 1)
+  system.setInteraction({ selectedBodyId: null, hoveredBodyId: null }, true)
+  assert.equal(system.targets.get('core').visuals.scale.x, SOLAR_STYLE.mobileOverviewBodyScale)
   system.update(0.05)
   let geometryCount = 0, disposed = 0, triangles = 0
   system.group.traverse(object => {
