@@ -39,23 +39,33 @@ test('Sun feedback stays bounded, reverses after rapid selections, and freezes s
   release(sun.group)
 })
 
-test('low-power Sun removes a corona layer, reduces surface work and releases every resource', () => {
+test('low-power Sun removes expensive atmosphere/prominence detail, reduces surface work and releases every resource', () => {
   const desktop = createSun(SUN, false), mobile = createSun(SUN, true)
-  assert.equal(desktop.group.children.length, 3)
-  assert.equal(mobile.group.children.length, 2)
+  assert.ok(desktop.group.getObjectByName('core-outer-corona'))
+  assert.equal(mobile.group.getObjectByName('core-outer-corona'), undefined)
+  assert.equal(desktop.group.getObjectByName('core-prominences').children.length, 3)
+  assert.equal(mobile.group.getObjectByName('core-prominences'), undefined)
+
   const full = desktop.group.getObjectByName('core-surface'), small = mobile.group.getObjectByName('core-surface')
   assert.ok(small.geometry.attributes.position.count < full.geometry.attributes.position.count)
   assert.equal(small.material.defines.SUN_OCTAVES, 2)
   assert.equal(full.material.defines.SUN_OCTAVES, 3)
+
   for (const sun of [desktop, mobile]) {
-    let geometryCount = 0, materialCount = 0
-    const count = sun.group.children.length
-    sun.group.children.forEach(mesh => {
-      mesh.geometry.addEventListener('dispose', () => geometryCount++)
-      mesh.material.addEventListener('dispose', () => materialCount++)
+    let geometryCount = 0, materialCount = 0, disposedGeometry = 0, disposedMaterial = 0
+    sun.group.traverse(object => {
+      if (object.geometry) {
+        geometryCount += 1
+        object.geometry.addEventListener('dispose', () => disposedGeometry++)
+      }
+      if (object.material) {
+        materialCount += 1
+        object.material.addEventListener('dispose', () => disposedMaterial++)
+      }
     })
     release(sun.group)
-    assert.equal(geometryCount, count); assert.equal(materialCount, count)
+    assert.equal(disposedGeometry, geometryCount)
+    assert.equal(disposedMaterial, materialCount)
   }
 })
 
