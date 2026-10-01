@@ -1,6 +1,12 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 
+function confirmCovered(node, portal, token) {
+  if (!node || portal.getSnapshot().mode !== 'blackout') return
+  const opacity = Number.parseFloat(window.getComputedStyle(node).opacity)
+  if (opacity >= .999) portal.confirmBlackout(token, true)
+}
+
 // The veil lives in document.body, outside the Galaxy stage's stacking
 // context. A route handoff is permitted only AFTER it becomes fully opaque.
 export default function GalaxyPortalOverlay({ portal }) {
@@ -8,12 +14,6 @@ export default function GalaxyPortalOverlay({ portal }) {
   const veilRef = useRef(null)
   const engaged = state.mode !== 'idle'
   const blackout = state.mode === 'blackout' || state.mode === 'committed'
-
-  function confirmCovered(node, token) {
-    if (!node || portal.getSnapshot().mode !== 'blackout') return
-    const opacity = Number.parseFloat(window.getComputedStyle(node).opacity)
-    if (opacity >= .999) portal.confirmBlackout(token, true)
-  }
 
   // An opacity transitionend confirms coverage during ordinary motion.
   // The two-frame check also works for reduced motion, zero-duration CSS,
@@ -23,7 +23,7 @@ export default function GalaxyPortalOverlay({ portal }) {
     let secondFrame = null
     const firstFrame = window.requestAnimationFrame(() => {
       secondFrame = window.requestAnimationFrame(() => {
-        confirmCovered(veilRef.current, state.transitionId)
+        confirmCovered(veilRef.current, portal, state.transitionId)
       })
     })
     return () => {
@@ -40,7 +40,7 @@ export default function GalaxyPortalOverlay({ portal }) {
       aria-hidden="true"
       onTransitionEnd={event => {
         if (event.target === veilRef.current && event.propertyName === 'opacity') {
-          confirmCovered(event.target, state.transitionId)
+          confirmCovered(event.target, portal, state.transitionId)
         }
       }}
     />,
