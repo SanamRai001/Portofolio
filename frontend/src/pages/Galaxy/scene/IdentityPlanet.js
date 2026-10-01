@@ -1,5 +1,6 @@
 import { Color, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial, SphereGeometry } from 'three'
 import { IDENTITY_APPEARANCE } from '../data/identity.js'
+import { createAxialRotation } from '../utils/axialRotation.js'
 import { identityTerrain } from '../utils/identitySurface.js'
 import { createAtmosphere } from './CelestialBody.js'
 
@@ -19,7 +20,7 @@ export function createIdentityPlanet(body, lowPower) {
   geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
   const surface = new Mesh(geometry, new MeshStandardMaterial({ vertexColors: true, roughness: .78, metalness: .025 }))
   surface.name = 'identity-surface'
-  surface.rotation.z = .12
+  const rotation = createAxialRotation(surface, body.rotation)
   const atmosphere = createAtmosphere(body.radius * style.atmosphereScale, style.atmosphere, style.atmosphereStrength, lowPower ? 24 : 40)
   atmosphere.name = 'identity-atmosphere'
   group.add(surface, atmosphere)
@@ -40,7 +41,7 @@ export function createIdentityPlanet(body, lowPower) {
       if (Math.abs(activity - targetActivity) < .0001) activity = targetActivity
       if (Math.abs(speed - targetSpeed) < .0001) speed = targetSpeed
       present()
-      if (animate) surface.rotation.y = (surface.rotation.y + dt * style.rotationSpeed * speed) % (Math.PI * 2)
+      rotation.update(dt, animate, speed)
     },
   }
 }
