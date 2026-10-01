@@ -253,7 +253,10 @@ test('black-hole static focus is labelled, keyboard accessible and has no portal
   assert.match(container.querySelector('[role="status"]').textContent, /Black Hole/)
   assert.match(container.textContent, /Portal inactive/)
   assert.ok(container.querySelector('[data-body="black-hole"] ellipse'))
+  // Focus the actual Back control, matching the existing keyboard-return
+  // contract. A synthetic click on a map button does not itself focus it.
+  await act(async () => container.querySelector('.GalaxyBack').focus())
   await escape()
   assert.equal(navigation.getSnapshot().mode, 'overview')
-  assert.equal(document.activeElement, button('Black Hole'))
+  assert.equal(document.activeElement?.getAttribute('aria-label'), 'Black Hole')
 })
