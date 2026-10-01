@@ -56,6 +56,17 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - No new npm/rendering dependency and no additional requestAnimationFrame loop were introduced.
 - **Next phase: G2R.4 world identities, one world at a time. Start with Identity only.** Use the new atmosphere/cloud primitives and reference-grounded terrestrial art direction; verify it visually before moving to Skills.
 
+## Completed subphase — G2R.4A Identity world (2026-10-01)
+- Added reference-grounded terrestrial art direction in `docs/GALAXY_WORLD_REFERENCES.md`: thin day-side atmospheric limb, broken high clouds, dark/calm oceans and muted land; no copied Earth imagery.
+- Identity now has three deterministic layers: surface, independently rotating procedural clouds and a Sun-aware cyan atmosphere. Cloud rotation is slightly faster than the surface and freezes with reduced motion/pause.
+- Replaced the browser high-quality surface's coarse vertex-only appearance with deterministic generated PBR material maps from the same seamless 3D terrain field. The generated maps supply higher-frequency albedo, roughness and bump detail without a network asset, new dependency or baked lighting. Node/failure paths retain the original CPU-colored sphere as a complete fallback.
+- The material pass gives oceans lower roughness than land/highlands and keeps relief subtle enough to avoid pole pinching or a toy-terrain silhouette.
+- High quality generates 384×192 material maps; low-power phone uses 192×96. These maps are attached to the existing material and are disposed by normal scene ownership.
+- Added deterministic surface-map tests plus the earlier atmosphere/cloud quality and lifecycle tests. Final code/verification head `38aa6c016cd81196540237856a98edb88007de6c` passed auth runtime, Galaxy tests, homepage DOM regressions, lint and production build in run `36819551448`.
+- Galaxy Visual Capture run `36819551399` passed on the exact head. Inspected 1440×900 Identity start/+8s and 390×844 low-power Identity evidence; surface detail, cloud motion, terminator and atmosphere remain readable with no console/page errors or horizontal overflow.
+- Visual verification infrastructure was also tightened: the legacy ~140-second Projects full-turn seam proof is now an explicit manual `long_rotation` workflow option instead of re-running on every unrelated push. Normal pushes still cover desktop/laptop/phone, reduced motion, Core and all primary-body normal-motion states.
+- **Next: G2R.4B Skills world.** Remove the current radial/wavy procedural surface look, establish a restrained engineered/metal-rich material language, and preserve all ten existing satellite interactions and focus framing.
+
 ## Baseline / prior decisions
 - Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
 - Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
