@@ -18,7 +18,7 @@ export function createSkillsPlanet(body, lowPower) {
     surface.material.roughnessMap = maps.roughness
     surface.material.roughness = 1
     surface.material.metalnessMap = maps.metalness
-    surface.material.metalness = .72
+    surface.material.metalness = .88
     surface.material.bumpMap = maps.elevation
     surface.material.bumpScale = body.radius * (lowPower ? .0045 : .007)
     surface.material.needsUpdate = true
