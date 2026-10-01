@@ -79,6 +79,15 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Visual CI now also has branch-scoped `cancel-in-progress` concurrency, so intermediate Galaxy screenshots stop consuming runners once a newer branch head exists.
 - **Next: G2R.4C Projects world.** Preserve the existing authored rocky surface; add only restrained surface-locked night-side settlement/emissive detail using the shared night primitive, verify it remains subtle on desktop/phone, then checkpoint before Journey.
 
+## Completed subphase — G2R.4C Projects world (2026-10-01)
+- Preserved the authored copper/rock surface, bump response, longitude seam treatment, procedural fallback and existing orbit/camera behavior.
+- Added `data/projects.js` and a sparse Sun-opposed settlement layer based on shared `createNightSideLayer`; terrain and lights use identical axial configuration and deterministic updates, so no sliding, extra render loop or route changes.
+- High quality uses two shader octaves and restrained warm strength; low power uses one octave and lower strength. Regression tests cover lockstep rotation, pause/reduced motion, tier configuration and resource release.
+- Initial shader produced large orange patches instead of settlements. Corrected it to use broad location masks only as gates for much finer sparse emission, then added regression assertions against the old broad-field behavior.
+- Implementation head `4a6f3a90598969f27a94169d9d7ddf8f761b6715`: Frontend Auth Runtime Tests run `36825399499` and Galaxy Visual Capture run `36825399466` both passed.
+- Inspected actual desktop Projects normal-motion screenshot and phone low-power screenshot from that run. Night detail now reads as small warm clusters on the Sun-opposed side, not lava; the authored daylight texture remains dominant. Visual artifact results show no errors or horizontal overflow.
+- **Next: G2R.4D Journey body only.** Replace generic weathered vertex stripes with generated gas-giant cloud-top albedo + subtle Sun-aware haze. Keep current rings untouched for dedicated G2R.6.
+
 ## Baseline / prior decisions
 - Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
 - Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
