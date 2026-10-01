@@ -7,6 +7,7 @@ import react from '@vitejs/plugin-react'
 import { JSDOM } from 'jsdom'
 import React, { act } from 'react'
 import { createNavigationController } from '../src/pages/Galaxy/navigation/NavigationController.js'
+import { createPortalController } from '../src/pages/Galaxy/navigation/PortalController.js'
 
 let components, directory, dom, root, container, navigation
 before(async () => {
@@ -30,7 +31,7 @@ beforeEach(async () => {
 })
 afterEach(async () => { await act(async () => root.unmount()); dom.window.close() })
 const button = name => container.querySelector(`button[aria-label="${name}"]`)
-const render = async (staticView = true) => act(async () => root.render(React.createElement(components.GalaxyNavigation, { navigation, staticView },
+const render = async (staticView = true, portal = null) => act(async () => root.render(React.createElement(components.GalaxyNavigation, { navigation, staticView, portal, reducedMotion: false },
   (selectedBodyId, state) => React.createElement(components.SolarDiagram, { width: 346, height: 494, prefix: 'test', selectedBodyId, selectedSkillId: state.selectedSkillId, hoveredSkillId: state.hoveredSkillId, onSkillSelect: navigation.selectSkill, onSkillHover: navigation.setSkillHover }))))
 const click = async node => act(async () => node.dispatchEvent(new window.MouseEvent('click', { bubbles: true })))
 const escape = async () => act(async () => window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' })))
@@ -259,4 +260,50 @@ test('black-hole static focus is labelled, keyboard accessible and has no portal
   await escape()
   assert.equal(navigation.getSnapshot().mode, 'overview')
   assert.equal(document.activeElement?.getAttribute('aria-label'), 'Black Hole')
+})
+
+
+test('G2R.8B Enter action requires arrival, and Escape/Back cancels before route commitment', async () => {
+  const commits = []
+  const portal = createPortalController({ onCommit: path => commits.push(path) })
+  await render(false, portal)
+  assert.equal(container.querySelector('.GalaxyPortalEnter'), null)
+  await click(button('Black Hole'))
+  assert.equal(navigation.getSnapshot().mode, 'focusing_body')
+  assert.equal(container.querySelector('.GalaxyPortalEnter'), null, 'do not offer entry before camera arrives')
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
+  const enter = container.querySelector('.GalaxyPortalEnter')
+  assert.equal(enter?.textContent.includes('Enter the horizon'), true)
+  await click(enter)
+  assert.equal(portal.getSnapshot().mode, 'approach')
+  assert.equal(button('Journey').disabled, true, 'disable other destinations during plunge')
+  await act(async () => container.querySelector('.GalaxyBack').focus())
+  await escape()
+  assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.equal(navigation.getSnapshot().mode, 'returning_overview')
+  assert.deepEqual(commits, [])
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  await click(button('Black Hole'))
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  await click(container.querySelector('.GalaxyPortalEnter'))
+  assert.equal(portal.getSnapshot().mode, 'approach')
+  await click(container.querySelector('.GalaxyBack'))
+  assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.deepEqual(commits, [])
+})
+
+test('G2R.8B static fallback uses a reduced-motion blackout rather than a stalled scene flight', async () => {
+  const commits = []
+  const portal = createPortalController({ onCommit: path => commits.push(path) })
+  await render(true, portal)
+  await click(button('Black Hole'))
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.ok(container.querySelector('.GalaxyPortalEnter'))
+  await click(container.querySelector('.GalaxyPortalEnter'))
+  assert.equal(portal.getSnapshot().mode, 'blackout')
+  assert.deepEqual(commits, [], 'no navigation without a fully opaque veil')
+  await escape()
+  assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.deepEqual(commits, [])
 })
