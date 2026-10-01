@@ -22,5 +22,5 @@ export const IDENTITY_COMPOSITION = Object.freeze({
 export const IDENTITY_APPEARANCE = Object.freeze({
   ocean: '#1b343e', shallows: '#386268', land: '#68786b', highlands: '#8c9890',
   atmosphere: '#75b7ba', atmosphereScale: 1.055, atmosphereStrength: .24,
-  selectedBoost: .28, hoverBoost: .14, rotationSpeed: .022, selectedSpeed: .18, hoverSpeed: .5,
+  selectedBoost: .28, hoverBoost: .14, selectedSpeed: .18, hoverSpeed: .5,
 })
