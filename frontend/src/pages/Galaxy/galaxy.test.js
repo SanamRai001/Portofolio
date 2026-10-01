@@ -265,3 +265,35 @@ test('Projects map smooths its longitude join while retaining the standard mater
   assert.match(shader.fragmentShader, /diffuseColor \*= sampledDiffuseColor/)
   assert.ok(shader.fragmentShader.startsWith('before\n') && shader.fragmentShader.endsWith('\nafter'))
 })
+
+test('G2R.1 planet rotation is data-driven, deterministic and frozen when ambient motion is disabled', () => {
+  for (const body of PLANETS) {
+    assert.ok(Object.isFrozen(body.rotation))
+    assert.ok(Number.isFinite(body.rotation.axialTilt))
+    assert.ok(body.rotation.surfaceSpeed > 0)
+    assert.ok(body.rotation.direction === 1 || body.rotation.direction === -1)
+  }
+
+  const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const surfaces = new Map(PLANETS.map(body => {
+    const surface = system.targets.get(body.id).visuals.getObjectByName(`${body.id}-surface`)
+    assert.ok(surface, `${body.id} surface`)
+    assert.ok(Math.abs(surface.rotation.z - body.rotation.axialTilt) < 1e-12, `${body.id} tilt`)
+    return [body.id, surface]
+  }))
+  const before = new Map([...surfaces].map(([id, surface]) => [id, surface.rotation.y]))
+
+  system.update(.05, true)
+  for (const [id, surface] of surfaces) assert.notEqual(surface.rotation.y, before.get(id), `${id} should rotate`)
+
+  const moved = new Map([...surfaces].map(([id, surface]) => [id, surface.rotation.y]))
+  system.update(.05, false)
+  for (const [id, surface] of surfaces) assert.equal(surface.rotation.y, moved.get(id), `${id} should freeze`)
+
+  const skillsConstellation = system.targets.get('skills').visuals.getObjectByName('skills-satellites')
+  assert.equal(skillsConstellation.rotation.y, 0, 'planet spin must not rotate the skill constellation')
+
+  system.dispose()
+  const scene = new Scene(); scene.add(system.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
