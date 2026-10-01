@@ -25,7 +25,7 @@ export function focusComposition(body, viewportWidth) {
 
 export const SUN_APPEARANCE = Object.freeze({
   amber: '#9b461d', gold: '#e9a84f', ivory: '#ffe7b0',
-  corona: '#f2a24c', outerCorona: '#a75a2a', prominence: '#ffb15d',
+  corona: '#f2a24c', outerCorona: '#a75a2a', prominence: '#ffd08a',
   innerScale: 1.032, outerScale: 1.095,
   innerStrength: 0.21, outerStrength: 0.032,
   prominenceOpacity: 0.32,
