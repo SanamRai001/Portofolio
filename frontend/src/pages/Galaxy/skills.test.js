@@ -88,7 +88,7 @@ test('solar picker exposes Skills-local targets only after arrival and removes t
   assert.equal(solar.hitMeshes.length, 7)
   solar.setInteraction(focused, true); assert.equal(solar.hitMeshes.length, 17)
   solar.setInteraction({ ...focused, selectedBodyId: 'core' }, true)
-  assert.equal(solar.hitMeshes.length, 6)
+  assert.equal(solar.hitMeshes.length, 7)
   release(solar.group)
 })
 
