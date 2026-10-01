@@ -5,6 +5,7 @@ import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
 import { createPortalController } from './navigation/PortalController.js'
 import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
+import { createGalaxySoundscape } from './audio/Soundscape.js'
 import { CORE } from './data/core.js'
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
@@ -12,6 +13,11 @@ import './GalaxyPage.css'
 export default function GalaxyPage() {
   const reducedMotion = useReducedMotion()
   const [navigation] = useState(createNavigationController)
+  // The AudioContext is not constructed here; it is created only inside
+  // a direct user click on the Sound button.
+  const [soundscape] = useState(createGalaxySoundscape)
+  const [soundEnabled, setSoundEnabled] = useState(false)
+  const [soundUnavailable, setSoundUnavailable] = useState(false)
   const [portal] = useState(() => createPortalController({
     destination: '/',
     onCommit: destination => window.location.assign(destination),
@@ -26,6 +32,59 @@ export default function GalaxyPage() {
   const onReady = useCallback(() => setReady(true), [])
   const onError = useCallback(() => { portal.cancel(); setFailed(true) }, [portal])
   const fallback = still || failed
+
+  const syncSoundscape = useCallback(() => {
+    const nav = navigation.getSnapshot()
+    soundscape.setSignals({
+      selectedBodyId: nav.selectedBodyId,
+      hoveredBodyId: nav.hoveredBodyId,
+      navigationMode: nav.mode,
+      portalMode: portal.getSnapshot().mode,
+      paused, staticView: fallback,
+      hidden: document.hidden, reducedMotion,
+    })
+  }, [navigation, portal, soundscape, paused, fallback, reducedMotion])
+
+  useEffect(() => {
+    syncSoundscape()
+    const navUnsubscribe = navigation.subscribe(syncSoundscape)
+    const portalUnsubscribe = portal.subscribe(syncSoundscape)
+    const onVisibility = () => {
+      if (document.hidden) {
+        // Returning to a previously hidden tab never starts sound unexpectedly.
+        soundscape.disable()
+        setSoundEnabled(false)
+      }
+      syncSoundscape()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      navUnsubscribe()
+      portalUnsubscribe()
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [navigation, portal, soundscape, syncSoundscape])
+
+  useEffect(() => {
+    if (paused || fallback) {
+      soundscape.disable()
+      setSoundEnabled(false)
+    }
+  }, [paused, fallback, soundscape])
+
+  useEffect(() => () => soundscape.dispose(), [soundscape])
+
+  async function toggleSound() {
+    if (soundEnabled) {
+      soundscape.disable()
+      setSoundEnabled(false)
+      return
+    }
+    if (soundUnavailable || paused || fallback || portalEntering) return
+    const on = await soundscape.enable()
+    setSoundEnabled(on)
+    if (!on) setSoundUnavailable(true)
+  }
 
   useEffect(() => {
     const previousTitle = document.title
@@ -65,6 +124,13 @@ export default function GalaxyPage() {
             <button type="button" aria-pressed={paused} onClick={() => setPaused(!paused)}>Pause motion</button>
           )}
           {reducedMotion && !fallback && <span className="GalaxyMotionNote">Motion reduced</span>}
+          <button type="button" className="GalaxySoundToggle"
+            aria-label={soundUnavailable ? 'Galaxy sound unavailable' : soundEnabled ? 'Mute Galaxy ambience' : 'Enable Galaxy ambience'}
+            aria-pressed={soundEnabled}
+            disabled={soundUnavailable || paused || fallback || portalEntering}
+            onClick={toggleSound}>
+            {soundUnavailable ? 'Sound unavailable' : soundEnabled ? 'Sound on' : 'Sound off'}
+          </button>
           {!failed && (
             <button type="button" aria-pressed={still} disabled={portalActive} onClick={() => { setReady(false); setStill(!still) }}>Still view</button>
           )}
