@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { CORE, focusComposition } from '../data/core.js'
 import { SKILLS, SKILL_NODES, SKILL_ORBITS, skillById } from '../data/skills.js'
 import { IDENTITY, IDENTITY_APPEARANCE } from '../data/identity.js'
-import { SUN, PLANETS, LAB, SYSTEM_MAP } from '../data/solarSystem.js'
+import { SUN, PLANETS, LAB, BLACK_HOLE, SYSTEM_MAP } from '../data/solarSystem.js'
 import { orbitPosition } from '../utils/orbits.js'
 import { getOverview, projectOverview } from '../utils/overview.js'
 import { seededRandom } from '../utils/random.js'
@@ -11,7 +11,7 @@ const stars = Array.from({ length: 180 }, () => ({ x: random() * 1440, y: random
 export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width, selectedSkillId = null, hoveredSkillId = null, onSkillSelect, onSkillHover }) {
   const view = getOverview(width, height)
   const focused = SYSTEM_MAP.find(body => body.id === selectedBodyId)
-  const composition = focused ? focusComposition(focused, viewportWidth) : null
+  const composition = focused?.id === BLACK_HOLE.id ? { x: 0, y: 0, heightFraction: .32 } : focused ? focusComposition(focused, viewportWidth) : null
   const anchor = composition ? projectOverview(focused.orbit ? orbitPosition(focused.orbit) : focused.position || [0, 0, 0], view) : { x: 0, y: 0 }
   const zoom = composition ? composition.heightFraction * view.tanY * anchor.depth / ((focused.focus.frameRadius || focused.radius) * (focused.orbit ? view.bodyScale : 1)) : 1
   const center = { x: (1 + (composition?.x || 0)) * width / 2, y: (1 - (composition?.y || 0)) * height / 2 }
@@ -31,13 +31,13 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
     }).join(' ') + 'Z'
   }
   const satelliteBodies = skillsFocused ? SKILL_NODES.map(skill => ({ ...skill, id: `skill:${skill.id}`, skillId: skill.id, orbit: null, position: nodePosition(skill.orbit), radius: skill.radius * view.bodyScale })) : []
-  const bodies = [SUN, ...PLANETS, LAB, ...satelliteBodies].map(body => {
+  const bodies = [SUN, ...PLANETS, LAB, BLACK_HOLE, ...satelliteBodies].map(body => {
     const p = project(body.orbit ? orbitPosition(body.orbit) : body.position || [0, 0, 0])
     return { ...body, ...p, r: zoom * body.radius * (body.orbit ? view.bodyScale : 1) * height / (2 * view.tanY * p.depth) }
   }).sort((a, b) => b.depth - a.depth)
   const sunPosition = project([0, 0, 0])
   function signal(event) { return event.target.closest?.('[data-skill]')?.getAttribute('data-skill') || null }
-  return <svg onClick={event => { const id = signal(event); if (id) onSkillSelect?.(id) }} onPointerMove={event => { if (event.pointerType !== 'touch') onSkillHover?.(signal(event)) }} onPointerLeave={() => onSkillHover?.(null)} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: ten technology satellites${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.name}, a fictional ocean world` : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab signal`}>
+  return <svg onClick={event => { const id = signal(event); if (id) onSkillSelect?.(id) }} onPointerMove={event => { if (event.pointerType !== 'touch') onSkillHover?.(signal(event)) }} onPointerLeave={() => onSkillHover?.(null)} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: ten technology satellites${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.name}, a fictional ocean world` : composition && focused.id === BLACK_HOLE.id ? 'Black Hole: fictional event horizon and accretion disk; portal inactive' : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab and black hole signal`}>
     <defs>
       {bodies.map(body => {
         const dx = sunPosition.x - body.x, dy = sunPosition.y - body.y, length = Math.hypot(dx, dy) || 1
@@ -63,7 +63,9 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
       {selectedBodyId === body.id && !focusComposition(body, viewportWidth) && <circle cx={body.x} cy={body.y} r={body.r * (body.ring ? 2.4 : 1.85)} fill="none" stroke={body.color} strokeWidth=".8" strokeDasharray="2 5" opacity=".65" />}
       {body.id === 'core' && <circle cx={body.x} cy={body.y} r={body.r * 1.6} fill={`url(#${prefix}-corona)`} />}
       {body.ring && <ellipse cx={body.x} cy={body.y} rx={body.r * 2.15} ry={body.r * .62} transform={`rotate(-24 ${body.x} ${body.y})`} fill="none" stroke={body.color} strokeWidth={body.r * .25} opacity=".4" />}
-      <circle cx={body.x} cy={body.y} r={body.r} fill={body.id === 'lab' ? '#06050a' : `url(#${prefix}-${body.id})`} stroke={body.color} strokeWidth={body.id === 'identity' ? 1.4 : .4} strokeOpacity=".35" />
+      {body.id === BLACK_HOLE.id && <ellipse cx={body.x} cy={body.y} rx={body.r * 2.12} ry={body.r * .61} transform={`rotate(-22 ${body.x} ${body.y})`} fill="none" stroke="#ad6648" strokeWidth={Math.max(1, body.r * .20)} opacity=".57" />}
+      <circle cx={body.x} cy={body.y} r={body.r} fill={body.id === BLACK_HOLE.id ? '#000' : body.id === 'lab' ? '#06050a' : `url(#${prefix}-${body.id})`} stroke={body.color} strokeWidth={body.id === 'identity' ? 1.4 : .4} strokeOpacity=".35" />
+      {body.id === BLACK_HOLE.id && <circle cx={body.x} cy={body.y} r={body.r * 1.08} fill="none" stroke="#c3936a" strokeWidth={Math.max(.5, body.r * .025)} strokeOpacity=".38" />}
       {body.id === CORE.id && <g clipPath={`url(#${prefix}-core-surface)`} fill="none" stroke="#fff0cd" opacity=".13" strokeWidth={body.r * .08}>
         {[0.2, 0.65, 1.15].map((shift, i) => <path key={i} d={`M${body.x - body.r},${body.y - body.r * shift} C${body.x},${body.y + body.r * .5} ${body.x + body.r * .2},${body.y - body.r * .7} ${body.x + body.r},${body.y + body.r * shift}`} />)}
       </g>}
