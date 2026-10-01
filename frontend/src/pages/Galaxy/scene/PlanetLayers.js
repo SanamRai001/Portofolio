@@ -180,12 +180,19 @@ export function createNightSideLayer(radius, {
                        mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
       }
       void main() {
-        vec3 p = surface * 11. + vec3(seed * .31);
-        float density = noise(p);
+        // Two spatial scales: broad settlement regions only gate a sparse
+        // field of fine lights. Using the broad field as emission itself made
+        // the night side look like orange lava patches rather than cities.
+        float region = noise(surface * 4.7 + vec3(seed * .31));
+        float cityCluster = smoothstep(.5, .69, region);
+        float lights = smoothstep(.72, .84,
+          noise(surface * 64. + vec3(seed * .73, 2.7, -4.1)));
         #if NIGHT_OCTAVES > 1
-          density = density * .7 + noise(p.yzx * 2.37 + 4.1) * .3;
+          float minorLights = smoothstep(.77, .88,
+            noise(surface.yzx * 108. + vec3(3.1, seed, -2.6)));
+          lights = max(lights, minorLights * .36);
         #endif
-        density = smoothstep(.68, .82, density);
+        float density = cityCluster * lights;
         vec3 sunDirection = normalize(-worldPosition);
         float daylight = dot(normalize(worldNormal), sunDirection);
         float night = 1. - smoothstep(-.28, .12, daylight);
