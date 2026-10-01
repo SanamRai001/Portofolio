@@ -123,3 +123,33 @@ test('G2R.7 portrait focus gives the black-hole disk breathing room under mobile
   assert.ok(portrait > landscape * 1.35 && portrait < landscape * 1.45)
   release(system.group)
 })
+
+
+test('G2R.8 mobile horizon refines only while selected and disposes each replaced geometry', () => {
+  const planet = createBlackHole(BLACK_HOLE, true)
+  const horizon = planet.group.getObjectByName('black-hole-event-horizon')
+  const overview = horizon.geometry
+  let freedOverview = 0, freedFocused = 0, freedRestored = 0
+  overview.addEventListener('dispose', () => { freedOverview++ })
+  assert.equal(overview.parameters.widthSegments, 12)
+  assert.equal(overview.parameters.heightSegments, 6)
+
+  planet.setInteraction(false, true, true)
+  const focused = horizon.geometry
+  focused.addEventListener('dispose', () => { freedFocused++ })
+  assert.notEqual(focused, overview)
+  assert.equal(focused.parameters.widthSegments, 40)
+  assert.equal(focused.parameters.heightSegments, 20)
+  assert.equal(freedOverview, 1)
+  planet.setInteraction(true, true, true)
+  assert.equal(horizon.geometry, focused, 'repeated selection must not allocate every frame')
+
+  planet.setInteraction(false, false, true)
+  const restored = horizon.geometry
+  restored.addEventListener('dispose', () => { freedRestored++ })
+  assert.equal(restored.parameters.widthSegments, 12)
+  assert.equal(restored.parameters.heightSegments, 6)
+  assert.equal(freedFocused, 1)
+  release(planet.group)
+  assert.equal(freedRestored, 1)
+})
