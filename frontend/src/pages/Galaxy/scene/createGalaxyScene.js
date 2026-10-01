@@ -51,9 +51,11 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
       render(delta) {
         const animate = !paused && !profile.reducedMotion
         solar.update(delta, animate)
-        if (animate) stars.update(delta)
         // Navigation works even while ambient/orbital motion is paused.
         rig.update(delta)
+        // Star parallax follows the actual camera in the same existing loop.
+        // Ambient drift alone is disabled under pause or reduced motion.
+        stars.update(delta, rig.camera.position, animate)
         interaction?.refreshHover()
         renderer.render(scene, rig.camera)
         if (!ready) { ready = true; onReady() }
