@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import useReducedMotion from '../../motion/useReducedMotion.js'
 import GalaxyScene from './scene/GalaxyScene.jsx'
 import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
+import { createPortalController } from './navigation/PortalController.js'
+import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
 import { CORE } from './data/core.js'
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
@@ -10,12 +12,18 @@ import './GalaxyPage.css'
 export default function GalaxyPage() {
   const reducedMotion = useReducedMotion()
   const [navigation] = useState(createNavigationController)
+  const [portal] = useState(() => createPortalController({
+    destination: '/',
+    onCommit: destination => window.location.assign(destination),
+  }))
+  const portalState = useSyncExternalStore(portal.subscribe, portal.getSnapshot)
+  const portalActive = portalState.mode !== 'idle' && portalState.mode !== 'committed'
   const [paused, setPaused] = useState(false)
   const [still, setStill] = useState(false)
   const [failed, setFailed] = useState(false)
   const [ready, setReady] = useState(false)
   const onReady = useCallback(() => setReady(true), [])
-  const onError = useCallback(() => setFailed(true), [])
+  const onError = useCallback(() => { portal.cancel(); setFailed(true) }, [portal])
   const fallback = still || failed
 
   useEffect(() => {
@@ -31,12 +39,14 @@ export default function GalaxyPage() {
         <a className="GalaxyExit" href="/">Exit to portfolio <span aria-hidden="true">↗</span></a>
       </header>
 
-      <GalaxyNavigation navigation={navigation} staticView={fallback}>
+      <GalaxyNavigation navigation={navigation} portal={portal} staticView={fallback} reducedMotion={reducedMotion}>
         {(selectedBodyId, state) => <>
-          {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} navigation={navigation} /> : <GalaxyScene navigation={navigation} paused={paused} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
+          {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} navigation={navigation} /> : <GalaxyScene navigation={navigation} portal={portal} paused={paused} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
           {!fallback && !ready && <p className="GalaxyLoading" role="status">Opening the solar system…</p>}
         </>}
       </GalaxyNavigation>
+
+      <GalaxyPortalOverlay portal={portal} />
 
       <footer className="GalaxyFooter">
         <div className="GalaxyCaption">
@@ -50,7 +60,7 @@ export default function GalaxyPage() {
           )}
           {reducedMotion && !fallback && <span className="GalaxyMotionNote">Motion reduced</span>}
           {!failed && (
-            <button type="button" aria-pressed={still} onClick={() => { setReady(false); setStill(!still) }}>Still view</button>
+            <button type="button" aria-pressed={still} disabled={portalActive} onClick={() => { setReady(false); setStill(!still) }}>Still view</button>
           )}
         </div>
       </footer>
