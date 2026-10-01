@@ -11,10 +11,12 @@ import { BLACK_HOLE_APPEARANCE as STYLE } from '../data/blackHole.js'
 export function createBlackHole(body, lowPower) {
   const group = new Group()
   group.name = 'black-hole-visuals'
+  let targetFocus = 0
   const diskMaterial = new ShaderMaterial({
     defines: { BLACK_HOLE_FINE: lowPower ? 0 : 1 },
     uniforms: {
       time: { value: 0 },
+      focusStrength: { value: 0 },
       innerRadius: { value: body.radius * STYLE.diskInnerScale },
       outerRadius: { value: body.radius * STYLE.diskOuterScale },
       horizonRadius: { value: body.radius },
@@ -50,6 +52,7 @@ export function createBlackHole(body, lowPower) {
     `,
     fragmentShader: `
       uniform float time;
+      uniform float focusStrength;
       uniform float innerRadius;
       uniform float outerRadius;
       uniform vec3 innerColor;
@@ -78,8 +81,8 @@ export function createBlackHole(body, lowPower) {
         float approach = dot(normalize(vTangentW), normalize(cameraPosition - vPositionW));
         float beaming = clamp(1. + approach * .27, .74, 1.26);
         vec3 emission = mix(outerColor, innerColor, heat);
-        emission *= (.65 + .55 * heat) * broad * detail * beaming;
-        float alpha = edge * (.22 + .38 * heat) * broad * detail;
+        emission *= (.65 + .55 * heat) * broad * detail * beaming * mix(.68, 1.14, focusStrength);
+        float alpha = edge * (.22 + .38 * heat) * broad * detail * mix(.75, 1.04, focusStrength);
         gl_FragColor = vec4(emission, clamp(alpha, 0., .75));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -140,10 +143,15 @@ export function createBlackHole(body, lowPower) {
   }
   return {
     group,
+    setInteraction(hovered, selected, instant = false) {
+      targetFocus = selected ? 1 : hovered ? .2 : 0
+      if (instant) diskMaterial.uniforms.focusStrength.value = targetFocus
+    },
     update(delta, animate = true) {
-      if (!animate || !Number.isFinite(delta) || delta <= 0) return
-      const dt = Math.min(delta, .05)
-      diskMaterial.uniforms.time.value = (diskMaterial.uniforms.time.value + dt) % 10000
+      const dt = Number.isFinite(delta) ? Math.max(0, Math.min(delta, .05)) : 0
+      const current = diskMaterial.uniforms.focusStrength.value
+      diskMaterial.uniforms.focusStrength.value = current + (targetFocus - current) * (1 - Math.exp(-dt * 5))
+      if (animate) diskMaterial.uniforms.time.value = (diskMaterial.uniforms.time.value + dt) % 10000
     },
   }
 }
