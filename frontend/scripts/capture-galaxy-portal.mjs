@@ -45,6 +45,35 @@ try {
       await page.locator('.GalaxyScene canvas').waitFor()
       await page.locator('.GalaxyLoading').waitFor({ state: 'hidden' })
       assert.equal(page.url(), origin + '/galaxy')
+      // G2R.9: browser proof that a fresh visit never creates/plays sound
+      // until the visitor explicitly opts in. It remains OFF after Pause.
+      if (variant.name === 'desktop-portal') {
+        await page.evaluate(() => {
+          const NativeContext = window.AudioContext
+          window.__galaxyAudioCreated = 0
+          window.AudioContext = class ObservedAudioContext extends NativeContext {
+            constructor(...args) {
+              super(...args)
+              window.__galaxyAudioCreated++
+            }
+          }
+        })
+        const sound = page.locator('.GalaxySoundToggle')
+        assert.equal(await sound.getAttribute('aria-pressed'), 'false')
+        assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 0)
+        await sound.click()
+        await page.waitForFunction(() =>
+          document.querySelector('.GalaxySoundToggle')?.getAttribute('aria-pressed') === 'true')
+        assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 1)
+        await page.screenshot({ path: `${output}/desktop-sound-opted-in.png`, fullPage: true })
+        await sound.click()
+        assert.equal(await sound.getAttribute('aria-pressed'), 'false')
+        await page.getByRole('button', { name: 'Pause motion' }).click()
+        assert.equal(await sound.getAttribute('aria-pressed'), 'false', 'pause never restarts sound')
+        await page.getByRole('button', { name: 'Pause motion' }).click()
+        assert.equal(await sound.getAttribute('aria-pressed'), 'false', 'resuming animation cannot auto-play sound')
+        assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 1)
+      }
       if (variant.staticView) {
         await page.getByRole('button', { name: 'Still view' }).click()
         await page.locator('.GalaxyFallback').waitFor()
