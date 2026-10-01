@@ -1,8 +1,18 @@
 # PROJECT_STATE
 
 ## Objective / authorization
-**G6 implemented; G2–G6 merged into `master`**. The repo default branch is named `master`. Current branch `feat/galaxy-cinematic-surface-spike` is a narrow visual experiment requested after the user asked for more convincing planetary realism inspired by MaybeBoudha. Preserve the earlier Galaxy feature branch; do not start G7 or delete branches.
+**G6 implemented; G2–G6 merged into `master`**. The repo default branch is named `master`. Current branch `feat/galaxy-cinematic-realism` continues from the preserved `feat/galaxy-cinematic-surface-spike` experiment. The user has now authorized a dedicated cinematic-realism sequence for `/galaxy`: dynamic axial rotation, layered planet realism, deeper space, a black-hole visual target and a reusable black-hole portal transition. This remains a visual/navigation upgrade; do not start G7 content or delete branches.
 Original Galaxy brief defines G6 as technology satellites, hover labels and selected-skill details. No proficiency percentages. Project moons/details, Journey and final Lab remain deferred.
+
+## Cinematic realism planning checkpoint — G2R.0 (2026-10-01)
+- Created `docs/GALAXY_CINEMATIC_REALISM_PLAN.md` as the implementation contract for the next visual sequence.
+- Created `docs/GALAXY_VISUAL_ACCEPTANCE.md` so art-direction phases require explicit desktop/mobile/reduced-motion evidence rather than relying on green unit tests.
+- The plan deliberately carries over MaybeBoudha's reference-grounded/hybrid/visual-evidence methodology, not its point-cloud or Poisson reconstruction pipeline.
+- Existing `createSolarSystem`, shared render loop, orbit simulation, camera/navigation, low-power profile, fallbacks and G1-G6 semantic behavior remain the foundation.
+- Planned motion separates existing orbital movement from deterministic local axial rotation/cloud rotation. No extra animation loops.
+- Planned black hole is a first-class selectable visual object plus later portal state machine. Initial portal destination is `/`, but destination must be configurable for a future `/lab` without rewriting the effect. Route commit must occur only under full blackout/event-horizon coverage.
+- G7 remains deferred. No Galaxy runtime code changed in G2R.0.
+- **Next phase: G2R.1 — rendering/motion foundation.** Add data-driven axial tilt/local rotation to the existing presentations, keep navigation/orbits unchanged, add focused tests, then capture normal/reduced desktop/mobile evidence before moving to the Sun.
 
 ## Baseline / prior decisions
 - Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
@@ -52,4 +62,4 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. PR **#2** merged G2–G6 into `master` at `2ba08baedb182e4cfdc2d40c59c1a9eaf2ba0d6b`. PR CI `36441658241` and post-merge CI `36441741414`: **success**; merged-commit Vercel deployment status: **success**. Source branch preserved. No G7 implementation. Complete browser/GPU acceptance when access is available; deployment success does not establish visual acceptance.
 
 ## Known limits / branch hygiene
-Chromium/SwiftShader browser appearance and layout were inspected in reduced and normal motion; physical GPU frame rate and touch remain unverified. A brief unselected-planet flyby can intrude into focused Projects. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Next: review draft PR #3 and address the focused-camera flyby if its transient framing is unacceptable. G7 remains deferred.**
+Chromium/SwiftShader browser appearance and layout were inspected in reduced and normal motion; physical GPU frame rate and touch remain unverified. A brief unselected-planet flyby can intrude into focused Projects. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Next: G2R.1 rendering/motion foundation on `feat/galaxy-cinematic-realism`; keep the focused-camera flyby as a known composition risk and keep G7 deferred.**
