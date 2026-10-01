@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { BufferGeometry, Mesh, MeshBasicMaterial, Scene, Texture } from 'three'
+import { BufferGeometry, Mesh, MeshBasicMaterial, Scene, Texture, Vector3 } from 'three'
 import { getPerformanceProfile } from './utils/performance.js'
 import { createRenderLoop, shouldRunSceneLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
@@ -11,7 +11,7 @@ import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { blendProjectsLongitudeSeam } from './scene/ProjectsPlanet.js'
-import { createStarField } from './scene/StarField.js'
+import { createStarField, STAR_DEPTH_TIERS } from './scene/StarField.js'
 
 function loopHarness(options = {}) {
   const scheduled = new Map(), deltas = []
@@ -353,4 +353,53 @@ test('G2R.2 hero Sun keeps prominence geometry high-quality only and freezes ani
     const scene = new Scene(); scene.add(system.group)
     disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
   }
+})
+
+
+test('G2R.5 star tiers provide deterministic visual variety with bounded geometry/draw calls', () => {
+  const fullProfile = getPerformanceProfile({ width: 1440, deviceMemory: 8, hardwareConcurrency: 8 })
+  const lowProfile = getPerformanceProfile({ width: 390, coarsePointer: true })
+  const high = createStarField(fullProfile), low = createStarField(lowProfile)
+  assert.equal(STAR_DEPTH_TIERS.length, 3)
+  for (const field of [high, low]) {
+    assert.equal(field.group.children.length, 3, 'existing three draw calls remain')
+    field.group.children.forEach((points, index) => {
+      const geometry = points.geometry
+      assert.equal(geometry.attributes.position.count, (field === high ? fullProfile : lowProfile).starCounts[index])
+      assert.equal(geometry.attributes.starColor.count, geometry.attributes.position.count)
+      assert.equal(geometry.attributes.brightness.count, geometry.attributes.position.count)
+      assert.ok(Number.isFinite(STAR_DEPTH_TIERS[index].follow))
+      assert.match(points.material.vertexShader, /attribute vec3 starColor/)
+      assert.match(points.material.fragmentShader, /smoothstep/)
+      for (const v of geometry.attributes.starColor.array) assert.ok(v >= 0 && v <= 1)
+    })
+    const scene = new Scene()
+    scene.add(field.group)
+    disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+  }
+})
+
+test('G2R.5 near/mid/far parallax tracks camera without ambient drift in reduced motion', () => {
+  const field = createStarField(getPerformanceProfile({ width: 1440, reducedMotion: true }))
+  const layers = field.group.children
+  const camera = new Vector3(12, 6, -9)
+  field.update(.05, camera, false)
+  for (let i = 0; i < layers.length; i++) {
+    assert.ok(layers[i].position.distanceTo(camera.clone().multiplyScalar(STAR_DEPTH_TIERS[i].follow)) < 1e-10)
+    assert.equal(layers[i].rotation.y, 0, 'ambient drift must freeze')
+  }
+  const moved = new Vector3(-8, 3, 16)
+  field.update(.05, moved, false)
+  assert.equal(layers[0].position.length(), 0, 'near world-anchored layer has strongest relative parallax')
+  assert.ok(layers[2].position.distanceTo(moved) < layers[1].position.distanceTo(moved))
+  assert.ok(layers.every(layer => layer.rotation.y === 0))
+  field.update(.05, moved, true)
+  assert.notEqual(layers[0].rotation.y, 0)
+  assert.notEqual(layers[1].rotation.y, 0)
+  assert.notEqual(layers[2].rotation.y, 0)
+  field.update(Number.NaN, moved, true)
+  assert.ok(layers.every(layer => Number.isFinite(layer.rotation.y)))
+  const scene = new Scene()
+  scene.add(field.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 })
