@@ -67,8 +67,8 @@ export function createJourneyRings(body, lowPower) {
           // a shimmering/moiresque spinning disc at overview distance.
           float phase = t * 975. + 2. * sin(t * 69.);
           float ringlet = sin(phase);
-          float filter = 1. - smoothstep(.45, 1.7, fwidth(phase));
-          fine += ringlet * filter * .18 * nearDetail;
+          float ringletAA = 1. - smoothstep(.45, 1.7, fwidth(phase));
+          fine += ringlet * ringletAA * .18 * nearDetail;
           float angular = atan(vDisk.y, vDisk.x);
           float fleck = hash21(floor(vec2(t * 650., angular * 195.)));
           fine += (fleck - .5) * .095 * nearDetail;
@@ -110,7 +110,9 @@ export function createJourneyRings(body, lowPower) {
   )
   const mesh = new Mesh(geometry, material)
   mesh.name = 'journey-ring-bands'
-  mesh.rotation.x = -Math.PI / 2 + .3
+  // A slightly more oblique plane exposes the ring's ellipse instead of
+  // preserving the previous nearly face-on two-hoop silhouette.
+  mesh.rotation.x = -Math.PI / 2 - .18
   mesh.rotation.y = .2
   const group = new Group()
   group.name = 'journey-rings'
