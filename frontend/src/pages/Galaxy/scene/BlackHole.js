@@ -41,7 +41,7 @@ export function createBlackHole(body, lowPower) {
           // above the horizon; it is a local mesh warp, not sky distortion.
           float farSide = smoothstep(.0, .73, p.y / max(vRadius, .001));
           float innerWeight = 1. - smoothstep(innerRadius, outerRadius, vRadius);
-          p.z += farSide * innerWeight * horizonRadius * .21;
+          p.z += farSide * innerWeight * horizonRadius * .38;
         #endif
         vec4 world = modelMatrix * vec4(p, 1.);
         vPositionW = world.xyz;
@@ -67,8 +67,8 @@ export function createBlackHole(body, lowPower) {
         float angle = atan(vDisk.y, vDisk.x);
         float edge = smoothstep(.015, .09, t) * (1. - smoothstep(.77, .995, t));
         float heat = pow(1. - t, 2.1);
-        float broad = .89 + .07 * sin(t * 31. + angle * 2. - time * .14)
-                           + .035 * sin(t * 63. - angle * 4.);
+        float broad = .80 + .13 * sin(t * 19. - angle * 3. - time * .15)
+                           + .065 * sin(t * 42. + angle * 7. - time * .21);
         float detail = 1.;
         #if BLACK_HOLE_FINE
           float ripple = t * 410. + angle * 5. - time * .20;
