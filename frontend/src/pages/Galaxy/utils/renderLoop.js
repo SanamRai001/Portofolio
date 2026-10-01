@@ -1,4 +1,8 @@
 // Own exactly one scheduled frame. A paused scene only renders on invalidation.
+export function shouldRunSceneLoop({ inView, pageActive, hidden, travelling }) {
+  return Boolean(pageActive && !hidden && (inView || travelling))
+}
+
 export function createRenderLoop({ render, requestFrame, cancelFrame, fps = 60, onError }) {
   let frame = null
   let disposed = false
