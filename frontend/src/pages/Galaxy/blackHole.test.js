@@ -90,6 +90,7 @@ test('G2R.7 focus is a normal target in the single-loop solar presentation and d
     assert.deepEqual(target.group.position.toArray(), BLACK_HOLE.position)
     assert.ok(system.hitMeshes.includes(target.interactionMesh))
     assert.equal(target.interactionMesh.userData.bodyId, BLACK_HOLE.id)
+    assert.equal(target.interactionMesh.geometry.parameters.radius, BLACK_HOLE.radius * STYLE.diskOuterScale)
     const disk = target.visuals.getObjectByName('black-hole-accretion-disk')
     system.setInteraction({ selectedBodyId: BLACK_HOLE.id, hoveredBodyId: null }, true)
     assert.equal(disk.material.uniforms.focusStrength.value, 1)
