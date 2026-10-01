@@ -1,4 +1,4 @@
-import { PLANETS, LAB, SOLAR_STYLE } from '../data/solarSystem.js'
+import { PLANETS, LAB, BLACK_HOLE, SOLAR_STYLE } from '../data/solarSystem.js'
 import { orbitPosition } from './orbits.js'
 const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0)
 // Portrait rolls the orbital major axis vertically and looks across the plane.
@@ -21,6 +21,9 @@ export function getOverview(width, height) {
     fit(orbitPosition(body.orbit, step / 128 * Math.PI * 2), body.radius * (body.ring?.[1] || 1.12) * bodyScale)
   }
   fit(LAB.position, LAB.radius * 2)
+  // Preserve the swept orbit envelope while also keeping the new peripheral
+  // black-hole silhouette on-screen at both landscape and portrait sizes.
+  fit(BLACK_HOLE.position, BLACK_HOLE.radius * 2.2 * bodyScale)
   return { portrait, fov, distance, direction, right, up, tanX, tanY, bodyScale }
 }
 export function projectOverview(point, view) {

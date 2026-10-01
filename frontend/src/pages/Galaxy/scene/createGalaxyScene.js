@@ -1,13 +1,14 @@
 import { Color, Raycaster, Scene, Vector2, WebGLRenderer } from 'three'
 import { createCameraRig } from './CameraRig.js'
+import { createPortalCameraMotion } from './PortalCameraMotion.js'
 import { createSolarSystem } from './SolarSystem.js'
 import { createStarField } from './StarField.js'
-import { createRenderLoop } from '../utils/renderLoop.js'
+import { createRenderLoop, shouldRunSceneLoop } from '../utils/renderLoop.js'
 import { skillInteraction } from '../navigation/SkillInteraction.js'
 import { attachPointerInteractions } from '../navigation/InteractionController.js'
 import { disposeScene } from '../utils/disposeScene.js'
 
-export function createGalaxyScene(mount, profile, { onReady, onError, navigation }) {
+export function createGalaxyScene(mount, profile, { onReady, onError, navigation, portal = null }) {
   const scene = new Scene()
   scene.background = new Color('#020204')
   const renderer = new WebGLRenderer({
@@ -20,6 +21,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     disposed = true
     loop?.dispose()
     disposers.reverse().forEach((cleanup) => cleanup())
+    solar?.dispose()
     disposeScene(scene, renderer)
   }
   function fail() {
@@ -31,12 +33,18 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     disposers.push(() => target.removeEventListener(event, callback))
   }
 
+  let solar
   try {
     renderer.setPixelRatio(profile.dpr)
     mount.appendChild(renderer.domElement)
     const stars = createStarField(profile)
-    const solar = createSolarSystem(profile)
+    solar = createSolarSystem(profile, { onSurfaceReady: () => loop?.invalidate() })
     const rig = createCameraRig({ getAnchor: solar.getAnchor, onComplete: navigation.complete, reducedMotion: profile.reducedMotion })
+    const portalCamera = portal ? createPortalCameraMotion(rig.camera, solar.getAnchor) : null
+    const isPortalActive = () => {
+      const mode = portal?.getSnapshot().mode
+      return Boolean(mode && mode !== 'idle' && mode !== 'committed')
+    }
     scene.add(stars.group, solar.group)
     let paused = false, inView = true, pageActive = true, ready = false
 
@@ -49,10 +57,14 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
       render(delta) {
         const animate = !paused && !profile.reducedMotion
         solar.update(delta, animate)
-        if (animate) stars.update(delta)
-        // Navigation works even while ambient/orbital motion is paused.
+        // The portal shares this one animation clock; only the scene can
+        // advance normal camera phases. Static/reduced modes use the veil.
+        if (portal && !profile.reducedMotion) portal.advance(delta)
         rig.update(delta)
-        interaction?.refreshHover()
+        if (portal && !profile.reducedMotion) portalCamera.apply(portal.getMotion())
+        // Star parallax follows the post-flight camera.
+        stars.update(delta, rig.camera.position, animate)
+        if (!isPortalActive()) interaction?.refreshHover()
         renderer.render(scene, rig.camera)
         if (!ready) { ready = true; onReady() }
       },
@@ -60,8 +72,16 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
 
     function syncLoop() {
       loop.setState({
-        active: inView && pageActive && !document.hidden,
-        continuous: (!paused && !profile.reducedMotion) || rig.travelling,
+        // A mobile map control can scroll the canvas out of view while a
+        // camera flight is still resolving. Finish only that flight offscreen,
+        // then the normal IntersectionObserver pause applies again.
+        active: shouldRunSceneLoop({
+          inView,
+          pageActive,
+          hidden: document.hidden,
+          travelling: rig.travelling || isPortalActive(),
+        }),
+        continuous: (!paused && !profile.reducedMotion) || rig.travelling || isPortalActive(),
       })
     }
     function resize() {
@@ -81,6 +101,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     })
     visibility.observe(mount)
     disposers.push(() => visibility.disconnect())
+    if (portal) disposers.push(portal.subscribe(() => { syncLoop(); loop.invalidate() }))
     listen(document, 'visibilitychange', syncLoop)
     listen(window, 'pagehide', () => { pageActive = false; syncLoop() })
     listen(window, 'pageshow', () => { pageActive = true; syncLoop() })
@@ -91,7 +112,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
       navigation: skillInteraction(navigation), invalidate: () => loop.invalidate(),
       pick(x, y) {
         const rect = mount.getBoundingClientRect()
-        if (!rect.width || !rect.height) return null
+        if (!rect.width || !rect.height || isPortalActive()) return null
         pointer.set((x - rect.left) / rect.width * 2 - 1, 1 - (y - rect.top) / rect.height * 2)
         solar.group.updateMatrixWorld(true)
         rig.camera.updateMatrixWorld()
@@ -99,7 +120,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
         return raycaster.intersectObjects(solar.hitMeshes, false)[0]?.object.userData.bodyId || null
       },
       onPoint(point) {
-        if (!profile.parallax || paused) return
+        if (!profile.parallax || paused || isPortalActive()) return
         const rect = mount.getBoundingClientRect()
         rig.point(point ? (point.x - rect.left) / rect.width * 2 - 1 : 0,
           point ? 1 - (point.y - rect.top) / rect.height * 2 : 0)

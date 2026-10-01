@@ -1,15 +1,17 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { BufferGeometry, Mesh, MeshBasicMaterial, Scene, Texture } from 'three'
+import { BufferGeometry, Mesh, MeshBasicMaterial, Scene, Texture, Vector3 } from 'three'
 import { getPerformanceProfile } from './utils/performance.js'
-import { createRenderLoop } from './utils/renderLoop.js'
+import { createRenderLoop, shouldRunSceneLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
-import { SUN, PLANETS, LAB, SYSTEM_MAP } from './data/solarSystem.js'
+import { SUN, PLANETS, LAB, BLACK_HOLE, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
+import { PROJECTS_APPEARANCE } from './data/projects.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
-import { createStarField } from './scene/StarField.js'
+import { blendProjectsLongitudeSeam } from './scene/ProjectsPlanet.js'
+import { createStarField, STAR_DEPTH_TIERS } from './scene/StarField.js'
 
 function loopHarness(options = {}) {
   const scheduled = new Map(), deltas = []
@@ -194,8 +196,9 @@ test('G2 overview contains full swept orbital envelopes at desktop, laptop and p
     for (const body of PLANETS) for (let step = 0; step < 360; step++) {
       const p = projectOverview(orbitPosition(body.orbit, step * Math.PI / 180), view)
       const radius = body.radius * (body.ring?.[1] || 1.12) * view.bodyScale
-      assert.ok(Math.abs(p.x) + radius / (p.depth * view.tanX) < 0.92, body.id + ' horizontal')
-      assert.ok(Math.abs(p.y) + radius / (p.depth * view.tanY) < 0.92, body.id + ' vertical')
+        * (view.portrait ? SOLAR_STYLE.mobileOverviewBodyScale : SOLAR_STYLE.overviewBodyScale)
+      assert.ok(Math.abs(p.x) + radius / (p.depth * view.tanX) < 0.95, body.id + ' horizontal')
+      assert.ok(Math.abs(p.y) + radius / (p.depth * view.tanY) < 0.95, body.id + ' vertical')
     }
     const lab = projectOverview(LAB.position, view)
     assert.ok(Math.abs(lab.x) < 0.9 && Math.abs(lab.y) < 0.9)
@@ -204,13 +207,18 @@ test('G2 overview contains full swept orbital envelopes at desktop, laptop and p
 
 test('G2 configuration and rendered bodies preserve hierarchy, materials and cleanup', () => {
   assert.equal(PLANETS.length, 4)
-  assert.equal(SYSTEM_MAP.length, 6)
+  assert.equal(SYSTEM_MAP.length, 7)
   assert.equal(new Set(PLANETS.map(body => body.surface)).size, 4)
   assert.ok(SUN.radius > Math.max(...PLANETS.map(body => body.radius)))
   const system = createSolarSystem(getPerformanceProfile({ width: 390 }))
   assert.equal(system.bodies.size, 4)
   assert.equal(system.group.children.filter(child => child.isLineLoop).length, 4)
   system.resize(true)
+  assert.equal(system.targets.get('core').visuals.scale.x, SOLAR_STYLE.mobileOverviewBodyScale)
+  system.setInteraction({ selectedBodyId: 'projects', hoveredBodyId: null }, true)
+  assert.equal(system.targets.get('core').visuals.scale.x, 1)
+  system.setInteraction({ selectedBodyId: null, hoveredBodyId: null }, true)
+  assert.equal(system.targets.get('core').visuals.scale.x, SOLAR_STYLE.mobileOverviewBodyScale)
   system.update(0.05)
   let geometryCount = 0, disposed = 0, triangles = 0
   system.group.traverse(object => {
@@ -224,4 +232,193 @@ test('G2 configuration and rendered bodies preserve hierarchy, materials and cle
   const scene = new Scene(); scene.add(system.group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
   assert.equal(disposed, geometryCount)
+})
+
+test('Projects preserves its authored-surface fallback and keeps settlement lights locked to terrain', () => {
+  const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const visuals = system.targets.get('projects').visuals
+  const surface = visuals.getObjectByName('projects-surface')
+  const night = visuals.getObjectByName('projects-night-side')
+  assert.ok(surface)
+  assert.ok(night)
+  assert.equal(surface.material.vertexColors, true)
+  assert.equal(surface.material.map, null)
+  assert.equal(night.material.defines.NIGHT_OCTAVES, 2)
+  assert.equal(night.material.uniforms.strength.value, PROJECTS_APPEARANCE.nightStrength)
+
+  const positions = surface.geometry.attributes.position
+  const radius = SYSTEM_MAP.find(body => body.id === 'projects').radius
+  for (let i = 0; i < positions.count; i++) {
+    const length = Math.hypot(positions.getX(i), positions.getY(i), positions.getZ(i))
+    assert.ok(Math.abs(length - radius) < 1e-5, 'textured surface must not pinch at pole triangles')
+  }
+
+  system.update(.05, true)
+  assert.ok(surface.rotation.y > 0)
+  assert.ok(Math.abs(surface.rotation.y - night.rotation.y) < 1e-12, 'settlement layer must remain surface-locked')
+
+  const surfaceFrozen = surface.rotation.y, nightFrozen = night.rotation.y
+  system.update(.05, false)
+  assert.equal(surface.rotation.y, surfaceFrozen)
+  assert.equal(night.rotation.y, nightFrozen)
+
+  system.dispose()
+  const scene = new Scene(); scene.add(system.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+
+  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
+  const lowNight = low.targets.get('projects').visuals.getObjectByName('projects-night-side')
+  assert.equal(lowNight.material.defines.NIGHT_OCTAVES, 1)
+  assert.equal(lowNight.material.uniforms.strength.value, PROJECTS_APPEARANCE.lowPowerStrength)
+  low.dispose()
+  const lowScene = new Scene(); lowScene.add(low.group)
+  disposeScene(lowScene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+test('Projects map smooths its longitude join while retaining the standard material lighting', () => {
+  const material = {}
+  blendProjectsLongitudeSeam(material)
+  const shader = { fragmentShader: 'before\n#include <map_fragment>\nafter' }
+  material.onBeforeCompile(shader)
+  assert.match(shader.fragmentShader, /texture2D\(map, vMapUv\)/)
+  assert.match(shader.fragmentShader, /texture2D\(map, vec2\(1\. - vMapUv\.x, vMapUv\.y\)\)/)
+  assert.match(shader.fragmentShader, /diffuseColor \*= sampledDiffuseColor/)
+  assert.ok(shader.fragmentShader.startsWith('before\n') && shader.fragmentShader.endsWith('\nafter'))
+})
+
+test('G2R.1 planet rotation is data-driven, deterministic and frozen when ambient motion is disabled', () => {
+  for (const body of PLANETS) {
+    assert.ok(Object.isFrozen(body.rotation))
+    assert.ok(Number.isFinite(body.rotation.axialTilt))
+    assert.ok(body.rotation.surfaceSpeed > 0)
+    assert.ok(body.rotation.direction === 1 || body.rotation.direction === -1)
+  }
+
+  const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const surfaces = new Map(PLANETS.map(body => {
+    const surface = system.targets.get(body.id).visuals.getObjectByName(`${body.id}-surface`)
+    assert.ok(surface, `${body.id} surface`)
+    assert.ok(Math.abs(surface.rotation.z - body.rotation.axialTilt) < 1e-12, `${body.id} tilt`)
+    return [body.id, surface]
+  }))
+  const before = new Map([...surfaces].map(([id, surface]) => [id, surface.rotation.y]))
+
+  system.update(.05, true)
+  for (const [id, surface] of surfaces) assert.notEqual(surface.rotation.y, before.get(id), `${id} should rotate`)
+
+  const moved = new Map([...surfaces].map(([id, surface]) => [id, surface.rotation.y]))
+  system.update(.05, false)
+  for (const [id, surface] of surfaces) assert.equal(surface.rotation.y, moved.get(id), `${id} should freeze`)
+
+  const skillsConstellation = system.targets.get('skills').visuals.getObjectByName('skills-satellites')
+  assert.equal(skillsConstellation.rotation.y, 0, 'planet spin must not rotate the skill constellation')
+
+  system.dispose()
+  const scene = new Scene(); scene.add(system.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+
+test('offscreen Galaxy rendering stays alive only long enough to settle camera travel', () => {
+  assert.equal(shouldRunSceneLoop({ inView: true, pageActive: true, hidden: false, travelling: false }), true)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: false, travelling: true }), true)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: false, travelling: false }), false)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: false, hidden: false, travelling: true }), false)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: true, travelling: true }), false)
+})
+
+
+test('G2R.2 hero Sun keeps prominence geometry high-quality only and freezes animation when disabled', () => {
+  const high = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const highCore = high.targets.get('core').visuals
+  const highSurface = highCore.getObjectByName('core-surface')
+  const prominences = highCore.getObjectByName('core-prominences')
+  assert.ok(prominences)
+  assert.equal(prominences.children.length, 3)
+  const prominenceTriangles = prominences.children.reduce((total, mesh) => total + (mesh.geometry.index?.count || 0) / 3, 0)
+  assert.ok(prominenceTriangles > 0 && prominenceTriangles < 1000)
+
+  const before = highSurface.material.uniforms.time.value
+  high.update(.05, true)
+  assert.ok(highSurface.material.uniforms.time.value > before)
+  const frozen = highSurface.material.uniforms.time.value
+  high.update(.05, false)
+  assert.equal(highSurface.material.uniforms.time.value, frozen)
+
+  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
+  assert.equal(low.targets.get('core').visuals.getObjectByName('core-prominences'), undefined)
+
+  for (const system of [high, low]) {
+    system.dispose()
+    const scene = new Scene(); scene.add(system.group)
+    disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+  }
+})
+
+
+test('G2R.5 star tiers provide deterministic visual variety with bounded geometry/draw calls', () => {
+  const fullProfile = getPerformanceProfile({ width: 1440, deviceMemory: 8, hardwareConcurrency: 8 })
+  const lowProfile = getPerformanceProfile({ width: 390, coarsePointer: true })
+  const high = createStarField(fullProfile), low = createStarField(lowProfile)
+  assert.equal(STAR_DEPTH_TIERS.length, 3)
+  for (const field of [high, low]) {
+    assert.equal(field.group.children.length, 3, 'existing three draw calls remain')
+    field.group.children.forEach((points, index) => {
+      const geometry = points.geometry
+      assert.equal(geometry.attributes.position.count, (field === high ? fullProfile : lowProfile).starCounts[index])
+      assert.equal(geometry.attributes.starColor.count, geometry.attributes.position.count)
+      assert.equal(geometry.attributes.brightness.count, geometry.attributes.position.count)
+      assert.ok(Number.isFinite(STAR_DEPTH_TIERS[index].follow))
+      assert.match(points.material.vertexShader, /attribute vec3 starColor/)
+      assert.match(points.material.fragmentShader, /smoothstep/)
+      for (const v of geometry.attributes.starColor.array) assert.ok(v >= 0 && v <= 1)
+    })
+    const scene = new Scene()
+    scene.add(field.group)
+    disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+  }
+})
+
+test('G2R.5 near/mid/far parallax tracks camera without ambient drift in reduced motion', () => {
+  const field = createStarField(getPerformanceProfile({ width: 1440, reducedMotion: true }))
+  const layers = field.group.children
+  const camera = new Vector3(12, 6, -9)
+  field.update(.05, camera, false)
+  for (let i = 0; i < layers.length; i++) {
+    assert.ok(layers[i].position.distanceTo(camera.clone().multiplyScalar(STAR_DEPTH_TIERS[i].follow)) < 1e-10)
+    assert.equal(layers[i].rotation.y, 0, 'ambient drift must freeze')
+  }
+  const moved = new Vector3(-8, 3, 16)
+  field.update(.05, moved, false)
+  assert.equal(layers[0].position.length(), 0, 'near world-anchored layer has strongest relative parallax')
+  assert.ok(layers[2].position.distanceTo(moved) < layers[1].position.distanceTo(moved))
+  assert.ok(layers.every(layer => layer.rotation.y === 0))
+  field.update(.05, moved, true)
+  assert.notEqual(layers[0].rotation.y, 0)
+  assert.notEqual(layers[1].rotation.y, 0)
+  assert.notEqual(layers[2].rotation.y, 0)
+  field.update(Number.NaN, moved, true)
+  assert.ok(layers.every(layer => Number.isFinite(layer.rotation.y)))
+  const scene = new Scene()
+  scene.add(field.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+
+test('G2R.7 keeps the distant black hole inside swept desktop and mobile overviews', () => {
+  for (const [width, height] of [[1360, 630], [1200, 530], [346, 494]]) {
+    const view = getOverview(width, height)
+    const hole = projectOverview(BLACK_HOLE.position, view)
+    const apparentRadius = BLACK_HOLE.radius * 2.2 * (view.portrait ? SOLAR_STYLE.mobileBodyScale : 1)
+    assert.ok(Math.abs(hole.x) + apparentRadius / (hole.depth * view.tanX) < .95)
+    assert.ok(Math.abs(hole.y) + apparentRadius / (hole.depth * view.tanY) < .95)
+  }
+  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: true }))
+  assert.equal(low.targets.size, 7)
+  assert.ok(low.targets.get(BLACK_HOLE.id).visuals.getObjectByName('black-hole-event-horizon'))
+  assert.ok(low.hitMeshes.some(mesh => mesh.userData.bodyId === BLACK_HOLE.id))
+  const scene = new Scene()
+  scene.add(low.group)
+  low.dispose()
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 })

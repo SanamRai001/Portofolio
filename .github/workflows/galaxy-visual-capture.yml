@@ -1,0 +1,75 @@
+name: Galaxy Visual Capture
+
+on:
+  push:
+    branches:
+      - feat/galaxy-cinematic-surface-spike
+      - feat/galaxy-cinematic-realism
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/galaxy-visual-capture.yml'
+  workflow_dispatch:
+    inputs:
+      long_rotation:
+        description: 'Also run the ~140 second Projects full-turn seam proof'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: galaxy-visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Install temporary browser tooling
+        timeout-minutes: 7
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.1
+          # CI uses chromium.launch() in headless mode. Install only its
+          # headless shell rather than running a full apt upgrade for a browser
+          # UI we never launch (the old --with-deps step could stall runners).
+          npx playwright install chromium --only-shell
+      - run: npm run build
+      - name: Capture Galaxy
+        env:
+          GALAXY_LONG_ROTATION: ${{ github.event.inputs.long_rotation || 'false' }}
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node scripts/capture-galaxy.mjs
+      - name: Capture black-hole portal handoff
+        env:
+          GALAXY_LONG_ROTATION: 'false'
+          GALAXY_PREVIEW_ORIGIN: 'http://127.0.0.1:4175'
+        run: |
+          # Isolate the portal test from the preceding capture preview:
+          # the npm launcher may leave Vite's child alive after shell cleanup.
+          npm run preview -- --host 127.0.0.1 --port 4175 --strictPort &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node scripts/capture-galaxy-portal.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: galaxy-visual-${{ github.sha }}
+          path: frontend/artifacts/galaxy-visual/
+          if-no-files-found: warn
+          retention-days: 7

@@ -24,9 +24,10 @@ export function focusComposition(body, viewportWidth) {
 }
 
 export const SUN_APPEARANCE = Object.freeze({
-  amber: '#a85624', gold: '#edb96f', ivory: '#ffedc7',
-  corona: '#f8bb69', outerCorona: '#c78138',
-  innerScale: 1.09, outerScale: 1.22,
-  innerStrength: 0.38, outerStrength: 0.1,
-  hoverActivity: 0.35, focusActivity: 1, coronaBoost: 0.16,
+  amber: '#9b461d', gold: '#e9a84f', ivory: '#ffe7b0',
+  corona: '#f2a24c', outerCorona: '#a75a2a', prominence: '#ffd08a',
+  innerScale: 1.032, outerScale: 1.095,
+  innerStrength: 0.21, outerStrength: 0.032,
+  prominenceOpacity: 0.32,
+  hoverActivity: 0.35, focusActivity: 1, coronaBoost: 0.14, prominenceBoost: 0.18,
 })

@@ -7,6 +7,7 @@ import react from '@vitejs/plugin-react'
 import { JSDOM } from 'jsdom'
 import React, { act } from 'react'
 import { createNavigationController } from '../src/pages/Galaxy/navigation/NavigationController.js'
+import { createPortalController } from '../src/pages/Galaxy/navigation/PortalController.js'
 
 let components, directory, dom, root, container, navigation
 before(async () => {
@@ -30,15 +31,15 @@ beforeEach(async () => {
 })
 afterEach(async () => { await act(async () => root.unmount()); dom.window.close() })
 const button = name => container.querySelector(`button[aria-label="${name}"]`)
-const render = async (staticView = true) => act(async () => root.render(React.createElement(components.GalaxyNavigation, { navigation, staticView },
+const render = async (staticView = true, portal = null) => act(async () => root.render(React.createElement(components.GalaxyNavigation, { navigation, staticView, portal, reducedMotion: false },
   (selectedBodyId, state) => React.createElement(components.SolarDiagram, { width: 346, height: 494, prefix: 'test', selectedBodyId, selectedSkillId: state.selectedSkillId, hoveredSkillId: state.hoveredSkillId, onSkillSelect: navigation.selectSkill, onSkillHover: navigation.setSkillHover }))))
 const click = async node => act(async () => node.dispatchEvent(new window.MouseEvent('click', { bubbles: true })))
 const escape = async () => act(async () => window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' })))
 
-test('six native map buttons select the same static architecture with visible selected feedback', async () => {
+test('seven native map buttons select the same static architecture with visible selected feedback', async () => {
   await render()
-  assert.equal(container.querySelectorAll('.GalaxySystemMap button').length, 6)
-  for (const [label, id] of [['Core', 'core'], ['Identity', 'identity'], ['Skills', 'skills'], ['Projects', 'projects'], ['Journey', 'journey'], ['The Lab', 'lab']]) {
+  assert.equal(container.querySelectorAll('.GalaxySystemMap button').length, 7)
+  for (const [label, id] of [['Core', 'core'], ['Identity', 'identity'], ['Skills', 'skills'], ['Projects', 'projects'], ['Journey', 'journey'], ['The Lab', 'lab'], ['Black Hole', 'black-hole']]) {
     assert.equal(button(label).type, 'button')
     assert.equal(button(label).tabIndex, 0)
     await click(button(label))
@@ -47,9 +48,10 @@ test('six native map buttons select the same static architecture with visible se
     assert.equal(button(label).getAttribute('aria-pressed'), 'true')
     assert.equal(container.querySelectorAll('[aria-pressed="true"]').length, 1)
     assert.equal(container.querySelector(`[data-body="${id}"]`).getAttribute('opacity'), '1')
+    if (id === 'lab') assert.match(container.textContent, /Content locked/)
     assert.match(container.querySelector('[role="status"]').textContent, /Static selection/)
   }
-  assert.match(container.textContent, /Content locked/)
+  assert.match(container.textContent, /Portal inactive/)
 })
 
 test('keyboard focus exposes feedback; Escape and System return preserve usable focus', async () => {
@@ -240,4 +242,68 @@ test('fallback satellite clicks share Skills selection with the native technolog
   assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /selected PostgreSQL/)
   await click(button('Identity'))
   assert.equal(container.querySelectorAll('[data-skill]').length, 0)
+})
+
+
+test('black-hole static focus is labelled, keyboard accessible and has no portal navigation yet', async () => {
+  await render()
+  await click(button('Black Hole'))
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'black-hole')
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
+  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /Black Hole: fictional event horizon/)
+  assert.match(container.querySelector('[role="status"]').textContent, /Black Hole/)
+  assert.match(container.textContent, /Portal inactive/)
+  assert.ok(container.querySelector('[data-body="black-hole"] ellipse'))
+  // Focus the actual Back control, matching the existing keyboard-return
+  // contract. A synthetic click on a map button does not itself focus it.
+  await act(async () => container.querySelector('.GalaxyBack').focus())
+  await escape()
+  assert.equal(navigation.getSnapshot().mode, 'overview')
+  assert.equal(document.activeElement?.getAttribute('aria-label'), 'Black Hole')
+})
+
+
+test('G2R.8B Enter action requires arrival, and Escape/Back cancels before route commitment', async () => {
+  const commits = []
+  const portal = createPortalController({ onCommit: path => commits.push(path) })
+  await render(false, portal)
+  assert.equal(container.querySelector('.GalaxyPortalEnter'), null)
+  await click(button('Black Hole'))
+  assert.equal(navigation.getSnapshot().mode, 'focusing_body')
+  assert.equal(container.querySelector('.GalaxyPortalEnter'), null, 'do not offer entry before camera arrives')
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
+  const enter = container.querySelector('.GalaxyPortalEnter')
+  assert.equal(enter?.textContent.includes('Enter the horizon'), true)
+  await click(enter)
+  assert.equal(portal.getSnapshot().mode, 'approach')
+  assert.equal(button('Journey').disabled, true, 'disable other destinations during plunge')
+  await act(async () => container.querySelector('.GalaxyBack').focus())
+  await escape()
+  assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.equal(navigation.getSnapshot().mode, 'returning_overview')
+  assert.deepEqual(commits, [])
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  await click(button('Black Hole'))
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  await click(container.querySelector('.GalaxyPortalEnter'))
+  assert.equal(portal.getSnapshot().mode, 'approach')
+  await click(container.querySelector('.GalaxyBack'))
+  assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.deepEqual(commits, [])
+})
+
+test('G2R.8B static fallback uses a reduced-motion blackout rather than a stalled scene flight', async () => {
+  const commits = []
+  const portal = createPortalController({ onCommit: path => commits.push(path) })
+  await render(true, portal)
+  await click(button('Black Hole'))
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.ok(container.querySelector('.GalaxyPortalEnter'))
+  await click(container.querySelector('.GalaxyPortalEnter'))
+  assert.equal(portal.getSnapshot().mode, 'blackout')
+  assert.deepEqual(commits, [], 'no navigation without a fully opaque veil')
+  await escape()
+  assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.deepEqual(commits, [])
 })

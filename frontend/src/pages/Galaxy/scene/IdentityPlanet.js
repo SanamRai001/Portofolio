@@ -1,7 +1,8 @@
 import { Color, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial, SphereGeometry } from 'three'
 import { IDENTITY_APPEARANCE } from '../data/identity.js'
-import { identityTerrain } from '../utils/identitySurface.js'
-import { createAtmosphere } from './CelestialBody.js'
+import { createAxialRotation } from '../utils/axialRotation.js'
+import { createIdentitySurfaceMaps, identityTerrain } from '../utils/identitySurface.js'
+import { createCloudLayer, createLightAwareAtmosphere } from './PlanetLayers.js'
 
 export function createIdentityPlanet(body, lowPower) {
   const style = IDENTITY_APPEARANCE, group = new Group()
@@ -17,14 +18,55 @@ export function createIdentityPlanet(body, lowPower) {
     colors.push(color.r, color.g, color.b)
   }
   geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
-  const surface = new Mesh(geometry, new MeshStandardMaterial({ vertexColors: true, roughness: .78, metalness: .025 }))
+  const surface = new Mesh(geometry, new MeshStandardMaterial({
+    vertexColors: true,
+    roughness: style.surfaceRoughness,
+    metalness: style.surfaceMetalness,
+  }))
   surface.name = 'identity-surface'
-  surface.rotation.z = .12
-  const atmosphere = createAtmosphere(body.radius * style.atmosphereScale, style.atmosphere, style.atmosphereStrength, lowPower ? 24 : 40)
+  if (typeof document !== 'undefined') {
+    // Keep the CPU-colored sphere as a complete fallback. In the browser,
+    // replace only the material detail with deterministic generated maps so
+    // oceans can be smoother, land rougher and relief finer than vertex scale.
+    const maps = createIdentitySurfaceMaps(lowPower ? 192 : 384, lowPower ? 96 : 192)
+    surface.material.vertexColors = false
+    surface.material.color.set('#ffffff')
+    surface.material.map = maps.albedo
+    surface.material.roughnessMap = maps.roughness
+    surface.material.roughness = 1
+    surface.material.bumpMap = maps.elevation
+    surface.material.bumpScale = body.radius * (lowPower ? .007 : .011)
+    surface.material.metalness = .01
+    surface.material.needsUpdate = true
+  }
+  const rotation = createAxialRotation(surface, body.rotation)
+
+  const atmosphere = createLightAwareAtmosphere(body.radius * style.atmosphereScale, {
+    color: style.atmosphere,
+    strength: style.atmosphereStrength,
+    lowPower,
+  })
   atmosphere.name = 'identity-atmosphere'
-  group.add(surface, atmosphere)
+
+  const clouds = createCloudLayer(body.radius * style.cloudScale, {
+    color: style.cloud,
+    opacity: style.cloudOpacity * (lowPower ? .72 : 1),
+    lowPower,
+    seed: style.cloudSeed,
+    rotation: {
+      axialTilt: body.rotation.axialTilt,
+      surfaceSpeed: body.rotation.cloudSpeed || body.rotation.surfaceSpeed * 1.35,
+      direction: body.rotation.direction,
+      phase: .43,
+    },
+  })
+  clouds.mesh.name = 'identity-clouds'
+  group.add(surface, clouds.mesh, atmosphere)
+
   let targetActivity = 0, activity = 0, targetSpeed = 1, speed = 1
-  function present() { atmosphere.material.uniforms.strength.value = style.atmosphereStrength * (1 + activity) }
+  function present() {
+    atmosphere.material.uniforms.strength.value = style.atmosphereStrength * (1 + activity)
+  }
   return {
     group,
     setInteraction(hovered, selected, instant = false) {
@@ -40,7 +82,8 @@ export function createIdentityPlanet(body, lowPower) {
       if (Math.abs(activity - targetActivity) < .0001) activity = targetActivity
       if (Math.abs(speed - targetSpeed) < .0001) speed = targetSpeed
       present()
-      if (animate) surface.rotation.y = (surface.rotation.y + dt * style.rotationSpeed * speed) % (Math.PI * 2)
+      rotation.update(dt, animate, speed)
+      clouds.update(dt, animate)
     },
   }
 }
