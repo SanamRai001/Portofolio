@@ -105,7 +105,7 @@ export function createBlackHole(body, lowPower) {
   disk.frustumCulled = false
   group.add(disk)
 
-  const horizon = new Mesh(new SphereGeometry(body.radius, lowPower ? 20 : 36, lowPower ? 12 : 20),
+  const horizon = new Mesh(new SphereGeometry(body.radius, lowPower ? 12 : 36, lowPower ? 6 : 20),
     new MeshBasicMaterial({ color: STYLE.horizon, depthWrite: true }))
   horizon.name = 'black-hole-event-horizon'
   group.add(horizon)
