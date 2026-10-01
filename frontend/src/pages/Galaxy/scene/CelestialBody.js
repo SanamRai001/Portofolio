@@ -38,9 +38,9 @@ function createProminences(radius, style) {
     { angle: 4.38, span: .11, height: 1.21, width: .009, phase: 4.2 },
   ]
   for (const [index, loop] of loops.entries()) {
-    const start = pointOnLimb(loop.angle - loop.span, radius * .995, .018)
-    const end = pointOnLimb(loop.angle + loop.span, radius * .995, .018)
-    const apex = pointOnLimb(loop.angle, radius * loop.height, -.028)
+    const start = pointOnLimb(loop.angle - loop.span, radius * 1.003, .055)
+    const end = pointOnLimb(loop.angle + loop.span, radius * 1.003, .055)
+    const apex = pointOnLimb(loop.angle, radius * loop.height, .08)
     const curve = new CatmullRomCurve3([start, apex, end], false, 'centripetal')
     const material = new MeshBasicMaterial({
       color: style.prominence,
