@@ -35,7 +35,7 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
       const frameRadius = (body.focus.frameRadius || body.radius) * (body.orbit ? view.bodyScale : 1)
       const d = composition
         ? Math.hypot(frameRadius, frameRadius / (Math.tan(fov * Math.PI / 360) * composition.heightFraction))
-        : distance * (body.orbit ? view.bodyScale : 1)
+        : distance * (body.orbit ? view.bodyScale : 1) * (selected === 'black-hole' && view.portrait ? 1.4 : 1)
       if (composition) endOffset.set(composition.x, composition.y)
       end.set(Math.sin(bearing) * Math.cos(elevation), Math.sin(elevation), Math.cos(bearing) * Math.cos(elevation)).multiplyScalar(d).add(endTarget)
       end.y = Math.max(end.y, CAMERA_CLEARANCE)
