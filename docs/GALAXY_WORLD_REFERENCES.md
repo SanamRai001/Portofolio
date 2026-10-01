@@ -83,6 +83,28 @@ For this pass:
 
 High quality uses denser generated material maps; low power uses the same composition at half resolution. The procedural vertex-colored body remains the complete non-browser/failure fallback.
 
-## Projects / Journey
+## Projects — inhabited rocky world
 
-Reference passes will be added immediately before each world's G2R.4 art pass. Do not infer their final visual language from the Identity or Skills references.
+### Reference observations
+
+The existing Identity references to NASA Earth-at-night imagery are reused here only for the behavior of artificial light viewed from orbit: illumination is localized, strongest on the night side, and should not wash out the planetary terminator.
+
+Projects is not Earth and the existing authored rocky albedo remains the primary material.
+
+### Projects art direction
+
+For this pass:
+
+- preserve the current authored rocky/copper surface and its seam/bump treatment;
+- add sparse warm settlement light only on the Sun-opposed hemisphere;
+- keep the emissive layer locked to the same axial rotation as the terrain so lights never slide over the surface;
+- use clustered procedural density rather than a uniform grid or circuit pattern;
+- keep the day side effectively dark for the emissive layer;
+- avoid a new atmosphere/cloud layer; Projects should stay dry and rocky;
+- make low-power use fewer shader octaves and lower emissive strength while preserving the same idea.
+
+The lights communicate an inhabited/project-building world, not literal real cities or project locations.
+
+## Journey
+
+A separate reference pass will be added immediately before Journey's G2R.4 art pass.
