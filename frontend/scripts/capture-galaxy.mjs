@@ -88,6 +88,9 @@ try {
       // so a true blank Core remains distinguishable from a screenshot race.
       await page.waitForTimeout(500)
       await page.screenshot({ path: `${output}/${view.name}-core.png`, fullPage: true })
+      // G2R.7: reduced-motion black-hole focus is selectable with no portal.
+      await selectBody(page, 'Black Hole')
+      await page.screenshot({ path: `${output}/${view.name}-black-hole-reduced.png`, fullPage: true })
       // G2R.6: retain the ring-focused reduced-motion evidence at each size.
       await selectBody(page, 'Journey')
       await page.screenshot({ path: `${output}/${view.name}-journey-reduced.png`, fullPage: true })
@@ -137,7 +140,12 @@ try {
         await page.waitForTimeout(8_000)
         await page.screenshot({ path: `${output}/${view.name}-${slug}-motion-after-8s.png`, fullPage: true })
       }
-      results.push({ view: `${view.name} normal-motion hero Sun + primary planets`, bodies: ['Core', ...rotatingBodies], sampleSeconds: 8, errors })
+      // G2R.7: dedicated normal-motion focus evidence (no G2R.8 plunge yet).
+      await selectBody(page, 'Black Hole')
+      await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-start.png`, fullPage: true })
+      await page.waitForTimeout(8_000)
+      await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-after-8s.png`, fullPage: true })
+      results.push({ view: `${view.name} normal-motion hero Sun, primary planets + black hole`, bodies: ['Core', ...rotatingBodies, 'Black Hole'], sampleSeconds: 8, errors })
     } catch (error) {
       results.push({ view: `${view.name} normal-motion primary planets`, errors: [...errors, error.message] })
     } finally {
