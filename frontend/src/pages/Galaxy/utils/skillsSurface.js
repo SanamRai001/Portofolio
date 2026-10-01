@@ -97,9 +97,9 @@ export function createSkillsSurfaceMaps(width = 384, height = 192) {
 
       // Broad irregular metal provinces do most of the work. The seam term is
       // intentionally weak so the result reads as geology, not contour lines.
-      const province = smoothstep(.64, .86, field) * .48
-        + smoothstep(.7, .9, variation) * .28
-      const metalMix = clamp01(province + seam * .11)
+      const province = smoothstep(.52, .78, field) * .52
+        + smoothstep(.6, .82, variation) * .3
+      const metalMix = clamp01(province + seam * .08)
 
       const rockTone = colorMix(graphite, silicate, smoothstep(.2, .78, field))
       const metalTone = colorMix(iron, oxidizedIron, smoothstep(.48, .82, variation))
