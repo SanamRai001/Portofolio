@@ -1,5 +1,5 @@
-import { ClampToEdgeWrapping, RepeatWrapping, SRGBColorSpace, TextureLoader } from 'three'
 import { createAxialRotation } from '../utils/axialRotation.js'
+import { createAuthoredSurfaceController, installAuthoredSurfaceMap } from './PlanetLayers.js'
 import { createCelestialBody } from './CelestialBody.js'
 
 const desktopSurface = '/galaxy/projects-surface.webp'
@@ -32,29 +32,20 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
   const group = createCelestialBody(body, lowPower, { smoothRock: true })
   const surface = group.getObjectByName(`${body.id}-surface`)
   const rotation = createAxialRotation(surface, body.rotation)
-  let disposed = false, loaded = false, texture
-
-  if (typeof document !== 'undefined') {
-    texture = new TextureLoader().load(lowPower ? mobileSurface : desktopSurface, (map) => {
-      if (disposed) { map.dispose(); return }
-      loaded = true
-      map.colorSpace = SRGBColorSpace
-      map.wrapS = RepeatWrapping
-      map.wrapT = ClampToEdgeWrapping
-      surface.material.vertexColors = false
-      surface.material.map = map
-      surface.material.bumpMap = map
-      surface.material.bumpScale = body.radius * .009
-      surface.material.roughness = .94
-      surface.material.metalness = .03
+  const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
+    surface,
+    path: lowPower ? mobileSurface : desktopSurface,
+    onReady: onSurfaceReady,
+    configure(map) {
+      installAuthoredSurfaceMap(surface, map, {
+        bumpScale: body.radius * .009,
+        roughness: .94,
+        metalness: .03,
+      })
       blendProjectsLongitudeSeam(surface.material)
       surface.material.needsUpdate = true
-      onSurfaceReady()
-    }, undefined, () => {
-      // The procedural surface is a complete fallback if the asset cannot load.
-      texture?.dispose()
-    })
-  }
+    },
+  })
 
   return {
     group,
@@ -62,9 +53,7 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
       rotation.update(delta, animate)
     },
     dispose() {
-      disposed = true
-      // Once installed, disposeScene owns this material's texture.
-      if (!loaded) texture?.dispose()
+      authored?.dispose()
     },
   }
 }
