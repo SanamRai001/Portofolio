@@ -37,6 +37,7 @@ test('G2R.7 black-hole material has a depth-writing horizon and high/low accreti
     assert.equal(disk.material.transparent, true)
     assert.equal(disk.material.defines.BLACK_HOLE_FINE, detail)
     assert.equal(disk.geometry.parameters.thetaSegments, segments)
+    assert.equal(disk.rotation.x, detail === 0 ? STYLE.mobileTilt : STYLE.diskTilt)
     assert.equal(disk.geometry.parameters.phiSegments, radialSegments)
     assert.equal(disk.material.uniforms.innerRadius.value, BLACK_HOLE.radius * STYLE.diskInnerScale)
     assert.equal(disk.material.uniforms.outerRadius.value, BLACK_HOLE.radius * STYLE.diskOuterScale)
