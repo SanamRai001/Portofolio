@@ -13,6 +13,7 @@ const motionViews = [
   { name: 'phone', width: 390, height: 844, mobile: true },
 ]
 const rotatingBodies = ['Identity', 'Skills', 'Projects', 'Journey']
+const runLongProjectsRotation = process.env.GALAXY_LONG_ROTATION === 'true'
 
 await mkdir(output, { recursive: true })
 let serverReady = false
@@ -139,26 +140,31 @@ try {
     if (results.at(-1).errors.length) failed = true
   }
 
-  // Preserve the surface-spike seam proof: observe Projects over approximately
-  // one axial turn so a longitude join cannot hide in one flattering frame.
-  const context = await createCaptureContext({ name: 'desktop', width: 1440, height: 900, mobile: false }, 'no-preference')
-  const page = await context.newPage()
-  const errors = []
-  attachErrors(page, errors)
-  try {
-    await openGalaxy(page)
-    await selectBody(page, 'Projects')
-    for (let phase = 0; phase < 8; phase++) {
-      if (phase) await page.waitForTimeout(20_000)
-      await page.screenshot({ path: `${output}/projects-turn-${phase}.png`, fullPage: true })
+  // The full-turn Projects seam proof is intentionally expensive. Preserve it
+  // as a manual verification option instead of re-running ~140 seconds on
+  // unrelated Sun/Identity/Skills/Journey commits.
+  if (runLongProjectsRotation) {
+    const context = await createCaptureContext({ name: 'desktop', width: 1440, height: 900, mobile: false }, 'no-preference')
+    const page = await context.newPage()
+    const errors = []
+    attachErrors(page, errors)
+    try {
+      await openGalaxy(page)
+      await selectBody(page, 'Projects')
+      for (let phase = 0; phase < 8; phase++) {
+        if (phase) await page.waitForTimeout(20_000)
+        await page.screenshot({ path: `${output}/projects-turn-${phase}.png`, fullPage: true })
+      }
+      results.push({ view: 'desktop animated Projects, eight frames over 140 seconds', errors })
+    } catch (error) {
+      results.push({ view: 'desktop animated Projects', errors: [...errors, error.message] })
+    } finally {
+      await context.close()
     }
-    results.push({ view: 'desktop animated Projects, eight frames over 140 seconds', errors })
-  } catch (error) {
-    results.push({ view: 'desktop animated Projects', errors: [...errors, error.message] })
-  } finally {
-    await context.close()
+    if (results.at(-1).errors.length) failed = true
+  } else {
+    results.push({ view: 'Projects long rotation proof', skipped: true, reason: 'manual long_rotation option not requested', errors: [] })
   }
-  if (results.at(-1).errors.length) failed = true
 } finally {
   await browser.close()
   await writeFile(`${output}/results.json`, JSON.stringify(results, null, 2))
