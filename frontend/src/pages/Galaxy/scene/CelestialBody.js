@@ -15,26 +15,32 @@ function ring(inner, outer, color, opacity, segments) {
   mesh.rotation.y = 0.2
   return mesh
 }
-function spherePoint(radius, latitude, longitude) {
-  const latitudeRadius = Math.cos(latitude) * radius
-  return new Vector3(
-    Math.sin(longitude) * latitudeRadius,
-    Math.sin(latitude) * radius,
-    Math.cos(longitude) * latitudeRadius,
-  )
-}
 function createProminences(radius, style) {
   const group = new Group()
   group.name = 'core-prominences'
+
+  // The hero Core camera currently approaches from this local-space
+  // direction. Build sparse arches around its limb instead of scattering
+  // arbitrary loops around the sphere and hoping they happen to be visible.
+  const view = new Vector3(.226, .644, .731).normalize()
+  const right = new Vector3(0, 1, 0).cross(view).normalize()
+  const up = view.clone().cross(right).normalize()
+  const pointOnLimb = (angle, distance, viewBias = 0) => right.clone()
+    .multiplyScalar(Math.cos(angle))
+    .addScaledVector(up, Math.sin(angle))
+    .addScaledVector(view, viewBias)
+    .normalize()
+    .multiplyScalar(distance)
+
   const loops = [
-    { latitude: .25, longitude: -1.5, span: .18, height: 1.26, lift: .035, width: .014, phase: .3 },
-    { latitude: -.25, longitude: 1.5, span: .15, height: 1.22, lift: -.025, width: .011, phase: 2.1 },
-    { latitude: .5, longitude: 2.5, span: .13, height: 1.18, lift: .018, width: .009, phase: 4.2 },
+    { angle: .72, span: .17, height: 1.27, width: .014, phase: .3 },
+    { angle: 2.58, span: .14, height: 1.22, width: .011, phase: 2.1 },
+    { angle: 4.38, span: .11, height: 1.17, width: .009, phase: 4.2 },
   ]
   for (const [index, loop] of loops.entries()) {
-    const start = spherePoint(radius * .995, loop.latitude, loop.longitude - loop.span)
-    const end = spherePoint(radius * .995, loop.latitude, loop.longitude + loop.span)
-    const apex = spherePoint(radius * loop.height, loop.latitude + loop.lift, loop.longitude)
+    const start = pointOnLimb(loop.angle - loop.span, radius * .995, .018)
+    const end = pointOnLimb(loop.angle + loop.span, radius * .995, .018)
+    const apex = pointOnLimb(loop.angle, radius * loop.height, -.028)
     const curve = new QuadraticBezierCurve3(start, apex, end)
     const material = new MeshBasicMaterial({
       color: style.prominence,
@@ -121,7 +127,13 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
             vec3 opposite = texture2D(surfaceMap, vec2(1. - u, surfaceUv.y)).rgb;
             detail = mix(detail, opposite, .5 * (1. - smoothstep(0., .025, edge)));
           }
-          color = mix(color, detail * (.69 + .22 * facing), .54);
+          // The authored equirectangular map has visible compression at
+          // the poles. Fade it there and let the procedural photosphere own
+          // those regions instead of preserving a texture-mapping artifact.
+          float latitudeMask = smoothstep(.08, .22, surfaceUv.y)
+            * (1. - smoothstep(.78, .92, surfaceUv.y));
+          float authoredWeight = mix(.16, .54, latitudeMask);
+          color = mix(color, detail * (.69 + .22 * facing), authoredWeight);
         }
         // Photosphere limb shaping: preserve a readable bright face while the
         // edge falls warmer/darker before the separate corona shell begins.
