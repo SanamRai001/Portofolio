@@ -98,6 +98,13 @@ try {
       await page.getByRole('button', { name: /Enter the horizon/ }).click({ noWaitAfter: true })
       if (!variant.reduced && !variant.staticView) {
         await page.locator('.GalaxyPortalVeil.is-plunge').waitFor({ timeout: 16000 })
+        const stage = await page.locator('.GalaxyStage').boundingBox()
+        assert.ok(stage && stage.width >= variant.width - 1 && stage.height >= variant.height - 1,
+          'the cinematic plunge must use a full-viewport Galaxy canvas')
+        const chromeOpacity = await page.locator('.GalaxyHeader').evaluate(node => Number.parseFloat(getComputedStyle(node).opacity))
+        assert.ok(chromeOpacity < .01, 'ordinary page chrome must leave before plunge')
+        assert.equal(await page.getByRole('button', { name: /Return to system/i }).isVisible(), true,
+          'visitors must retain a visible cancel action until blackout')
         await page.screenshot({ path: `${output}/${variant.name}-plunge.png`, fullPage: true })
         assert.equal(requests, 0, 'the plunge cannot navigate before blackout')
       }
