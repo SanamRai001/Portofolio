@@ -28,6 +28,6 @@ export const SUN_APPEARANCE = Object.freeze({
   corona: '#f2a24c', outerCorona: '#a75a2a', prominence: '#ffb15d',
   innerScale: 1.032, outerScale: 1.095,
   innerStrength: 0.21, outerStrength: 0.032,
-  prominenceOpacity: 0.22,
+  prominenceOpacity: 0.28,
   hoverActivity: 0.35, focusActivity: 1, coronaBoost: 0.14, prominenceBoost: 0.18,
 })
