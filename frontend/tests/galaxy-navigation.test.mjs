@@ -47,9 +47,10 @@ test('seven native map buttons select the same static architecture with visible 
     assert.equal(button(label).getAttribute('aria-pressed'), 'true')
     assert.equal(container.querySelectorAll('[aria-pressed="true"]').length, 1)
     assert.equal(container.querySelector(`[data-body="${id}"]`).getAttribute('opacity'), '1')
+    if (id === 'lab') assert.match(container.textContent, /Content locked/)
     assert.match(container.querySelector('[role="status"]').textContent, /Static selection/)
   }
-  assert.match(container.textContent, /Content locked/)
+  assert.match(container.textContent, /Portal inactive/)
 })
 
 test('keyboard focus exposes feedback; Escape and System return preserve usable focus', async () => {
