@@ -3,10 +3,12 @@ import { createAxialRotation } from '../utils/axialRotation.js'
 import { createJourneySurfaceMap } from '../utils/journeySurface.js'
 import { createCelestialBody } from './CelestialBody.js'
 import { createLightAwareAtmosphere } from './PlanetLayers.js'
+import { createJourneyRings } from './JourneyRings.js'
 
 export function createJourneyPlanet(body, lowPower) {
-  // Keep the existing ring meshes unchanged; G2R.6 owns their replacement.
-  const group = createCelestialBody(body, lowPower)
+  const group = createCelestialBody(body, lowPower, { rings: false })
+  const rings = createJourneyRings(body, lowPower)
+  group.add(rings)
   const surface = group.getObjectByName(`${body.id}-surface`)
   const rotation = createAxialRotation(surface, body.rotation)
 
