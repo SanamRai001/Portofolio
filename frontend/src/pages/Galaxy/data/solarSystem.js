@@ -14,5 +14,12 @@ export const PLANETS = Object.freeze([
   { id: 'journey', focus: focus(10, -0.4, 0.75, 42), label: 'Journey', meaning: 'Journey', radius: 0.95, color: '#b9a5c5', surface: 'weathered', rotation: rotation(.31, .009, -1), ring: [1.45, 2.15], orbit: { radius: 16.4, speed: 0.011, phase: 3.7, inclination: -0.04 } },
 ].map(body => Object.freeze({ ...body, orbit: Object.freeze(body.orbit) })))
 export const LAB = Object.freeze({ id: 'lab', focus: focus(5.6, -0.5, 0.85), label: 'The Lab', meaning: 'Unknown signal', radius: 0.65, color: '#897da4', position: [20, 1.4, -9] })
-export const SYSTEM_MAP = Object.freeze([SUN, ...PLANETS, LAB])
+// A peripheral signal beyond Journey's orbit: deliberately away from Core,
+ // with a complete focus target but no route/portal action until G2R.8.
+export const BLACK_HOLE = Object.freeze({
+  id: 'black-hole', label: 'Black Hole', meaning: 'Event horizon', radius: .70,
+  color: '#b98566', position: [-19.5, 1.7, -8.8],
+  focus: focus(6.2, -.18, .65, 40),
+})
+export const SYSTEM_MAP = Object.freeze([SUN, ...PLANETS, LAB, BLACK_HOLE])
 export const SOLAR_STYLE = Object.freeze({ orbitColor: '#68717d', orbitOpacity: 0.23, segments: 128, mobileBodyScale: 1.28, overviewBodyScale: 1.24, mobileOverviewBodyScale: 1.12, sunLight: 2.8, ambient: 0.23 })
