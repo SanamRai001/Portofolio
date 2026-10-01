@@ -24,13 +24,18 @@ export function createJourneyPlanet(body, lowPower) {
     surface.material.needsUpdate = true
   }
 
-  const haze = createLightAwareAtmosphere(body.radius * JOURNEY_APPEARANCE.hazeScale, {
-    color: JOURNEY_APPEARANCE.hazeColor,
-    strength: lowPower ? JOURNEY_APPEARANCE.lowPowerHazeStrength : JOURNEY_APPEARANCE.hazeStrength,
-    lowPower,
-  })
-  haze.name = 'journey-haze'
-  group.add(haze)
+  // The existing low-power scene is near its strict triangle budget.
+  // Keep the complete gas-giant surface/rings there; the optional limb haze
+  // is a desktop-only enhancement rather than a reason to relax that gate.
+  if (!lowPower) {
+    const haze = createLightAwareAtmosphere(body.radius * JOURNEY_APPEARANCE.hazeScale, {
+      color: JOURNEY_APPEARANCE.hazeColor,
+      strength: JOURNEY_APPEARANCE.hazeStrength,
+      lowPower: false,
+    })
+    haze.name = 'journey-haze'
+    group.add(haze)
+  }
 
   return {
     group,
