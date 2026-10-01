@@ -4,7 +4,7 @@ import { chromium } from 'playwright'
 
 // G2R.8C: verify actual user interaction and route handoff without modifying
 // production location.assign or guessing that a black screenshot means success.
-const origin = 'http://127.0.0.1:4173'
+const origin = process.env.GALAXY_PREVIEW_ORIGIN || 'http://127.0.0.1:4173'
 const output = 'artifacts/galaxy-visual'
 await mkdir(output, { recursive: true })
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
@@ -78,15 +78,12 @@ try {
 
       await page.route(origin + '/', async route => {
         requests++
-        const sample = await page.evaluate(() => {
-          const veil = document.querySelector('.GalaxyPortalVeil')
-          if (!veil) return null
-          const r = veil.getBoundingClientRect()
-          return { phase: veil.dataset.portalPhase,
-            opacity: Number.parseFloat(getComputedStyle(veil).opacity),
-            bounds: { x: r.x, y: r.y, width: r.width, height: r.height } }
-        }).catch(() => null)
-        handoff = { target: route.request().url(), sample }
+        // Never call page.evaluate() from the top-level navigation route.
+        // The old document cannot answer while navigation waits for this
+        // handler to fulfil the response; doing so deadlocks the browser.
+        // The capture-phase transitionend listener independently records
+        // blackout coverage *before* the host calls location.assign().
+        handoff = { target: route.request().url() }
         await route.fulfill({ status: 200, contentType: 'text/html',
           body: '<!doctype html><title>Portal destination reached</title><h1 id="portal-arrived">Portal destination reached</h1>' })
       })
@@ -100,7 +97,7 @@ try {
       assert.equal(await page.locator('#portal-arrived').textContent(), 'Portal destination reached')
       assert.equal(requests, 1, 'navigate to the destination exactly once')
       assert.equal(handoff.target, origin + '/')
-      const proof = handoff.sample || coverage.find(entry => entry.opacity >= .999)
+      const proof = coverage.find(entry => entry.opacity >= .999)
       assert.ok(proof, 'observe an opaque veil during route handoff')
       assert.ok(['blackout', 'committed'].includes(proof.phase), 'navigation requires blackout phase')
       assert.ok(proof.opacity >= .999, 'black veil must be fully opaque before route commit')
