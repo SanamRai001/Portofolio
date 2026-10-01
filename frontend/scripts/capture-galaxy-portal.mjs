@@ -7,6 +7,14 @@ import { chromium } from 'playwright'
 const origin = process.env.GALAXY_PREVIEW_ORIGIN || 'http://127.0.0.1:4173'
 const output = 'artifacts/galaxy-visual'
 await mkdir(output, { recursive: true })
+let previewReady = false
+for (let attempt = 0; attempt < 40; attempt++) {
+  try {
+    if ((await fetch(origin)).ok) { previewReady = true; break }
+  } catch { /* Dedicated Vite preview is still starting. */ }
+  await new Promise(resolve => setTimeout(resolve, 250))
+}
+if (!previewReady) throw new Error('Portal preview did not start within 10 seconds')
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
 const results = []
 const cases = [
