@@ -1,10 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { Scene } from 'three'
+import { Scene, Vector3 } from 'three'
 import { BLACK_HOLE, PLANETS, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
 import { BLACK_HOLE_APPEARANCE as STYLE } from './data/blackHole.js'
 import { createBlackHole } from './scene/BlackHole.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
+import { createCameraRig } from './scene/CameraRig.js'
 import { disposeScene } from './utils/disposeScene.js'
 
 function release(group) {
@@ -106,4 +107,19 @@ test('G2R.7 focus is a normal target in the single-loop solar presentation and d
     system.dispose()
     release(system.group)
   }
+})
+
+
+test('G2R.7 portrait focus gives the black-hole disk breathing room under mobile heading', () => {
+  const system = createSolarSystem({ lowPower: true })
+  const rig = createCameraRig({ getAnchor: system.getAnchor })
+  const anchor = system.getAnchor(BLACK_HOLE.id, new Vector3())
+  rig.resize(1360, 630)
+  rig.navigate({ selectedBodyId: BLACK_HOLE.id, transitionId: 1, mode: 'body_focused' })
+  const landscape = rig.camera.position.distanceTo(anchor)
+  rig.resize(346, 460)
+  rig.navigate({ selectedBodyId: BLACK_HOLE.id, transitionId: 2, mode: 'body_focused' })
+  const portrait = rig.camera.position.distanceTo(anchor)
+  assert.ok(portrait > landscape * 1.35 && portrait < landscape * 1.45)
+  release(system.group)
 })
