@@ -5,7 +5,7 @@ import { getPerformanceProfile } from './utils/performance.js'
 import { createRenderLoop, shouldRunSceneLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
-import { SUN, PLANETS, LAB, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
+import { SUN, PLANETS, LAB, BLACK_HOLE, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
 import { PROJECTS_APPEARANCE } from './data/projects.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
@@ -207,7 +207,7 @@ test('G2 overview contains full swept orbital envelopes at desktop, laptop and p
 
 test('G2 configuration and rendered bodies preserve hierarchy, materials and cleanup', () => {
   assert.equal(PLANETS.length, 4)
-  assert.equal(SYSTEM_MAP.length, 6)
+  assert.equal(SYSTEM_MAP.length, 7)
   assert.equal(new Set(PLANETS.map(body => body.surface)).size, 4)
   assert.ok(SUN.radius > Math.max(...PLANETS.map(body => body.radius)))
   const system = createSolarSystem(getPerformanceProfile({ width: 390 }))
@@ -401,5 +401,24 @@ test('G2R.5 near/mid/far parallax tracks camera without ambient drift in reduced
   assert.ok(layers.every(layer => Number.isFinite(layer.rotation.y)))
   const scene = new Scene()
   scene.add(field.group)
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+
+test('G2R.7 keeps the distant black hole inside swept desktop and mobile overviews', () => {
+  for (const [width, height] of [[1360, 630], [1200, 530], [346, 494]]) {
+    const view = getOverview(width, height)
+    const hole = projectOverview(BLACK_HOLE.position, view)
+    const apparentRadius = BLACK_HOLE.radius * 2.2 * (view.portrait ? SOLAR_STYLE.mobileBodyScale : 1)
+    assert.ok(Math.abs(hole.x) + apparentRadius / (hole.depth * view.tanX) < .95)
+    assert.ok(Math.abs(hole.y) + apparentRadius / (hole.depth * view.tanY) < .95)
+  }
+  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: true }))
+  assert.equal(low.targets.size, 7)
+  assert.ok(low.targets.get(BLACK_HOLE.id).visuals.getObjectByName('black-hole-event-horizon'))
+  assert.ok(low.hitMeshes.some(mesh => mesh.userData.bodyId === BLACK_HOLE.id))
+  const scene = new Scene()
+  scene.add(low.group)
+  low.dispose()
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 })
