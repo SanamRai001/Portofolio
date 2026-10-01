@@ -107,6 +107,11 @@ try {
     attachErrors(page, errors)
     try {
       await openGalaxy(page)
+      await selectBody(page, 'Core')
+      await page.locator('.CoreIdentity.is-revealed').waitFor()
+      await page.screenshot({ path: `${output}/${view.name}-core-motion-start.png`, fullPage: true })
+      await page.waitForTimeout(8_000)
+      await page.screenshot({ path: `${output}/${view.name}-core-motion-after-8s.png`, fullPage: true })
       for (const body of rotatingBodies) {
         await selectBody(page, body)
         const slug = body.toLowerCase()
@@ -114,7 +119,7 @@ try {
         await page.waitForTimeout(8_000)
         await page.screenshot({ path: `${output}/${view.name}-${slug}-motion-after-8s.png`, fullPage: true })
       }
-      results.push({ view: `${view.name} normal-motion primary planets`, bodies: rotatingBodies, sampleSeconds: 8, errors })
+      results.push({ view: `${view.name} normal-motion hero Sun + primary planets`, bodies: ['Core', ...rotatingBodies], sampleSeconds: 8, errors })
     } catch (error) {
       results.push({ view: `${view.name} normal-motion primary planets`, errors: [...errors, error.message] })
     } finally {
