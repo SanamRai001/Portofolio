@@ -6,6 +6,7 @@ import { createRenderLoop, shouldRunSceneLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
 import { SUN, PLANETS, LAB, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
+import { PROJECTS_APPEARANCE } from './data/projects.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
@@ -233,26 +234,45 @@ test('G2 configuration and rendered bodies preserve hierarchy, materials and cle
   assert.equal(disposed, geometryCount)
 })
 
-test('Projects keeps its procedural surface until the asset loads and freezes axial motion with reduced motion', () => {
+test('Projects preserves its authored-surface fallback and keeps settlement lights locked to terrain', () => {
   const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
-  const surface = system.targets.get('projects').visuals.getObjectByName('projects-surface')
+  const visuals = system.targets.get('projects').visuals
+  const surface = visuals.getObjectByName('projects-surface')
+  const night = visuals.getObjectByName('projects-night-side')
   assert.ok(surface)
+  assert.ok(night)
   assert.equal(surface.material.vertexColors, true)
   assert.equal(surface.material.map, null)
+  assert.equal(night.material.defines.NIGHT_OCTAVES, 2)
+  assert.equal(night.material.uniforms.strength.value, PROJECTS_APPEARANCE.nightStrength)
+
   const positions = surface.geometry.attributes.position
   const radius = SYSTEM_MAP.find(body => body.id === 'projects').radius
   for (let i = 0; i < positions.count; i++) {
     const length = Math.hypot(positions.getX(i), positions.getY(i), positions.getZ(i))
     assert.ok(Math.abs(length - radius) < 1e-5, 'textured surface must not pinch at pole triangles')
   }
+
   system.update(.05, true)
   assert.ok(surface.rotation.y > 0)
-  const frozen = surface.rotation.y
+  assert.ok(Math.abs(surface.rotation.y - night.rotation.y) < 1e-12, 'settlement layer must remain surface-locked')
+
+  const surfaceFrozen = surface.rotation.y, nightFrozen = night.rotation.y
   system.update(.05, false)
-  assert.equal(surface.rotation.y, frozen)
+  assert.equal(surface.rotation.y, surfaceFrozen)
+  assert.equal(night.rotation.y, nightFrozen)
+
   system.dispose()
   const scene = new Scene(); scene.add(system.group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+
+  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
+  const lowNight = low.targets.get('projects').visuals.getObjectByName('projects-night-side')
+  assert.equal(lowNight.material.defines.NIGHT_OCTAVES, 1)
+  assert.equal(lowNight.material.uniforms.strength.value, PROJECTS_APPEARANCE.lowPowerStrength)
+  low.dispose()
+  const lowScene = new Scene(); lowScene.add(low.group)
+  disposeScene(lowScene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 })
 
 test('Projects map smooths its longitude join while retaining the standard material lighting', () => {
