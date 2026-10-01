@@ -105,6 +105,38 @@ For this pass:
 
 The lights communicate an inhabited/project-building world, not literal real cities or project locations.
 
-## Journey
+## Journey — ringed gas giant
 
-A separate reference pass will be added immediately before Journey's G2R.4 art pass.
+### Reference observations
+
+NASA Saturn imagery and documentation are used only as atmospheric behavior/material references:
+
+- NASA Science — Saturn from Far and Near:
+  https://science.nasa.gov/photojournal/saturn-from-far-and-near/
+- NASA Science — Saturn Facts:
+  https://science.nasa.gov/saturn/facts/
+- NASA/Hubble — Saturn 2020:
+  https://science.nasa.gov/asset/hubble/saturn-2020/
+
+Useful reference behavior:
+
+- cloud/haze layers form restrained bands broadly parallel to the equator;
+- visible colors can stay muted across yellow, brown, gray and slight warm haze;
+- small storms/variation should break perfect stripes;
+- the body has no literal solid rocky surface at the visible cloud tops.
+
+### Journey art direction
+
+Journey becomes a fictional old ringed gas giant.
+
+For the G2R.4D body pass:
+
+- replace the current generic weathered vertex stripes with authored/generated atmospheric band detail;
+- use broad muted bands with multi-scale turbulence so it does not read as a striped ball;
+- add occasional low-contrast storm structures;
+- keep material non-metallic and visually soft at cloud-top scale;
+- add only a restrained Sun-aware haze/limb layer;
+- preserve the existing slow retrograde axial motion;
+- do not redesign the rings in this pass.
+
+The current flat rings are an explicit temporary layer and remain scheduled for G2R.6, where close/far structure and the high/low quality paths will be handled separately.
