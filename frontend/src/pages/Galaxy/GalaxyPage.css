@@ -16,7 +16,7 @@
 .GalaxyLoading { position:absolute; top:48%; left:0; right:0; text-align:center; color:var(--galaxy-muted); font-size:14px; }
 .GalaxySystemMap { border-top:1px solid #24252b; padding-top:12px; }
 .GalaxyMapHeading { display:flex; justify-content:space-between; gap:12px; color:var(--galaxy-muted); font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.15em; }
-.GalaxySystemMap ol { list-style:none; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:18px; margin:18px 0 0; padding:0; }
+.GalaxySystemMap ol { list-style:none; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:18px; margin:18px 0 0; padding:0; }
 .GalaxySystemMap li { min-width:0; }
 .GalaxySystemMap button { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding:5px 0; border:0; border-bottom:1px solid transparent; border-radius:0; background:none; color:inherit; text-align:left; cursor:pointer; }
 .GalaxySystemMap.has-selection button[aria-pressed='false'] { opacity:.58; }
@@ -44,6 +44,7 @@
  .GalaxyExit { font-size:12px; gap:9px; }
  .GalaxyStage { min-height:460px; height:calc(100svh - 350px); }
  .GalaxySystemMap ol { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 10px; }
+ .GalaxySystemMap li:last-child:nth-child(3n + 1) { grid-column:2; }
  .GalaxySystemMap button { gap:7px; }
  .GalaxyTarget { top:4px; }
  .GalaxyTargetLabel > p:nth-child(2) { font-size:15px; }
