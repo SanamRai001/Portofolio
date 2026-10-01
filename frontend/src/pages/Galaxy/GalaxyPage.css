@@ -209,3 +209,20 @@
 @media(max-width:760px) {
  .GalaxyPortalAbort { left:max(22px,env(safe-area-inset-left)); top:max(18px,env(safe-area-inset-top)); }
 }
+
+/* G2R.9: sound is opt-in; visual feedback never substitutes for aria-pressed.
+   These are compositor-only accents, disabled under reduced motion. */
+.GalaxyControls .GalaxySoundToggle { display:inline-flex; align-items:center; gap:9px; }
+.GalaxySoundToggle::before {
+ content:''; display:block; width:5px; height:5px; flex:none;
+ border-radius:50%; background:#68727c; transition:background-color 180ms ease, box-shadow 180ms ease;
+}
+.GalaxyControls .GalaxySoundToggle[aria-pressed='true'] { color:#e7c69b; border-bottom-color:#ab825c; }
+.GalaxySoundToggle[aria-pressed='true']::before { background:#dec391; box-shadow:0 0 0 3px #dec39118; }
+.GalaxyControls .GalaxySoundToggle:disabled { opacity:.43; cursor:not-allowed; }
+.GalaxyPortalEnter > span { transition:transform 200ms ease; }
+.GalaxyPortalEnter:is(:hover,:focus-visible) > span { transform:translate(3px,-2px); }
+@media (prefers-reduced-motion:reduce) {
+ .GalaxySoundToggle::before, .GalaxyPortalEnter > span { transition:none; }
+ .GalaxyPortalEnter:is(:hover,:focus-visible) > span { transform:none; }
+}
