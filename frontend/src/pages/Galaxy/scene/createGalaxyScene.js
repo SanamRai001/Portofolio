@@ -2,7 +2,7 @@ import { Color, Raycaster, Scene, Vector2, WebGLRenderer } from 'three'
 import { createCameraRig } from './CameraRig.js'
 import { createSolarSystem } from './SolarSystem.js'
 import { createStarField } from './StarField.js'
-import { createRenderLoop } from '../utils/renderLoop.js'
+import { createRenderLoop, shouldRunSceneLoop } from '../utils/renderLoop.js'
 import { skillInteraction } from '../navigation/SkillInteraction.js'
 import { attachPointerInteractions } from '../navigation/InteractionController.js'
 import { disposeScene } from '../utils/disposeScene.js'
@@ -62,7 +62,15 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
 
     function syncLoop() {
       loop.setState({
-        active: inView && pageActive && !document.hidden,
+        // A mobile map control can scroll the canvas out of view while a
+        // camera flight is still resolving. Finish only that flight offscreen,
+        // then the normal IntersectionObserver pause applies again.
+        active: shouldRunSceneLoop({
+          inView,
+          pageActive,
+          hidden: document.hidden,
+          travelling: rig.travelling,
+        }),
         continuous: (!paused && !profile.reducedMotion) || rig.travelling,
       })
     }
