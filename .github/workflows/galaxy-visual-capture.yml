@@ -58,8 +58,11 @@ jobs:
       - name: Capture black-hole portal handoff
         env:
           GALAXY_LONG_ROTATION: 'false'
+          GALAXY_PREVIEW_ORIGIN: 'http://127.0.0.1:4175'
         run: |
-          npm run preview -- --host 127.0.0.1 --port 4173 &
+          # Isolate the portal test from the preceding capture preview:
+          # the npm launcher may leave Vite's child alive after shell cleanup.
+          npm run preview -- --host 127.0.0.1 --port 4175 --strictPort &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           node scripts/capture-galaxy-portal.mjs
