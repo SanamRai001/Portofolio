@@ -67,6 +67,18 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Visual verification infrastructure was also tightened: the legacy ~140-second Projects full-turn seam proof is now an explicit manual `long_rotation` workflow option instead of re-running on every unrelated push. Normal pushes still cover desktop/laptop/phone, reduced motion, Core and all primary-body normal-motion states.
 - **Next: G2R.4B Skills world.** Remove the current radial/wavy procedural surface look, establish a restrained engineered/metal-rich material language, and preserve all ten existing satellite interactions and focus framing.
 
+## Completed subphase — G2R.4B Skills world (2026-10-01)
+- Added a Skills-specific reference section to `docs/GALAXY_WORLD_REFERENCES.md`, using NASA Psyche only as a material/physical reference: mixed rock + metal, varied surface composition, not a polished chrome world and not copied observational imagery.
+- Added deterministic generated Skills PBR maps in `utils/skillsSurface.js`: albedo, roughness, metalness and elevation. The generator evaluates seamless 3D value noise on the sphere so it does not inherit the old longitude/radial starburst pattern.
+- The first generated version still produced contour-like seams during direct map inspection. Replaced its trigonometric contour field with warped multi-scale 3D value noise and then tuned broad irregular metal provinces to carry the composition while sparse seam contribution stays weak.
+- Browser high quality uses 384×192 generated maps; low power uses 192×96. The existing engineered vertex-color sphere remains the complete non-browser/failure fallback.
+- Skills keeps no atmosphere; the clearly artificial layer remains the existing ten-node orbital toolkit. Satellite geometry, selection, hover, independent clocks, camera framing and semantic technology directory were not rewritten.
+- Localized metallic response is driven through the material's metalness map rather than making the entire body reflective; roughness remains high across rock regions and lower only in metal-rich provinces.
+- Added deterministic material-map coverage to the existing Skills tests. Exact implementation head `45f952f01cb4ec6fc1e2b8cc57bd6a61567e5419` passed auth runtime, Galaxy regression tests, homepage DOM regressions, lint and production build in Actions run `36820705527`.
+- Galaxy Visual Capture run `36820705530` passed on that exact head. Inspected desktop Skills start/+8s and phone low-power Skills; the radial/wavy surface defect is gone, material motion is readable, toolkit satellites remain correctly framed, and `results.json` reports zero page/console errors and no horizontal overflow.
+- Visual CI now also has branch-scoped `cancel-in-progress` concurrency, so intermediate Galaxy screenshots stop consuming runners once a newer branch head exists.
+- **Next: G2R.4C Projects world.** Preserve the existing authored rocky surface; add only restrained surface-locked night-side settlement/emissive detail using the shared night primitive, verify it remains subtle on desktop/phone, then checkpoint before Journey.
+
 ## Baseline / prior decisions
 - Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
 - Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
