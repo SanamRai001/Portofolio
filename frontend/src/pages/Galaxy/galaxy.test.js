@@ -306,3 +306,31 @@ test('offscreen Galaxy rendering stays alive only long enough to settle camera t
   assert.equal(shouldRunSceneLoop({ inView: false, pageActive: false, hidden: false, travelling: true }), false)
   assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: true, travelling: true }), false)
 })
+
+
+test('G2R.2 hero Sun keeps prominence geometry high-quality only and freezes animation when disabled', () => {
+  const high = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const highCore = high.targets.get('core').visuals
+  const highSurface = highCore.getObjectByName('core-surface')
+  const prominences = highCore.getObjectByName('core-prominences')
+  assert.ok(prominences)
+  assert.equal(prominences.children.length, 3)
+  const prominenceTriangles = prominences.children.reduce((total, mesh) => total + (mesh.geometry.index?.count || 0) / 3, 0)
+  assert.ok(prominenceTriangles > 0 && prominenceTriangles < 1000)
+
+  const before = highSurface.material.uniforms.time.value
+  high.update(.05, true)
+  assert.ok(highSurface.material.uniforms.time.value > before)
+  const frozen = highSurface.material.uniforms.time.value
+  high.update(.05, false)
+  assert.equal(highSurface.material.uniforms.time.value, frozen)
+
+  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
+  assert.equal(low.targets.get('core').visuals.getObjectByName('core-prominences'), undefined)
+
+  for (const system of [high, low]) {
+    system.dispose()
+    const scene = new Scene(); scene.add(system.group)
+    disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+  }
+})
