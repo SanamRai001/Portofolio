@@ -31,16 +31,21 @@ test('Identity terrain is deterministic, continuous, finite and has both land an
 test('Identity slows locally, freezes while paused, bounds atmosphere feedback and resets on deselect', () => {
   const planet = createIdentityPlanet(identity, false)
   const surface = planet.group.getObjectByName('identity-surface'), atmosphere = planet.group.getObjectByName('identity-atmosphere')
+  const clouds = planet.group.getObjectByName('identity-clouds')
+  const cloudStart = clouds.rotation.y
   planet.update(.05)
   const normalStep = surface.rotation.y
+  assert.notEqual(clouds.rotation.y, cloudStart)
+  assert.ok(identity.rotation.cloudSpeed > identity.rotation.surfaceSpeed)
   planet.setInteraction(false, true, true)
   planet.update(.05)
   assert.ok(Math.abs((surface.rotation.y - normalStep) / normalStep - style.selectedSpeed) < 1e-10)
   assert.equal(atmosphere.material.uniforms.strength.value, style.atmosphereStrength * (1 + style.selectedBoost))
-  const angle = surface.rotation.y
+  const angle = surface.rotation.y, cloudAngle = clouds.rotation.y
   planet.update(.05, false)
   for (const delta of [NaN, Infinity, -1]) planet.update(delta)
   assert.equal(surface.rotation.y, angle)
+  assert.equal(clouds.rotation.y, cloudAngle)
   for (let i = 0; i < 30; i++) { planet.setInteraction(i % 2 === 0, i % 3 === 0); planet.update(.016) }
   planet.setInteraction(false, false)
   for (let i = 0; i < 90; i++) planet.update(.05)
@@ -49,10 +54,15 @@ test('Identity slows locally, freezes while paused, bounds atmosphere feedback a
   release(planet.group)
 })
 
-test('low-power Identity keeps two lightweight meshes, fewer vertices and complete disposal', () => {
+test('low-power Identity keeps three quality-scaled layers and complete disposal', () => {
   const full = createIdentityPlanet(identity, false), small = createIdentityPlanet(identity, true)
-  assert.equal(full.group.children.length, 2); assert.equal(small.group.children.length, 2)
-  assert.ok(small.group.children[0].geometry.attributes.position.count < full.group.children[0].geometry.attributes.position.count / 3)
+  assert.equal(full.group.children.length, 3); assert.equal(small.group.children.length, 3)
+  for (let i = 0; i < 3; i++) {
+    assert.ok(small.group.children[i].geometry.attributes.position.count < full.group.children[i].geometry.attributes.position.count)
+  }
+  assert.equal(full.group.getObjectByName('identity-clouds').material.defines.CLOUD_OCTAVES, 2)
+  assert.equal(small.group.getObjectByName('identity-clouds').material.defines.CLOUD_OCTAVES, 1)
+  assert.ok(small.group.getObjectByName('identity-clouds').material.uniforms.opacity.value < style.cloudOpacity)
   for (const planet of [full, small]) {
     let geometries = 0, materials = 0
     for (const mesh of planet.group.children) {
@@ -61,7 +71,7 @@ test('low-power Identity keeps two lightweight meshes, fewer vertices and comple
       mesh.material.addEventListener('dispose', () => materials++)
     }
     release(planet.group)
-    assert.equal(geometries, 2); assert.equal(materials, 2)
+    assert.equal(geometries, 3); assert.equal(materials, 3)
   }
 })
 
@@ -69,6 +79,7 @@ test('Identity/Core/Identity/Journey resets atmosphere and resumes Identity orbi
   const system = createSolarSystem({ lowPower: false })
   const surface = system.targets.get('identity').visuals.getObjectByName('identity-surface')
   const atmosphere = system.targets.get('identity').visuals.getObjectByName('identity-atmosphere')
+  const clouds = system.targets.get('identity').visuals.getObjectByName('identity-clouds')
   for (const selectedBodyId of ['identity', 'core', 'identity', 'journey']) {
     system.setInteraction({ selectedBodyId, hoveredBodyId: null }, true)
     assert.equal(atmosphere.material.uniforms.strength.value, style.atmosphereStrength * (selectedBodyId === 'identity' ? 1 + style.selectedBoost : 1))
@@ -76,9 +87,10 @@ test('Identity/Core/Identity/Journey resets atmosphere and resumes Identity orbi
   const before = system.simulation.position('identity')
   system.update(.05)
   assert.notDeepEqual(system.simulation.position('identity'), before)
-  const frozen = system.simulation.position('identity'), rotation = surface.rotation.y
+  const frozen = system.simulation.position('identity'), rotation = surface.rotation.y, cloudRotation = clouds.rotation.y
   system.update(.05, false)
   assert.deepEqual(system.simulation.position('identity'), frozen)
   assert.equal(surface.rotation.y, rotation)
+  assert.equal(clouds.rotation.y, cloudRotation)
   release(system.group)
 })
