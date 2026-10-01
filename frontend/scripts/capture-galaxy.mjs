@@ -88,6 +88,9 @@ try {
       // so a true blank Core remains distinguishable from a screenshot race.
       await page.waitForTimeout(500)
       await page.screenshot({ path: `${output}/${view.name}-core.png`, fullPage: true })
+      // G2R.6: retain the ring-focused reduced-motion evidence at each size.
+      await selectBody(page, 'Journey')
+      await page.screenshot({ path: `${output}/${view.name}-journey-reduced.png`, fullPage: true })
 
       const layout = await page.evaluate(() => ({
         width: window.innerWidth,
