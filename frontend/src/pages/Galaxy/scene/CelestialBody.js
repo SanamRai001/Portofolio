@@ -1,4 +1,4 @@
-import { AdditiveBlending, ClampToEdgeWrapping, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, RingGeometry, ShaderMaterial, SphereGeometry, SRGBColorSpace, TextureLoader } from 'three'
+import { AdditiveBlending, ClampToEdgeWrapping, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, QuadraticBezierCurve3, RepeatWrapping, RingGeometry, ShaderMaterial, SphereGeometry, SRGBColorSpace, TextureLoader, TubeGeometry, Vector3 } from 'three'
 import { SUN_APPEARANCE } from '../data/core.js'
 
 function shell(radius, color, strength, segments) {
@@ -14,6 +14,43 @@ function ring(inner, outer, color, opacity, segments) {
   mesh.rotation.x = -Math.PI / 2 + 0.3
   mesh.rotation.y = 0.2
   return mesh
+}
+function spherePoint(radius, latitude, longitude) {
+  const latitudeRadius = Math.cos(latitude) * radius
+  return new Vector3(
+    Math.sin(longitude) * latitudeRadius,
+    Math.sin(latitude) * radius,
+    Math.cos(longitude) * latitudeRadius,
+  )
+}
+function createProminences(radius, style) {
+  const group = new Group()
+  group.name = 'core-prominences'
+  const loops = [
+    { latitude: .25, longitude: -1.5, span: .18, height: 1.26, lift: .035, width: .014, phase: .3 },
+    { latitude: -.25, longitude: 1.5, span: .15, height: 1.22, lift: -.025, width: .011, phase: 2.1 },
+    { latitude: .5, longitude: 2.5, span: .13, height: 1.18, lift: .018, width: .009, phase: 4.2 },
+  ]
+  for (const [index, loop] of loops.entries()) {
+    const start = spherePoint(radius * .995, loop.latitude, loop.longitude - loop.span)
+    const end = spherePoint(radius * .995, loop.latitude, loop.longitude + loop.span)
+    const apex = spherePoint(radius * loop.height, loop.latitude + loop.lift, loop.longitude)
+    const curve = new QuadraticBezierCurve3(start, apex, end)
+    const material = new MeshBasicMaterial({
+      color: style.prominence,
+      transparent: true,
+      opacity: style.prominenceOpacity,
+      depthWrite: false,
+      blending: AdditiveBlending,
+      toneMapped: false,
+    })
+    material.userData.baseOpacity = style.prominenceOpacity
+    material.userData.phase = loop.phase
+    const mesh = new Mesh(new TubeGeometry(curve, 24, radius * loop.width, 4, false), material)
+    mesh.name = `core-prominence-${index + 1}`
+    group.add(mesh)
+  }
+  return group
 }
 export function createSun(body, lowPower, onSurfaceReady = () => {}) {
   const style = SUN_APPEARANCE, group = new Group(), segments = lowPower ? 40 : 64
@@ -52,40 +89,46 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
                        mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
       }
       void main() {
-        vec3 p = normalize(surface) * 4.8;
-        p += .28 * sin(p.yzx * 1.6 + time * .08);
-        p += vec3(time * .035, -time * .018, 0.);
+        vec3 p = normalize(surface) * 5.4;
+        p += .22 * sin(p.yzx * 1.7 + time * .07);
+        p += vec3(time * .028, -time * .014, 0.);
         float field = 0., amplitude = .57;
         for (int i = 0; i < SUN_OCTAVES; i++) {
           field += amplitude * noise(p);
           p = p.yzx * 2.03 + vec3(3.1, 1.7, 4.2); amplitude *= .48;
         }
         float facing = max(dot(normalize(n), normalize(eye)), 0.);
-        float filaments = smoothstep(.48, .75, field);
-        vec3 color = mix(amber, gold, .38 + .38 * facing);
-        color *= .77 + .39 * field;
-        // Fine convection cells and dark channels add surface scale without bloom.
+        float filaments = smoothstep(.5, .76, field);
+        vec3 color = mix(amber, gold, .4 + .34 * facing);
+        color *= .79 + .34 * field;
         #if SUN_OCTAVES > 2
-          float cells = noise(surface * 15. + vec3(time * .012));
-          float granules = noise(surface * 43. + vec3(time * .019));
-          float channels = 1. - smoothstep(.06, .18, abs(field - .49));
-          color *= 1. - channels * .19 + (cells - .5) * .21 + (granules - .5) * .13;
-          color = mix(color, ivory, smoothstep(.62, .88, granules) * .11);
+          // Fine-scale value-noise bands keep the authored map from reading
+          // like a painted marble and suggest granular convection structure.
+          float cells = noise(surface * 29. + vec3(time * .010));
+          float granules = noise(surface * 83. + vec3(time * .016));
+          float lanes = 1. - smoothstep(.055, .2, abs(cells - .5));
+          color *= 1. - lanes * .13 + (cells - .5) * .14 + (granules - .5) * .095;
+          color = mix(color, ivory, smoothstep(.68, .9, granules) * .09);
         #endif
-        color = mix(color, ivory, filaments * (.22 + .04 * activity));
+        color = mix(color, ivory, filaments * (.18 + .035 * activity));
         if (hasSurfaceMap) {
           // Gently drift the authored photosphere across the sphere. Both
           // sides of the longitude join resolve to the same blended texel.
-          float u = fract(surfaceUv.x + time * .0018);
+          float u = fract(surfaceUv.x + time * .00155);
           vec3 detail = texture2D(surfaceMap, vec2(u, surfaceUv.y)).rgb;
           float edge = min(u, 1. - u);
           if (edge < .025) {
             vec3 opposite = texture2D(surfaceMap, vec2(1. - u, surfaceUv.y)).rgb;
             detail = mix(detail, opposite, .5 * (1. - smoothstep(0., .025, edge)));
           }
-          color = mix(color, detail * (.64 + .31 * facing), .72);
+          color = mix(color, detail * (.69 + .22 * facing), .54);
         }
-        color += gold * pow(1. - facing, 3.) * .045;
+        // Photosphere limb shaping: preserve a readable bright face while the
+        // edge falls warmer/darker before the separate corona shell begins.
+        float limb = pow(clamp(facing, 0., 1.), .28);
+        color *= mix(.52, 1.04, limb);
+        color = mix(color, amber, pow(1. - facing, 2.4) * .16);
+        color += gold * pow(1. - facing, 4.) * .025;
         gl_FragColor = vec4(color, 1.);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -113,11 +156,21 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
   group.add(corona)
   const outer = lowPower ? null : shell(body.radius * style.outerScale, style.outerCorona, style.outerStrength, segments)
   if (outer) { outer.name = 'core-outer-corona'; group.add(outer) }
+  const prominences = lowPower ? null : createProminences(body.radius, style)
+  if (prominences) group.add(prominences)
   function present(activity) {
     material.uniforms.activity.value = activity
     corona.material.uniforms.strength.value = style.innerStrength * (1 + activity * style.coronaBoost)
     if (outer) outer.material.uniforms.strength.value = style.outerStrength * (1 + activity * style.coronaBoost)
   }
+  function presentProminences(activity, time) {
+    if (!prominences) return
+    for (const loop of prominences.children) {
+      const pulse = .9 + Math.sin(time * .34 + loop.material.userData.phase) * .1
+      loop.material.opacity = loop.material.userData.baseOpacity * pulse * (1 + activity * style.prominenceBoost)
+    }
+  }
+  presentProminences(0, 0)
   return {
     group,
     dispose() {
@@ -127,7 +180,10 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
     },
     setInteraction(hovered, selected, instant = false) {
       targetActivity = selected ? style.focusActivity : hovered ? style.hoverActivity : 0
-      if (instant) present(targetActivity)
+      if (instant) {
+        present(targetActivity)
+        presentProminences(targetActivity, material.uniforms.time.value)
+      }
     },
     update(delta, animate = true) {
       const dt = Number.isFinite(delta) ? Math.max(0, Math.min(delta, .05)) : 0
@@ -135,6 +191,7 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
       if (Math.abs(activity - targetActivity) < .0001) activity = targetActivity
       present(activity)
       if (animate) material.uniforms.time.value = (material.uniforms.time.value + dt * (1 + activity * .3)) % 10000
+      presentProminences(activity, material.uniforms.time.value)
     },
   }
 }
