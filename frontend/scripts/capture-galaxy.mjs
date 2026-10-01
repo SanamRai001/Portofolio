@@ -47,15 +47,29 @@ async function selectBody(page, name) {
   await page.waitForFunction(() => document.querySelector('.GalaxyMapHeading span:last-child')?.textContent === 'Signal locked')
 }
 
+async function createCaptureContext(view, reducedMotion) {
+  const context = await browser.newContext({
+    viewport: { width: view.width, height: view.height },
+    deviceScaleFactor: 1,
+    isMobile: view.mobile,
+    hasTouch: view.mobile,
+    reducedMotion,
+  })
+  // Hosted runners often expose <=4 logical CPUs, which legitimately selects
+  // the app's low-power profile. For visual acceptance we need the named
+  // desktop/laptop captures to exercise the high-quality path deliberately.
+  if (!view.mobile) {
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, 'deviceMemory', { configurable: true, get: () => 8 })
+      Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 })
+    })
+  }
+  return context
+}
+
 try {
   for (const view of views) {
-    const context = await browser.newContext({
-      viewport: { width: view.width, height: view.height },
-      deviceScaleFactor: 1,
-      isMobile: view.mobile,
-      hasTouch: view.mobile,
-      reducedMotion: 'reduce',
-    })
+    const context = await createCaptureContext(view, 'reduce')
     const page = await context.newPage()
     const errors = []
     attachErrors(page, errors)
@@ -79,6 +93,9 @@ try {
         documentWidth: document.documentElement.scrollWidth,
         canvasWidth: document.querySelector('.GalaxyScene canvas')?.width,
         canvasHeight: document.querySelector('.GalaxyScene canvas')?.height,
+        deviceMemory: navigator.deviceMemory,
+        hardwareConcurrency: navigator.hardwareConcurrency,
+        coarsePointer: window.matchMedia('(pointer: coarse)').matches,
       }))
       if (layout.documentWidth > layout.width + 1) errors.push(`Horizontal overflow: ${layout.documentWidth} > ${layout.width}`)
       if (!layout.canvasWidth || !layout.canvasHeight) errors.push('Blank canvas dimensions')
@@ -95,13 +112,7 @@ try {
   // and phone compositions. Eight seconds is long enough to expose movement
   // without turning the visual gate into a long-running animation test.
   for (const view of motionViews) {
-    const context = await browser.newContext({
-      viewport: { width: view.width, height: view.height },
-      deviceScaleFactor: 1,
-      isMobile: view.mobile,
-      hasTouch: view.mobile,
-      reducedMotion: 'no-preference',
-    })
+    const context = await createCaptureContext(view, 'no-preference')
     const page = await context.newPage()
     const errors = []
     attachErrors(page, errors)
@@ -130,7 +141,7 @@ try {
 
   // Preserve the surface-spike seam proof: observe Projects over approximately
   // one axial turn so a longitude join cannot hide in one flattering frame.
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })
+  const context = await createCaptureContext({ name: 'desktop', width: 1440, height: 900, mobile: false }, 'no-preference')
   const page = await context.newPage()
   const errors = []
   attachErrors(page, errors)
