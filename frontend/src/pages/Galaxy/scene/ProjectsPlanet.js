@@ -1,5 +1,6 @@
+import { PROJECTS_APPEARANCE } from '../data/projects.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
-import { createAuthoredSurfaceController, installAuthoredSurfaceMap } from './PlanetLayers.js'
+import { createAuthoredSurfaceController, createNightSideLayer, installAuthoredSurfaceMap } from './PlanetLayers.js'
 import { createCelestialBody } from './CelestialBody.js'
 
 const desktopSurface = '/galaxy/projects-surface.webp'
@@ -32,6 +33,17 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
   const group = createCelestialBody(body, lowPower, { smoothRock: true })
   const surface = group.getObjectByName(`${body.id}-surface`)
   const rotation = createAxialRotation(surface, body.rotation)
+
+  const night = createNightSideLayer(body.radius * PROJECTS_APPEARANCE.nightScale, {
+    color: PROJECTS_APPEARANCE.nightColor,
+    strength: lowPower ? PROJECTS_APPEARANCE.lowPowerStrength : PROJECTS_APPEARANCE.nightStrength,
+    lowPower,
+    seed: PROJECTS_APPEARANCE.nightSeed,
+  })
+  night.name = 'projects-night-side'
+  const nightRotation = createAxialRotation(night, body.rotation)
+  group.add(night)
+
   const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
     surface,
     path: lowPower ? mobileSurface : desktopSurface,
@@ -51,6 +63,7 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
     group,
     update(delta, animate = true) {
       rotation.update(delta, animate)
+      nightRotation.update(delta, animate)
     },
     dispose() {
       authored?.dispose()
