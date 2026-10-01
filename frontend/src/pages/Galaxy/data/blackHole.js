@@ -7,7 +7,7 @@ export const BLACK_HOLE_APPEARANCE = Object.freeze({
   diskInnerScale: 1.13,
   diskOuterScale: 2.2,
   lensScale: 1.075,
-  diskTilt: -.96,
+  diskTilt: .18,
   diskYaw: .28,
   diskSpeed: .045,
   desktopSegments: 144,
