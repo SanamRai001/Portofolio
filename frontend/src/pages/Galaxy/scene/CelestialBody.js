@@ -1,4 +1,4 @@
-import { AdditiveBlending, ClampToEdgeWrapping, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, QuadraticBezierCurve3, RepeatWrapping, RingGeometry, ShaderMaterial, SphereGeometry, SRGBColorSpace, TextureLoader, TubeGeometry, Vector3 } from 'three'
+import { AdditiveBlending, ClampToEdgeWrapping, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, CatmullRomCurve3, RepeatWrapping, RingGeometry, ShaderMaterial, SphereGeometry, SRGBColorSpace, TextureLoader, TubeGeometry, Vector3 } from 'three'
 import { SUN_APPEARANCE } from '../data/core.js'
 
 function shell(radius, color, strength, segments) {
@@ -33,20 +33,21 @@ function createProminences(radius, style) {
     .multiplyScalar(distance)
 
   const loops = [
-    { angle: .72, span: .17, height: 1.27, width: .014, phase: .3 },
-    { angle: 2.58, span: .14, height: 1.22, width: .011, phase: 2.1 },
-    { angle: 4.38, span: .11, height: 1.17, width: .009, phase: 4.2 },
+    { angle: .72, span: .17, height: 1.34, width: .014, phase: .3 },
+    { angle: 2.58, span: .14, height: 1.27, width: .011, phase: 2.1 },
+    { angle: 4.38, span: .11, height: 1.21, width: .009, phase: 4.2 },
   ]
   for (const [index, loop] of loops.entries()) {
     const start = pointOnLimb(loop.angle - loop.span, radius * .995, .018)
     const end = pointOnLimb(loop.angle + loop.span, radius * .995, .018)
     const apex = pointOnLimb(loop.angle, radius * loop.height, -.028)
-    const curve = new QuadraticBezierCurve3(start, apex, end)
+    const curve = new CatmullRomCurve3([start, apex, end], false, 'centripetal')
     const material = new MeshBasicMaterial({
       color: style.prominence,
       transparent: true,
       opacity: style.prominenceOpacity,
       depthWrite: false,
+      depthTest: false,
       blending: AdditiveBlending,
       toneMapped: false,
     })
@@ -54,6 +55,7 @@ function createProminences(radius, style) {
     material.userData.phase = loop.phase
     const mesh = new Mesh(new TubeGeometry(curve, 24, radius * loop.width, 4, false), material)
     mesh.name = `core-prominence-${index + 1}`
+    mesh.renderOrder = 3
     group.add(mesh)
   }
   return group
