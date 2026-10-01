@@ -1,11 +1,24 @@
 import { AmbientLight, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh, MeshBasicMaterial, Object3D, PointLight, SphereGeometry, Vector3 } from 'three'
 import { SUN, PLANETS, LAB, SOLAR_STYLE } from '../data/solarSystem.js'
+import { createAxialRotation } from '../utils/axialRotation.js'
 import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { orbitRateTarget } from '../navigation/NavigationController.js'
 import { createSkillsPlanet } from './SkillsPlanet.js'
 import { createIdentityPlanet } from './IdentityPlanet.js'
 import { createProjectsPlanet } from './ProjectsPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
+
+function createGenericPlanet(body, lowPower) {
+  const group = createCelestialBody(body, lowPower)
+  const surface = group.getObjectByName(`${body.id}-surface`)
+  const rotation = createAxialRotation(surface, body.rotation)
+  return {
+    group,
+    update(delta, animate = true) {
+      rotation.update(delta, animate)
+    },
+  }
+}
 
 export function createSolarSystem(profile, { onSurfaceReady } = {}) {
   const group = new Group(), simulation = createOrbitSimulation(PLANETS), bodies = new Map(), targets = new Map(), orbits = new Map()
@@ -31,9 +44,10 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
   for (const body of PLANETS) {
     const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower)
       : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower)
-        : body.id === 'projects' ? createProjectsPlanet(body, profile.lowPower, onSurfaceReady) : null
-    if (presentation) presentations.set(body.id, presentation)
-    const root = register(body, presentation ? presentation.group : createCelestialBody(body, profile.lowPower))
+        : body.id === 'projects' ? createProjectsPlanet(body, profile.lowPower, onSurfaceReady)
+          : createGenericPlanet(body, profile.lowPower)
+    presentations.set(body.id, presentation)
+    const root = register(body, presentation.group)
     root.position.fromArray(simulation.position(body.id))
     bodies.set(body.id, root)
     const points = Array.from({ length: SOLAR_STYLE.segments }, (_, i) => new Vector3(...orbitPosition(body.orbit, i / SOLAR_STYLE.segments * Math.PI * 2)))
