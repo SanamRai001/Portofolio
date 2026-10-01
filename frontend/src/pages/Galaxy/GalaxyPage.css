@@ -150,3 +150,35 @@
  .SkillDetail { min-height:240px; }
 }
 @media(prefers-reduced-motion:reduce) { .SkillsContent.is-revealed { animation:none; } }
+
+
+/* G2R.8: user opts into the portal only after a normal black-hole focus. */
+.GalaxyPortalEnter {
+ position:absolute; left:0; bottom:22px; z-index:3;
+ display:inline-flex; align-items:center; justify-content:space-between; gap:20px;
+ min-height:44px; padding:8px 16px;
+ border:1px solid #b78d6899; border-radius:2px; background:#0b0908e8;
+ color:#ead5b5; font:11px/1.6 ui-monospace,monospace;
+ letter-spacing:.13em; text-transform:uppercase; cursor:pointer;
+}
+.GalaxyPortalEnter:hover, .GalaxyPortalEnter:focus-visible { border-color:#e9be86; background:#1b110e; }
+.GalaxyPortalEnter span { font-size:19px; line-height:1; }
+
+/* Rendered in document.body, outside GalaxyStage's stacking context. Passing
+   pointer events through until blackout keeps Back/Escape cancellation usable. */
+.GalaxyPortalVeil {
+ position:fixed; inset:0; z-index:2147483000;
+ background:#000; opacity:0; pointer-events:none;
+ transition:opacity 180ms ease-in;
+}
+.GalaxyPortalVeil.is-approach { opacity:0; }
+.GalaxyPortalVeil.is-plunge { opacity:.19; }
+.GalaxyPortalVeil.is-blackout, .GalaxyPortalVeil.is-committed {
+ opacity:1; pointer-events:auto;
+}
+@media (max-width:760px) {
+ .GalaxyPortalEnter { left:0; bottom:14px; padding:8px 11px; font-size:10px; }
+}
+@media (prefers-reduced-motion:reduce) {
+ .GalaxyPortalVeil { transition-duration:110ms; }
+}
