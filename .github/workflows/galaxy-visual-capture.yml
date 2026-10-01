@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: galaxy-visual-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   capture:
     runs-on: ubuntu-latest
