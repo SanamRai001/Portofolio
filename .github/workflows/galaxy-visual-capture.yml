@@ -9,6 +9,12 @@ on:
       - 'frontend/**'
       - '.github/workflows/galaxy-visual-capture.yml'
   workflow_dispatch:
+    inputs:
+      long_rotation:
+        description: 'Also run the ~140 second Projects full-turn seam proof'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -34,6 +40,8 @@ jobs:
           npx playwright install --with-deps chromium
       - run: npm run build
       - name: Capture Galaxy
+        env:
+          GALAXY_LONG_ROTATION: ${{ github.event.inputs.long_rotation || 'false' }}
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 &
           server_pid=$!
