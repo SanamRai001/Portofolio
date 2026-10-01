@@ -88,6 +88,17 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Inspected actual desktop Projects normal-motion screenshot and phone low-power screenshot from that run. Night detail now reads as small warm clusters on the Sun-opposed side, not lava; the authored daylight texture remains dominant. Visual artifact results show no errors or horizontal overflow.
 - **Next: G2R.4D Journey body only.** Replace generic weathered vertex stripes with generated gas-giant cloud-top albedo + subtle Sun-aware haze. Keep current rings untouched for dedicated G2R.6.
 
+## Completed subphase — G2R.4D Journey world (2026-10-01)
+- Added `data/journey.js`, `utils/journeySurface.js` and `scene/JourneyPlanet.js` while retaining the original two ring meshes unchanged for G2R.6.
+- Journey's browser surface now uses an original deterministic 3D-sampled atmospheric albedo: muted layered cloud bands, multi-scale turbulence and a few low-contrast storm ovals. It has no metallic/rocky bump response. The generic weathered vertex-colored body remains the complete non-browser fallback.
+- Desktop generates a 384×192 cloud-top map and adds a restrained Sun-aware haze. Low-power/mobile generates a 192×96 map and omits the optional haze geometry so the pre-existing strict `triangles < 12000` test remains intact rather than relaxing the budget.
+- The existing slow retrograde surface rotation uses the shared axial clock, leaves the rings stationary relative to the presentation, and freezes correctly under reduced motion/pause. No new animation loop, external texture or package.
+- New `journey.test.js` covers deterministic finite/colorful albedo, longitude-edge continuity, quality behavior, unchanged ring count, independent surface motion, system integration and resource cleanup.
+- First implementation exceeded the low-power triangle budget because of the extra shell; removed only that optional mobile haze. First visual artifact then showed excessively contrasted zebra-like bands; narrowed the palette and reduced band amplitude/frequency in the final art pass.
+- Final implementation head `6afde270f24d9c5f26d8a8151aad2646790781c6`: Frontend Auth Runtime Tests run `36826492537` and Galaxy Visual Capture run `36826492536` both passed.
+- Inspected desktop and phone Journey normal-motion capture from the final artifact: muted cloud-top depth and readable terminator, original two rings preserved, no page/console errors or horizontal overflow. The flat rings remain an acknowledged temporary visual defect until G2R.6.
+- **Next: G2R.5 — deep-space depth.** Extend the existing StarField using sparse depth/parallax tiers without a wallpaper-like nebula or second update loop; preserve all current focus compositions and reduced-motion rules. G2R.6 owns ring redesign; G2R.7–8 own the black hole and portal.
+
 ## Baseline / prior decisions
 - Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
 - Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
