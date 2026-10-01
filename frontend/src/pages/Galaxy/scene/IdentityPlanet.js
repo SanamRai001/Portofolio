@@ -1,7 +1,7 @@
 import { Color, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial, SphereGeometry } from 'three'
 import { IDENTITY_APPEARANCE } from '../data/identity.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
-import { identityTerrain } from '../utils/identitySurface.js'
+import { createIdentitySurfaceMaps, identityTerrain } from '../utils/identitySurface.js'
 import { createCloudLayer, createLightAwareAtmosphere } from './PlanetLayers.js'
 
 export function createIdentityPlanet(body, lowPower) {
@@ -24,6 +24,21 @@ export function createIdentityPlanet(body, lowPower) {
     metalness: style.surfaceMetalness,
   }))
   surface.name = 'identity-surface'
+  if (typeof document !== 'undefined') {
+    // Keep the CPU-colored sphere as a complete fallback. In the browser,
+    // replace only the material detail with deterministic generated maps so
+    // oceans can be smoother, land rougher and relief finer than vertex scale.
+    const maps = createIdentitySurfaceMaps(lowPower ? 192 : 384, lowPower ? 96 : 192)
+    surface.material.vertexColors = false
+    surface.material.color.set('#ffffff')
+    surface.material.map = maps.albedo
+    surface.material.roughnessMap = maps.roughness
+    surface.material.roughness = 1
+    surface.material.bumpMap = maps.elevation
+    surface.material.bumpScale = body.radius * (lowPower ? .007 : .011)
+    surface.material.metalness = .01
+    surface.material.needsUpdate = true
+  }
   const rotation = createAxialRotation(surface, body.rotation)
 
   const atmosphere = createLightAwareAtmosphere(body.radius * style.atmosphereScale, {
