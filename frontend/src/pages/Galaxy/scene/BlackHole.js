@@ -109,6 +109,7 @@ export function createBlackHole(body, lowPower) {
     new MeshBasicMaterial({ color: STYLE.horizon, depthWrite: true }))
   horizon.name = 'black-hole-event-horizon'
   group.add(horizon)
+  let mobileHorizonFocused = false
 
   if (!lowPower) {
     const lens = new Mesh(new SphereGeometry(body.radius * STYLE.lensScale, 36, 20), new ShaderMaterial({
@@ -146,6 +147,16 @@ export function createBlackHole(body, lowPower) {
     setInteraction(hovered, selected, instant = false) {
       targetFocus = selected ? 1 : hovered ? .2 : 0
       if (instant) diskMaterial.uniforms.focusStrength.value = targetFocus
+      // The overview stays below the strict low-power 12k-triangle budget.
+      // Refine ONLY the selected horizon: at plunge scale, a 12-segment
+      // sphere is visibly polygonal. Release the outgoing GPU geometry
+      // immediately; the installed replacement belongs to scene disposal.
+      if (lowPower && Boolean(selected) !== mobileHorizonFocused) {
+        const previous = horizon.geometry
+        horizon.geometry = new SphereGeometry(body.radius, selected ? 40 : 12, selected ? 20 : 6)
+        previous.dispose()
+        mobileHorizonFocused = Boolean(selected)
+      }
     },
     update(delta, animate = true) {
       const dt = Number.isFinite(delta) ? Math.max(0, Math.min(delta, .05)) : 0
