@@ -2,7 +2,9 @@ name: Galaxy Visual Capture
 
 on:
   push:
-    branches: [feat/galaxy-cinematic-surface-spike]
+    branches:
+      - feat/galaxy-cinematic-surface-spike
+      - feat/galaxy-cinematic-realism
     paths:
       - 'frontend/**'
       - '.github/workflows/galaxy-visual-capture.yml'
