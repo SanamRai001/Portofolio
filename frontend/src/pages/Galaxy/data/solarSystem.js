@@ -18,7 +18,7 @@ export const LAB = Object.freeze({ id: 'lab', focus: focus(5.6, -0.5, 0.85), lab
  // with a complete focus target but no route/portal action until G2R.8.
 export const BLACK_HOLE = Object.freeze({
   id: 'black-hole', label: 'Black Hole', meaning: 'Event horizon', radius: .70,
-  color: '#b98566', position: [-19.5, 1.7, -8.8],
+  color: '#b98566', position: [-18.5, 1.7, -20],
   focus: focus(6.2, -.18, .65, 40),
 })
 export const SYSTEM_MAP = Object.freeze([SUN, ...PLANETS, LAB, BLACK_HOLE])
