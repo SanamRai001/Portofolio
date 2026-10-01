@@ -6,6 +6,7 @@ import { orbitRateTarget } from '../navigation/NavigationController.js'
 import { createSkillsPlanet } from './SkillsPlanet.js'
 import { createIdentityPlanet } from './IdentityPlanet.js'
 import { createProjectsPlanet } from './ProjectsPlanet.js'
+import { createJourneyPlanet } from './JourneyPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
 
 function createGenericPlanet(body, lowPower) {
@@ -45,7 +46,8 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
     const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower)
       : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower)
         : body.id === 'projects' ? createProjectsPlanet(body, profile.lowPower, onSurfaceReady)
-          : createGenericPlanet(body, profile.lowPower)
+          : body.id === 'journey' ? createJourneyPlanet(body, profile.lowPower)
+            : createGenericPlanet(body, profile.lowPower)
     presentations.set(body.id, presentation)
     const root = register(body, presentation.group)
     root.position.fromArray(simulation.position(body.id))
