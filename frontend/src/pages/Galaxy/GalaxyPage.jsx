@@ -30,7 +30,12 @@ export default function GalaxyPage() {
   const [failed, setFailed] = useState(false)
   const [ready, setReady] = useState(false)
   const onReady = useCallback(() => setReady(true), [])
-  const onError = useCallback(() => { portal.cancel(); setFailed(true) }, [portal])
+  const onError = useCallback(() => {
+    portal.cancel()
+    soundscape.disable()
+    setSoundEnabled(false)
+    setFailed(true)
+  }, [portal, soundscape])
   const fallback = still || failed
 
   const syncSoundscape = useCallback(() => {
@@ -64,13 +69,6 @@ export default function GalaxyPage() {
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [navigation, portal, soundscape, syncSoundscape])
-
-  useEffect(() => {
-    if (paused || fallback) {
-      soundscape.disable()
-      setSoundEnabled(false)
-    }
-  }, [paused, fallback, soundscape])
 
   useEffect(() => () => soundscape.dispose(), [soundscape])
 
@@ -121,7 +119,13 @@ export default function GalaxyPage() {
         {fallback && <p className="GalaxyFallbackNote" role="status">{failed ? 'Static system · 3D is unavailable on this device.' : 'Static system · motion is off.'}</p>}
         <div className="GalaxyControls" role="group" aria-label="Sky preferences">
           {!fallback && !reducedMotion && (
-            <button type="button" aria-pressed={paused} onClick={() => setPaused(!paused)}>Pause motion</button>
+            <button type="button" aria-pressed={paused} onClick={() => {
+              if (!paused) {
+                soundscape.disable()
+                setSoundEnabled(false)
+              }
+              setPaused(!paused)
+            }}>Pause motion</button>
           )}
           {reducedMotion && !fallback && <span className="GalaxyMotionNote">Motion reduced</span>}
           <button type="button" className="GalaxySoundToggle"
@@ -132,7 +136,12 @@ export default function GalaxyPage() {
             {soundUnavailable ? 'Sound unavailable' : soundEnabled ? 'Sound on' : 'Sound off'}
           </button>
           {!failed && (
-            <button type="button" aria-pressed={still} disabled={portalActive} onClick={() => { setReady(false); setStill(!still) }}>Still view</button>
+            <button type="button" aria-pressed={still} disabled={portalActive} onClick={() => {
+                soundscape.disable()
+                setSoundEnabled(false)
+                setReady(false)
+                setStill(!still)
+              }}>Still view</button>
           )}
         </div>
       </footer>
