@@ -8,6 +8,7 @@ import { createSolarSystem } from './scene/SolarSystem.js'
 import { createNavigationController } from './navigation/NavigationController.js'
 import { skillInteraction } from './navigation/SkillInteraction.js'
 import { disposeScene } from './utils/disposeScene.js'
+import { createSkillsSurfaceMaps } from './utils/skillsSurface.js'
 const body = PLANETS.find(body => body.id === 'skills')
 function release(group) {
   const scene = new Scene(); scene.add(group)
@@ -89,4 +90,21 @@ test('solar picker exposes Skills-local targets only after arrival and removes t
   solar.setInteraction({ ...focused, selectedBodyId: 'core' }, true)
   assert.equal(solar.hitMeshes.length, 6)
   release(solar.group)
+})
+
+
+test('Skills generated material maps are deterministic and separate rock from metal response', () => {
+  const first = createSkillsSurfaceMaps(24, 12)
+  const second = createSkillsSurfaceMaps(24, 12)
+  for (const key of ['albedo', 'roughness', 'metalness', 'elevation']) {
+    assert.equal(first[key].image.width, 24)
+    assert.equal(first[key].image.height, 12)
+    assert.deepEqual(first[key].image.data, second[key].image.data)
+  }
+  const metal = first.metalness.image.data
+  const rough = first.roughness.image.data
+  assert.ok(Math.min(...metal) < Math.max(...metal))
+  assert.ok(Math.min(...rough) < Math.max(...rough))
+  assert.notDeepEqual(first.albedo.image.data, first.metalness.image.data)
+  for (const maps of [first, second]) Object.values(maps).forEach(texture => texture.dispose())
 })
