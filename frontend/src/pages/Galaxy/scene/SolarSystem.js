@@ -9,6 +9,7 @@ import { createProjectsPlanet } from './ProjectsPlanet.js'
 import { createJourneyPlanet } from './JourneyPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
 import { createBlackHole } from './BlackHole.js'
+import { BLACK_HOLE_APPEARANCE } from '../data/blackHole.js'
 
 function createGenericPlanet(body, lowPower) {
   const group = createCelestialBody(body, lowPower)
@@ -31,7 +32,10 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
     const root = new Group(), focusAnchor = new Object3D()
     root.name = body.id
     root.position.copy(visuals.position); visuals.position.set(0, 0, 0)
-    const interactionMesh = new Mesh(new SphereGeometry(body.radius * 1.5, 8, 6), new MeshBasicMaterial())
+    // The black hole's visible selectable target includes its accretion disk,
+    // not only the dark central sphere. Other bodies keep their old hit area.
+    const hitScale = body.id === BLACK_HOLE.id ? BLACK_HOLE_APPEARANCE.diskOuterScale : 1.5
+    const interactionMesh = new Mesh(new SphereGeometry(body.radius * hitScale, 8, 6), new MeshBasicMaterial())
     interactionMesh.layers.set(1) // Camera uses layer 0; only the interaction raycaster sees layer 1.
     interactionMesh.userData.bodyId = body.id
     root.add(visuals, focusAnchor, interactionMesh)
