@@ -182,3 +182,30 @@
 @media (prefers-reduced-motion:reduce) {
  .GalaxyPortalVeil { transition-duration:110ms; }
 }
+
+
+/* Once the visitor deliberately enters, the same mounted scene grows to the
+   complete viewport: there is no second camera/canvas or detached render loop.
+   Keep the native map in the DOM for a safe return, but remove visual chrome
+   before the plunge instead of presenting a large sphere inside a framed card. */
+.GalaxyPage.is-portal-entering .GalaxyStage {
+ position:fixed; inset:0; z-index:5;
+ width:100vw; height:100dvh; min-height:0; max-height:none; flex:none;
+ background:#020204;
+}
+.GalaxyPage.is-portal-entering :is(.GalaxyHeader,.GalaxySystemMap,.GalaxyFooter,.GalaxyTarget) {
+ opacity:0; pointer-events:none;
+}
+.GalaxyPortalAbort {
+ position:fixed; top:max(24px,env(safe-area-inset-top)); left:max(40px,env(safe-area-inset-left));
+ z-index:9; display:inline-flex; align-items:center; gap:16px;
+ min-height:44px; padding:8px 12px; border:1px solid #736154;
+ color:#e9d8bc; background:#090809d9;
+ font:11px/1.5 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.1em;
+ cursor:pointer;
+}
+.GalaxyPortalAbort span { font-size:10px; opacity:.65; }
+.GalaxyPortalAbort:hover, .GalaxyPortalAbort:focus-visible { border-color:#e4b883; }
+@media(max-width:760px) {
+ .GalaxyPortalAbort { left:max(22px,env(safe-area-inset-left)); top:max(18px,env(safe-area-inset-top)); }
+}
