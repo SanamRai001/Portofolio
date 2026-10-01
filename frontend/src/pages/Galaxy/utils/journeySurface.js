@@ -54,9 +54,9 @@ function makeMap(data, width, height) {
 export function createJourneySurfaceMap(width = 384, height = 192) {
   const w = Math.max(8, Math.floor(width)), h = Math.max(4, Math.floor(height))
   const pixels = new Uint8Array(w * h * 4)
-  const charcoal = [86, 82, 92], umber = [127, 101, 91]
-  const cream = [198, 175, 155], gold = [170, 143, 121]
-  const stormCream = [218, 202, 183]
+  const charcoal = [108, 101, 104], umber = [135, 114, 104]
+  const cream = [175, 158, 142], gold = [158, 140, 126]
+  const stormCream = [196, 180, 164]
 
   let offset = 0
   for (let row = 0; row < h; row++) {
@@ -70,17 +70,17 @@ export function createJourneySurfaceMap(width = 384, height = 192) {
       const large = noise(x * 3.4 + 4, y * 3.4 - 2, z * 3.4 + 6) - .5
       const medium = noise(x * 8.7 - 3, y * 8.7 + 7, z * 8.7) - .5
       const fine = noise(x * 23.1 + 5, y * 23.1 - 4, z * 23.1 + 3) - .5
-      const shear = large * .062 + medium * .022
+      const shear = large * .084 + medium * .029
       const axis = latitude + shear
-      const bands = Math.sin(axis * 17.5 + .25) * .25
-        + Math.sin(axis * 35. + medium * .7) * .105
-      const variation = clamp01(.49 + bands + medium * .16 + fine * .075)
-      let rgb = mixColor(charcoal, cream, smoothstep(.13, .88, variation))
+      const bands = Math.sin(axis * 13.5 + .25) * .13
+        + Math.sin(axis * 28. + medium * .85) * .052
+      const variation = clamp01(.5 + bands + large * .13 + medium * .13 + fine * .065)
+      let rgb = mixColor(charcoal, cream, smoothstep(.2, .83, variation))
 
       const warmth = smoothstep(.42, .78,
         noise(x * 2.7 - 6, y * 2.7 + 1, z * 2.7 + 3))
-      rgb = mixColor(rgb, umber, warmth * .23)
-      rgb = mixColor(rgb, gold, smoothstep(.57, .77, variation) * .13)
+      rgb = mixColor(rgb, umber, warmth * .18)
+      rgb = mixColor(rgb, gold, smoothstep(.57, .77, variation) * .1)
 
       // A few localized, low-contrast storm ovals interrupt the bands.
       const stormA = storm(latitude, longitude, .26, 1.15, .18, .095)
