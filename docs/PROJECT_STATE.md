@@ -43,6 +43,19 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 - Remaining limit is deliberate: this is a stylized physically-believable fictional Sun, not a scientific/photoreal solar simulation or global bloom/postprocessing system.
 - **Next phase: G2R.3 — planet realism primitives.** Build reusable light-aware atmosphere, cloud-shell, optional night/emissive and authored material helpers with deterministic update/disposal contracts before upgrading individual Identity/Skills/Projects/Journey art direction.
 
+## Completed phase — G2R.3 planet realism primitives (2026-10-01)
+- Added `frontend/src/pages/Galaxy/scene/PlanetLayers.js` as the shared layer foundation for later world-specific art passes.
+- Added a light-aware atmosphere shader that derives the Sun direction from world position (Sun remains at the system origin), producing stronger day-side rim scattering and a restrained night-side remainder without a separate light-update loop.
+- Added a procedural cloud-shell primitive with quality-tier octaves and its own deterministic `createAxialRotation` clock so clouds can rotate independently from a planet surface while still freezing under pause/reduced motion.
+- Added an optional procedural night-side emissive layer whose visibility is Sun-opposed and whose density/sample work is reduced on low power.
+- Added shared authored-surface helpers: `installAuthoredSurfaceMap` owns common color-space/wrap/material setup and `createAuthoredSurfaceController` owns load/late-callback/disposal behavior.
+- Refactored `ProjectsPlanet.js` onto the shared authored-surface controller while preserving its procedural fallback, bump/roughness/metalness settings and longitude seam patch.
+- Added `planetLayers.test.js` covering light-aware shader contracts, high/low geometry differences, cloud independent rotation/freeze behavior, night-side quality tiers, authored material installation, scene ownership after successful load, and idempotent rejection/disposal of late texture callbacks.
+- Final phase head `e92270a2ae3bf94af4f99160b625f11063383b0d` passed auth runtime, Galaxy tests, homepage DOM regressions, lint and production build in Actions run `36810966095`.
+- Galaxy Visual Capture run `36810966127` passed on the exact head. `results.json` reports zero errors for high-quality desktop/laptop, low-power phone, normal/reduced motion and the long Projects seam rotation sequence. The inspected Projects focused capture still renders the authored rocky surface correctly after the loader refactor.
+- No new npm/rendering dependency and no additional requestAnimationFrame loop were introduced.
+- **Next phase: G2R.4 world identities, one world at a time. Start with Identity only.** Use the new atmosphere/cloud primitives and reference-grounded terrestrial art direction; verify it visually before moving to Skills.
+
 ## Baseline / prior decisions
 - Clean local/fetched remote at G5 `5abae95`; G5 code `31b6148`, successful frontend CI `36439003234` and Vercel preview status. At the G6 baseline, master was `70cb2dc` and G2–G5 were unmerged.
 - Re-read project state, original G6 scope, existing technology copy, shared navigation/orbit/camera architecture and rendering/fallback integration. G5 baseline: 37 Galaxy tests and lint passed again; prior full verification was 79 tests plus build.
@@ -91,4 +104,4 @@ Original Galaxy brief defines G6 as technology satellites, hover labels and sele
 G6 published: content/selection `cc26b3c`, satellite/fallback implementation `4f014cb30e9073c46ed208dfee62b9b3bce682b1`. Frontend CI `36440847121`: **success**. Vercel preview status: **success**. PR **#2** merged G2–G6 into `master` at `2ba08baedb182e4cfdc2d40c59c1a9eaf2ba0d6b`. PR CI `36441658241` and post-merge CI `36441741414`: **success**; merged-commit Vercel deployment status: **success**. Source branch preserved. No G7 implementation. Complete browser/GPU acceptance when access is available; deployment success does not establish visual acceptance.
 
 ## Known limits / branch hygiene
-Chromium/SwiftShader browser appearance and layout were inspected in reduced and normal motion; physical GPU frame rate and touch remain unverified. A brief unselected-planet flyby can intrude into focused Projects. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Next: G2R.3 planet realism primitives on `feat/galaxy-cinematic-realism`; keep the focused-camera flyby as a known composition risk and keep G7 deferred.**
+Chromium/SwiftShader browser appearance and layout were inspected in reduced and normal motion; physical GPU frame rate and touch remain unverified. A brief unselected-planet flyby can intrude into focused Projects. Existing large deferred Three.js chunk warning remains. The merged `refactor/backend-focused-homepage` branch can be removed only with user approval; no branches deleted. **Next: G2R.4 Identity world art pass on `feat/galaxy-cinematic-realism`; then Skills/Projects/Journey one at a time. Keep G7 deferred.**
