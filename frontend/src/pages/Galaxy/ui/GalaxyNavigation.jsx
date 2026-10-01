@@ -28,6 +28,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
   const returning = state.mode === 'returning_overview'
 
   function goBack() {
+    if (portalState.mode === 'committed') return
     const id = state.selectedBodyId
     const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent'))
     if (portalActive) portal?.cancel()
@@ -36,7 +37,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
   }
   useEffect(() => {
     function escape(event) {
-      if (event.key !== 'Escape' || !navigation.getSnapshot().selectedBodyId) return
+      if (event.key !== 'Escape' || !navigation.getSnapshot().selectedBodyId || portal?.getSnapshot().mode === 'committed') return
       const id = navigation.getSnapshot().selectedBodyId
       const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent'))
       if (portal && portal.getSnapshot().mode !== 'idle') portal.cancel()
@@ -68,13 +69,13 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
             {selected && !coreSelected && <small>{skillSignal ? `${SKILLS.label} / ${skillSignal.category}` : selected.id === 'lab' ? 'Unknown signal · Content locked' : selected.id === 'black-hole' ? (portalActive ? 'Entering horizon · Esc to cancel' : portal ? 'Event horizon · Portal ready' : 'Event horizon · Portal inactive') : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
           </>}
         </div>
-        {selected?.id === 'black-hole' && portal && state.mode === 'body_focused' && portalState.mode === 'idle' && (
+      </div>
+      {selected?.id === 'black-hole' && portal && state.mode === 'body_focused' && portalState.mode === 'idle' && (
           <button type="button" className="GalaxyPortalEnter"
             onClick={() => portal.begin(state.selectedBodyId, state.mode, { reduceMotion: reducedMotion || staticView })}>
             Enter the horizon <span aria-hidden="true">↗</span>
           </button>
-        )}
-      </div>
+      )}
     </div>
     <section className={`GalaxySystemMap${selected ? ' has-selection' : ''}`} aria-label="Solar system map">
       <div className="GalaxyMapHeading"><span>System map / 01</span><span>{status}</span></div>
