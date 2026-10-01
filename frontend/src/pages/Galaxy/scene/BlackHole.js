@@ -101,7 +101,7 @@ export function createBlackHole(body, lowPower) {
     lowPower ? 1 : STYLE.desktopRadialSegments,
   ), diskMaterial)
   disk.name = 'black-hole-accretion-disk'
-  disk.rotation.set(STYLE.diskTilt, STYLE.diskYaw, .12)
+  disk.rotation.set(lowPower ? STYLE.mobileTilt : STYLE.diskTilt, STYLE.diskYaw, .12)
   disk.frustumCulled = false
   group.add(disk)
 
