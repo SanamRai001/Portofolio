@@ -85,8 +85,8 @@ test('Skills uses shared satellite resources, cheaper low-power orbits and compl
 test('solar picker exposes Skills-local targets only after arrival and removes them immediately on leaving', () => {
   const solar = createSolarSystem({ lowPower: true })
   solar.setInteraction({ ...focused, mode: 'focusing_body' }, true)
-  assert.equal(solar.hitMeshes.length, 6)
-  solar.setInteraction(focused, true); assert.equal(solar.hitMeshes.length, 16)
+  assert.equal(solar.hitMeshes.length, 7)
+  solar.setInteraction(focused, true); assert.equal(solar.hitMeshes.length, 17)
   solar.setInteraction({ ...focused, selectedBodyId: 'core' }, true)
   assert.equal(solar.hitMeshes.length, 6)
   release(solar.group)
