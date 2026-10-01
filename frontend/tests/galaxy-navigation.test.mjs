@@ -35,10 +35,10 @@ const render = async (staticView = true) => act(async () => root.render(React.cr
 const click = async node => act(async () => node.dispatchEvent(new window.MouseEvent('click', { bubbles: true })))
 const escape = async () => act(async () => window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' })))
 
-test('six native map buttons select the same static architecture with visible selected feedback', async () => {
+test('seven native map buttons select the same static architecture with visible selected feedback', async () => {
   await render()
-  assert.equal(container.querySelectorAll('.GalaxySystemMap button').length, 6)
-  for (const [label, id] of [['Core', 'core'], ['Identity', 'identity'], ['Skills', 'skills'], ['Projects', 'projects'], ['Journey', 'journey'], ['The Lab', 'lab']]) {
+  assert.equal(container.querySelectorAll('.GalaxySystemMap button').length, 7)
+  for (const [label, id] of [['Core', 'core'], ['Identity', 'identity'], ['Skills', 'skills'], ['Projects', 'projects'], ['Journey', 'journey'], ['The Lab', 'lab'], ['Black Hole', 'black-hole']]) {
     assert.equal(button(label).type, 'button')
     assert.equal(button(label).tabIndex, 0)
     await click(button(label))
@@ -240,4 +240,19 @@ test('fallback satellite clicks share Skills selection with the native technolog
   assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /selected PostgreSQL/)
   await click(button('Identity'))
   assert.equal(container.querySelectorAll('[data-skill]').length, 0)
+})
+
+
+test('black-hole static focus is labelled, keyboard accessible and has no portal navigation yet', async () => {
+  await render()
+  await click(button('Black Hole'))
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'black-hole')
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
+  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /Black Hole: fictional event horizon/)
+  assert.match(container.querySelector('[role="status"]').textContent, /Black Hole/)
+  assert.match(container.textContent, /Portal inactive/)
+  assert.ok(container.querySelector('[data-body="black-hole"] ellipse'))
+  await escape()
+  assert.equal(navigation.getSnapshot().mode, 'overview')
+  assert.equal(document.activeElement, button('Black Hole'))
 })
