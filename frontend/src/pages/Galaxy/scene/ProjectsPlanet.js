@@ -1,4 +1,5 @@
 import { ClampToEdgeWrapping, RepeatWrapping, SRGBColorSpace, TextureLoader } from 'three'
+import { createAxialRotation } from '../utils/axialRotation.js'
 import { createCelestialBody } from './CelestialBody.js'
 
 const desktopSurface = '/galaxy/projects-surface.webp'
@@ -30,6 +31,7 @@ export function blendProjectsLongitudeSeam(material) {
 export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) {
   const group = createCelestialBody(body, lowPower, { smoothRock: true })
   const surface = group.getObjectByName(`${body.id}-surface`)
+  const rotation = createAxialRotation(surface, body.rotation)
   let disposed = false, loaded = false, texture
 
   if (typeof document !== 'undefined') {
@@ -57,7 +59,7 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
   return {
     group,
     update(delta, animate = true) {
-      if (animate && Number.isFinite(delta)) surface.rotation.y = (surface.rotation.y + Math.max(0, Math.min(delta, .05)) * body.spin) % (Math.PI * 2)
+      rotation.update(delta, animate)
     },
     dispose() {
       disposed = true
