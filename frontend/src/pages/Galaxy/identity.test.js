@@ -5,7 +5,7 @@ import { createIdentityPlanet } from './scene/IdentityPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { PLANETS } from './data/solarSystem.js'
 import { IDENTITY_APPEARANCE as style } from './data/identity.js'
-import { identityTerrain } from './utils/identitySurface.js'
+import { createIdentitySurfaceMaps, identityTerrain } from './utils/identitySurface.js'
 import { disposeScene } from './utils/disposeScene.js'
 const identity = PLANETS.find(body => body.id === 'identity')
 function release(group) {
@@ -93,4 +93,21 @@ test('Identity/Core/Identity/Journey resets atmosphere and resumes Identity orbi
   assert.equal(surface.rotation.y, rotation)
   assert.equal(clouds.rotation.y, cloudRotation)
   release(system.group)
+})
+
+
+test('Identity generated surface maps are deterministic, quality-sized and materially distinct', () => {
+  const first = createIdentitySurfaceMaps(24, 12)
+  const second = createIdentitySurfaceMaps(24, 12)
+  for (const key of ['albedo', 'roughness', 'elevation']) {
+    assert.equal(first[key].image.width, 24)
+    assert.equal(first[key].image.height, 12)
+    assert.deepEqual(first[key].image.data, second[key].image.data)
+  }
+  const rough = first.roughness.image.data
+  const height = first.elevation.image.data
+  assert.ok(Math.min(...rough) < Math.max(...rough))
+  assert.ok(Math.min(...height) < Math.max(...height))
+  assert.notDeepEqual(first.albedo.image.data, first.roughness.image.data)
+  for (const maps of [first, second]) Object.values(maps).forEach(texture => texture.dispose())
 })
