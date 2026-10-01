@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Scene } from 'three'
-import { BLACK_HOLE, SYSTEM_MAP } from './data/solarSystem.js'
+import { BLACK_HOLE, PLANETS, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
 import { BLACK_HOLE_APPEARANCE as STYLE } from './data/blackHole.js'
 import { createBlackHole } from './scene/BlackHole.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
@@ -18,6 +18,10 @@ test('G2R.7 black-hole target exists once and is distinct from Lab and the orbit
   assert.ok(!BLACK_HOLE.orbit)
   assert.notDeepEqual(BLACK_HOLE.position, SYSTEM_MAP.find(body => body.id === 'lab').position)
   assert.ok(BLACK_HOLE.radius > 0 && BLACK_HOLE.focus.fov > 0)
+  const journey = PLANETS.find(body => body.id === 'journey')
+  const radialClearance = Math.hypot(BLACK_HOLE.position[0], BLACK_HOLE.position[2]) - journey.orbit.radius
+  const presentationClearance = journey.radius * journey.ring[1] * SOLAR_STYLE.mobileBodyScale + BLACK_HOLE.radius * STYLE.diskOuterScale
+  assert.ok(radialClearance > presentationClearance, 'Journey can never cross the fixed black-hole visual envelope')
 })
 
 test('G2R.7 black-hole material has a depth-writing horizon and high/low accretion tiers', () => {
