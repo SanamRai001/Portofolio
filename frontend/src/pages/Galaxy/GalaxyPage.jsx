@@ -17,7 +17,8 @@ export default function GalaxyPage() {
     onCommit: destination => window.location.assign(destination),
   }))
   const portalState = useSyncExternalStore(portal.subscribe, portal.getSnapshot)
-  const portalActive = portalState.mode !== 'idle' && portalState.mode !== 'committed'
+  const portalEntering = portalState.mode !== 'idle'
+  const portalActive = portalEntering && portalState.mode !== 'committed'
   const [paused, setPaused] = useState(false)
   const [still, setStill] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -33,7 +34,7 @@ export default function GalaxyPage() {
   }, [])
 
   return (
-    <main className="GalaxyPage" aria-labelledby="galaxy-title">
+    <main className={`GalaxyPage${portalEntering ? ' is-portal-entering' : ''}`} aria-labelledby="galaxy-title">
       <header className="GalaxyHeader">
         <h1 id="galaxy-title"><span>{CORE.shortName}</span><span aria-hidden="true">/</span>Galaxy</h1>
         <a className="GalaxyExit" href="/">Exit to portfolio <span aria-hidden="true">↗</span></a>
@@ -47,6 +48,11 @@ export default function GalaxyPage() {
       </GalaxyNavigation>
 
       <GalaxyPortalOverlay portal={portal} />
+      {portalActive && portalState.mode !== 'blackout' && (
+        <button className="GalaxyPortalAbort" type="button" onClick={() => { portal.cancel(); navigation.goBack() }}>
+          ← Return to system <span>Esc</span>
+        </button>
+      )}
 
       <footer className="GalaxyFooter">
         <div className="GalaxyCaption">
