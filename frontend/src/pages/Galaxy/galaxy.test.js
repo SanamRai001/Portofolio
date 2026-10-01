@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { BufferGeometry, Mesh, MeshBasicMaterial, Scene, Texture } from 'three'
 import { getPerformanceProfile } from './utils/performance.js'
-import { createRenderLoop } from './utils/renderLoop.js'
+import { createRenderLoop, shouldRunSceneLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
 import { SUN, PLANETS, LAB, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
@@ -296,4 +296,13 @@ test('G2R.1 planet rotation is data-driven, deterministic and frozen when ambien
   system.dispose()
   const scene = new Scene(); scene.add(system.group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+
+test('offscreen Galaxy rendering stays alive only long enough to settle camera travel', () => {
+  assert.equal(shouldRunSceneLoop({ inView: true, pageActive: true, hidden: false, travelling: false }), true)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: false, travelling: true }), true)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: false, travelling: false }), false)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: false, hidden: false, travelling: true }), false)
+  assert.equal(shouldRunSceneLoop({ inView: false, pageActive: true, hidden: true, travelling: true }), false)
 })
