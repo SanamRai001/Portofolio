@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Scene, SRGBColorSpace } from 'three'
 import { PLANETS } from './data/solarSystem.js'
-import { JOURNEY_APPEARANCE } from './data/journey.js'
+import { JOURNEY_APPEARANCE, JOURNEY_RING_APPEARANCE } from './data/journey.js'
 import { createJourneySurfaceMap } from './utils/journeySurface.js'
 import { createJourneyPlanet } from './scene/JourneyPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
@@ -37,11 +37,34 @@ test('Journey cloud-top map is deterministic, non-flat and has continuous longit
   second.dispose()
 })
 
-test('Journey keeps its legacy rings untouched while haze and surface obey quality/motion', () => {
+test('Journey upgrades its rings by quality tier while haze and surface obey quality/motion', () => {
   const high = createJourneyPlanet(journey, false), low = createJourneyPlanet(journey, true)
-  const ringMeshes = group => group.children.filter(object => object.geometry?.type === 'RingGeometry')
-  assert.equal(ringMeshes(high.group).length, 2)
-  assert.equal(ringMeshes(low.group).length, 2)
+  const ringMeshes = group => group.getObjectByName('journey-rings').children
+  assert.equal(ringMeshes(high.group).length, 1)
+  assert.equal(ringMeshes(low.group).length, 1)
+  assert.equal(high.group.children.filter(object => object.geometry?.type === 'RingGeometry').length, 0)
+  assert.equal(low.group.children.filter(object => object.geometry?.type === 'RingGeometry').length, 0)
+  const fullRing = ringMeshes(high.group)[0], smallRing = ringMeshes(low.group)[0]
+  assert.equal(fullRing.name, 'journey-ring-bands')
+  assert.equal(fullRing.geometry.type, 'RingGeometry')
+  assert.equal(fullRing.geometry.parameters.thetaSegments, JOURNEY_RING_APPEARANCE.desktopSegments)
+  assert.equal(fullRing.geometry.parameters.phiSegments, JOURNEY_RING_APPEARANCE.desktopRadialSegments)
+  assert.equal(smallRing.geometry.parameters.thetaSegments, JOURNEY_RING_APPEARANCE.mobileSegments)
+  assert.equal(smallRing.geometry.parameters.phiSegments, 1)
+  assert.equal(fullRing.material.defines.RING_DETAIL_HIGH, 1)
+  assert.equal(smallRing.material.defines.RING_DETAIL_HIGH, 0)
+  assert.equal(fullRing.material.depthWrite, false)
+  assert.equal(fullRing.material.depthTest, true)
+  assert.equal(fullRing.material.transparent, true)
+  assert.equal(fullRing.material.uniforms.innerRadius.value, journey.radius * journey.ring[0])
+  assert.equal(fullRing.material.uniforms.outerRadius.value, journey.radius * journey.ring[1])
+  assert.ok(smallRing.geometry.index.count < 400, 'mobile ring count stays below the former two-disc cost')
+  assert.match(fullRing.material.fragmentShader, /float division = exp\(/)
+  assert.match(fullRing.material.fragmentShader, /fwidth\(phase\)/)
+  assert.match(fullRing.material.fragmentShader, /planetRadius.*planetRadius/)
+  assert.match(fullRing.material.fragmentShader, /nearDetail/)
+  assert.match(fullRing.material.vertexShader, /vPlanetCenter/)
+
   const fullHaze = high.group.getObjectByName('journey-haze')
   const smallHaze = low.group.getObjectByName('journey-haze')
   assert.ok(fullHaze)
@@ -78,7 +101,8 @@ test('Journey is integrated into the existing one-loop solar presentation', () =
   const system = createSolarSystem({ lowPower: true })
   const journeyVisuals = system.targets.get('journey').visuals
   assert.equal(journeyVisuals.getObjectByName('journey-haze'), undefined)
-  assert.equal(journeyVisuals.children.filter(c => c.geometry?.type === 'RingGeometry').length, 2)
+  assert.equal(journeyVisuals.children.filter(c => c.geometry?.type === 'RingGeometry').length, 0)
+  assert.equal(journeyVisuals.getObjectByName('journey-rings').children.length, 1)
   const journeySurface = journeyVisuals.getObjectByName('journey-surface')
   const before = journeySurface.rotation.y
   system.update(.05, true)
@@ -88,4 +112,28 @@ test('Journey is integrated into the existing one-loop solar presentation', () =
   assert.equal(journeySurface.rotation.y, after)
   system.dispose()
   release(system.group)
+})
+
+
+test('G2R.6 rings remain independent of Journey axial rotation and are released with the scene', () => {
+  const high = createJourneyPlanet(journey, false)
+  const low = createJourneyPlanet(journey, true)
+  const highBand = high.group.getObjectByName('journey-ring-bands')
+  const lowBand = low.group.getObjectByName('journey-ring-bands')
+  const angles = [highBand.rotation.x, highBand.rotation.y]
+  high.update(.05, true)
+  low.update(.05, true)
+  assert.deepEqual([highBand.rotation.x, highBand.rotation.y], angles)
+  assert.deepEqual([lowBand.rotation.x, lowBand.rotation.y], angles)
+  assert.notEqual(high.group.getObjectByName('journey-surface').rotation.y, 0)
+  assert.notEqual(low.group.getObjectByName('journey-surface').rotation.y, 0)
+  for (const presentation of [high, low]) {
+    const ring = presentation.group.getObjectByName('journey-ring-bands')
+    let freedGeometry = 0, freedMaterial = 0
+    ring.geometry.addEventListener('dispose', () => freedGeometry++)
+    ring.material.addEventListener('dispose', () => freedMaterial++)
+    release(presentation.group)
+    assert.equal(freedGeometry, 1)
+    assert.equal(freedMaterial, 1)
+  }
 })
