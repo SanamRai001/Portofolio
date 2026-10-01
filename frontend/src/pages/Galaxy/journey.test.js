@@ -45,10 +45,8 @@ test('Journey keeps its legacy rings untouched while haze and surface obey quali
   const fullHaze = high.group.getObjectByName('journey-haze')
   const smallHaze = low.group.getObjectByName('journey-haze')
   assert.ok(fullHaze)
-  assert.ok(smallHaze)
+  assert.equal(smallHaze, undefined, 'low power retains the gas giant and rings without optional atmosphere geometry')
   assert.equal(fullHaze.material.uniforms.strength.value, JOURNEY_APPEARANCE.hazeStrength)
-  assert.equal(smallHaze.material.uniforms.strength.value, JOURNEY_APPEARANCE.lowPowerHazeStrength)
-  assert.ok(smallHaze.geometry.attributes.position.count < fullHaze.geometry.attributes.position.count)
 
   const surface = high.group.getObjectByName('journey-surface')
   assert.equal(surface.material.vertexColors, true, 'procedural non-browser fallback stays intact')
@@ -79,7 +77,7 @@ test('Journey keeps its legacy rings untouched while haze and surface obey quali
 test('Journey is integrated into the existing one-loop solar presentation', () => {
   const system = createSolarSystem({ lowPower: true })
   const journeyVisuals = system.targets.get('journey').visuals
-  assert.ok(journeyVisuals.getObjectByName('journey-haze'))
+  assert.equal(journeyVisuals.getObjectByName('journey-haze'), undefined)
   assert.equal(journeyVisuals.children.filter(c => c.geometry?.type === 'RingGeometry').length, 2)
   const journeySurface = journeyVisuals.getObjectByName('journey-surface')
   const before = journeySurface.rotation.y
