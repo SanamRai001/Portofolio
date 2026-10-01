@@ -1,5 +1,5 @@
 import { AmbientLight, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh, MeshBasicMaterial, Object3D, PointLight, SphereGeometry, Vector3 } from 'three'
-import { SUN, PLANETS, LAB, SOLAR_STYLE } from '../data/solarSystem.js'
+import { SUN, PLANETS, LAB, BLACK_HOLE, SOLAR_STYLE } from '../data/solarSystem.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
 import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { orbitRateTarget } from '../navigation/NavigationController.js'
@@ -8,6 +8,7 @@ import { createIdentityPlanet } from './IdentityPlanet.js'
 import { createProjectsPlanet } from './ProjectsPlanet.js'
 import { createJourneyPlanet } from './JourneyPlanet.js'
 import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
+import { createBlackHole } from './BlackHole.js'
 
 function createGenericPlanet(body, lowPower) {
   const group = createCelestialBody(body, lowPower)
@@ -58,6 +59,9 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
     group.add(line)
   }
   register(LAB, createLab(LAB))
+  const blackHole = createBlackHole(BLACK_HOLE, profile.lowPower)
+  presentations.set(BLACK_HOLE.id, blackHole)
+  register(BLACK_HOLE, blackHole.group).position.fromArray(BLACK_HOLE.position)
   return {
     group, simulation, bodies, targets,
     dispose() { sun.dispose(); presentations.forEach(presentation => presentation.dispose?.()) },
@@ -67,6 +71,7 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
       hovered = state.hoveredBodyId
       selected = state.selectedBodyId
       sun.setInteraction(hovered === SUN.id, state.selectedBodyId === SUN.id, instant)
+      blackHole.setInteraction(hovered === BLACK_HOLE.id, state.selectedBodyId === BLACK_HOLE.id, instant)
       for (const body of PLANETS) {
         presentations.get(body.id)?.setSelection?.(state, instant)
         presentations.get(body.id)?.setInteraction?.(hovered === body.id, state.selectedBodyId === body.id, instant)
