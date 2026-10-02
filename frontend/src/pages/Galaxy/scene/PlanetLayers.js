@@ -124,8 +124,8 @@ export function createCloudLayer(radius, {
           float wisps = noise(flow.yzx * 2.7 + 3.7);
           float field = weather * .36 + cells * .44 + wisps * .20;
           float fine = noise(surface * 13.7 + vec3(seed * .19));
-          cloud = smoothstep(.465, .675, field)
-            * mix(.66, 1., smoothstep(.30, .72, fine));
+          cloud = smoothstep(.40, .60, field)
+            * mix(.70, 1., smoothstep(.30, .72, fine));
         #else
           cloud = smoothstep(.49, .72, noise(p));
         #endif
