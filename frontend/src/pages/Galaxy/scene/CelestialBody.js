@@ -137,6 +137,25 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
           float authoredWeight = mix(.16, .54, latitudeMask);
           color = mix(color, detail * (.69 + .22 * facing), authoredWeight);
         }
+        #if SUN_OCTAVES > 2
+          // G2R.10: two restrained, fixed magnetic active regions break up
+          // the authored texture's uniformly bright face. Distorted edges
+          // avoid cartoon-perfect dots; the low-power shader compiles none
+          // of these extra lookups. These are fictional procedural details.
+          float jitter = (noise(surface * 86. + vec3(1.7, 4.2, .8)) - .5) * .0017;
+          float regionA = smoothstep(.9958, .9992,
+            dot(surface, normalize(vec3(.38, .23, .89))) + jitter);
+          float regionB = smoothstep(.9962, .9993,
+            dot(surface, normalize(vec3(-.29, .41, .86))) + jitter);
+          float penumbra = max(regionA * .88, regionB * .72);
+          float umbra = smoothstep(.45, .77,
+            noise(surface * 118. + vec3(7.8, 2.1, 3.7))) * penumbra;
+          color *= 1. - penumbra * .15 - umbra * .15;
+          // Small facular knots read as convection detail rather than bloom.
+          float facula = smoothstep(.68, .84,
+            noise(surface * 46. + vec3(time * .004))) * (1. - penumbra);
+          color = mix(color, ivory, facula * .035);
+        #endif
         // Photosphere limb shaping: preserve a readable bright face while the
         // edge falls warmer/darker before the separate corona shell begins.
         float limb = pow(clamp(facing, 0., 1.), .28);
