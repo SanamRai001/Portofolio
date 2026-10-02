@@ -54,24 +54,37 @@ test('Identity slows locally, freezes while paused, bounds atmosphere feedback a
   release(planet.group)
 })
 
-test('low-power Identity keeps three quality-scaled layers and complete disposal', () => {
+test('Identity keeps quality-scaled layers and owns a desktop-only textured Moon with complete disposal', () => {
   const full = createIdentityPlanet(identity, false), small = createIdentityPlanet(identity, true)
-  assert.equal(full.group.children.length, 3); assert.equal(small.group.children.length, 3)
+  assert.equal(full.group.children.length, 4)
+  assert.equal(small.group.children.length, 3)
+  const moon = full.group.getObjectByName('identity-moon')
+  const orbit = full.group.getObjectByName('identity-moon-orbit')
+  assert.ok(moon && orbit)
+  assert.equal(small.group.getObjectByName('identity-moon'), undefined)
   for (let i = 0; i < 3; i++) {
     assert.ok(small.group.children[i].geometry.attributes.position.count < full.group.children[i].geometry.attributes.position.count)
   }
+  const start = orbit.rotation.y
+  full.update(.05, true)
+  assert.notEqual(orbit.rotation.y, start)
+  const frozen = orbit.rotation.y
+  full.update(.05, false)
+  assert.equal(orbit.rotation.y, frozen, 'Moon follows reduced-motion/pause contract')
   assert.equal(full.group.getObjectByName('identity-clouds').material.defines.CLOUD_OCTAVES, 2)
   assert.equal(small.group.getObjectByName('identity-clouds').material.defines.CLOUD_OCTAVES, 1)
   assert.ok(small.group.getObjectByName('identity-clouds').material.uniforms.opacity.value < style.cloudOpacity)
   for (const planet of [full, small]) {
     let geometries = 0, materials = 0
-    for (const mesh of planet.group.children) {
+    planet.group.traverse(mesh => {
+      if (!mesh.isMesh) return
       assert.equal(mesh.material.map, mesh.material.isMeshStandardMaterial ? null : undefined)
       mesh.geometry.addEventListener('dispose', () => geometries++)
       mesh.material.addEventListener('dispose', () => materials++)
-    }
+    })
     release(planet.group)
-    assert.equal(geometries, 3); assert.equal(materials, 3)
+    assert.equal(geometries, planet === full ? 4 : 3)
+    assert.equal(materials, planet === full ? 4 : 3)
   }
 })
 
