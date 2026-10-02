@@ -1,10 +1,11 @@
 import { Color, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial, SphereGeometry } from 'three'
 import { IDENTITY_APPEARANCE } from '../data/identity.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
-import { createIdentitySurfaceMaps, identityTerrain } from '../utils/identitySurface.js'
-import { createCloudLayer, createLightAwareAtmosphere } from './PlanetLayers.js'
+import { identityTerrain } from '../utils/identitySurface.js'
+import { GALAXY_TEXTURES } from '../data/photorealAssets.js'
+import { createAuthoredSurfaceController, createCloudLayer, createLightAwareAtmosphere, installAuthoredSurfaceMap } from './PlanetLayers.js'
 
-export function createIdentityPlanet(body, lowPower) {
+export function createIdentityPlanet(body, lowPower, onSurfaceReady = () => {}) {
   const style = IDENTITY_APPEARANCE, group = new Group()
   const segments = lowPower ? 32 : 64
   const geometry = new SphereGeometry(body.radius, segments, segments / 2)
@@ -24,21 +25,17 @@ export function createIdentityPlanet(body, lowPower) {
     metalness: style.surfaceMetalness,
   }))
   surface.name = 'identity-surface'
-  if (typeof document !== 'undefined') {
-    // Keep the CPU-colored sphere as a complete fallback. In the browser,
-    // replace only the material detail with deterministic generated maps so
-    // oceans can be smoother, land rougher and relief finer than vertex scale.
-    const maps = createIdentitySurfaceMaps(lowPower ? 192 : 384, lowPower ? 96 : 192)
-    surface.material.vertexColors = false
-    surface.material.color.set('#ffffff')
-    surface.material.map = maps.albedo
-    surface.material.roughnessMap = maps.roughness
-    surface.material.roughness = 1
-    surface.material.bumpMap = maps.elevation
-    surface.material.bumpScale = body.radius * (lowPower ? .007 : .011)
-    surface.material.metalness = .01
-    surface.material.needsUpdate = true
-  }
+  // Local photographic Earth map; CPU-colored sphere is the loading/error fallback.
+  const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
+    surface,
+    path: GALAXY_TEXTURES.identity,
+    onReady: onSurfaceReady,
+    configure(map) {
+      installAuthoredSurfaceMap(surface, map, {
+        roughness: .82, metalness: 0, bumpScale: body.radius * .002,
+      })
+    },
+  })
   const rotation = createAxialRotation(surface, body.rotation)
 
   const atmosphere = createLightAwareAtmosphere(body.radius * style.atmosphereScale, {
@@ -63,6 +60,35 @@ export function createIdentityPlanet(body, lowPower) {
   clouds.mesh.name = 'identity-clouds'
   group.add(surface, clouds.mesh, atmosphere)
 
+  // Decorative lunar companion: no new navigation target or animation loop.
+  // Desktop only so the existing low-power mesh budget is unchanged.
+  let moonRotation = null, moonAsset = null
+  if (!lowPower) {
+    const pivot = new Group()
+    pivot.name = 'identity-moon-orbit'
+    const moon = new Mesh(
+      new SphereGeometry(body.radius * .22, 24, 12),
+      new MeshStandardMaterial({ color: '#aaa49d', roughness: 1, metalness: 0 }),
+    )
+    moon.name = 'identity-moon'
+    moon.position.set(body.radius * 2.4, body.radius * .1, 0)
+    pivot.add(moon)
+    moonRotation = createAxialRotation(pivot, { axialTilt: .07, surfaceSpeed: .012, phase: 2.2 })
+    group.add(pivot)
+    if (typeof document !== 'undefined') {
+      moonAsset = createAuthoredSurfaceController({
+        surface: moon,
+        path: GALAXY_TEXTURES.moon,
+        onReady: onSurfaceReady,
+        configure(map) {
+          installAuthoredSurfaceMap(moon, map, {
+            roughness: 1, metalness: 0, bumpScale: body.radius * .001,
+          })
+        },
+      })
+    }
+  }
+
   let targetActivity = 0, activity = 0, targetSpeed = 1, speed = 1
   function present() {
     atmosphere.material.uniforms.strength.value = style.atmosphereStrength * (1 + activity)
@@ -84,6 +110,8 @@ export function createIdentityPlanet(body, lowPower) {
       present()
       rotation.update(dt, animate, speed)
       clouds.update(dt, animate)
+      moonRotation?.update(dt, animate)
     },
+    dispose() { authored?.dispose(); moonAsset?.dispose() },
   }
 }

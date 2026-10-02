@@ -1,28 +1,24 @@
 import { BoxGeometry, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh, MeshBasicMaterial, MeshStandardMaterial, SphereGeometry, Vector3 } from 'three'
 import { SKILL_NODES, SKILL_ORBITS } from '../data/skills.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
-import { createSkillsSurfaceMaps } from '../utils/skillsSurface.js'
+import { GALAXY_TEXTURES } from '../data/photorealAssets.js'
+import { createAuthoredSurfaceController, installAuthoredSurfaceMap } from './PlanetLayers.js'
 import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { createCelestialBody } from './CelestialBody.js'
 
-export function createSkillsPlanet(body, lowPower) {
+export function createSkillsPlanet(body, lowPower, onSurfaceReady = () => {}) {
   const group = createCelestialBody(body, lowPower), constellation = new Group()
   const surface = group.getObjectByName(`${body.id}-surface`)
-  if (typeof document !== 'undefined') {
-    // Preserve the generic engineered vertex-color body as the complete
-    // fallback, but give the browser path non-radial rock/metal material data.
-    const maps = createSkillsSurfaceMaps(lowPower ? 192 : 384, lowPower ? 96 : 192)
-    surface.material.vertexColors = false
-    surface.material.color.set('#ffffff')
-    surface.material.map = maps.albedo
-    surface.material.roughnessMap = maps.roughness
-    surface.material.roughness = 1
-    surface.material.metalnessMap = maps.metalness
-    surface.material.metalness = .88
-    surface.material.bumpMap = maps.elevation
-    surface.material.bumpScale = body.radius * (lowPower ? .0045 : .007)
-    surface.material.needsUpdate = true
-  }
+  const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
+    surface,
+    path: GALAXY_TEXTURES.skills,
+    onReady: onSurfaceReady,
+    configure(map) {
+      installAuthoredSurfaceMap(surface, map, {
+        roughness: .94, metalness: .015, bumpScale: body.radius * .0028,
+      })
+    },
+  })
   const rotation = createAxialRotation(surface, body.rotation)
   constellation.name = 'skills-satellites'; constellation.visible = false
   const simulation = createOrbitSimulation(SKILL_NODES), nodes = new Map(), hitMeshes = []
@@ -69,5 +65,6 @@ export function createSkillsPlanet(body, lowPower) {
       simulation.update(delta)
       nodes.forEach((node, id) => node.root.position.fromArray(simulation.position(id)))
     },
+    dispose() { authored?.dispose() },
   }
 }
