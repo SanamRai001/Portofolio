@@ -1,5 +1,12 @@
 # PROJECT_STATE
 
+## Active phase — photoreal planetary texture base (2026-10-02)
+- **Objective:** Respond to direct feedback that the generated/procedural worlds still look artificial. Preserve the already merged Three.js/WebGL, G2R.0–G2R.9 route navigation, access features and lower-power fallbacks; change the actual material surfaces.
+- **Branch:** `feat/galaxy-photoreal-texture-assets`, created from `master` `fbff88b5`. Changes: six licensed local Solar System Scope maps; Sun map blend strengthened; Earth/Identity, Mercury/Skills, Mars/Projects, Saturn/Journey; textured non-pickable Moon orbiting Identity on desktop; warm Saturn ring colors; a route-footer CC BY 4.0 link; `docs/GALAXY_TEXTURE_CREDITS.md`; asset integrity test. Existing content, portal/navigation, skills satellite interactions and single scene loop unchanged.
+- **Asset behavior:** All maps served from `frontend/public/galaxy/photoreal/`, never hotlinked. Prior fallback sphere material remains available before load/error. Existing authored surface controllers dispose late loads, and the scene owns installed textures. Moon does not load on low-power devices, preserving the existing strict mobile triangle ceiling.
+- **Verification:** CI, 1440x900 desktop and 390x844 phone screenshots, focused views, texture load/error, reduced-motion and WebGL resource disposal must be reviewed before merge. Not a real-device benchmark or a scientifically scaled solar system. No deploy/merge claim; G7 still deferred.
+
+
 ## Objective / authorization
 **Galaxy G2R.0–G2R.9 merged into `master`** via PR #4 at `94c7f10fd561dafd7d669dad12ef9820aee4ad97` (2026-10-01). The repo default branch is `master`. Current follow-up `feat/galaxy-webgl-material-pass` is a small visual-quality branch created from that release; the preserved cinematic-realism and cinematic-surface-spike branches remain available. The user has now authorized a dedicated cinematic-realism sequence for `/galaxy`: dynamic axial rotation, layered planet realism, deeper space, a black-hole visual target and a reusable black-hole portal transition. This remains a visual/navigation upgrade; do not start G7 content or delete branches.
 Original Galaxy brief defines G6 as technology satellites, hover labels and selected-skill details. No proficiency percentages. Project moons/details, Journey and final Lab remain deferred.

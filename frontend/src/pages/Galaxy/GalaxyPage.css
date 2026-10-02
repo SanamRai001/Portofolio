@@ -32,7 +32,10 @@
 .GalaxySystemMap small { display:block; color:var(--galaxy-muted); font-size:11px; }
 .GalaxyFooter { display:flex; justify-content:space-between; align-items:end; gap:24px; padding-top:26px; }
 .GalaxyPage .GalaxyEyebrow { color:var(--galaxy-muted); font:10px/1.5 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.2em; }
-.GalaxyCaption > p:last-child { margin-top:7px; font-size:clamp(18px,2.3vw,26px); font-weight:350; letter-spacing:-.035em; }
+.GalaxyCaption > p:nth-child(2) { margin-top:7px; font-size:clamp(18px,2.3vw,26px); font-weight:350; letter-spacing:-.035em; }
+.GalaxyCaption .GalaxyTextureCredit { margin-top:12px; color:var(--galaxy-muted); font-size:10px; line-height:1.5; letter-spacing:normal; }
+.GalaxyTextureCredit a { color:inherit; text-underline-offset:3px; }
+.GalaxyTextureCredit a:hover { color:var(--galaxy-gold); }
 .GalaxyControls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px 22px; }
 .GalaxyControls button { min-height:44px; padding:5px 0; border:0; border-bottom:1px solid #52525f; border-radius:0; background:transparent; color:var(--galaxy-muted); font:inherit; font-size:13px; cursor:pointer; }
 .GalaxyControls button:hover, .GalaxyControls button[aria-pressed='true'] { color:var(--galaxy-gold); border-bottom-color:var(--galaxy-gold); }
