@@ -58,7 +58,8 @@
 
 /* Core is an open composition, with the star and copy occupying separate space. */
 .GalaxyStage.has-body-content { flex:none; height:auto; min-height:max(570px, calc(100svh - 270px)); }
-.GalaxyStage.has-body-content::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,transparent 42%,#020204b8 59%,#020204d9 100%); }
+/* Preserve the selected world at left, but fully shield DOM copy on the right from passing unselected Sun/planet meshes. Pure CSS: no scene culling or new WebGL cost. */
+.GalaxyStage.has-body-content::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,transparent 39%,#020204ae 49%,#020204f0 58%,#020204 74%); }
 .CoreIdentity { position:relative; z-index:2; width:42%; max-width:480px; margin:0 1% 0 auto; padding:70px 0 46px; visibility:hidden; opacity:0; }
 .CoreIdentity.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
 .CoreIdentity::before { content:''; display:block; width:52px; height:1px; margin-bottom:22px; background:linear-gradient(90deg,#d9b77c,#d9b77c00); }

@@ -1,6 +1,6 @@
 import { PROJECTS_APPEARANCE } from '../data/projects.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
-import { createAuthoredSurfaceController, createNightSideLayer, installAuthoredSurfaceMap } from './PlanetLayers.js'
+import { createAuthoredSurfaceController, createLightAwareAtmosphere, createNightSideLayer, installAuthoredSurfaceMap } from './PlanetLayers.js'
 import { createCelestialBody } from './CelestialBody.js'
 
 const desktopSurface = '/galaxy/projects-surface.webp'
@@ -43,6 +43,19 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
   night.name = 'projects-night-side'
   const nightRotation = createAxialRotation(night, body.rotation)
   group.add(night)
+
+  // A thin dust-scattering edge gives this rocky world some depth against
+  // black space. Sun-facing only, intentionally far below Identity's haze.
+  // Desktop only: preserve the existing strict low-power triangle ceiling.
+  if (!lowPower) {
+    const dust = createLightAwareAtmosphere(body.radius * 1.027, {
+      color: '#b87851',
+      strength: .16,
+      lowPower: false,
+    })
+    dust.name = 'projects-dust-limb'
+    group.add(dust)
+  }
 
   const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
     surface,
