@@ -27,8 +27,9 @@ test('WebGL material pass confines active-region photosphere shading to desktop 
   const before = surface.material.uniforms.time.value
   desktop.update(.05, true)
   assert.ok(surface.material.uniforms.time.value > before)
+  const frozen = surface.material.uniforms.time.value
   desktop.update(.05, false)
-  assert.equal(surface.material.uniforms.time.value, surface.material.uniforms.time.value)
+  assert.equal(surface.material.uniforms.time.value, frozen)
   release(desktop.group)
   release(phone.group)
 })
