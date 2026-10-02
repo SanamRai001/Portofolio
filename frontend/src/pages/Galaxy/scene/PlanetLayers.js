@@ -108,11 +108,27 @@ export function createCloudLayer(radius, {
       }
       void main() {
         vec3 p = surface * 4.6 + vec3(seed * .17);
-        float field = noise(p);
+        float cloud;
         #if CLOUD_OCTAVES > 1
-          field = field * .68 + noise(p.yzx * 2.13 + 3.7) * .32;
+          // Domain-warped weather coverage adds broken, finer cloud banks to
+          // desktop Identity instead of two interpolated, smudged noise bands.
+          // The mobile tier retains its original single-noise fast path.
+          vec3 warp = vec3(
+            noise(p.yzx * 1.09 + 3.1),
+            noise(p.zxy * 1.17 + 7.3),
+            noise(p.xyz * 1.04 + 11.6)
+          ) - .5;
+          vec3 flow = p + warp * .58;
+          float weather = noise(flow * .72);
+          float cells = noise(flow * 1.17 + 1.4);
+          float wisps = noise(flow.yzx * 2.7 + 3.7);
+          float field = weather * .36 + cells * .44 + wisps * .20;
+          float fine = noise(surface * 13.7 + vec3(seed * .19));
+          cloud = smoothstep(.465, .675, field)
+            * mix(.66, 1., smoothstep(.30, .72, fine));
+        #else
+          cloud = smoothstep(.49, .72, noise(p));
         #endif
-        float cloud = smoothstep(.49, .72, field);
         vec3 sunDirection = normalize(-worldPosition);
         float daylight = smoothstep(-.3, .55, dot(normalize(worldNormal), sunDirection));
         float alpha = cloud * opacity * mix(.24, 1., daylight);
