@@ -97,10 +97,10 @@ test('G2R.13 Journey-only phone offset keeps the enlarged ring away from its hea
   const mobile = focusComposition(body, 390)
   assert.equal(mobile.fov, 42)
   assert.equal(mobile.heightFraction, .30)
-  assert.ok(mobile.x >= .10)
+  assert.ok(mobile.x >= .17)
   // Portrait focused WebGL canvas is 346px wide. A positive offset moves
-  // Saturn right by ~19px without growing the rings or weakening clearance.
-  assert.ok(mobile.x * 346 / 2 >= 18)
+  // Saturn right by ~31px without growing the rings or weakening clearance.
+  assert.ok(mobile.x * 346 / 2 >= 30)
   const radius = body.radius * 1.28
   const d = Math.hypot(radius, radius / (Math.tan(mobile.fov * Math.PI / 360) * mobile.heightFraction))
   assert.ok(d > 10 && d < 11, 'phone focus distance is consistent with the previous 8.2-unit close-up')
