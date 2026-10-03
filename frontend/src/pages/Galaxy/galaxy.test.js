@@ -6,11 +6,9 @@ import { createRenderLoop, shouldRunSceneLoop } from './utils/renderLoop.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createCameraRig } from './scene/CameraRig.js'
 import { SUN, PLANETS, LAB, BLACK_HOLE, SYSTEM_MAP, SOLAR_STYLE } from './data/solarSystem.js'
-import { PROJECTS_APPEARANCE } from './data/projects.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
-import { blendProjectsLongitudeSeam } from './scene/ProjectsPlanet.js'
 import { createStarField, STAR_DEPTH_TIERS } from './scene/StarField.js'
 
 function loopHarness(options = {}) {
@@ -265,56 +263,40 @@ test('G2 configuration and rendered bodies preserve hierarchy, materials and cle
   assert.equal(disposed, geometryCount)
 })
 
-test('Projects preserves its authored-surface fallback and keeps settlement lights locked to terrain', () => {
-  const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
-  const visuals = system.targets.get('projects').visuals
+test('Projects retains its no-network fallback but does not invent settlement lights', () => {
+  const high = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
+  const visuals = high.targets.get('projects').visuals
   const surface = visuals.getObjectByName('projects-surface')
-  const night = visuals.getObjectByName('projects-night-side')
   assert.ok(surface)
-  assert.ok(night)
-  assert.equal(surface.material.vertexColors, true)
+  assert.equal(surface.material.vertexColors, true, 'no-network fallback stays visible')
   assert.equal(surface.material.map, null)
-  assert.equal(night.material.defines.NIGHT_OCTAVES, 2)
-  assert.equal(night.material.uniforms.strength.value, PROJECTS_APPEARANCE.nightStrength)
+  assert.equal(visuals.getObjectByName('projects-night-side'), undefined)
+  assert.ok(visuals.getObjectByName('projects-dust-limb'))
 
   const positions = surface.geometry.attributes.position
   const radius = SYSTEM_MAP.find(body => body.id === 'projects').radius
   for (let i = 0; i < positions.count; i++) {
     const length = Math.hypot(positions.getX(i), positions.getY(i), positions.getZ(i))
-    assert.ok(Math.abs(length - radius) < 1e-5, 'textured surface must not pinch at pole triangles')
+    assert.ok(Math.abs(length - radius) < 1e-5, 'Mars sphere has no pinched displaced poles')
   }
-
-  system.update(.05, true)
+  high.update(.05, true)
   assert.ok(surface.rotation.y > 0)
-  assert.ok(Math.abs(surface.rotation.y - night.rotation.y) < 1e-12, 'settlement layer must remain surface-locked')
-
-  const surfaceFrozen = surface.rotation.y, nightFrozen = night.rotation.y
-  system.update(.05, false)
-  assert.equal(surface.rotation.y, surfaceFrozen)
-  assert.equal(night.rotation.y, nightFrozen)
-
-  system.dispose()
-  const scene = new Scene(); scene.add(system.group)
+  const frozen = surface.rotation.y
+  high.update(.05, false)
+  assert.equal(surface.rotation.y, frozen)
+  high.dispose()
+  const scene = new Scene()
+  scene.add(high.group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 
-  const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
-  const lowNight = low.targets.get('projects').visuals.getObjectByName('projects-night-side')
-  assert.equal(lowNight.material.defines.NIGHT_OCTAVES, 1)
-  assert.equal(lowNight.material.uniforms.strength.value, PROJECTS_APPEARANCE.lowPowerStrength)
-  low.dispose()
-  const lowScene = new Scene(); lowScene.add(low.group)
+  const phone = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
+  const low = phone.targets.get('projects').visuals
+  assert.equal(low.getObjectByName('projects-night-side'), undefined)
+  assert.equal(low.getObjectByName('projects-dust-limb'), undefined)
+  phone.dispose()
+  const lowScene = new Scene()
+  lowScene.add(phone.group)
   disposeScene(lowScene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
-})
-
-test('Projects map smooths its longitude join while retaining the standard material lighting', () => {
-  const material = {}
-  blendProjectsLongitudeSeam(material)
-  const shader = { fragmentShader: 'before\n#include <map_fragment>\nafter' }
-  material.onBeforeCompile(shader)
-  assert.match(shader.fragmentShader, /texture2D\(map, vMapUv\)/)
-  assert.match(shader.fragmentShader, /texture2D\(map, vec2\(1\. - vMapUv\.x, vMapUv\.y\)\)/)
-  assert.match(shader.fragmentShader, /diffuseColor \*= sampledDiffuseColor/)
-  assert.ok(shader.fragmentShader.startsWith('before\n') && shader.fragmentShader.endsWith('\nafter'))
 })
 
 test('G2R.1 planet rotation is data-driven, deterministic and frozen when ambient motion is disabled', () => {

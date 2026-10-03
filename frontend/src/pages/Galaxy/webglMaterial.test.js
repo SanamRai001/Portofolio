@@ -57,7 +57,7 @@ test('Projects gains a low-strength sunlit dust limb on desktop but none in low-
   const high = createProjectsPlanet(body, false), low = createProjectsPlanet(body, true)
   const haze = high.group.getObjectByName('projects-dust-limb')
   assert.ok(haze)
-  assert.equal(haze.material.uniforms.strength.value, .16)
+  assert.equal(haze.material.uniforms.strength.value, .115)
   assert.match(haze.material.fragmentShader, /sunDirection/)
   assert.equal(low.group.getObjectByName('projects-dust-limb'), undefined)
   release(high.group); release(low.group)
