@@ -365,7 +365,8 @@ test('G2R.2 hero Sun keeps prominence geometry high-quality only and freezes ani
   const highSurface = highCore.getObjectByName('core-surface')
   const prominences = highCore.getObjectByName('core-prominences')
   assert.ok(prominences)
-  assert.equal(prominences.children.length, 3)
+  assert.equal(prominences.children.length, 2, 'G2R.12 uses two short tapered ribbons, not three legacy tubes')
+  assert.ok(prominences.children.every(mesh => mesh.name.startsWith('core-filament-')))
   const prominenceTriangles = prominences.children.reduce((total, mesh) => total + (mesh.geometry.index?.count || 0) / 3, 0)
   assert.ok(prominenceTriangles > 0 && prominenceTriangles < 1000)
 
