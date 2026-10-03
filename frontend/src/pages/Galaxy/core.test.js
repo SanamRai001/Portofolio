@@ -43,7 +43,7 @@ test('low-power Sun removes expensive atmosphere/prominence detail, reduces surf
   const desktop = createSun(SUN, false), mobile = createSun(SUN, true)
   assert.ok(desktop.group.getObjectByName('core-outer-corona'))
   assert.equal(mobile.group.getObjectByName('core-outer-corona'), undefined)
-  assert.equal(desktop.group.getObjectByName('core-prominences').children.length, 3)
+  assert.equal(desktop.group.getObjectByName('core-prominences').children.length, 2)
   assert.equal(mobile.group.getObjectByName('core-prominences'), undefined)
 
   const full = desktop.group.getObjectByName('core-surface'), small = mobile.group.getObjectByName('core-surface')

@@ -24,10 +24,12 @@ export function focusComposition(body, viewportWidth) {
 }
 
 export const SUN_APPEARANCE = Object.freeze({
-  amber: '#9b461d', gold: '#e9a84f', ivory: '#ffe7b0',
-  corona: '#f2a24c', outerCorona: '#a75a2a', prominence: '#ffd08a',
-  innerScale: 1.032, outerScale: 1.095,
-  innerStrength: 0.21, outerStrength: 0.032,
-  prominenceOpacity: 0.32,
+  // White-light photosphere with a warmer, darker limb. The visible
+  // chromosphere/corona is subtler than false-colour UV solar photography.
+  amber: '#b87944', gold: '#f7d4a1', ivory: '#fff6e4',
+  corona: '#ffe1b4', outerCorona: '#d0b8a2', prominence: '#ff9f87',
+  innerScale: 1.024, outerScale: 1.070,
+  innerStrength: 0.135, outerStrength: 0.023,
+  prominenceOpacity: 0.21,
   hoverActivity: 0.35, focusActivity: 1, coronaBoost: 0.14, prominenceBoost: 0.18,
 })
