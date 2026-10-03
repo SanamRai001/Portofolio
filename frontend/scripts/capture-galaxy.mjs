@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { chromium } from 'playwright'
+import { GALAXY_TEXTURES } from '../src/pages/Galaxy/data/photorealAssets.js'
 
 const origin = 'http://127.0.0.1:4173'
 const output = 'artifacts/galaxy-visual'
@@ -28,6 +29,35 @@ if (!serverReady) throw new Error('Vite preview did not start within 10 seconds'
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
 const results = []
 let failed = false
+
+// Screenshots alone can silently accept a procedural fallback after an HTTP 404.
+// Require the real tier-specific NASA texture payloads in each fresh browser context.
+function watchEarthTextureResponses(page, mobile) {
+  const earth = GALAXY_TEXTURES.earth
+  const expected = mobile
+    ? [earth.dayLow, earth.night, earth.cloud]
+    : [earth.dayHigh, earth.night, earth.cloud, earth.water, earth.elevation]
+  const found = new Map()
+  page.on('response', response => {
+    const pathname = new URL(response.url()).pathname
+    if (expected.includes(pathname)) {
+      found.set(pathname, {
+        status: response.status(),
+        type: response.headers()['content-type'] || '',
+      })
+    }
+  })
+  return () => {
+    const invalid = expected.filter(path => {
+      const response = found.get(path)
+      const type = path.endsWith('.png') ? /image\\/png/i : /image\\/jpeg/i
+      return !response || response.status !== 200 || !type.test(response.type)
+    })
+    if (invalid.length) throw new Error('NASA Earth image loads missing/invalid: '
+      + invalid.map(path => path + ' ' + JSON.stringify(found.get(path) || 'no response')).join('; '))
+    return expected.map(path => ({ path, ...found.get(path) }))
+  }
+}
 
 function attachErrors(page, errors) {
   page.on('pageerror', error => errors.push(error.message))
@@ -74,10 +104,14 @@ try {
     const page = await context.newPage()
     const errors = []
     attachErrors(page, errors)
+    const verifyEarthAssets = watchEarthTextureResponses(page, view.mobile)
 
     try {
       await openGalaxy(page)
+      const earthAssets = verifyEarthAssets()
       await page.screenshot({ path: `${output}/${view.name}-overview.png`, fullPage: true })
+      await selectBody(page, 'Identity')
+      await page.screenshot({ path: `${output}/${view.name}-identity-reduced.png`, fullPage: true })
       await selectBody(page, 'Projects')
       await page.screenshot({ path: `${output}/${view.name}-projects.png`, fullPage: true })
       await selectBody(page, 'Core')
@@ -106,7 +140,7 @@ try {
       }))
       if (layout.documentWidth > layout.width + 1) errors.push(`Horizontal overflow: ${layout.documentWidth} > ${layout.width}`)
       if (!layout.canvasWidth || !layout.canvasHeight) errors.push('Blank canvas dimensions')
-      results.push({ view, layout, errors })
+      results.push({ view, layout, earthAssets, errors })
     } catch (error) {
       results.push({ view, errors: [...errors, error.message] })
     } finally {
@@ -123,8 +157,10 @@ try {
     const page = await context.newPage()
     const errors = []
     attachErrors(page, errors)
+    const verifyEarthAssets = watchEarthTextureResponses(page, view.mobile)
     try {
       await openGalaxy(page)
+      const earthAssets = verifyEarthAssets()
       // G2R.5: normal-motion overview is essential for comparing near/far
       // star depth; reduced-motion overview is already captured above.
       await page.screenshot({ path: `${output}/${view.name}-overview-normal.png`, fullPage: true })
@@ -145,7 +181,7 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-start.png`, fullPage: true })
       await page.waitForTimeout(8_000)
       await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-after-8s.png`, fullPage: true })
-      results.push({ view: `${view.name} normal-motion hero Sun, primary planets + black hole`, bodies: ['Core', ...rotatingBodies, 'Black Hole'], sampleSeconds: 8, errors })
+      results.push({ view: `${view.name} normal-motion hero Sun, primary planets + black hole`, bodies: ['Core', ...rotatingBodies, 'Black Hole'], earthAssets, sampleSeconds: 8, errors })
     } catch (error) {
       results.push({ view: `${view.name} normal-motion primary planets`, errors: [...errors, error.message] })
     } finally {
