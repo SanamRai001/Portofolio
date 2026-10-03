@@ -1,4 +1,4 @@
-import { Vector3, Mesh } from 'three'
+import { Vector3 } from 'three'
 import { JOURNEY_APPEARANCE } from '../data/journey.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
 import { createJourneySurfaceMap } from '../utils/journeySurface.js'

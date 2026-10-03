@@ -60,7 +60,7 @@ test('Journey upgrades its rings by quality tier while haze and surface obey qua
   assert.equal(fullRing.material.uniforms.outerRadius.value, journey.radius * journey.ring[1])
   assert.equal(smallRing.geometry.index.count, JOURNEY_RING_APPEARANCE.mobileSegments * 6)
   assert.ok(smallRing.geometry.index.count < 2 * 96 * 6, 'mobile indices stay below the two former 96-segment rings')
-  assert.match(fullRing.material.fragmentShader, /float division = exp\(/)
+  assert.match(fullRing.material.fragmentShader, /float cassiniRinglet = exp\(/)
   assert.match(fullRing.material.fragmentShader, /fwidth\(phase\)/)
   assert.match(fullRing.material.fragmentShader, /planetRadius.*planetRadius/)
   assert.match(fullRing.material.fragmentShader, /nearDetail/)
@@ -73,7 +73,8 @@ test('Journey upgrades its rings by quality tier while haze and surface obey qua
   assert.equal(fullHaze.material.uniforms.strength.value, JOURNEY_APPEARANCE.hazeStrength)
 
   const surface = high.group.getObjectByName('journey-surface')
-  assert.equal(surface.material.vertexColors, true, 'procedural non-browser fallback stays intact')
+  assert.equal(surface.material.defines.SATURN_HIGH_QUALITY, 1)
+  assert.equal(surface.material.uniforms.dayMap.value.image.width, JOURNEY_APPEARANCE.desktopMapSize[0], 'procedural atlas is the valid pre-load fallback')
   assert.equal(surface.rotation.z, journey.rotation.axialTilt)
   const ringsStart = ringMeshes(high.group).map(ring => ring.rotation.y)
   high.update(.05, true)

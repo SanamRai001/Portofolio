@@ -1,5 +1,11 @@
 # PROJECT_STATE
 
+## Active G2R.13 — Saturn ring optics and cloud-top shadow (2026-10-03)
+- **Starting point:** merged Sun `master` `eb679bd9`. Isolated feature branch `feat/galaxy-saturn-ring-optics` (no master merge). Scope: Journey only, not Mars/Mercury/navigation.
+- **Grounding:** NASA Cassini PIA06114, PIA11478, PIA11613, translucent C/A ring references, plus already licensed 2K Saturn atlas. See `docs/GALAXY_SATURN_REALISM.md`.
+- **Implementation:** enlarged single annulus, explicit C/B/A optical profile with genuine Cassini/Encke low-density gaps, planet shadow on rings, and ring density projected onto daylight globe from the shared tilted ring plane. Surface uses existing atlas or deterministic DataTexture fallback in the same shader; no terrain bump, no new render clock. Mobile retains low-cost annulus/no haze.
+- **Next gates:** update existing legacy Journey assertions and add shadow/geometry/axial-alignment tests; verify local image HTTP status in real browser captures; visual compare desktop and phone to merged master, portal, reduced-motion, lint/build. Do not merge before visual acceptance.
+
 ## Verified phase — G2R.12 continuum-inspired Sun realism (2026-10-03; visual signoff pending)
 - **Branch:** `feat/galaxy-sun-photosphere-realism` from merged `master` `3675a35f`, draft PR #8. No production/master merge in this phase.
 - **Source grounding:** NASA SDO/HMI visible-light continuum images and NASA SVS visible-vs-UV comparison, eclipse corona and prominence references; see `docs/GALAXY_SUN_REALISM.md`. The new Sun is a 3D directional procedural approximation to those references; a flat HMI observation is not misrepresented as a 360° texture. The previously attributed Solar System Scope Sun image contributes faint luminance modulation, not its orange colour.
