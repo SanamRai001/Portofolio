@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Mesh, Scene, SphereGeometry, Texture, Vector3 } from 'three'
 import { PLANETS } from './data/solarSystem.js'
+import { IDENTITY_COMPOSITION } from './data/identity.js'
 import { GALAXY_TEXTURES } from './data/photorealAssets.js'
 import { createIdentityPlanet } from './scene/IdentityPlanet.js'
 import {
@@ -9,6 +10,15 @@ import {
   createEarthSurfaceMaterial, createEarthTextureController,
 } from './scene/EarthRealism.js'
 import { disposeScene } from './utils/disposeScene.js'
+
+
+test('Earth final optical tuning preserves plausible glint/cloud opacity and enlarged mobile focus', () => {
+  assert.match(EARTH_SHADER_CONTRACT.surface, /vec2 texel = vec2\(1\. \/ 2048\., 1\. \/ 1024\.\)/)
+  assert.match(EARTH_SHADER_CONTRACT.surface, /pow\(reflection, 72\.\) \* irradiance \* \.24/)
+  assert.match(EARTH_SHADER_CONTRACT.clouds, /coverage \* mix\(\.11, \.72, lit\)/)
+  assert.equal(IDENTITY_COMPOSITION.mobile.heightFraction, .54)
+  assert.equal(IDENTITY_COMPOSITION.desktop.heightFraction, .45)
+})
 
 const mockRenderer = () => ({ dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 function fakeLoader() {
