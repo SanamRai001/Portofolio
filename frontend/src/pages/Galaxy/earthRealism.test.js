@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { Mesh, Scene, SphereGeometry, Texture, Vector3 } from 'three'
 import { PLANETS } from './data/solarSystem.js'
 import { IDENTITY_COMPOSITION } from './data/identity.js'
+import { createCameraRig } from './scene/CameraRig.js'
+import { getOverview } from './utils/overview.js'
 import { GALAXY_TEXTURES } from './data/photorealAssets.js'
 import { createIdentityPlanet } from './scene/IdentityPlanet.js'
 import {
@@ -17,7 +19,25 @@ test('Earth final optical tuning preserves plausible glint/cloud opacity and enl
   assert.match(EARTH_SHADER_CONTRACT.surface, /pow\(reflection, 72\.\) \* irradiance \* \.24/)
   assert.match(EARTH_SHADER_CONTRACT.clouds, /coverage \* mix\(\.11, \.72, lit\)/)
   assert.equal(IDENTITY_COMPOSITION.mobile.heightFraction, .54)
+  assert.equal(IDENTITY_COMPOSITION.mobile.fov, 30)
   assert.equal(IDENTITY_COMPOSITION.desktop.heightFraction, .45)
+})
+
+
+test('Earth-only mobile focus fills substantially more of the canvas while desktop framing stays unchanged', () => {
+  const body = PLANETS.find(item => item.id === 'identity')
+  for (const reducedMotion of [false, true]) {
+    const rig = createCameraRig({ reducedMotion })
+    rig.resize(346, 320, 390)
+    rig.navigate({ selectedBodyId: 'identity', transitionId: 1, mode: 'body_focused' })
+    const view = getOverview(346, 320)
+    const distance = rig.camera.position.distanceTo(rig.target)
+    const projectedRadius = body.radius * view.bodyScale / (distance * Math.tan(rig.camera.fov * Math.PI / 360))
+    assert.equal(rig.camera.fov, 30)
+    assert.ok(projectedRadius > .50, 'Earth should fill at least half the 320px phone stage')
+    rig.resize(1360, 570, 1440)
+    assert.equal(rig.camera.fov, body.focus.fov, 'desktop focus FOV is unchanged')
+  }
 })
 
 const mockRenderer = () => ({ dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
