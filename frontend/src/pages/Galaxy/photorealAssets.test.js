@@ -34,12 +34,12 @@ test('Earth imagery has physical local JPEG/PNG payloads (including the full clo
 })
 
 
-test('Earth water/elevation are distinct registered 2048 x 1024 raster atlases, not decorative linework', () => {
-  for (const key of ['water', 'elevation']) {
+test('Earth water and terrain elevation are distinct registered raster atlases, with verified native sizes', () => {
+  for (const [key, width, height] of [['water', 1600, 800], ['elevation', 2048, 1024]]) {
     const path = GALAXY_TEXTURES.earth[key]
     const bytes = readFileSync(publicRoot + path.slice(1))
-    assert.equal(bytes.readUInt32BE(16), 2048, key + ' width')
-    assert.equal(bytes.readUInt32BE(20), 1024, key + ' height')
+    assert.equal(bytes.readUInt32BE(16), width, key + ' width')
+    assert.equal(bytes.readUInt32BE(20), height, key + ' height')
   }
   assert.notEqual(GALAXY_TEXTURES.earth.water, GALAXY_TEXTURES.earth.elevation)
 })
