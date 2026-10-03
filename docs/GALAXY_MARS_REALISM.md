@@ -66,3 +66,12 @@ and phone browser captures (rather than passing a procedural fallback silently).
 Require paired focused Projects desktop/laptop/phone screenshots, normal and
 reduced motion, baseline comparison, frontend auth/Galaxy/homepage/lint/build,
 and portal test. Hosted software Chromium does not prove device GPU/FPS.
+
+## Captured acceptance evidence (2026-10-03)
+
+- Rendering code SHA: `85c9a153fde39e09931802df802bdfe29db731f2`.
+- [Frontend CI run 37140714341](https://github.com/SanamRai001/Portofolio/actions/runs/37140714341) passed auth, Galaxy, homepage DOM, lint and production build.
+- [Galaxy Visual Capture 37140710428](https://github.com/SanamRai001/Portofolio/actions/runs/37140710428) passed, artifact `11280800545`; six normal/reduced capture contexts show no page/console errors or horizontal overflow; four portal scenarios passed. Mars JPEG returned HTTP 200 and image/jpeg in each desktop/laptop/phone reduced context and both desktop/phone normal contexts. The other Earth/Saturn JPEG/PNG checks retained their success.
+- Inspected focused Projects normal-motion +8 seconds on desktop and phone plus reduced captures. Compared with original merged-master screenshots at equivalent focus and viewport. Mars now has an unlit dark side rather than artificial orange night-side points; albedo terrain remains visible; Projects title and navigation are clear.
+- Side-by-side output `galaxy-mars-g2r14-before-after.png` is supplied in the conversation; this is a screenshot review, not an astronomical colour-calibration or a physical-device frame-rate benchmark.
+- Temporary feature-branch visual CI trigger restored before proposing merge. Owner visual approval required.
