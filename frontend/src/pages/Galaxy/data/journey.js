@@ -1,5 +1,5 @@
 export const JOURNEY_APPEARANCE = Object.freeze({
-  hazeColor: '#d6b6ab',
+  hazeColor: '#d8c8a9',
   hazeScale: 1.045,
   hazeStrength: .14,
   lowPowerHazeStrength: .095,
@@ -10,8 +10,8 @@ export const JOURNEY_APPEARANCE = Object.freeze({
 
 export const JOURNEY_RING_APPEARANCE = Object.freeze({
   // Saturn/Cassini-inspired *structure*, not a copied observational texture.
-  innerTint: '#c9b2b5',
-  outerTint: '#b5adc4',
+  innerTint: '#cbb991',
+  outerTint: '#a99d80',
   desktopSegments: 192,
   desktopRadialSegments: 5,
   mobileSegments: 96,

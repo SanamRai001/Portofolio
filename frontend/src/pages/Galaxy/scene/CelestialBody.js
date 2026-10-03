@@ -1,5 +1,6 @@
 import { AdditiveBlending, ClampToEdgeWrapping, Color, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, CatmullRomCurve3, RepeatWrapping, RingGeometry, ShaderMaterial, SphereGeometry, SRGBColorSpace, TextureLoader, TubeGeometry, Vector3 } from 'three'
 import { SUN_APPEARANCE } from '../data/core.js'
+import { GALAXY_TEXTURES } from '../data/photorealAssets.js'
 
 function shell(radius, color, strength, segments) {
   return new Mesh(new SphereGeometry(radius, segments, segments / 2), new ShaderMaterial({
@@ -134,8 +135,8 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
           // those regions instead of preserving a texture-mapping artifact.
           float latitudeMask = smoothstep(.08, .22, surfaceUv.y)
             * (1. - smoothstep(.78, .92, surfaceUv.y));
-          float authoredWeight = mix(.16, .54, latitudeMask);
-          color = mix(color, detail * (.69 + .22 * facing), authoredWeight);
+          float authoredWeight = mix(.30, .86, latitudeMask);
+          color = mix(color, detail * (.79 + .25 * facing), authoredWeight);
         }
         #if SUN_OCTAVES > 2
           // G2R.10: two restrained, fixed magnetic active regions break up
@@ -172,7 +173,7 @@ export function createSun(body, lowPower, onSurfaceReady = () => {}) {
   surface.name = 'core-surface'
   group.add(surface)
   if (typeof document !== 'undefined') {
-    const path = lowPower ? '/galaxy/sun-surface-mobile.webp' : '/galaxy/sun-surface.webp'
+    const path = GALAXY_TEXTURES.sun
     texture = new TextureLoader().load(path, (map) => {
       if (disposed) { map.dispose(); return }
       loaded = true

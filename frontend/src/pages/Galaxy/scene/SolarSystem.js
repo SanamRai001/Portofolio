@@ -48,10 +48,10 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
   // Constant falloff preserves G2's art direction and readable terminators.
   group.add(new PointLight('#ffe0b2', SOLAR_STYLE.sunLight, 0, 0), new AmbientLight('#9cb3dc', SOLAR_STYLE.ambient))
   for (const body of PLANETS) {
-    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower)
-      : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower)
+    const presentation = body.id === 'identity' ? createIdentityPlanet(body, profile.lowPower, onSurfaceReady)
+      : body.id === 'skills' ? createSkillsPlanet(body, profile.lowPower, onSurfaceReady)
         : body.id === 'projects' ? createProjectsPlanet(body, profile.lowPower, onSurfaceReady)
-          : body.id === 'journey' ? createJourneyPlanet(body, profile.lowPower)
+          : body.id === 'journey' ? createJourneyPlanet(body, profile.lowPower, onSurfaceReady)
             : createGenericPlanet(body, profile.lowPower)
     presentations.set(body.id, presentation)
     const root = register(body, presentation.group)

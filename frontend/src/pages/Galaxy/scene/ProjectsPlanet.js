@@ -1,10 +1,10 @@
 import { PROJECTS_APPEARANCE } from '../data/projects.js'
+import { GALAXY_TEXTURES } from '../data/photorealAssets.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
 import { createAuthoredSurfaceController, createLightAwareAtmosphere, createNightSideLayer, installAuthoredSurfaceMap } from './PlanetLayers.js'
 import { createCelestialBody } from './CelestialBody.js'
 
-const desktopSurface = '/galaxy/projects-surface.webp'
-const mobileSurface = '/galaxy/projects-surface-mobile.webp'
+// A local Mars map replaces the former copper-only fantasy surface.
 
 // The source image is close to tiled but its longitude edges differ. Blend only
 // the narrow meridian at the UV join; the other 95% is the untouched albedo.
@@ -59,11 +59,11 @@ export function createProjectsPlanet(body, lowPower, onSurfaceReady = () => {}) 
 
   const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
     surface,
-    path: lowPower ? mobileSurface : desktopSurface,
+    path: GALAXY_TEXTURES.projects,
     onReady: onSurfaceReady,
     configure(map) {
       installAuthoredSurfaceMap(surface, map, {
-        bumpScale: body.radius * .009,
+        bumpScale: body.radius * .003,
         roughness: .94,
         metalness: .03,
       })

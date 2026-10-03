@@ -205,6 +205,37 @@ test('G2 overview contains full swept orbital envelopes at desktop, laptop and p
   }
 })
 
+test('G2R.11 desktop overview gives the photographic worlds a larger readable silhouette without clipping swept orbits', () => {
+  for (const [width, height] of [[1360, 570], [1200, 530], [1760, 700]]) {
+    const view = getOverview(width, height)
+    assert.equal(view.portrait, false)
+    assert.ok(view.distance < 43, 'desktop camera should not inherit the old overly distant framing')
+    assert.ok(SOLAR_STYLE.overviewBodyScale > 1.24)
+    const apparentSunRadius = SUN.radius * SOLAR_STYLE.overviewBodyScale / (view.distance * view.tanY)
+    assert.ok(apparentSunRadius > .16, 'Sun should have visibly more presence than the old .137 half-height')
+    for (const body of PLANETS) for (let step = 0; step < 360; step++) {
+      const position = orbitPosition(body.orbit, step * Math.PI / 180)
+      const point = projectOverview(position, view)
+      const envelope = body.id === 'identity' ? 2.62 : (body.ring?.[1] || 1.12)
+      const radius = body.radius * envelope * SOLAR_STYLE.overviewBodyScale
+      assert.ok(Math.abs(point.x) + radius / (point.depth * view.tanX) <= .95, body.id + ' x safety')
+      assert.ok(Math.abs(point.y) + radius / (point.depth * view.tanY) <= .95, body.id + ' y safety')
+    }
+    for (const [body, extent] of [[LAB, 2], [BLACK_HOLE, 2.2]]) {
+      const point = projectOverview(body.position, view)
+      const radius = body.radius * extent * SOLAR_STYLE.overviewBodyScale
+      assert.ok(Math.abs(point.x) + radius / (point.depth * view.tanX) <= .95, body.id + ' x safety')
+      assert.ok(Math.abs(point.y) + radius / (point.depth * view.tanY) <= .95, body.id + ' y safety')
+    }
+  }
+  // Mobile's portrait basis, fov, scaling and fit were deliberately not changed.
+  const phone = getOverview(346, 494)
+  assert.equal(phone.portrait, true)
+  assert.equal(phone.fov, 58)
+  assert.equal(phone.direction[1], Math.sin(.38))
+  assert.equal(SOLAR_STYLE.mobileOverviewBodyScale, 1.12)
+})
+
 test('G2 configuration and rendered bodies preserve hierarchy, materials and cleanup', () => {
   assert.equal(PLANETS.length, 4)
   assert.equal(SYSTEM_MAP.length, 7)
