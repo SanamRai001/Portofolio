@@ -10,8 +10,8 @@ export const JOURNEY_APPEARANCE = Object.freeze({
 
 export const JOURNEY_RING_APPEARANCE = Object.freeze({
   // Saturn/Cassini-inspired *structure*, not a copied observational texture.
-  innerTint: '#cbb991',
-  outerTint: '#a99d80',
+  innerTint: '#cec5b0',
+  outerTint: '#b9b4a2',
   desktopSegments: 192,
   desktopRadialSegments: 5,
   mobileSegments: 96,
