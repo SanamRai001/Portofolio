@@ -115,7 +115,7 @@ export default function GalaxyPage() {
         <div className="GalaxyCaption">
           <p className="GalaxyEyebrow">A system in motion</p>
           <p>One core. Many directions.</p>
-          <p className="GalaxyTextureCredit">Planet textures: <a href="https://edu.solarsystemscope.com/textures/" target="_blank" rel="noreferrer">Solar System Scope</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a></p>
+          <p className="GalaxyTextureCredit">Planet imagery: <a href="https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/" target="_blank" rel="noreferrer">NASA Earth Observatory</a> (Earth) · <a href="https://edu.solarsystemscope.com/textures/" target="_blank" rel="noreferrer">Solar System Scope</a> (other worlds, CC BY 4.0)</p>
         </div>
         {fallback && <p className="GalaxyFallbackNote" role="status">{failed ? 'Static system · 3D is unavailable on this device.' : 'Static system · motion is off.'}</p>}
         <div className="GalaxyControls" role="group" aria-label="Sky preferences">
