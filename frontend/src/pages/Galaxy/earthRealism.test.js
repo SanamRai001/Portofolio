@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { Mesh, Scene, SphereGeometry, Texture, Vector3 } from 'three'
 import { PLANETS } from './data/solarSystem.js'
 import { IDENTITY_COMPOSITION } from './data/identity.js'
-import { createCameraRig } from './scene/CameraRig.js'
+import { CAMERA_CLEARANCE, createCameraRig } from './scene/CameraRig.js'
 import { getOverview } from './utils/overview.js'
 import { GALAXY_TEXTURES } from './data/photorealAssets.js'
 import { createIdentityPlanet } from './scene/IdentityPlanet.js'
@@ -33,8 +33,20 @@ test('Earth-only mobile focus fills substantially more of the canvas while deskt
     const view = getOverview(346, 320)
     const distance = rig.camera.position.distanceTo(rig.target)
     const projectedRadius = body.radius * view.bodyScale / (distance * Math.tan(rig.camera.fov * Math.PI / 360))
+    assert.equal(view.portrait, false, 'the focused phone canvas is landscape even inside a portrait page')
     assert.equal(rig.camera.fov, 30)
-    assert.ok(projectedRadius > .50, 'Earth should fill at least half the 320px phone stage')
+    assert.ok(rig.camera.position.y >= CAMERA_CLEARANCE)
+    // Reconstruct the previous .46-height/38-degree camera at the same safe
+    // altitude rather than asserting an impossible ideal portrait silhouette.
+    const oldFov = reducedMotion ? view.fov : body.focus.fov
+    const oldFrameRadius = body.radius * view.bodyScale
+    const oldDistance = Math.hypot(oldFrameRadius,
+      oldFrameRadius / (Math.tan(oldFov * Math.PI / 360) * .46))
+    const oldHeight = Math.max(oldDistance * Math.sin(body.focus.elevation), CAMERA_CLEARANCE)
+    const oldActualDistance = Math.hypot(oldHeight, oldDistance * Math.cos(body.focus.elevation))
+    const oldProjectedRadius = oldFrameRadius / (oldActualDistance * Math.tan(oldFov * Math.PI / 360))
+    assert.ok(projectedRadius > oldProjectedRadius * 1.2,
+      'phone Earth must visibly increase at least 20% over the actual previous framing')
     rig.resize(1360, 570, 1440)
     assert.equal(rig.camera.fov, body.focus.fov, 'desktop focus FOV is unchanged')
   }
