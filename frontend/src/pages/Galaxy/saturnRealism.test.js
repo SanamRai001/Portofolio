@@ -66,6 +66,16 @@ test('G2R.13 ring plane and spinning cloud top agree, with no extra GPU surface 
   release(high.group); release(low.group)
 })
 
+test('G2R.13 Journey-only focus reveals finer rings without changing the shared camera clearance', () => {
+  // Against the former 10-unit/42-degree Journey baseline. The same geometry
+  // now covers >25% more projected height at desktop and portrait sizes.
+  const oldProjection = 1 / (10 * Math.tan(42 * Math.PI / 360))
+  const newProjection = 1 / (body.focus.distance * Math.tan(body.focus.fov * Math.PI / 360))
+  assert.equal(body.focus.distance, 8.2)
+  assert.equal(body.focus.fov, 40)
+  assert.ok(newProjection / oldProjection > 1.25)
+})
+
 test('G2R.13 low tier remains one geometry and shader, never two legacy discs', () => {
   const full = createJourneyRings(body, false), small = createJourneyRings(body, true)
   assert.equal(full.children.length, 1)

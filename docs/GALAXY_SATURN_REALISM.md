@@ -18,6 +18,16 @@ Natural-colour reference photographs and science descriptions:
 - Align ring group with Journey's axial tilt while keeping its plane independent of cloud-top rotation. `ringNormalSurface` is updated on the existing Journey frame update (also in reduced-motion), then converted by the surface's current model matrix. Thus the shadow doesn't rotate around with the sampled cloud map.
 - Desktop: 192 angular × 5 radial geometry and derivative-filtered fine ringlets; optional faint haze. Phone/low power: 96 angular × 1 radial geometry, no fine-ringlet path or haze. No new RAF, particle swarm, external network texture, package, postprocessing pass, interaction or navigation changes.
 
+## Focus framing acceptance
+
+After inspecting the first high/low capture, Journey was still too small to
+resolve the Cassini-like bands in the focused 1440px and 390px view. Reduce
+only Journey's focus distance 10 → 8.2 and FOV 42° → 40°. This increases
+nominal projected ring height by over 25% while keeping the existing
+`CAMERA_CLEARANCE` minimum, other planets and Galaxy layout unchanged.
+Check actual browser screenshots: the ellipse must remain within the canvas
+and must not cover Journey's label/navigation.
+
 ## Visual rejection conditions
 
 Reject if C and Cassini regions are as opaque as B; ring becomes a thick solid painted hoop; ring shadow has a fixed unrelated stripe; night side is uniformly illuminated; ring disappears behind a transparent-sorting mistake; rings overlap Journey content on phone; any image fails to load silently; canvas, portal or reduced motion regresses.
