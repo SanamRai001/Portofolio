@@ -59,6 +59,24 @@ function watchEarthTextureResponses(page, mobile) {
   }
 }
 
+// Prove the Journey screenshot contains the vendored Saturn atlas, not merely
+// a successfully rendered deterministic fallback after a 404.
+function watchSaturnTextureResponse(page) {
+  const path = GALAXY_TEXTURES.journey
+  let found = null
+  page.on('response', response => {
+    if (new URL(response.url()).pathname === path) {
+      found = { path, status: response.status(), type: response.headers()['content-type'] || '' }
+    }
+  })
+  return () => {
+    if (!found || found.status !== 200 || !found.type.toLowerCase().startsWith('image/jpeg')) {
+      throw new Error('Saturn photographic atlas missing/invalid: ' + JSON.stringify(found || path))
+    }
+    return found
+  }
+}
+
 function attachErrors(page, errors) {
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => {
@@ -105,10 +123,12 @@ try {
     const errors = []
     attachErrors(page, errors)
     const verifyEarthAssets = watchEarthTextureResponses(page, view.mobile)
+    const verifySaturnAsset = watchSaturnTextureResponse(page)
 
     try {
       await openGalaxy(page)
       const earthAssets = verifyEarthAssets()
+      const saturnAsset = verifySaturnAsset()
       await page.screenshot({ path: `${output}/${view.name}-overview.png`, fullPage: true })
       await selectBody(page, 'Identity')
       await page.screenshot({ path: `${output}/${view.name}-identity-reduced.png`, fullPage: true })
@@ -140,7 +160,7 @@ try {
       }))
       if (layout.documentWidth > layout.width + 1) errors.push(`Horizontal overflow: ${layout.documentWidth} > ${layout.width}`)
       if (!layout.canvasWidth || !layout.canvasHeight) errors.push('Blank canvas dimensions')
-      results.push({ view, layout, earthAssets, errors })
+      results.push({ view, layout, earthAssets, saturnAsset, errors })
     } catch (error) {
       results.push({ view, errors: [...errors, error.message] })
     } finally {

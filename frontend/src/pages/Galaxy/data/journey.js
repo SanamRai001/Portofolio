@@ -10,9 +10,16 @@ export const JOURNEY_APPEARANCE = Object.freeze({
 
 export const JOURNEY_RING_APPEARANCE = Object.freeze({
   // Saturn/Cassini-inspired *structure*, not a copied observational texture.
-  innerTint: '#cbb991',
-  outerTint: '#a99d80',
+  innerTint: '#cec5b0',
+  outerTint: '#b9b4a2',
   desktopSegments: 192,
   desktopRadialSegments: 5,
   mobileSegments: 96,
+})
+
+// Phone-only off-axis composition keeps enlarged normal-motion Saturn rings
+// to the right of the Journey label. Desktop retains its original focus path.
+export const JOURNEY_COMPOSITION = Object.freeze({
+  breakpoint: 760,
+  mobile: Object.freeze({ x: .18, y: 0, heightFraction: .30, fov: 42 }),
 })
