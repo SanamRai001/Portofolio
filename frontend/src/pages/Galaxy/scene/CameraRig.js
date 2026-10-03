@@ -30,8 +30,10 @@ export function createCameraRig({ getAnchor = () => null, onComplete = () => {},
       // Keep the day side readable throughout an orbit; azimuth is an offset
       // from the direction toward the Sun, not a fixed world-space bearing.
       const bearing = azimuth + (selected === 'core' ? 0 : Math.atan2(-endTarget.x, -endTarget.z))
-      fov = reducedMotion ? view.fov : body.focus.fov
       const composition = focusComposition(body, viewportWidth)
+      // Honor an explicit focus FOV for this viewport, while retaining the
+      // global camera-height clearance and all other camera destinations.
+      fov = composition?.fov ?? (reducedMotion ? view.fov : body.focus.fov)
       const frameRadius = (body.focus.frameRadius || body.radius) * (body.orbit ? view.bodyScale : 1)
       const d = composition
         ? Math.hypot(frameRadius, frameRadius / (Math.tan(fov * Math.PI / 360) * composition.heightFraction))
