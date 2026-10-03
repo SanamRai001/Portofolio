@@ -83,7 +83,7 @@ const surfaceFragment = [
   '    float regionC = dot(s, normalize(vec3(.39, .50, .77))) + jitter * .5;',
   '    penumbra = max(penumbra, smoothstep(.9991, .99955, regionC) * .42);',
   '  #endif',
-  '  detail *= 1. - penumbra * .26 - umbra * .51;'
+  '  detail *= 1. - penumbra * .26 - umbra * .51;',
   '  // A restrained bright facular surround; only visible at high quality.',
   '  #if SUN_OCTAVES > 2',
   '    float facula = smoothstep(.988, .9978, regionA) * (1. - penumbra);',
