@@ -29,10 +29,11 @@ Check actual browser screenshots: the ellipse must remain within the canvas
 and must not cover Journey's label/navigation. First normal-motion **phone**
 capture showed a near-contact with Journey's heading (even though the reduced
 capture was clear). Add a **mobile-only off-axis composition** in
-`JOURNEY_COMPOSITION` (`x: .11`, 42° FOV, .30 height fraction), shifting the
-enlarged ring approximately 19 screen pixels to the right within the actual
+`JOURNEY_COMPOSITION` (`x: .18`, 42° FOV, .30 height fraction), shifting the
+enlarged ring approximately 31 screen pixels to the right within the actual
 346px portrait canvas; desktop still uses its unchanged camera destination.
-Verify the resulting phone screenshot in both normal and reduced-motion.
+The first +19px capture cleared normal motion but left the reduced-motion ellipse almost touching the heading; +31px provides more deliberate clearance.
+Verify both actual phone screenshots before signoff.
 
 ## Visual rejection conditions
 
