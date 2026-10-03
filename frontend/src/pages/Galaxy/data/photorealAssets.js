@@ -6,4 +6,12 @@ export const GALAXY_TEXTURES = Object.freeze({
   projects: '/galaxy/photoreal/mars.jpg',
   journey: '/galaxy/photoreal/saturn.jpg',
   moon: '/galaxy/photoreal/moon.jpg',
+  earth: Object.freeze({
+    dayHigh: '/galaxy/photoreal/earth/day-4k.jpg',
+    dayLow: '/galaxy/photoreal/earth/day-2k.jpg',
+    night: '/galaxy/photoreal/earth/night-2k.jpg',
+    cloud: '/galaxy/photoreal/earth/clouds-2k.jpg',
+    water: '/galaxy/photoreal/earth/water-mask.png',
+    elevation: '/galaxy/photoreal/earth/topology.png',
+  }),
 })
