@@ -16,3 +16,10 @@ export const JOURNEY_RING_APPEARANCE = Object.freeze({
   desktopRadialSegments: 5,
   mobileSegments: 96,
 })
+
+// Phone-only off-axis composition keeps enlarged normal-motion Saturn rings
+// to the right of the Journey label. Desktop retains its original focus path.
+export const JOURNEY_COMPOSITION = Object.freeze({
+  breakpoint: 760,
+  mobile: Object.freeze({ x: .11, y: 0, heightFraction: .30, fov: 42 }),
+})

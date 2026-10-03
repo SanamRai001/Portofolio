@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Scene, Vector3 } from 'three'
 import { PLANETS } from './data/solarSystem.js'
+import { focusComposition } from './data/core.js'
 import { createJourneyPlanet } from './scene/JourneyPlanet.js'
 import { createJourneyRings } from './scene/JourneyRings.js'
 import { SATURN_RING_RADII, SATURN_RING_PROFILE_GLSL } from './scene/SaturnOptics.js'
@@ -89,4 +90,18 @@ test('G2R.13 low tier remains one geometry and shader, never two legacy discs', 
   assert.match(full.children[0].material.fragmentShader, /shadow = step\(0\., rayDistance\)/)
   assert.match(full.children[0].material.fragmentShader, /sunDirection = normalize\(-vPlanetCenter\)/)
   release(full); release(small)
+})
+
+test('G2R.13 Journey-only phone offset keeps the enlarged ring away from its heading', () => {
+  assert.equal(focusComposition(body, 1440), undefined, 'desktop remains on its original camera path')
+  const mobile = focusComposition(body, 390)
+  assert.equal(mobile.fov, 42)
+  assert.equal(mobile.heightFraction, .30)
+  assert.ok(mobile.x >= .10)
+  // Portrait focused WebGL canvas is 346px wide. A positive offset moves
+  // Saturn right by ~19px without growing the rings or weakening clearance.
+  assert.ok(mobile.x * 346 / 2 >= 18)
+  const radius = body.radius * 1.28
+  const d = Math.hypot(radius, radius / (Math.tan(mobile.fov * Math.PI / 360) * mobile.heightFraction))
+  assert.ok(d > 10 && d < 11, 'phone focus distance is consistent with the previous 8.2-unit close-up')
 })

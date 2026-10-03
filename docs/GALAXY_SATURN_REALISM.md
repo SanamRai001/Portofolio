@@ -26,7 +26,13 @@ only Journey's focus distance 10 → 8.2 and FOV 42° → 40°. This increases
 nominal projected ring height by over 25% while keeping the existing
 `CAMERA_CLEARANCE` minimum, other planets and Galaxy layout unchanged.
 Check actual browser screenshots: the ellipse must remain within the canvas
-and must not cover Journey's label/navigation.
+and must not cover Journey's label/navigation. First normal-motion **phone**
+capture showed a near-contact with Journey's heading (even though the reduced
+capture was clear). Add a **mobile-only off-axis composition** in
+`JOURNEY_COMPOSITION` (`x: .11`, 42° FOV, .30 height fraction), shifting the
+enlarged ring approximately 19 screen pixels to the right within the actual
+346px portrait canvas; desktop still uses its unchanged camera destination.
+Verify the resulting phone screenshot in both normal and reduced-motion.
 
 ## Visual rejection conditions
 
