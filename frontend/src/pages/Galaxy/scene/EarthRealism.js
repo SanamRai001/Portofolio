@@ -111,7 +111,7 @@ const atmosphereFragment = [
   '  float rim = pow(1. - max(dot(N, V), 0.), 4.8);',
   '  float day = smoothstep(-.26, .48, sunDot);',
   '  float twilight = exp(-pow((sunDot - .04) * 4.0, 2.));',
-  '  float alpha = rim * (day * .17 + twilight * .08 + .014) * strength;',
+  '  float alpha = rim * (day * .58 + twilight * .28 + .048) * strength;',
   '  vec3 color = mix(atmosphereTint * .48, atmosphereTint, day);',
   '  gl_FragColor = vec4(color, alpha);',
   '  #include <tonemapping_fragment>',
@@ -159,7 +159,7 @@ export function createEarthAtmosphere(radius, sunDirection, lowPower = false) {
     uniforms: {
       sunDirection: { value: sunDirection },
       atmosphereTint: { value: new Color('#699fdd') },
-      strength: { value: lowPower ? .66 : 1. },
+      strength: { value: lowPower ? .29 * .72 : .29 },
     },
     vertexShader: worldVertex,
     fragmentShader: atmosphereFragment,

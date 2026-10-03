@@ -101,7 +101,7 @@ export function createIdentityPlanet(body, lowPower, onSurfaceReady = () => {}) 
 
   let targetActivity = 0, activity = 0, targetSpeed = 1, speed = 1
   function present() {
-    atmosphere.material.uniforms.strength.value = (lowPower ? .66 : 1) * (1 + activity * .35)
+    atmosphere.material.uniforms.strength.value = style.atmosphereStrength * (1 + activity)
   }
   function updateSolarDirection() {
     group.getWorldPosition(worldCenter)
