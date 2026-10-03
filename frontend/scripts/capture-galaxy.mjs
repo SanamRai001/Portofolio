@@ -50,8 +50,8 @@ function watchEarthTextureResponses(page, mobile) {
   return () => {
     const invalid = expected.filter(path => {
       const response = found.get(path)
-      const type = path.endsWith('.png') ? /image\\/png/i : /image\\/jpeg/i
-      return !response || response.status !== 200 || !type.test(response.type)
+      const expectedType = path.endsWith('.png') ? 'image/png' : 'image/jpeg'
+      return !response || response.status !== 200 || !response.type.toLowerCase().startsWith(expectedType)
     })
     if (invalid.length) throw new Error('NASA Earth image loads missing/invalid: '
       + invalid.map(path => path + ' ' + JSON.stringify(found.get(path) || 'no response')).join('; '))
