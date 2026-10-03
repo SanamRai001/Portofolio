@@ -48,7 +48,8 @@ test('Earth-only mobile focus fills substantially more of the canvas while deskt
     assert.ok(projectedRadius > oldProjectedRadius * 1.2,
       'phone Earth must visibly increase at least 20% over the actual previous framing')
     rig.resize(1360, 570, 1440)
-    assert.equal(rig.camera.fov, body.focus.fov, 'desktop focus FOV is unchanged')
+    assert.equal(rig.camera.fov, reducedMotion ? getOverview(1360, 570).fov : body.focus.fov,
+      'desktop focus preserves the existing normal/reduced-motion FOV contract')
   }
 })
 
