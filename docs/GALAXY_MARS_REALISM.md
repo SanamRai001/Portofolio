@@ -57,6 +57,10 @@ checks; low-power 12k total-triangle contract. The eight-phase optional
 ~140-second full Mars turn should be used when seam continuity is uncertain.
 Hosted Chromium is not a real physical GPU frame-time measurement.
 
+## Integration after orbital-motion release
+
+The capture evidence below belongs to the original standalone Mars draft PR #11, which was based on the earlier Saturn merge. G2R.14's authoritative integration branch is now `feat/galaxy-mars-after-motion` from production `cdc0eda0`, incorporating PR #13's moving selected planets, brighter orbit lines and before/+8-second desktop/phone revolution screenshots. All old PR #11 results are prior design evidence, **not** final proof of the integrated renderer. Rerun all checks on the new branch and do not merge either old Mars PR independently.
+
 ## Completed browser acceptance (2026-10-04)
 
 - Real visual code head: `4e2c78421895dc4071031196058ad48b6fea129e`.
