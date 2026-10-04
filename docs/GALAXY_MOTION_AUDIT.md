@@ -14,6 +14,7 @@ The actual focus bug: NavigationController.orbitRateTarget returned ZERO for the
 - Hovered: 82%; selected: 65%, both continuously greater than zero, eased by the existing orbit simulation. The focus camera follows the moving anchor.
 - Explicit Pause motion, reduced-motion accessibility mode, page hidden/offscreen and static fallback still stop ambient revolution and spin intentionally. No additional requestAnimationFrame, no second clock.
 - Rotation is surface.rotation.y with fixed axial tilt; revolution is root.position from orbitPosition. Do not animate a decorative texture instead of the actual globe root.
+- Identity / Earth additionally reduced its local surface rotation to just 18% on focus. Increase that interaction-only scalar to 82% (hover 92%) so Earth’s real 2K/4K atlas can visibly rotate over an eight-second close-up; base rotation/orbit data and independent cloud movement remain unchanged.
 
 | Portfolio world | Surface rate (rad/s) | Orbital rate (rad/s) | One overview revolution, approximately |
 | --- | ---: | ---: | --- |
