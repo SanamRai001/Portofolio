@@ -1,5 +1,14 @@
 # PROJECT_STATE
 
+## G2R.M1 active: axial spin, revolution and orbit readability audit (2026-10-04)
+
+- Base is Saturn-merged master 18fa02b. Feature branch fix/galaxy-motion-orbit-readability (not merged). Mars G2R.14 remains pending.
+- Confirmed cause: the selected planet's revolution rate was zero even while its surface rotated; the static orbit paths used very faint #68717d at 0.23 alpha. Both root revolution and axial rotation are wired to the existing one render loop and orbitPosition is shared with the path geometry.
+- Correction in review: selected orbit rate 0.65, hover 0.82, overview 1; orbit path contrast #9cacbf / 0.48 base / 0.68 focused / 0.24 muted. Reduced-motion, Pause and offscreen freeze remain intentional.
+- Updated navigation tests now check continuous camera tracking instead of asserting a frozen world-space camera on Skills-node click. Extended Galaxy tests cover path geometry, 8s independent root travel/yaw, correct orbital radius and pause. New matched overview start/+8s screenshots explicitly prove revolution rather than just surface spin.
+- See docs/GALAXY_MOTION_AUDIT.md for diagnosis/proof and docs/GALAXY_NEXT_PHASES.md for complete remaining Mars/Mercury/final-QA/release implementation and acceptance gates.
+- CI/screenshots pending review. Do not merge without actual visual acceptance.
+
 ## Verified G2R.13 — Saturn / Journey final browser acceptance (2026-10-03; visual signoff pending)
 - **Scope / ancestry:** Feature branch `feat/galaxy-saturn-ring-optics`, draft PR [#9](https://github.com/SanamRai001/Portofolio/pull/9), branched from verified merged-Sun `master` `eb679bd9`. Does not edit Earth/Sun/Mars/Mercury, homepage, portal or main navigation.
 - **Rendering:** `SaturnOptics.js` defines one shared Cassini-inspired C/B/A optical-density profile with translucent inner C region, denser B, transparent Cassini-like division and narrow Encke-like thinning. `JourneyRings.js` displays this in one transparent annulus, with a directionally projected planetary shadow. `SaturnRealism.js` uses the same density model to project that annulus onto the cloud-top day side; the original locally credited 2K Solar System Scope Saturn JPEG supplies colour, with a deterministic procedural fallback if unavailable. Low power retains 96-sector/one-radial-ring geometry and omits optional haze; desktop keeps derivative-filtered fine detail. Source references/limitations in `docs/GALAXY_SATURN_REALISM.md`.
