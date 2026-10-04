@@ -1,6 +1,13 @@
 # PROJECT_STATE
 
-## Verified in draft PR #15 — G2R.14 Mars / Projects after G2R.M1 orbit fix (2026-10-04; merge pending)
+## Production verified — G2R.14 Mars / Projects, after motion/orbit fix (2026-10-04)
+
+- **Merged:** canonical [PR #15](https://github.com/SanamRai001/Portofolio/pull/15), `feat/galaxy-mars-after-motion`, into `master` at `0d0a92c3d1788f9af2bc28266217dce37a7501d6`. Exact merge [CI run 37216453383](https://github.com/SanamRai001/Portofolio/actions/runs/37216453383) **passed**; matching Vercel deployment status succeeded. Original competing Mars drafts #10 and #11 were closed unmerged; their branch history remains.
+- **Visual and source proof:** integrated rendering head `43c81c3e` passed [Galaxy capture 37214671548](https://github.com/SanamRai001/Portofolio/actions/runs/37214671548), artifact `11307344998`: all six Galaxy cases and four portal cases without recorded errors, real Mars JPEG 200/image/jpeg in desktop/laptop/phone reduced and desktop/phone normal contexts. Matched desktop/phone before/after photospheric samples were inspected against motion-fixed master; no fictional night city lights and orbit paths remain visible. The post-merge code is the same renderer, with the workflow trigger reset before merge.
+- **Motion status:** PR #13's overview/hover/focus revolution (100/82/65%), axial spin, camera follow and four static sampled orbital tracks remain in the merged Mars code; Galaxy tests were preserved, not replaced by older focus-freeze assertions.
+- **Limits and next phases:** Optional ~140-second full Mars longitude seam capture and on-device integrated-GPU/phone FPS/touch checks are still unverified. Next G2R.15 Mercury / Skills (photographic regolith + preserve skill-node controls), then G2R.16 all-world device/visual QA, G2R.17 release and attribution. Exact how-to and acceptance checklist: `docs/GALAXY_NEXT_PHASES.md`; root cause and mechanics: `docs/GALAXY_MOTION_AUDIT.md`.
+
+## Historical PR #15 pre-merge verification — G2R.14 Mars / Projects (2026-10-04)
 
 - **Base:** current production `master` `cdc0eda0045d8eac0f07713c9742029b31f3194f` (motion fix PR #13, post-merge roadmap PR #14). Branch `feat/galaxy-mars-after-motion` ports the later, better-scoped Mars renderer from standalone draft PR #11. Earlier independent PRs #10/#11 are **alternatives**, not branches to merge sequentially; preserve their original commits for traceability.
 - **Mars-only implementation:** licensed 2K Solar System Scope Mars atlas, thin day-side dust rim, seam-safe directional albedo shader, subtle desktop albedo microcontrast (NOT MOLA elevation), no fictional orange night settlement emission. Procedural textured-sphere fallback remains until the JPEG succeeds; mobile has one sphere and no extra haze geometry. No extra render clock or navigation changes.
