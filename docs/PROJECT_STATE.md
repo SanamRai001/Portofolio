@@ -1,5 +1,12 @@
 # PROJECT_STATE
 
+## Active phase — G2R.15 Mercury / Skills realism (2026-10-04)
+
+- **Ancestry:** verified production `master` `db615cff` after motion/orbit correction PR #13, Mars PR #15 and roadmap PR #16. Branch `feat/galaxy-mercury-skills-realism`. Keep older standalone Mars alternatives closed and do not overwrite merged motion fixes.
+- **Scope:** use credited local 2K Mercury atlas with a faint neutral grey-brown adjustment, sharp directional terminator, desktop-only subtle actual-albedo contrast, no atmosphere or fake metallic relief. Deterministic nonmetallic fallback until JPEG 200; mobile avoids high-quality extra samples. See `docs/GALAXY_MERCURY_REALISM.md`.
+- **Interaction:** `skills-satellites` remains a sibling of `skills-surface`, with ten independent node hit meshes and selection; preserve slow surface spin, world-root revolution and existing camera follow. Explicit Pause and reduced motion remain authoritative.
+- **Gates:** browser screenshots at 1440x900, 1280x800, 390x844 in normal/reduced, explicit Mercury asset HTTP status, 8-second spin/overview revolution evidence, full tests/lint/build and portal regression. No merge without visual signoff.
+
 ## Production verified — G2R.14 Mars / Projects, after motion/orbit fix (2026-10-04)
 
 - **Merged:** canonical [PR #15](https://github.com/SanamRai001/Portofolio/pull/15), `feat/galaxy-mars-after-motion`, into `master` at `0d0a92c3d1788f9af2bc28266217dce37a7501d6`. Exact merge [CI run 37216453383](https://github.com/SanamRai001/Portofolio/actions/runs/37216453383) **passed**; matching Vercel deployment status succeeded. Original competing Mars drafts #10 and #11 were closed unmerged; their branch history remains.
