@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-## Active integration — G2R.14 Mars / Projects after G2R.M1 orbit fix (2026-10-04)
+## Verified in draft PR #15 — G2R.14 Mars / Projects after G2R.M1 orbit fix (2026-10-04; merge pending)
 
 - **Base:** current production `master` `cdc0eda0045d8eac0f07713c9742029b31f3194f` (motion fix PR #13, post-merge roadmap PR #14). Branch `feat/galaxy-mars-after-motion` ports the later, better-scoped Mars renderer from standalone draft PR #11. Earlier independent PRs #10/#11 are **alternatives**, not branches to merge sequentially; preserve their original commits for traceability.
 - **Mars-only implementation:** licensed 2K Solar System Scope Mars atlas, thin day-side dust rim, seam-safe directional albedo shader, subtle desktop albedo microcontrast (NOT MOLA elevation), no fictional orange night settlement emission. Procedural textured-sphere fallback remains until the JPEG succeeds; mobile has one sphere and no extra haze geometry. No extra render clock or navigation changes.

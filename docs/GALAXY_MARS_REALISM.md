@@ -67,7 +67,7 @@ The capture evidence below belongs to the original standalone Mars draft PR #11,
 - Visual code head `43c81c3e91cd0e57990de00110ea17a8ddc85ace`: [frontend CI 37214674812](https://github.com/SanamRai001/Portofolio/actions/runs/37214674812) **success**, [Galaxy Visual Capture 37214671548](https://github.com/SanamRai001/Portofolio/actions/runs/37214671548) **success**, artifact `11307344998`.
 - All six Galaxy cases reported no errors, all four portal scenarios passed; Mars JPEG returned HTTP 200/image/jpeg on desktop/laptop/phone reduced and desktop/phone normal. The existing Earth/Saturn image checks, motion-fix regression suite and +8-second orbit screenshot gate still passed.
 - Inspected Mars at desktop/phone focused after 8s versus **motion-fixed master** using equal crop bounds: no orange night-city speckles; original dark/light albedo remains visible, desktop thin dust limb and phone composition are coherent. Review image: `galaxy-mars-before-after-motion-master.png` from this conversation.
-- No fake MOLA claims, new asset, extra render loop or mobile shell. Full 140-second seam sweep and physical GPU/phone performance were not proved by this run. Restore temporary capture workflow before merging; owner visual signoff remains pending.
+- No fake MOLA claims, new asset, extra render loop or mobile shell. Full 140-second seam sweep and physical GPU/phone performance were not proved by this run. Temporary feature-branch visual-capture trigger has been restored to the exact production workflow blob; final docs/cleanup head `c5b979b5` has green CI and Vercel preview. Owner visual signoff remains pending before merging PR #15.
 
 ## Historical PR #11 browser acceptance (2026-10-04)
 
