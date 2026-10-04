@@ -23,4 +23,4 @@ export const BLACK_HOLE = Object.freeze({
   focus: focus(6.2, -.18, .65, 40),
 })
 export const SYSTEM_MAP = Object.freeze([SUN, ...PLANETS, LAB, BLACK_HOLE])
-export const SOLAR_STYLE = Object.freeze({ orbitColor: '#68717d', orbitOpacity: 0.23, segments: 128, mobileBodyScale: 1.28, overviewBodyScale: 1.5, mobileOverviewBodyScale: 1.12, sunLight: 2.8, ambient: 0.23 })
+export const SOLAR_STYLE = Object.freeze({ orbitColor: '#91aabd', orbitOpacity: 0.49, orbitMutedOpacity: 0.25, orbitSelectedOpacity: 0.56, segments: 128, mobileBodyScale: 1.28, overviewBodyScale: 1.5, mobileOverviewBodyScale: 1.12, sunLight: 2.8, ambient: 0.23 })
