@@ -61,7 +61,15 @@ Hosted Chromium is not a real physical GPU frame-time measurement.
 
 The capture evidence below belongs to the original standalone Mars draft PR #11, which was based on the earlier Saturn merge. G2R.14's authoritative integration branch is now `feat/galaxy-mars-after-motion` from production `cdc0eda0`, incorporating PR #13's moving selected planets, brighter orbit lines and before/+8-second desktop/phone revolution screenshots. All old PR #11 results are prior design evidence, **not** final proof of the integrated renderer. Rerun all checks on the new branch and do not merge either old Mars PR independently.
 
-## Completed browser acceptance (2026-10-04)
+## Integrated on the merged-motion baseline — browser verification
+
+- Integration branch `feat/galaxy-mars-after-motion` from production `master` `cdc0eda0`; authoritative Mars design ported from prior PR #11 without replacing the new rotation/revolution tests and matched overview captures.
+- Visual code head `43c81c3e91cd0e57990de00110ea17a8ddc85ace`: [frontend CI 37214674812](https://github.com/SanamRai001/Portofolio/actions/runs/37214674812) **success**, [Galaxy Visual Capture 37214671548](https://github.com/SanamRai001/Portofolio/actions/runs/37214671548) **success**, artifact `11307344998`.
+- All six Galaxy cases reported no errors, all four portal scenarios passed; Mars JPEG returned HTTP 200/image/jpeg on desktop/laptop/phone reduced and desktop/phone normal. The existing Earth/Saturn image checks, motion-fix regression suite and +8-second orbit screenshot gate still passed.
+- Inspected Mars at desktop/phone focused after 8s versus **motion-fixed master** using equal crop bounds: no orange night-city speckles; original dark/light albedo remains visible, desktop thin dust limb and phone composition are coherent. Review image: `galaxy-mars-before-after-motion-master.png` from this conversation.
+- No fake MOLA claims, new asset, extra render loop or mobile shell. Full 140-second seam sweep and physical GPU/phone performance were not proved by this run. Restore temporary capture workflow before merging; owner visual signoff remains pending.
+
+## Historical PR #11 browser acceptance (2026-10-04)
 
 - Real visual code head: `4e2c78421895dc4071031196058ad48b6fea129e`.
 - Full frontend CI passed twice: [37172437450](https://github.com/SanamRai001/Portofolio/actions/runs/37172437450), [37172435088](https://github.com/SanamRai001/Portofolio/actions/runs/37172435088).
