@@ -59,6 +59,9 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
     bodies.set(body.id, root)
     const points = Array.from({ length: SOLAR_STYLE.segments }, (_, i) => new Vector3(...orbitPosition(body.orbit, i / SOLAR_STYLE.segments * Math.PI * 2)))
     const line = new LineLoop(new BufferGeometry().setFromPoints(points), new LineBasicMaterial({ color: SOLAR_STYLE.orbitColor, transparent: true, opacity: SOLAR_STYLE.orbitOpacity, depthWrite: false }))
+    // WebGL LineBasicMaterial is reliably only one physical pixel wide.
+    // Raising contrast is cheaper and more portable than a second tube/glow pass.
+    line.name = `${body.id}-orbit`
     orbits.set(body.id, line)
     group.add(line)
   }
@@ -80,7 +83,8 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
         presentations.get(body.id)?.setSelection?.(state, instant)
         presentations.get(body.id)?.setInteraction?.(hovered === body.id, state.selectedBodyId === body.id, instant)
         simulation.setRate(body.id, orbitRateTarget(body.id, state))
-        orbits.get(body.id).material.opacity = state.selectedBodyId && state.selectedBodyId !== body.id ? 0.1 : SOLAR_STYLE.orbitOpacity
+        orbits.get(body.id).material.opacity = !state.selectedBodyId ? SOLAR_STYLE.orbitOpacity
+          : state.selectedBodyId === body.id ? SOLAR_STYLE.orbitSelectedOpacity : SOLAR_STYLE.orbitMutedOpacity
       }
       if (instant) targets.forEach((body, id) => body.visuals.scale.setScalar(visualScale(id)))
     },
