@@ -61,7 +61,7 @@ export const MARS_FRAGMENT = [
   '  float sunDot = dot(N, L);',
   '  float daylight = smoothstep(-.16, .11, sunDot);',
   '  float irradiance = mix(.008, .035 + max(sunDot, 0.) * 1.27, daylight);',
-  '  // No settlements, artificial emission or colourized lights on Mars.',
+  '  // Keep the unlit hemisphere naturally dark; never add fake light sources.',
   '  vec3 colour = albedo * irradiance;',
   '  gl_FragColor = vec4(colour, 1.);',
   '  #include <tonemapping_fragment>',
