@@ -16,6 +16,28 @@ For every art-direction phase, capture at least:
 
 Low-power-specific visual work also requires a low-power capture.
 
+## Motion and orbit acceptance (G2R.M1 onward)
+
+For normal motion, record a matched overview at t=0 and t=8 seconds with
+the **same camera/viewport**. Inspect relative root positions against all
+four static orbital tracks. Focus-only screenshots cannot prove revolution:
+the focus camera follows the selected body's moving root.
+
+- A selected planet must continue revolving (65% of authored orbital speed);
+  hover 82%, overview 100%. Its surface axial yaw must remain separate.
+- Earth/Identity's local spin remains readable while focused, and its cloud
+  layer may drift independently. Saturn's ring plane stays fixed while gas
+  rotates underneath it.
+- Each drawn LineLoop must be the actual orbitPosition locus, not a decorative
+  ellipse. Orbits must remain legible on desktop and phone without showing
+  through opaque bodies or overwhelming the dark cinematic composition.
+- Paused/reduced-motion captures should show intentional **no** ambient spin
+  or revolution; don't misclassify this accessibility contract as a bug.
+- Verify correct camera-anchor tracking, no jump when choosing Skills nodes,
+  no horizontal overflow, and no new render loop.
+
+Detailed diagnosis and current speeds: [GALAXY_MOTION_AUDIT.md](GALAXY_MOTION_AUDIT.md).
+
 ## Required scene states
 
 As the relevant phases exist, capture:
