@@ -287,7 +287,13 @@ test('Skills frames the whole constellation at desktop and mobile without moving
     const transition = h.nav.getSnapshot().transitionId, camera = h.rig.camera.position.clone()
     h.nav.selectSkill('node'); h.step()
     assert.equal(h.nav.getSnapshot().transitionId, transition)
-    assert.ok(h.rig.camera.position.distanceTo(camera) < .001)
+    // Selecting a skill must never start a new camera transition. On normal
+    // motion the parent Mercury planet now keeps revolving, so tracking its
+    // anchor legitimately shifts world-space camera coordinates slightly.
+    assert.ok(h.rig.camera.position.distanceTo(camera) < .05, 'no camera jump on skill click')
+    assert.ok(h.rig.target.distanceTo(h.system.getAnchor('skills', new Vector3())) < 1e-8,
+      'camera follows Skills as its root continues revolving')
+    if (reduced) assert.ok(h.rig.camera.position.distanceTo(camera) < 1e-8)
     h.nav.focusBody('projects')
     for (let i = 0; i < 85; i++) h.step()
     assert.equal(constellation.visible, false)
