@@ -1,5 +1,13 @@
 # PROJECT_STATE
 
+## Active integration — G2R.14 Mars / Projects after G2R.M1 orbit fix (2026-10-04)
+
+- **Base:** current production `master` `cdc0eda0045d8eac0f07713c9742029b31f3194f` (motion fix PR #13, post-merge roadmap PR #14). Branch `feat/galaxy-mars-after-motion` ports the later, better-scoped Mars renderer from standalone draft PR #11. Earlier independent PRs #10/#11 are **alternatives**, not branches to merge sequentially; preserve their original commits for traceability.
+- **Mars-only implementation:** licensed 2K Solar System Scope Mars atlas, thin day-side dust rim, seam-safe directional albedo shader, subtle desktop albedo microcontrast (NOT MOLA elevation), no fictional orange night settlement emission. Procedural textured-sphere fallback remains until the JPEG succeeds; mobile has one sphere and no extra haze geometry. No extra render clock or navigation changes.
+- **Conflict resolution:** preserves the latest G2R.M1 `galaxy.test.js` axial/revolution/path and Skills focus tracking assertions, as well as matched desktop/phone overview at 0/+8 seconds in `capture-galaxy.mjs`. Mars atlas HTTP 200/JPEG verification is additive alongside Earth/Saturn response checks in normal/reduced modes.
+- **Acceptance pending on integration branch:** complete auth/Galaxy/homepage/lint/build, actual desktop/phone Mars normal/reduced screenshot and 0/+8-second motion comparison, all six Galaxy and four portal cases, preserve actual Mars/Earth/Saturn image response checks. Retain PR in draft until verified; do not publish old PR #10 or #11 to `master` independently.
+- **Next:** once accepted merge one integrated Mars PR, verify exact merge SHA/production deployment; then G2R.15 Mercury, G2R.16 integrated visual/low-GPU QA, and G2R.17 release. The optional 140-second full Mars-turn longitude proof is a separate manual gate if the seam is suspicious.
+
 ## Production verified — G2R.M1 continuous revolution and orbit visibility (2026-10-04)
 
 - **Released:** motion/orbit fix [PR #13](https://github.com/SanamRai001/Portofolio/pull/13) merged from `fix/galaxy-motion-orbit-readability` into `master` at commit `42c3db1680d72e8cefe8b338783aa9a8d47526b9`. [Exact merge SHA CI 37213862905](https://github.com/SanamRai001/Portofolio/actions/runs/37213862905) passed and Vercel commit status succeeded. Earlier conflicting PR #12 was closed without merging because it expected the selected body to stop revolving.
