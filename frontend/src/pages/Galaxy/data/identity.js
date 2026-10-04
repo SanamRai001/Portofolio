@@ -24,5 +24,7 @@ export const IDENTITY_APPEARANCE = Object.freeze({
   surfaceRoughness: .72, surfaceMetalness: .02,
   atmosphere: '#71c6d8', atmosphereScale: 1.068, atmosphereStrength: .29,
   cloud: '#e3e9df', cloudScale: 1.018, cloudOpacity: .27, cloudSeed: 4.7,
-  selectedBoost: .24, hoverBoost: .12, selectedSpeed: .18, hoverSpeed: .5,
+  selectedBoost: .24, hoverBoost: .12, // Keep authored Earth rotation discernible in a close-up; the former 18%
+  // selected speed looked frozen even with a healthy single scene clock.
+  selectedSpeed: .82, hoverSpeed: .92,
 })

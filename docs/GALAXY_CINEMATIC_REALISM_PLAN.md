@@ -1,5 +1,7 @@
 # Galaxy Cinematic Realism Plan
 
+> Historical design foundation. For current completed phases, specific remaining tasks and execution gates, read [GALAXY_NEXT_PHASES.md](GALAXY_NEXT_PHASES.md). For why axial rotation, revolution and orbit visibility looked broken, read [GALAXY_MOTION_AUDIT.md](GALAXY_MOTION_AUDIT.md). Do not use the older branch/baseline listed below as the current implementation base.
+
 ## Purpose
 
 Turn `/galaxy` from a good Three.js solar-system portfolio into a cinematic, believable interactive universe without discarding the working G1-G6 navigation/content foundation.

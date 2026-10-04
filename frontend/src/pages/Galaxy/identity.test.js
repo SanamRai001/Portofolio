@@ -37,6 +37,8 @@ test('Identity slows locally, freezes while paused, bounds atmosphere feedback a
   const normalStep = surface.rotation.y
   assert.notEqual(clouds.rotation.y, cloudStart)
   assert.ok(identity.rotation.cloudSpeed > identity.rotation.surfaceSpeed)
+  assert.ok(style.selectedSpeed >= .75 && style.selectedSpeed < 1, 'focused Earth must visibly spin, not appear frozen')
+  assert.ok(style.hoverSpeed >= style.selectedSpeed && style.hoverSpeed <= 1)
   planet.setInteraction(false, true, true)
   planet.update(.05)
   assert.ok(Math.abs((surface.rotation.y - normalStep) / normalStep - style.selectedSpeed) < 1e-10)
