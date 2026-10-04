@@ -184,6 +184,10 @@ try {
       // G2R.5: normal-motion overview is essential for comparing near/far
       // star depth; reduced-motion overview is already captured above.
       await page.screenshot({ path: `${output}/${view.name}-overview-normal.png`, fullPage: true })
+      // Separate overview frames expose orbit revolution (a focus camera
+      // follows the selected body and intentionally holds its orbital rate).
+      await page.waitForTimeout(12_000)
+      await page.screenshot({ path: `${output}/${view.name}-overview-motion-after-12s.png`, fullPage: true })
       await selectBody(page, 'Core')
       await page.locator('.CoreIdentity.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-core-motion-start.png`, fullPage: true })
