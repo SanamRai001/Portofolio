@@ -173,6 +173,11 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-identity-reduced.png`, fullPage: true })
       await selectBody(page, 'Projects')
       await page.screenshot({ path: `${output}/${view.name}-projects.png`, fullPage: true })
+      // Mercury also needs direct reduced-motion focus proof; previous visual
+      // captures only recorded its normal-motion pass through rotatingBodies.
+      await selectBody(page, 'Skills')
+      await page.waitForTimeout(350)
+      await page.screenshot({ path: `${output}/${view.name}-skills-reduced.png`, fullPage: true })
       await selectBody(page, 'Core')
       await page.locator('.CoreIdentity.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-core-immediate.png`, fullPage: true })
