@@ -1,7 +1,6 @@
 export const PROJECTS_APPEARANCE = Object.freeze({
-  nightColor: '#f2ab62',
-  nightScale: 1.004,
-  nightStrength: .34,
-  nightSeed: 8.6,
-  lowPowerStrength: .22,
+  // Visible Martian limb is a faint scattering edge, not a neon orange halo.
+  dustColor: '#bc977e',
+  dustScale: 1.019,
+  dustStrength: .105,
 })
