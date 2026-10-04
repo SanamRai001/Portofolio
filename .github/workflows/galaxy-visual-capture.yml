@@ -5,6 +5,7 @@ on:
     branches:
       - feat/galaxy-cinematic-surface-spike
       - feat/galaxy-cinematic-realism
+      - fix/galaxy-motion-orbit-readability
     paths:
       - 'frontend/**'
       - '.github/workflows/galaxy-visual-capture.yml'
