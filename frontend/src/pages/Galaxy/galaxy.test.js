@@ -190,6 +190,55 @@ test('G2 orbits remain finite and bounded; paused and slowed bodies keep indepen
   assert.ok(Math.hypot(...a.position('identity').map((v, i) => v - frozen[i])) < 0.02)
 })
 
+test('G2R.14 motion: visible orbital tracks match actual planetary revolution, including focused tracking and pause', () => {
+  const system = createSolarSystem({ lowPower: false })
+  system.resize(false)
+  assert.equal(system.group.children.filter(object => object.isLineLoop).length, PLANETS.length)
+  assert.ok(SOLAR_STYLE.orbitOpacity >= .45)
+  for (const body of PLANETS) {
+    const line = system.group.getObjectByName('orbit-' + body.id)
+    const points = line.geometry.getAttribute('position')
+    assert.equal(points.count, SOLAR_STYLE.segments)
+    assert.equal(line.material.opacity, SOLAR_STYLE.orbitOpacity)
+    assert.equal(line.material.depthWrite, false)
+    assert.equal(line.material.depthTest, true)
+    for (const index of [0, 7, 31, 64, 95, 127]) {
+      const actual = new Vector3(points.getX(index), points.getY(index), points.getZ(index))
+      const expected = new Vector3(...orbitPosition(body.orbit, index / SOLAR_STYLE.segments * Math.PI * 2))
+      assert.ok(actual.distanceTo(expected) < .00001, body.id + ' orbit vertex ' + index)
+    }
+  }
+  system.setInteraction({ selectedBodyId: 'identity', hoveredBodyId: null }, true)
+  assert.equal(system.group.getObjectByName('orbit-identity').material.opacity, SOLAR_STYLE.orbitFocusedOpacity)
+  assert.equal(system.group.getObjectByName('orbit-projects').material.opacity, SOLAR_STYLE.orbitMutedOpacity)
+  const before = new Map(PLANETS.map(body => [body.id, {
+    world: system.bodies.get(body.id).position.clone(),
+    yaw: system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface').rotation.y,
+  }]))
+  for (let frame = 0; frame < 160; frame++) system.update(.05, true)
+  for (const body of PLANETS) {
+    const root = system.bodies.get(body.id)
+    const surface = system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface')
+    assert.ok(root.position.distanceTo(before.get(body.id).world) > .015, body.id + ' must revolve after eight seconds')
+    assert.notEqual(surface.rotation.y, before.get(body.id).yaw, body.id + ' must spin independently')
+    assert.ok(root.position.distanceTo(new Vector3(...system.simulation.position(body.id))) < 1e-8)
+    assert.ok(Math.abs(root.position.length() - body.orbit.radius) < 1e-7)
+  }
+  const stable = PLANETS.map(body => [
+    system.bodies.get(body.id).position.clone(),
+    system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface').rotation.y,
+  ])
+  system.update(.05, false)
+  PLANETS.forEach((body, index) => {
+    assert.deepEqual(system.bodies.get(body.id).position.toArray(), stable[index][0].toArray())
+    assert.equal(system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface').rotation.y, stable[index][1])
+  })
+  const scene = new Scene()
+  scene.add(system.group)
+  system.dispose()
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
 test('G2 overview contains full swept orbital envelopes at desktop, laptop and phone stage sizes', () => {
   for (const [width, height] of [[1360,630],[1200,530],[346,494]]) {
     const view = getOverview(width, height)

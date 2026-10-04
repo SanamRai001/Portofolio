@@ -184,6 +184,10 @@ try {
       // G2R.5: normal-motion overview is essential for comparing near/far
       // star depth; reduced-motion overview is already captured above.
       await page.screenshot({ path: `${output}/${view.name}-overview-normal.png`, fullPage: true })
+      // Distinguish overview revolution from mere surface spin: matched
+      // before/after camera captures while no planet is selected.
+      await page.waitForTimeout(8_000)
+      await page.screenshot({ path: `${output}/${view.name}-overview-revolution-after-8s.png`, fullPage: true })
       await selectBody(page, 'Core')
       await page.locator('.CoreIdentity.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-core-motion-start.png`, fullPage: true })

@@ -2,7 +2,11 @@ import { SKILLS, skillById } from '../data/skills.js'
 import { SYSTEM_MAP } from '../data/solarSystem.js'
 
 export const isTravelling = state => state.mode === 'focusing_body' || state.mode === 'returning_overview'
-export const orbitRateTarget = (id, state) => state.selectedBodyId === id ? 0 : state.hoveredBodyId === id ? 0.45 : 1
+// Do not halt a planet's revolution when focused: the camera already tracks its
+// moving focus anchor. Slowing to 65% retains stable framing and visible motion;
+// hovering uses 82%, while unselected bodies move at their authored base rate.
+// Reduced-motion and Pause remain authoritative in the scene's single clock.
+export const orbitRateTarget = (id, state) => state.selectedBodyId === id ? 0.65 : state.hoveredBodyId === id ? 0.82 : 1
 
 // Semantic state only. Camera/orbit clocks stay in the scene's single frame loop.
 export function createNavigationController() {
