@@ -56,3 +56,11 @@ focus at start and +8 seconds; original Galaxy/portal/auth/homepage/lint/build
 checks; low-power 12k total-triangle contract. The eight-phase optional
 ~140-second full Mars turn should be used when seam continuity is uncertain.
 Hosted Chromium is not a real physical GPU frame-time measurement.
+
+## Completed browser acceptance (2026-10-04)
+
+- Real visual code head: `4e2c78421895dc4071031196058ad48b6fea129e`.
+- Full frontend CI passed twice: [37172437450](https://github.com/SanamRai001/Portofolio/actions/runs/37172437450), [37172435088](https://github.com/SanamRai001/Portofolio/actions/runs/37172435088).
+- [Galaxy capture 37172435077](https://github.com/SanamRai001/Portofolio/actions/runs/37172435077), artifact `11292460185`, passed six Galaxy cases and four black-hole portal scenarios with empty error arrays. Desktop, laptop and phone normal/reduced response checks returned HTTP 200 `image/jpeg` for the actual local Mars map. Mobile low-power geometry remains within the original Galaxy under-12k-triangles test.
+- Inspected final desktop and phone normal-motion Projects at +8s alongside the exact same screenshot crop from prior `master` (merged Saturn `18fa02b7`), plus reduced views. The previous vivid copper light and false city-light dots are absent, while large albedo regions remain readable. Screenshot sheet: `galaxy-mars-g2r14-before-after.png`, linked in conversation.
+- The optional expensive 140-second full-turn seam capture was not run; short browser capture and shader/source assertions cover the meridian joining at the camera's presented angle. Requires owner visual approval before production merge.
