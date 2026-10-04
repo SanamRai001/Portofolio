@@ -1,5 +1,12 @@
 # PROJECT_STATE
 
+## Production verified — G2R.M1 continuous revolution and orbit visibility (2026-10-04)
+
+- **Released:** motion/orbit fix [PR #13](https://github.com/SanamRai001/Portofolio/pull/13) merged from `fix/galaxy-motion-orbit-readability` into `master` at commit `42c3db1680d72e8cefe8b338783aa9a8d47526b9`. [Exact merge SHA CI 37213862905](https://github.com/SanamRai001/Portofolio/actions/runs/37213862905) passed and Vercel commit status succeeded. Earlier conflicting PR #12 was closed without merging because it expected the selected body to stop revolving.
+- **Cause and fix:** master formerly set focused planet orbital target to zero; now overview/hover/selected use 100%/82%/65% of original orbit speed, with existing smooth interpolation and camera-anchor tracking. Focused Earth spins at 82% of authored axial speed rather than 18%. Four real sampled orbital `LineLoop` paths are cooler and more visible at 0.48 overview / 0.68 focused / 0.24 muted. No extra render loop or extra orbital geometry.
+- **Proof:** [Galaxy Visual Capture 37211514211](https://github.com/SanamRai001/Portofolio/actions/runs/37211514211), artifact `11306912958`, captured matched desktop/phone normal-motion overview at 0/+8 seconds plus focused planet images. Six Galaxy cases recorded no page/console errors; all four portal cases passed; root-position/surface-yaw/path tests and pause/reduced-motion regression passed. Real Earth/Saturn JPEGs and Earth auxiliary maps returned 200 in recorded sessions. Local actual-hardware FPS/touch checks remain outstanding.
+- **Remaining work:** G2R.14 Mars is present as two *unmerged and competing* draft implementations [#10](https://github.com/SanamRai001/Portofolio/pull/10) and [#11](https://github.com/SanamRai001/Portofolio/pull/11); select exactly one, reconcile against the now-merged motion fix, rerun tests and actual browser capture. Then G2R.15 Mercury, G2R.16 all-world visual/device QA and G2R.17 final release/attribution. Canonical execution instructions in `docs/GALAXY_NEXT_PHASES.md`; mechanics in `docs/GALAXY_MOTION_AUDIT.md`.
+
 ## Verified on branch G2R.M1: axial spin, revolution and orbit readability (2026-10-04; merge approval pending)
 
 - Base is Saturn-merged master 18fa02b. Feature branch fix/galaxy-motion-orbit-readability (not merged). Mars G2R.14 remains pending.
