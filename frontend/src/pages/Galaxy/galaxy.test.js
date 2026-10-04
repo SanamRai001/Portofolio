@@ -10,7 +10,7 @@ import { PROJECTS_APPEARANCE } from './data/projects.js'
 import { createOrbitSimulation, orbitPosition } from './utils/orbits.js'
 import { getOverview, projectOverview } from './utils/overview.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
-import { blendProjectsLongitudeSeam } from './scene/ProjectsPlanet.js'
+import { MARS_FRAGMENT } from './scene/MarsRealism.js'
 import { createStarField, STAR_DEPTH_TIERS } from './scene/StarField.js'
 
 function loopHarness(options = {}) {
@@ -265,56 +265,51 @@ test('G2 configuration and rendered bodies preserve hierarchy, materials and cle
   assert.equal(disposed, geometryCount)
 })
 
-test('Projects preserves its authored-surface fallback and keeps settlement lights locked to terrain', () => {
+test('G2R.14 Projects keeps a non-displaced offline fallback with no fictional night-side emissions', () => {
   const system = createSolarSystem(getPerformanceProfile({ width: 1440, reducedMotion: false }))
   const visuals = system.targets.get('projects').visuals
   const surface = visuals.getObjectByName('projects-surface')
-  const night = visuals.getObjectByName('projects-night-side')
   assert.ok(surface)
-  assert.ok(night)
   assert.equal(surface.material.vertexColors, true)
   assert.equal(surface.material.map, null)
-  assert.equal(night.material.defines.NIGHT_OCTAVES, 2)
-  assert.equal(night.material.uniforms.strength.value, PROJECTS_APPEARANCE.nightStrength)
+  assert.equal(visuals.getObjectByName('projects-night-side'), undefined)
+  const haze = visuals.getObjectByName('projects-dust-limb')
+  assert.ok(haze)
+  assert.equal(haze.material.uniforms.strength.value, PROJECTS_APPEARANCE.dustStrength)
 
   const positions = surface.geometry.attributes.position
   const radius = SYSTEM_MAP.find(body => body.id === 'projects').radius
   for (let i = 0; i < positions.count; i++) {
     const length = Math.hypot(positions.getX(i), positions.getY(i), positions.getZ(i))
-    assert.ok(Math.abs(length - radius) < 1e-5, 'textured surface must not pinch at pole triangles')
+    assert.ok(Math.abs(length - radius) < 1e-5, 'Mars poles must remain smooth and undisplaced')
   }
 
   system.update(.05, true)
   assert.ok(surface.rotation.y > 0)
-  assert.ok(Math.abs(surface.rotation.y - night.rotation.y) < 1e-12, 'settlement layer must remain surface-locked')
-
-  const surfaceFrozen = surface.rotation.y, nightFrozen = night.rotation.y
+  const frozen = surface.rotation.y
   system.update(.05, false)
-  assert.equal(surface.rotation.y, surfaceFrozen)
-  assert.equal(night.rotation.y, nightFrozen)
+  assert.equal(surface.rotation.y, frozen)
 
   system.dispose()
   const scene = new Scene(); scene.add(system.group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 
   const low = createSolarSystem(getPerformanceProfile({ width: 390, reducedMotion: false }))
-  const lowNight = low.targets.get('projects').visuals.getObjectByName('projects-night-side')
-  assert.equal(lowNight.material.defines.NIGHT_OCTAVES, 1)
-  assert.equal(lowNight.material.uniforms.strength.value, PROJECTS_APPEARANCE.lowPowerStrength)
+  const mobile = low.targets.get('projects').visuals
+  assert.equal(mobile.getObjectByName('projects-night-side'), undefined)
+  assert.equal(mobile.getObjectByName('projects-dust-limb'), undefined)
   low.dispose()
   const lowScene = new Scene(); lowScene.add(low.group)
   disposeScene(lowScene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 })
 
-test('Projects map smooths its longitude join while retaining the standard material lighting', () => {
-  const material = {}
-  blendProjectsLongitudeSeam(material)
-  const shader = { fragmentShader: 'before\n#include <map_fragment>\nafter' }
-  material.onBeforeCompile(shader)
-  assert.match(shader.fragmentShader, /texture2D\(map, vMapUv\)/)
-  assert.match(shader.fragmentShader, /texture2D\(map, vec2\(1\. - vMapUv\.x, vMapUv\.y\)\)/)
-  assert.match(shader.fragmentShader, /diffuseColor \*= sampledDiffuseColor/)
-  assert.ok(shader.fragmentShader.startsWith('before\n') && shader.fragmentShader.endsWith('\nafter'))
+test('G2R.14 authored Mars shader blends only the seam and uses explicit daylight', () => {
+  assert.match(MARS_FRAGMENT, /vec3 source = texture2D\(dayMap, uv\).rgb;/)
+  assert.match(MARS_FRAGMENT, /texture2D\(dayMap, vec2\(1\. - uv\.x, uv\.y\)\)/)
+  assert.match(MARS_FRAGMENT, /edge < \.025/)
+  assert.match(MARS_FRAGMENT, /float sunDot = dot\(N, L\)/)
+  assert.match(MARS_FRAGMENT, /float daylight = smoothstep\(-\.16, \.11, sunDot\)/)
+  assert.doesNotMatch(MARS_FRAGMENT, /cityCluster|settlement|emissionMap/)
 })
 
 test('G2R.1 planet rotation is data-driven, deterministic and frozen when ambient motion is disabled', () => {
