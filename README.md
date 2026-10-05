@@ -138,7 +138,10 @@ Portofolio/
 │   ├── routes/
 │   └── server.js
 ├── docs/
-│   └── PROJECT_STATE.md
+│   ├── PROJECT_STATE.md
+│   ├── GALAXY_NEXT_PHASES.md
+│   ├── GALAXY_MOTION_AUDIT.md
+│   └── GALAXY_TEXTURE_CREDITS.md
 └── assets/
     └── readme/
 ```
@@ -232,7 +235,7 @@ Current known engineering debt is tracked in:
 
 ## Development status
 
-The backend-focused homepage and the current Galaxy solar-system route are deployed from `master`. Galaxy releases are gated by unit/integration checks, lint/build, desktop/laptop/phone browser captures, explicit local image-response verification and Vercel commit status. Physical-device GPU frame-time/touch checks are tracked separately because headless Chromium cannot prove them. See `docs/PROJECT_STATE.md` and `docs/GALAXY_NEXT_PHASES.md` for the verified state and remaining manual checks.
+The backend-focused homepage and the current Galaxy solar-system route are deployed from `master`. Galaxy releases are gated by unit/integration checks, lint/build, desktop/laptop/phone browser captures, explicit local image-response verification and Vercel commit status. Physical-device GPU frame-time/touch checks are tracked separately because headless Chromium cannot prove them. See `docs/PROJECT_STATE.md` for the release log, `docs/GALAXY_NEXT_PHASES.md` for the completed-phase/manual-check handoff, and `docs/GALAXY_MOTION_AUDIT.md` for the exact rotation, revolution, pause and orbit-visibility behavior.
 
 ---
 
