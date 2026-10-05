@@ -27,7 +27,9 @@ These are cinematic scene speeds, NOT actual astronomical orbital periods. Satur
 
 ## Orbit visibility correction
 
-Keep the same four LineLoop tracks, each with 128 sample points, using orbitPosition for both geometry and simulation. No additional geometry/draw calls. Increase baseline material to cool-grey #9cacbf at opacity 0.48, focused track 0.68, unrelated tracks 0.24. Keep depthTest true and depthWrite false, so opaque bodies correctly occlude a path. Inspect actual screenshots before further changes; avoid neon outlines unless justified.
+Keep the same four LineLoop tracks, each with 128 sample points, using orbitPosition for both geometry and simulation. No additional geometry/draw calls. Overview remains cool-grey #9cacbf at opacity 0.48 so all four real loci are readable. G2R.16 separates that system-map purpose from focused content: desktop focus fades selected/other WORLD tracks to .18/.055; portrait focus uses .06/.012. Skills-local satellite rings remain .20 and are unaffected. Keep depthTest true and depthWrite false, so opaque bodies correctly occlude a path.
+
+This is presentation only. It does **not** change the simulation target rates (overview 1.0, hover .82, selected .65), orbit geometry, focus camera tracking or pause/reduced-motion behavior. Browser run 37328241293 / artifact 11353685738 verified that phone Skills copy is no longer visually competed with by global tracks while overview paths remain visible.
 
 ## Proof required
 

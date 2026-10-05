@@ -23,4 +23,20 @@ export const BLACK_HOLE = Object.freeze({
   focus: focus(6.2, -.18, .65, 40),
 })
 export const SYSTEM_MAP = Object.freeze([SUN, ...PLANETS, LAB, BLACK_HOLE])
-export const SOLAR_STYLE = Object.freeze({ orbitColor: '#9cacbf', orbitOpacity: 0.48, orbitFocusedOpacity: 0.68, orbitMutedOpacity: 0.24, segments: 128, mobileBodyScale: 1.28, overviewBodyScale: 1.5, mobileOverviewBodyScale: 1.12, sunLight: 2.8, ambient: 0.23 })
+export const SOLAR_STYLE = Object.freeze({
+  orbitColor: '#9cacbf',
+  // Overview is the place to understand the whole system. Focused views fade
+  // WORLD-scale tracks so they do not cut across portfolio copy; Skills-local
+  // satellite rings are separate geometry and remain unchanged.
+  orbitOpacity: 0.48,
+  orbitFocusedOpacity: 0.18,
+  orbitMutedOpacity: 0.055,
+  orbitFocusedPortraitOpacity: 0.06,
+  orbitMutedPortraitOpacity: 0.012,
+  segments: 128,
+  mobileBodyScale: 1.28,
+  overviewBodyScale: 1.5,
+  mobileOverviewBodyScale: 1.12,
+  sunLight: 2.8,
+  ambient: 0.23,
+})
