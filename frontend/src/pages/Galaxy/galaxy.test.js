@@ -211,7 +211,7 @@ test('G2R.14 motion: visible orbital tracks match actual planetary revolution, i
   system.setInteraction({ selectedBodyId: 'identity', hoveredBodyId: null }, true)
   assert.equal(system.group.getObjectByName('orbit-identity').material.opacity, SOLAR_STYLE.orbitFocusedOpacity)
   assert.equal(system.group.getObjectByName('orbit-projects').material.opacity, SOLAR_STYLE.orbitMutedOpacity)
-  assert.equal(system.simulation.rate('identity'), .65, 'visual focus cleanup must not stop revolution')
+  // Orbit speed eases toward its target; do not require an internal snap.
 
   // Portrait focus is deliberately cleaner because long world tracks cross
   // headings in the narrow Skills composition. Geometry and motion stay real.
@@ -226,6 +226,8 @@ test('G2R.14 motion: visible orbital tracks match actual planetary revolution, i
     yaw: system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface').rotation.y,
   }]))
   for (let frame = 0; frame < 160; frame++) system.update(.05, true)
+  assert.ok(Math.abs(system.simulation.rate('identity') - .65) < .001,
+    'focused revolution must settle to the existing 65% policy')
   for (const body of PLANETS) {
     const root = system.bodies.get(body.id)
     const surface = system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface')
@@ -259,7 +261,11 @@ test('G2R.16 focused world-orbit fade leaves Skills-local orbital toolkit readab
 
   const world = system.group.getObjectByName('orbit-skills')
   assert.equal(world.material.opacity, SOLAR_STYLE.orbitFocusedPortraitOpacity)
-  assert.equal(system.simulation.rate('skills'), .65)
+  const skillsStart = system.bodies.get('skills').position.clone()
+  for (let frame = 0; frame < 80; frame++) system.update(.05, true)
+  assert.ok(Math.abs(system.simulation.rate('skills') - .65) < .001)
+  assert.ok(system.bodies.get('skills').position.distanceTo(skillsStart) > .01,
+    'focused Skills world must keep revolving while its world orbit line is faded')
 
   const local = system.targets.get('skills').visuals.getObjectByName('skills-satellites')
     .children.filter(child => child.isLineLoop)
