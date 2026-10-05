@@ -9,7 +9,7 @@
 - **Recovery command:** from `backend/`, run `npm run seed:demo-viewer` (existing `npm run seed:users` remains compatible). The script uses `DB_URI`, prints whether the viewer was created or repaired, and closes the Mongo connection.
 - **Security boundary:** startup cleanup still only deactivates the historical privileged `admin@portfolio.dev` / `superadmin@portfolio.dev` seed accounts. The low-privilege public viewer is intentionally not touched.
 - **Tests:** `backend/data/seedUser.test.js` locks the exact UI credentials, upsert/reactivation payload and hashed-password behavior so the frontend demo credentials and Mongo recovery path cannot silently drift.
-- **Acceptance:** backend test workflow green; then seed once against the intended MongoDB database and verify `POST /api/auth/login` succeeds with the displayed viewer credentials while auth is enabled.
+- **Verification:** backend code head `b031ef473d0e4a72a2ba007f1c31e149f1befe97` passed Backend Security Tests run `37354173012`, including the new seed regression tests. Remaining acceptance is intentionally runtime-specific: seed once against the intended MongoDB database and verify `POST /api/auth/login` succeeds with the displayed viewer credentials while auth is enabled.
 
 ## Production verified — G2R.16 motion/orbit readability and focused UI (2026-10-05)
 
