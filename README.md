@@ -6,7 +6,7 @@
 
 A backend-focused full-stack portfolio built as an **interactive software system**, not only a static showcase.
 
-The `/` homepage presents backend engineering, a live Express/MongoDB lab, a readable request lifecycle, and project case studies. The separate `/galaxy` route contains the experimental Three.js G1 star field. Each route loads its own presentation code; the homepage does not load Three.js.
+The `/` homepage presents backend engineering, a live Express/MongoDB lab, a readable request lifecycle, and project case studies. The separate `/galaxy` route is an interactive Three.js solar-system portfolio with reference-grounded planetary rendering, camera travel, orbit motion, skill satellites, and a black-hole portal. Each route loads its own presentation code; the homepage does not load Three.js.
 
 **Live:** https://sanam-rai.com.np
 
@@ -33,8 +33,19 @@ The lab is designed to make backend architecture visible rather than presenting 
 ### Readable architecture and runtime state
 The homepage uses semantic HTML/CSS for the request pipeline and the Backend Lab's live configuration map. There is no WebGL canvas, pinned scrolling, GSAP timeline, or cursor-following mascot on `/`. One shared IntersectionObserver adds a 460ms fade with 16px movement; content is visible by default and reduced motion disables the effect.
 
-### Galaxy G1
-`/galaxy` is a separately loaded experimental route with stars, subtle camera parallax, performance caps, a pause control, reduced-motion support, and a WebGL fallback. G1 does not include planets or camera travel. Reusable earlier scene/Forge sources and assets remain isolated for possible reuse.
+### Galaxy — interactive solar-system portfolio
+`/galaxy` is a separately loaded Three.js route built around one authoritative scene clock and one planetary world-position model. It includes:
+
+- **Core / Sun** — continuum-inspired photosphere and restrained corona
+- **Identity / Earth** — NASA-derived day, night, cloud, water and terrain imagery
+- **Skills / Mercury** — airless regolith shading plus ten interactive skill satellites
+- **Projects / Mars** — photographic albedo, realistic terminator and thin daylight dust limb
+- **Journey / Saturn** — structured translucent rings with projected ring/planet shadows
+- **The Lab** and a selectable **Black Hole** with a cancellable portal handoff
+
+The four primary planets rotate on their own axes and revolve around Core. Overview orbit tracks remain visible and are derived from the same `orbitPosition()` function as the simulation; focused views fade the world-scale tracks so portfolio copy stays readable. Pause, reduced motion, hidden/off-screen throttling, low-power rendering, keyboard/touch navigation and a static WebGL fallback are retained.
+
+Planetary rendering is reference-informed rather than a claim of physical astronomical simulation. Image provenance is documented in `docs/GALAXY_EARTH_IMAGERY.md` and `docs/GALAXY_TEXTURE_CREDITS.md`.
 
 ### Editorial Project Storytelling
 Selected work is presented as engineering case studies instead of a standard three-card grid.
@@ -108,9 +119,11 @@ Portofolio/
 ├── frontend/
 │   ├── public/
 │   │   ├── forge/
+│   │   ├── galaxy/photoreal/
 │   │   └── projects/
 │   └── src/
 │       ├── motion/
+│       ├── pages/Galaxy/
 │       ├── reusable/
 │       ├── ArchitectureStory.jsx
 │       ├── LivingForge.jsx
@@ -219,7 +232,7 @@ Current known engineering debt is tracked in:
 
 ## Development status
 
-The integration branch contains Galaxy G1 and the backend-focused homepage. Merge and production verification are gated on automated checks and actual desktop, laptop, and mobile browser verification. See `docs/PROJECT_STATE.md` for the current verified status.
+The backend-focused homepage and the current Galaxy solar-system route are deployed from `master`. Galaxy releases are gated by unit/integration checks, lint/build, desktop/laptop/phone browser captures, explicit local image-response verification and Vercel commit status. Physical-device GPU frame-time/touch checks are tracked separately because headless Chromium cannot prove them. See `docs/PROJECT_STATE.md` and `docs/GALAXY_NEXT_PHASES.md` for the verified state and remaining manual checks.
 
 ---
 
