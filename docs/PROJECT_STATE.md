@@ -1,5 +1,13 @@
 # PROJECT_STATE
 
+## Active G2R.16 — focused world-orbit/UI cleanup (2026-10-05)
+
+- **Production baseline:** Mercury / Skills PR #17 merged into `master` as `6c710da9c97ed25e9dfa3ec15ac7946d0d6caf51`; exact post-merge frontend [CI 37327445720](https://github.com/SanamRai001/Portofolio/actions/runs/37327445720) **passed** and matching Vercel commit status succeeded. Mercury browser evidence remains run 37218653139 / artifact 11309456482.
+- **User-reported issue reconciled:** planetary **rotation and revolution are already functioning** after PR #13: overview 100%, hover 82%, selected 65%; globe yaw and world-root position move independently; Pause/reduced/offscreen/static modes stop ambient motion intentionally. Four orbital `LineLoop` tracks still use the exact same `orbitPosition()` function as simulation and remain .48 opacity in overview.
+- **Actual remaining visual problem:** focused phone Skills captures showed long WORLD-scale orbit traces cutting near the `SKILLS` heading. This is presentation overlap, not stopped orbit physics. Branch `fix/galaxy-focused-orbit-ui-cleanup`, draft PR #18, fades only WORLD tracks while focused: desktop selected/other .18/.055, portrait .06/.012. Skills-local three satellite rings remain .20. No geometry, RAF, camera path, or orbit rate is changed.
+- **Tests:** initial assertion incorrectly expected the eased internal orbit rate to snap immediately to .65; corrected to verify settling and real root movement. Final code head before docs `35b360f9` passed full frontend CI in runs 37328238905 and 37328252018. Browser visual proof is running; do not merge until focused phone/desktop captures and overview visibility are inspected.
+- **Remaining after this phase:** G2R.16 all-world visual/system QA across desktop/laptop/phone normal+reduced, then G2R.17 release/attribution and physical integrated-GPU/real-phone FPS/touch checks. Canonical checklist: `docs/GALAXY_NEXT_PHASES.md`; motion mechanics: `docs/GALAXY_MOTION_AUDIT.md`.
+
 ## Verified feature branch — G2R.15 Mercury / Skills realism (2026-10-04; owner signoff pending)
 
 - **Ancestry:** verified production `master` `db615cff` after motion/orbit correction PR #13, Mars PR #15 and roadmap PR #16. Branch `feat/galaxy-mercury-skills-realism`. Keep older standalone Mars alternatives closed and do not overwrite merged motion fixes.
