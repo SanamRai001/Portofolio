@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import { createNavigationController } from './navigation/NavigationController.js'
 import {
   GALAXY_ROOT,
@@ -151,4 +152,10 @@ test('invalid Galaxy subpaths fail closed to the system overview', () => {
   assert.equal(navigation.getSnapshot().mode, 'overview')
 
   dispose()
+})
+
+test('Vercel serves Galaxy deep links through the SPA entry', async () => {
+  const config = JSON.parse(await readFile(new URL('../../../vercel.json', import.meta.url), 'utf8'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/galaxy' && rule.destination === '/index.html'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/galaxy/:path*' && rule.destination === '/index.html'))
 })
