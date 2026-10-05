@@ -11,7 +11,8 @@
     "seed:users": "node data/seedUser.js",
     "migrate:passwords": "node data/migrateLegacyPasswords.js --dry-run",
     "migrate:passwords:apply": "node data/migrateLegacyPasswords.js --apply",
-    "test:backend-lab": "node --test utils/systemConfigInput.test.js"
+    "test:backend-lab": "node --test utils/systemConfigInput.test.js",
+    "seed:demo-viewer": "node data/seedUser.js"
   },
   "author": "",
   "license": "ISC",
