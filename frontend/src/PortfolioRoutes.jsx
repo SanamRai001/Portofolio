@@ -28,7 +28,8 @@ class RouteBoundary extends Component {
 // Native document navigation preserves normal links, back/forward and homepage
 // hash navigation. Only the selected experience (including its CSS) is imported.
 export default function PortfolioRoutes() {
-  const galaxy = window.location.pathname.replace(/\/+$/, '') === '/galaxy'
+  const pathname = window.location.pathname.replace(/\/+$/, '') || '/'
+  const galaxy = pathname === '/galaxy' || pathname.startsWith('/galaxy/')
   return (
     <RouteBoundary>
       <Suspense fallback={
