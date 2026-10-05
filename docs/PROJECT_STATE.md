@@ -1,5 +1,16 @@
 # PROJECT_STATE
 
+## Active — demo viewer login recovery seed (2026-10-05)
+
+- **Problem:** the portfolio can be locked behind the Backend Lab auth toggle when the MongoDB demo viewer is missing, inactive, or has a stale password, even though the UI advertises `viewer@portfolio.dev / viewer123`.
+- **Existing behavior found:** `backend/data/seedUser.js` already targeted that viewer, but it executed on import and had no focused regression test proving the exact public-login contract.
+- **Fix branch:** `fix/demo-viewer-seed` from production `master` `fd4944f7`.
+- **Seed contract:** `seedDemoViewer()` idempotently upserts `viewer@portfolio.dev`, forces role `viewer`, reactivates the account, and writes a bcrypt hash generated through the shared password utility. It never stores the plaintext password in MongoDB.
+- **Recovery command:** from `backend/`, run `npm run seed:demo-viewer` (existing `npm run seed:users` remains compatible). The script uses `DB_URI`, prints whether the viewer was created or repaired, and closes the Mongo connection.
+- **Security boundary:** startup cleanup still only deactivates the historical privileged `admin@portfolio.dev` / `superadmin@portfolio.dev` seed accounts. The low-privilege public viewer is intentionally not touched.
+- **Tests:** `backend/data/seedUser.test.js` locks the exact UI credentials, upsert/reactivation payload and hashed-password behavior so the frontend demo credentials and Mongo recovery path cannot silently drift.
+- **Acceptance:** backend test workflow green; then seed once against the intended MongoDB database and verify `POST /api/auth/login` succeeds with the displayed viewer credentials while auth is enabled.
+
 ## Production verified — G2R.16 motion/orbit readability and focused UI (2026-10-05)
 
 - **Merged:** PR #18 `fix/galaxy-focused-orbit-ui-cleanup` into `master` at `69b6bedc5de15a9ca77151b20e9e2bd846c7693b`. Exact post-merge [CI 37329770084](https://github.com/SanamRai001/Portofolio/actions/runs/37329770084) **passed**; matching Vercel deployment status succeeded.
