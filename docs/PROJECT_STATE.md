@@ -1,6 +1,20 @@
 # PROJECT_STATE
 
-## Verified feature branch — G2R.16 focused world-orbit/UI cleanup (2026-10-05; merge pending)
+## Production verified — G2R.16 motion/orbit readability and focused UI (2026-10-05)
+
+- **Merged:** PR #18 `fix/galaxy-focused-orbit-ui-cleanup` into `master` at `69b6bedc5de15a9ca77151b20e9e2bd846c7693b`. Exact post-merge [CI 37329770084](https://github.com/SanamRai001/Portofolio/actions/runs/37329770084) **passed**; matching Vercel deployment status succeeded.
+- **Motion truth:** PR #13 remains authoritative for mechanics: overview revolution 100%, hover 82%, selected 65%; each globe's axial rotation is independent; Pause/reduced/offscreen/static modes intentionally freeze ambient motion. The four world orbit paths are stationary loci generated with the same `orbitPosition()` function as the simulation.
+- **Final orbit presentation:** overview world tracks remain #9cacbf / .48; focused desktop selected/other .18/.055; focused phone .06/.012. This removes global-line competition with portfolio headings without changing geometry or revolution. Skills-local satellite rings remain .20.
+- **Browser proof:** [Galaxy run 37328241293](https://github.com/SanamRai001/Portofolio/actions/runs/37328241293), artifact `11353685738`, passed desktop/laptop/phone reduced and desktop/phone normal captures with empty error arrays plus four portal scenarios. Earth/Mars/Mercury/Saturn local imagery returned HTTP 200 with expected image types. Focused phone Skills and overview screenshots were inspected directly.
+- **Runtime Galaxy status:** Earth, Sun, Saturn, motion/orbits, Mars, Mercury and focused-orbit cleanup are merged and production-verified. No further renderer/navigation phase is pending in G2R.
+- **Manual limits:** headless Chromium does not prove real integrated-GPU frame times, thermal behavior or physical-phone touch. Optional ~140-second Mars full-turn seam proof is also not part of the normal capture run.
+
+## Active G2R.17 — release documentation and handoff (2026-10-05)
+
+- Branch `docs/galaxy-g2r17-release-handoff` is documentation-only. It reconciles the stale README Galaxy-G1 description, current NASA-vs-Solar-System-Scope attribution, PROJECT_STATE and the remaining roadmap. No frontend/backend/runtime/workflow behavior changes.
+- Acceptance: frontend CI must remain green, Vercel commit status must succeed after merge, and `.github/workflows/galaxy-visual-capture.yml` must remain identical to production. After that, only the manual device checks above remain; future G3 content is a separately approved scope.
+
+## Historical pre-merge proof — G2R.16 focused world-orbit/UI cleanup (2026-10-05)
 
 - **Production baseline:** Mercury / Skills PR #17 merged into `master` as `6c710da9c97ed25e9dfa3ec15ac7946d0d6caf51`; exact post-merge frontend [CI 37327445720](https://github.com/SanamRai001/Portofolio/actions/runs/37327445720) **passed** and matching Vercel commit status succeeded. Mercury browser evidence remains run 37218653139 / artifact 11309456482.
 - **User-reported issue reconciled:** planetary **rotation and revolution are already functioning** after PR #13: overview 100%, hover 82%, selected 65%; globe yaw and world-root position move independently; Pause/reduced/offscreen/static modes stop ambient motion intentionally. Four orbital `LineLoop` tracks still use the exact same `orbitPosition()` function as simulation and remain .48 opacity in overview.
@@ -8,7 +22,7 @@
 - **Tests and browser proof:** initial assertion incorrectly expected the eased internal orbit rate to snap immediately to .65; corrected to verify settling and real root movement. Code head `35b360f9` passed full frontend CI in runs 37328238905 and 37328252018. [Galaxy Visual Capture 37328241293](https://github.com/SanamRai001/Portofolio/actions/runs/37328241293) **passed**, artifact `11353685738`: desktop/laptop/phone reduced plus desktop/phone normal-motion cases had empty error arrays; all four portal handoffs passed. Earth/Mars/Mercury/Saturn local images returned HTTP 200 with expected types. Inspected phone Skills normal/reduced after focus fade and phone overview; global tracks no longer compete with heading/copy, local Skills rings remain visible, and overview still shows all four paths. Comparison image in conversation: `galaxy-g2r16-phone-skills-before-after.png`.
 - **Remaining after this phase:** G2R.16 all-world visual/system QA across desktop/laptop/phone normal+reduced, then G2R.17 release/attribution and physical integrated-GPU/real-phone FPS/touch checks. Canonical checklist: `docs/GALAXY_NEXT_PHASES.md`; motion mechanics: `docs/GALAXY_MOTION_AUDIT.md`.
 
-## Verified feature branch — G2R.15 Mercury / Skills realism (2026-10-04; owner signoff pending)
+## Historical pre-merge proof — G2R.15 Mercury / Skills realism (2026-10-04)
 
 - **Ancestry:** verified production `master` `db615cff` after motion/orbit correction PR #13, Mars PR #15 and roadmap PR #16. Branch `feat/galaxy-mercury-skills-realism`. Keep older standalone Mars alternatives closed and do not overwrite merged motion fixes.
 - **Scope:** use credited local 2K Mercury atlas with a faint neutral grey-brown adjustment, sharp directional terminator, desktop-only subtle actual-albedo contrast, no atmosphere or fake metallic relief. Deterministic nonmetallic fallback until JPEG 200; mobile avoids high-quality extra samples. See `docs/GALAXY_MERCURY_REALISM.md`.
