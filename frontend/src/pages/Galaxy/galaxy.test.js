@@ -211,6 +211,16 @@ test('G2R.14 motion: visible orbital tracks match actual planetary revolution, i
   system.setInteraction({ selectedBodyId: 'identity', hoveredBodyId: null }, true)
   assert.equal(system.group.getObjectByName('orbit-identity').material.opacity, SOLAR_STYLE.orbitFocusedOpacity)
   assert.equal(system.group.getObjectByName('orbit-projects').material.opacity, SOLAR_STYLE.orbitMutedOpacity)
+  assert.equal(system.simulation.rate('identity'), .65, 'visual focus cleanup must not stop revolution')
+
+  // Portrait focus is deliberately cleaner because long world tracks cross
+  // headings in the narrow Skills composition. Geometry and motion stay real.
+  system.resize(true)
+  assert.equal(system.group.getObjectByName('orbit-identity').material.opacity, SOLAR_STYLE.orbitFocusedPortraitOpacity)
+  assert.equal(system.group.getObjectByName('orbit-projects').material.opacity, SOLAR_STYLE.orbitMutedPortraitOpacity)
+  assert.ok(SOLAR_STYLE.orbitFocusedPortraitOpacity < SOLAR_STYLE.orbitFocusedOpacity)
+  assert.ok(SOLAR_STYLE.orbitMutedPortraitOpacity < SOLAR_STYLE.orbitMutedOpacity)
+  system.resize(false)
   const before = new Map(PLANETS.map(body => [body.id, {
     world: system.bodies.get(body.id).position.clone(),
     yaw: system.targets.get(body.id).visuals.getObjectByName(body.id + '-surface').rotation.y,
@@ -235,6 +245,37 @@ test('G2R.14 motion: visible orbital tracks match actual planetary revolution, i
   })
   const scene = new Scene()
   scene.add(system.group)
+  system.dispose()
+  disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
+})
+
+test('G2R.16 focused world-orbit fade leaves Skills-local orbital toolkit readable', () => {
+  const system = createSolarSystem({ lowPower: true })
+  system.resize(true)
+  system.setInteraction({
+    selectedBodyId: 'skills', hoveredBodyId: null, mode: 'body_focused',
+    selectedSkillId: null, hoveredSkillId: null,
+  }, true)
+
+  const world = system.group.getObjectByName('orbit-skills')
+  assert.equal(world.material.opacity, SOLAR_STYLE.orbitFocusedPortraitOpacity)
+  assert.equal(system.simulation.rate('skills'), .65)
+
+  const local = system.targets.get('skills').visuals.getObjectByName('skills-satellites')
+    .children.filter(child => child.isLineLoop)
+  assert.equal(local.length, 3)
+  assert.ok(local.every(line => line.material.opacity === .2),
+    'world-orbit cleanup must not dim Skills-local satellite rings')
+
+  system.setInteraction({
+    selectedBodyId: null, hoveredBodyId: null, mode: 'overview',
+    selectedSkillId: null, hoveredSkillId: null,
+  }, true)
+  for (const body of PLANETS) {
+    assert.equal(system.group.getObjectByName('orbit-' + body.id).material.opacity, SOLAR_STYLE.orbitOpacity)
+  }
+
+  const scene = new Scene(); scene.add(system.group)
   system.dispose()
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 })

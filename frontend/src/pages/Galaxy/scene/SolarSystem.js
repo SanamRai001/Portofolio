@@ -28,6 +28,16 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
   const presentations = new Map()
   let hovered = null, selected = null, portrait = false
   const visualScale = id => (selected ? 1 : portrait ? SOLAR_STYLE.mobileOverviewBodyScale : SOLAR_STYLE.overviewBodyScale) * (id === hovered ? 1.02 : 1)
+  const worldOrbitOpacity = id => {
+    if (!selected) return SOLAR_STYLE.orbitOpacity
+    if (portrait) return id === selected
+      ? SOLAR_STYLE.orbitFocusedPortraitOpacity
+      : SOLAR_STYLE.orbitMutedPortraitOpacity
+    return id === selected ? SOLAR_STYLE.orbitFocusedOpacity : SOLAR_STYLE.orbitMutedOpacity
+  }
+  function syncWorldOrbitPresentation() {
+    for (const body of PLANETS) orbits.get(body.id).material.opacity = worldOrbitOpacity(body.id)
+  }
   function register(body, visuals) {
     const root = new Group(), focusAnchor = new Object3D()
     root.name = body.id
@@ -86,9 +96,7 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
         presentations.get(body.id)?.setSelection?.(state, instant)
         presentations.get(body.id)?.setInteraction?.(hovered === body.id, state.selectedBodyId === body.id, instant)
         simulation.setRate(body.id, orbitRateTarget(body.id, state))
-        orbits.get(body.id).material.opacity = state.selectedBodyId
-          ? state.selectedBodyId === body.id ? SOLAR_STYLE.orbitFocusedOpacity : SOLAR_STYLE.orbitMutedOpacity
-          : SOLAR_STYLE.orbitOpacity
+        orbits.get(body.id).material.opacity = worldOrbitOpacity(body.id)
       }
       if (instant) targets.forEach((body, id) => body.visuals.scale.setScalar(visualScale(id)))
     },
@@ -96,6 +104,9 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
       portrait = isPortrait
       bodies.forEach(body => body.scale.setScalar(portrait ? SOLAR_STYLE.mobileBodyScale : 1))
       targets.forEach((body, id) => body.visuals.scale.setScalar(visualScale(id)))
+      // A responsive resize can happen while focused. Recompute only material
+      // alpha; never touch geometry or orbit simulation state.
+      syncWorldOrbitPresentation()
     },
     update(delta, animate = true) {
       sun.update(delta, animate)
