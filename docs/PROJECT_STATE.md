@@ -9,10 +9,14 @@
 - **Runtime Galaxy status:** Earth, Sun, Saturn, motion/orbits, Mars, Mercury and focused-orbit cleanup are merged and production-verified. No further renderer/navigation phase is pending in G2R.
 - **Manual limits:** headless Chromium does not prove real integrated-GPU frame times, thermal behavior or physical-phone touch. Optional ~140-second Mars full-turn seam proof is also not part of the normal capture run.
 
-## Active G2R.17 — release documentation and handoff (2026-10-05)
+## Production verified — G2R.17 release documentation and handoff (2026-10-05)
 
-- Branch `docs/galaxy-g2r17-release-handoff` is documentation-only. It reconciles the stale README Galaxy-G1 description, current NASA-vs-Solar-System-Scope attribution, PROJECT_STATE and the remaining roadmap. No frontend/backend/runtime/workflow behavior changes.
-- Acceptance: frontend CI must remain green, Vercel commit status must succeed after merge, and `.github/workflows/galaxy-visual-capture.yml` must remain identical to production. After that, only the manual device checks above remain; future G3 content is a separately approved scope.
+- **Merged:** PR #19 `docs/galaxy-g2r17-release-handoff` into `master` at `4ee1dc876f5313a4adb0f23c01ab687de888738e`. Matching Vercel commit status succeeded.
+- **Docs reconciled:** README now describes the deployed Galaxy instead of the old G1-only foundation, attribution distinguishes NASA Earth imagery from the locally credited Solar System Scope maps, and this state log plus `GALAXY_NEXT_PHASES.md` describe the real production baseline.
+- **CI behavior:** this was a docs-only merge. `.github/workflows/frontend-auth-runtime-tests.yml` intentionally triggers only for `frontend/**` or its own workflow file, so no redundant frontend Action run is expected for PR #19 / merge `4ee1dc8`. Runtime correctness remains backed by the exact G2R.16 production CI `37329770084` and browser capture `37328241293`.
+- **Release state:** G2R runtime work is complete. Rotation/revolution/orbit-path behavior is documented in `docs/GALAXY_MOTION_AUDIT.md`; the canonical completed-phase/manual-check list is `docs/GALAXY_NEXT_PHASES.md`.
+- **Only remaining manual checks:** physical integrated-GPU laptop frame pacing/thermals, real-phone FPS/touch behavior, and the optional ~140-second Mars full-turn seam sweep. These are verification tasks, not unimplemented renderer/navigation phases.
+- **Next product work:** G3 and beyond must begin as a separately approved scope rather than being mixed into G2R cleanup.
 
 ## Historical pre-merge proof — G2R.16 focused world-orbit/UI cleanup (2026-10-05)
 
