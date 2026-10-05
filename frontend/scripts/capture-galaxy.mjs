@@ -94,6 +94,24 @@ function watchMarsTextureResponse(page) {
   }
 }
 
+// Prove the Skills globe uses the actual locally credited Mercury atlas.
+// A successful WebGL fallback is NOT evidence that the photographic map loaded.
+function watchMercuryTextureResponse(page) {
+  const path = GALAXY_TEXTURES.skills
+  let found = null
+  page.on('response', response => {
+    if (new URL(response.url()).pathname === path) {
+      found = { path, status: response.status(), type: response.headers()['content-type'] || '' }
+    }
+  })
+  return () => {
+    if (!found || found.status !== 200 || !found.type.toLowerCase().startsWith('image/jpeg')) {
+      throw new Error('Mercury photographic atlas missing/invalid: ' + JSON.stringify(found || path))
+    }
+    return found
+  }
+}
+
 function attachErrors(page, errors) {
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => {
@@ -141,18 +159,25 @@ try {
     attachErrors(page, errors)
     const verifyEarthAssets = watchEarthTextureResponses(page, view.mobile)
     const verifyMarsAsset = watchMarsTextureResponse(page)
+    const verifyMercuryAsset = watchMercuryTextureResponse(page)
     const verifySaturnAsset = watchSaturnTextureResponse(page)
 
     try {
       await openGalaxy(page)
       const earthAssets = verifyEarthAssets()
       const marsAsset = verifyMarsAsset()
+      const mercuryAsset = verifyMercuryAsset()
       const saturnAsset = verifySaturnAsset()
       await page.screenshot({ path: `${output}/${view.name}-overview.png`, fullPage: true })
       await selectBody(page, 'Identity')
       await page.screenshot({ path: `${output}/${view.name}-identity-reduced.png`, fullPage: true })
       await selectBody(page, 'Projects')
       await page.screenshot({ path: `${output}/${view.name}-projects.png`, fullPage: true })
+      // Mercury also needs direct reduced-motion focus proof; previous visual
+      // captures only recorded its normal-motion pass through rotatingBodies.
+      await selectBody(page, 'Skills')
+      await page.waitForTimeout(350)
+      await page.screenshot({ path: `${output}/${view.name}-skills-reduced.png`, fullPage: true })
       await selectBody(page, 'Core')
       await page.locator('.CoreIdentity.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-core-immediate.png`, fullPage: true })
@@ -179,7 +204,7 @@ try {
       }))
       if (layout.documentWidth > layout.width + 1) errors.push(`Horizontal overflow: ${layout.documentWidth} > ${layout.width}`)
       if (!layout.canvasWidth || !layout.canvasHeight) errors.push('Blank canvas dimensions')
-      results.push({ view, layout, earthAssets, saturnAsset, marsAsset, errors })
+      results.push({ view, layout, earthAssets, saturnAsset, marsAsset, mercuryAsset, errors })
     } catch (error) {
       results.push({ view, errors: [...errors, error.message] })
     } finally {
@@ -198,10 +223,12 @@ try {
     attachErrors(page, errors)
     const verifyEarthAssets = watchEarthTextureResponses(page, view.mobile)
     const verifyMarsAsset = watchMarsTextureResponse(page)
+    const verifyMercuryAsset = watchMercuryTextureResponse(page)
     try {
       await openGalaxy(page)
       const earthAssets = verifyEarthAssets()
       const marsAsset = verifyMarsAsset()
+      const mercuryAsset = verifyMercuryAsset()
       // G2R.5: normal-motion overview is essential for comparing near/far
       // star depth; reduced-motion overview is already captured above.
       await page.screenshot({ path: `${output}/${view.name}-overview-normal.png`, fullPage: true })
@@ -226,7 +253,7 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-start.png`, fullPage: true })
       await page.waitForTimeout(8_000)
       await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-after-8s.png`, fullPage: true })
-      results.push({ view: `${view.name} normal-motion hero Sun, primary planets + black hole`, bodies: ['Core', ...rotatingBodies, 'Black Hole'], earthAssets, marsAsset, sampleSeconds: 8, errors })
+      results.push({ view: `${view.name} normal-motion hero Sun, primary planets + black hole`, bodies: ['Core', ...rotatingBodies, 'Black Hole'], earthAssets, marsAsset, mercuryAsset, sampleSeconds: 8, errors })
     } catch (error) {
       results.push({ view: `${view.name} normal-motion primary planets`, errors: [...errors, error.message] })
     } finally {

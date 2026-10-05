@@ -2,21 +2,30 @@ import { BoxGeometry, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh, 
 import { SKILL_NODES, SKILL_ORBITS } from '../data/skills.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
 import { GALAXY_TEXTURES } from '../data/photorealAssets.js'
-import { createAuthoredSurfaceController, installAuthoredSurfaceMap } from './PlanetLayers.js'
+import { createAuthoredSurfaceController } from './PlanetLayers.js'
+import { createMercurySurfaceMaterial } from './MercuryRealism.js'
 import { createOrbitSimulation, orbitPosition } from '../utils/orbits.js'
 import { createCelestialBody } from './CelestialBody.js'
 
 export function createSkillsPlanet(body, lowPower, onSurfaceReady = () => {}) {
   const group = createCelestialBody(body, lowPower), constellation = new Group()
   const surface = group.getObjectByName(`${body.id}-surface`)
+  // Complete nonmetallic fallback until the credited Mercury atlas loads.
+  // The old generic "engineered" planet had metallic response; Mercury's
+  // regolith and crater plains have no shiny alloy-like surface.
+  surface.material.roughness = .98
+  surface.material.metalness = 0
+  surface.material.color.set('#aca49a')
   const authored = typeof document === 'undefined' ? null : createAuthoredSurfaceController({
     surface,
     path: GALAXY_TEXTURES.skills,
     onReady: onSurfaceReady,
     configure(map) {
-      installAuthoredSurfaceMap(surface, map, {
-        roughness: .94, metalness: .015, bumpScale: body.radius * .0028,
-      })
+      // Upgrade only after the real JPEG loads; failure preserves the visible
+      // fallback mesh. Scene disposal owns the successful texture uniform.
+      const oldMaterial = surface.material
+      surface.material = createMercurySurfaceMaterial(lowPower, map)
+      oldMaterial.dispose()
     },
   })
   const rotation = createAxialRotation(surface, body.rotation)
