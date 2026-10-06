@@ -1,15 +1,23 @@
 # PROJECT_STATE
 
-## Active — G3C Skills capability system (2026-10-06)
+## Active — G3D Journey trajectory (2026-10-06)
 
-- **Production baseline:** G3B.2 adaptive cinematic soundscape is production-verified on `master`; this branch starts from the release-documentation baseline `acd357cb7eb9773e358880ce724a9ca45ab492c4`.
-- **Branch:** `feat/galaxy-g3c-skill-groups`.
-- **Design decision:** preserve the proven Mercury renderer, 10 technology satellites, three local orbits, one scene clock, picking, fallback, and camera behavior. G3C changes the information architecture rather than adding more objects.
-- **Capability model:** the existing three rings now mean `Runtime & APIs` (Node.js, TypeScript, Express), `Data & Persistence` (MySQL, PostgreSQL, MongoDB), and `System Delivery` (React, Architecture, Git/GitHub, Testing). Each satellite carries its capability-group identity and group color.
-- **Readable UI:** Skills is no longer presented as one flat 10-tool directory. The semantic panel groups technologies under the same three capability headings, explains what each ring represents, and keeps the existing per-technology focus details and native controls.
-- **3D/fallback parity:** WebGL and SVG fallback use the same three capability colors. The existing local-ring opacity stays exactly `.20`; G3C does not overwrite the G2R.16 focused-orbit readability contract.
-- **Scope boundary:** no new AI/LLM, infrastructure, cloud, language or framework claims are introduced just to fill a category. The grouping is derived only from skills already represented in the portfolio.
-- **Verification:** implementation head `d3d2d633fb52704a18a515376a347051f092b906` passed Frontend Auth Runtime Tests run `37409177479`; PR-head run `37409282253` also passed. Galaxy Visual Capture run `37409237339` passed end-to-end; artifact `11387908893` contains desktop/laptop/phone Skills captures plus normal-motion and portal regression evidence. `desktop-skills-reduced.png` and `phone-skills-reduced.png` were visually inspected: all three capability groups are legible, Mercury/satellites stay clear of content, phone stacks cleanly, and the run reported no horizontal overflow/browser errors. The temporary visual-workflow branch trigger was restored before merge review.
+- **Production baseline:** G3C Skills capability system merged into `master` as PR #27 at `8227e98575ccf90bb28984bde43b9a039092988d`; exact post-merge Frontend Auth Runtime Tests run `37409738268` passed and Vercel production status succeeded.
+- **Branch:** `feat/galaxy-g3d-journey-trajectory`.
+- **Story model:** Journey now represents five real progression stages: BIT foundation; QA internship at Danfe Solution; backend direction around Node/APIs/databases; MIH Group full-stack internship from Aug 2026; current personal research/systems exploration. Company work is described as work experience while StateScout / Reality Archive remain personal exploration.
+- **3D architecture:** Saturn keeps its authored surface, optical rings, axial spin and world revolution. G3D adds one fixed semantic arc outside the physical rings with five low-cost waypoint beacons. The waypoints do not orbit, preserving chronological order.
+- **Interaction:** Journey-local hover/selection lives in the shared navigation controller and interaction adapter. Selecting a waypoint changes only local Journey detail and never starts another camera transition. Waypoint hit meshes exist only after Journey arrival.
+- **Accessible content:** `JourneyContent.jsx` exposes the same five stages through native buttons and one semantic live detail region. Static/no-WebGL fallback mirrors the trajectory, marker selection and accessibility labels.
+- **Performance:** the first waypoint mesh design exceeded the strict sub-12k phone triangle ceiling; markers/hit targets were simplified to shared octahedron/box geometry. Full frontend CI then returned green while preserving the established Saturn renderer and G2R ring contracts.
+- **Verification state:** full deterministic frontend suite passed on `0b1b3286b092fb09f854ae46d3fe4a6e1f218f27`. Browser desktop/laptop/phone visual capture and portal regression are still required before merge.
+
+## Production verified — G3C Skills capability system (2026-10-06)
+
+- **Merged:** PR #27 into `master` at `8227e98575ccf90bb28984bde43b9a039092988d`.
+- **Production verification:** exact post-merge Frontend Auth Runtime Tests run `37409738268` passed and Vercel production status succeeded.
+- **Capability model:** the existing three Skills rings now mean Runtime & APIs, Data & Persistence, and System Delivery; all ten existing satellites keep their selection/orbit behavior.
+- **Readable UI/fallback:** the semantic Skills panel and SVG fallback use the same grouping/colors. Local ring opacity remains exactly `.20`, preserving G2R.16 readability.
+- **Pre-merge browser proof:** run `37409237339` / artifact `11387908893` passed desktop/laptop/phone and portal modes; desktop/phone Skills screenshots were inspected cleanly.
 ## Production verified — G3B.2 adaptive cinematic soundscape (2026-10-06)
 
 - **Merged:** PR #25 into `master` at `2c0e108ee1b563465c67765aee299b08de417a39`.
