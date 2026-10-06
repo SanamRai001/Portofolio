@@ -336,3 +336,19 @@
 @media(prefers-reduced-motion:reduce) {
  .ProjectCaseStudy { scroll-behavior:auto; }
 }
+
+
+/* G4B: semantic connections join existing worlds without adding 3D objects. */
+.GalaxySemanticLink { display:inline-flex; align-items:center; gap:8px; min-height:40px; border-bottom:1px solid #5e6170; color:#c8cad4; font:11px/1.5 ui-monospace,monospace; }
+.GalaxySemanticLink:hover { color:#f0e4d0; border-bottom-color:#c8a878; }
+.LabDetailLinks { display:flex; flex-wrap:wrap; align-items:center; gap:8px 22px; margin-top:18px; }
+.LabDetailLinks > a { margin-top:0; }
+.LabDetailLinks .GalaxySemanticLink { border-bottom-color:#71647f; color:#c9bbd5; }
+.LabDetailLinks .GalaxySemanticLink:hover { color:#fff4ff; border-bottom-color:#b894c5; }
+.JourneyConnections { margin-top:20px; padding-top:14px; border-top:1px solid #493f3d; }
+.JourneyConnections > div { display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:7px; }
+.JourneyConnections .GalaxySemanticLink { border-bottom-color:#806b60; color:#cfb9ac; }
+
+@media(max-width:760px) {
+ .LabDetailLinks, .JourneyConnections > div { align-items:flex-start; flex-direction:column; gap:4px; }
+}
