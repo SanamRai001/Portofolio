@@ -4,7 +4,7 @@ import { Scene } from 'three'
 import { createIdentityPlanet } from './scene/IdentityPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { PLANETS } from './data/solarSystem.js'
-import { IDENTITY_APPEARANCE as style } from './data/identity.js'
+import { IDENTITY, IDENTITY_APPEARANCE as style } from './data/identity.js'
 import { createIdentitySurfaceMaps, identityTerrain } from './utils/identitySurface.js'
 import { disposeScene } from './utils/disposeScene.js'
 const identity = PLANETS.find(body => body.id === 'identity')
@@ -12,6 +12,26 @@ function release(group) {
   const scene = new Scene(); scene.add(group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 }
+
+
+test('G3E Identity is a working model, not a duplicate biography', () => {
+  assert.equal(IDENTITY.title, 'How I approach difficult things.')
+  assert.deepEqual(
+    IDENTITY.principles.map(principle => principle.id),
+    ['trace', 'build', 'simplify'],
+  )
+  assert.deepEqual(
+    IDENTITY.learningStyle,
+    ['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat'],
+  )
+  assert.deepEqual(
+    IDENTITY.directions.map(direction => direction.label),
+    ['Backend & systems', 'AI & automation', 'Research & experiments'],
+  )
+  assert.equal('portrait' in IDENTITY, false)
+  assert.equal('metadata' in IDENTITY, false)
+  assert.equal('traits' in IDENTITY, false)
+})
 
 test('Identity terrain is deterministic, continuous, finite and has both land and ocean regions', () => {
   const samples = []
