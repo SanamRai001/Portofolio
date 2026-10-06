@@ -251,7 +251,13 @@ test('Identity arrives through the shared controller, shows a semantic learning 
     ['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat'],
   )
   assert.equal(identity().querySelectorAll('img').length, 0)
-  assert.match(identity().textContent, /Portrait signalImage pending/)
+  assert.equal(identity().querySelector('.IdentityPortrait'), null)
+  assert.deepEqual(
+    [...identity().querySelectorAll('.IdentityCompass strong')].map(node => node.textContent),
+    ['Logic', 'Systems', 'Exploration'],
+  )
+  assert.match(identity().querySelector('.IdentityCompass').getAttribute('aria-label'), /Current compass: Logic, Systems, Exploration/)
+  assert.doesNotMatch(identity().textContent, /Image pending|Portrait signal/)
   assert.doesNotMatch(
     identity().textContent,
     /Build • Scale • Solve|Backend-focused Full-Stack Developer/,
