@@ -253,7 +253,10 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-core.png`, fullPage: true })
       // G2R.6: retain the ring-focused reduced-motion evidence at each size.
       await selectBody(page, 'Journey')
+      await page.locator('.JourneyContent.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-journey-reduced.png`, fullPage: true })
+      await page.locator('.JourneyPath').getByRole('button', { name: /Production Systems/ }).click()
+      await page.screenshot({ path: `${output}/${view.name}-journey-production-systems.png`, fullPage: true })
 
       const layout = await page.evaluate(() => ({
         width: window.innerWidth,
