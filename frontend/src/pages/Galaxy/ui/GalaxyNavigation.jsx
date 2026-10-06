@@ -153,6 +153,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
     {identitySelected && <IdentityContent revealed={state.mode === 'body_focused'} onReturn={goBack} />}
     {skillsSelected && <SkillsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
     {projectsSelected && <ProjectsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
+    {journeySelected && <JourneyContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
 
     <div className="GalaxyTarget">
       {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
