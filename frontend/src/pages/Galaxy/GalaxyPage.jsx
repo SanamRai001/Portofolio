@@ -29,8 +29,10 @@ export default function GalaxyPage() {
   const onReady = useCallback(() => setReady(true), [])
   const onError = useCallback(() => {
     portal.cancel()
+    soundscape.disable()
+    setSoundEnabled(false)
     setFailed(true)
-  }, [portal])
+  }, [portal, soundscape])
   const fallback = failed
 
   useEffect(() => bindGalaxyHistory({ navigation }), [navigation])
