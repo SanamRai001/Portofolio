@@ -123,9 +123,13 @@ export function createCelestialBody(body, lowPower, { smoothRock = false, rings 
 }
 export function createLab(body) {
   const group = new Group()
-  group.add(new Mesh(new SphereGeometry(body.radius, 24, 12), new MeshBasicMaterial({ color: '#06050a' })))
-  group.add(ring(body.radius * 1.35, body.radius * 1.6, body.color, 0.48, 64))
-  group.add(shell(body.radius * 1.18, body.color, 0.35, 24))
+  const core = new Mesh(new SphereGeometry(body.radius, 24, 12), new MeshBasicMaterial({ color: '#06050a' }))
+  core.name = 'lab-core'
+  const scanner = ring(body.radius * 1.35, body.radius * 1.6, body.color, 0.48, 64)
+  scanner.name = 'lab-scan-ring'
+  const signal = shell(body.radius * 1.18, body.color, 0.35, 24)
+  signal.name = 'lab-signal-shell'
+  group.add(core, scanner, signal)
   group.position.fromArray(body.position)
   return group
 }
