@@ -232,7 +232,7 @@ test('Core reserves copy space, resizes into a stacked composition and clears it
     const mobileBounds = bounds()
     assert.ok(mobileBounds.left > -.9 && mobileBounds.right < .9)
     assert.ok(mobileBounds.top < .5 && mobileBounds.bottom > -.85)
-    h.nav.focusBody('projects')
+    h.nav.focusBody('lab')
     for (let i = 0; i < 85; i++) h.step()
     assert.equal(h.rig.camera.view?.enabled, false)
     h.nav.focusBody('core'); h.step(); h.nav.goBack()
@@ -258,7 +258,7 @@ test('Identity shares off-axis framing and stays clear of copy and mobile return
       const vertices = atmosphere.geometry.attributes.position
       const points = Array.from({ length: vertices.count }, (_, i) => new Vector3().fromBufferAttribute(vertices, i).applyMatrix4(atmosphere.matrixWorld).project(h.rig.camera))
       assert.ok(points.every(p => Number.isFinite(p.x) && p.x > -.95 && p.x < (viewport < 760 ? .95 : .06) && p.y > -.85 && p.y < (viewport < 760 ? .45 : .8)))
-      h.nav.focusBody('projects')
+      h.nav.focusBody('lab')
       for (let i = 0; i < 85; i++) h.step()
       assert.equal(h.rig.camera.view?.enabled, false)
       release(h.system)
@@ -294,7 +294,7 @@ test('Skills frames the whole constellation at desktop and mobile without moving
     assert.ok(h.rig.target.distanceTo(h.system.getAnchor('skills', new Vector3())) < 1e-8,
       'camera follows Skills as its root continues revolving')
     if (reduced) assert.ok(h.rig.camera.position.distanceTo(camera) < 1e-8)
-    h.nav.focusBody('projects')
+    h.nav.focusBody('lab')
     for (let i = 0; i < 85; i++) h.step()
     assert.equal(constellation.visible, false)
     assert.equal(h.rig.camera.view?.enabled, false)
