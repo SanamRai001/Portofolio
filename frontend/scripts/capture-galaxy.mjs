@@ -223,9 +223,11 @@ try {
         await page.screenshot({ path: `${output}/desktop-sound-active.png`, fullPage: true })
 
         await sound.click()
-        assert.equal(await sound.getAttribute('aria-pressed'), 'false')
+        await page.waitForFunction(() =>
+          document.querySelector('.GalaxySoundGlyph')?.getAttribute('aria-pressed') === 'false')
         await sound.click()
-        assert.equal(await sound.getAttribute('aria-pressed'), 'true')
+        await page.waitForFunction(() =>
+          document.querySelector('.GalaxySoundGlyph')?.getAttribute('aria-pressed') === 'true')
         assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 1,
           'mute/re-enable must reuse the existing AudioContext')
       }
