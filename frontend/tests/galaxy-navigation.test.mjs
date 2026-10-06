@@ -500,6 +500,10 @@ test('Journey exposes five real progression waypoints without starting another c
 
   assert.match(content().textContent, /MIH Group/)
   assert.match(content().textContent, /StateScout|Reality Archive/)
+  assert.deepEqual(
+    [...content().querySelectorAll('.JourneyConnections a')].map(link => link.getAttribute('href')),
+    ['/galaxy/projects/statescout', '/galaxy/projects/reality-archive'],
+  )
 
   await escape()
   assert.equal(content(), null)
@@ -559,6 +563,17 @@ test('Lab exposes four research questions without becoming another camera transi
     assert.match(content().querySelector('.LabDetail a').href, /github\.com\/SanamRai001\//)
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
+
+  await click(content().querySelector('.LabConsole button'))
+  assert.equal(navigation.getSnapshot().selectedLabId, 'state-space')
+  assert.equal(
+    content().querySelector('.LabDetail .GalaxySemanticLink').getAttribute('href'),
+    '/galaxy/projects/statescout',
+  )
+
+  await click(content().querySelectorAll('.LabConsole button')[2])
+  assert.equal(navigation.getSnapshot().selectedLabId, 'vector-reconstruction')
+  assert.equal(content().querySelector('.LabDetail .GalaxySemanticLink'), null)
 
   assert.match(content().textContent, /Current evidence/)
   assert.doesNotMatch(content().textContent, /Content locked/)
