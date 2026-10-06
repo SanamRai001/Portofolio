@@ -84,3 +84,22 @@ export function applyDocumentMetadata(metadata, doc = document) {
   setContent(doc, 'meta[name="twitter:description"]', metadata.description)
   setContent(doc, 'meta[name="twitter:image"]', metadata.image)
 }
+
+export function syncProjectStructuredData(project, doc = document) {
+  if (!doc) return
+  let node = doc.querySelector('script[data-galaxy-project]')
+
+  if (!project) {
+    node?.remove()
+    return
+  }
+
+  if (!node) {
+    node = doc.createElement('script')
+    node.type = 'application/ld+json'
+    doc.head.appendChild(node)
+  }
+
+  node.setAttribute('data-galaxy-project', project.id)
+  node.textContent = JSON.stringify(projectStructuredData(project))
+}
