@@ -315,10 +315,32 @@ try {
         )
       }
 
+      // G4C prerenders route-specific metadata into a static HTML entry before
+      // the React app runs. Vercel maps the canonical route to this file.
+      const prerenderResponse = await fetch(`${origin}/galaxy/projects/statescout/index.html`)
+      assert.equal(prerenderResponse.status, 200)
+      const prerenderHtml = await prerenderResponse.text()
+      assert.match(prerenderHtml, /<title>StateScout \| Engineering Case Study \| Sanam Rai<\/title>/)
+      assert.match(prerenderHtml, /<link rel="canonical" href="https:\/\/sanam-rai\.com\.np\/galaxy\/projects\/statescout" \/>/)
+      assert.match(prerenderHtml, /data-galaxy-project="statescout"/)
+
       // G4A defines project-detail URLs as first-class semantic routes.
       await page.goto(`${origin}/galaxy/projects/statescout`, { waitUntil: 'networkidle' })
       await page.locator('.ProjectCaseStudy').waitFor()
       assert.equal(new URL(page.url()).pathname, '/galaxy/projects/statescout')
+      assert.equal(await page.title(), 'StateScout | Engineering Case Study | Sanam Rai')
+      assert.equal(
+        await page.locator('link[rel="canonical"]').getAttribute('href'),
+        'https://sanam-rai.com.np/galaxy/projects/statescout',
+      )
+      assert.equal(
+        await page.locator('meta[property="og:type"]').getAttribute('content'),
+        'article',
+      )
+      assert.equal(
+        await page.locator('script[data-galaxy-project]').getAttribute('data-galaxy-project'),
+        'statescout',
+      )
       assert.equal(
         await page.locator('#project-case-title').textContent(),
         'StateScout',
@@ -353,11 +375,22 @@ try {
         projectHistoryLength + 1,
         'switching projects must replace the detail entry',
       )
+      assert.equal(await page.title(), 'Reality Archive | Engineering Case Study | Sanam Rai')
+      assert.equal(
+        await page.locator('link[rel="canonical"]').getAttribute('href'),
+        'https://sanam-rai.com.np/galaxy/projects/reality-archive',
+      )
+      assert.equal(
+        await page.locator('script[data-galaxy-project]').getAttribute('data-galaxy-project'),
+        'reality-archive',
+      )
 
       await page.goBack()
       await page.waitForURL(`${origin}/galaxy/projects`)
       await page.locator('.ProjectsContent.is-revealed').waitFor()
       assert.equal(await page.locator('.ProjectCaseStudy').count(), 0)
+      assert.equal(await page.title(), 'Galaxy | Sanam Rai')
+      assert.equal(await page.locator('script[data-galaxy-project]').count(), 0)
 
       await page.goForward()
       await page.waitForURL(`${origin}/galaxy/projects/reality-archive`)
