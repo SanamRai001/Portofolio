@@ -85,7 +85,10 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
   return {
     group, simulation, bodies, targets,
     dispose() { sun.dispose(); presentations.forEach(presentation => presentation.dispose?.()) },
-    get hitMeshes() { return [...targets.values()].map(body => body.interactionMesh).concat(presentations.get('skills').hitMeshes) },
+    get hitMeshes() {
+      return [...targets.values()].map(body => body.interactionMesh)
+        .concat(presentations.get('skills').hitMeshes, presentations.get('projects').hitMeshes)
+    },
     getAnchor(id, point) { return targets.get(id)?.focusAnchor.getWorldPosition(point) },
     setInteraction(state, instant = false) {
       hovered = state.hoveredBodyId
