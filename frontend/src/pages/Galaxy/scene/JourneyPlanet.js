@@ -1,4 +1,5 @@
 import {
+  BoxGeometry,
   BufferGeometry,
   Group,
   Line,
@@ -6,7 +7,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
-  SphereGeometry,
+  OctahedronGeometry,
   Vector3,
 } from 'three'
 import {
@@ -105,8 +106,8 @@ export function createJourneyPlanet(body, lowPower, onSurfaceReady = () => {}) {
 
   const nodes = new Map()
   const hitMeshes = []
-  const markerGeometry = new SphereGeometry(1, lowPower ? 8 : 12, lowPower ? 6 : 8)
-  const hitGeometry = new SphereGeometry(.28, 8, 6)
+  const markerGeometry = new OctahedronGeometry(1, 0)
+  const hitGeometry = new BoxGeometry(.5, .5, .5)
   const hitMaterial = new MeshBasicMaterial()
 
   for (const waypoint of JOURNEY_WAYPOINTS) {
