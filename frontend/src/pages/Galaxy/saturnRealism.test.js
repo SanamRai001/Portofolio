@@ -92,16 +92,18 @@ test('G2R.13 low tier remains one geometry and shader, never two legacy discs', 
   release(full); release(small)
 })
 
-test('G2R.13 Journey-only phone offset keeps the enlarged ring away from its heading', () => {
-  assert.equal(focusComposition(body, 1440), undefined, 'desktop remains on its original camera path')
+test('G3D Journey composition frames the trajectory beside readable content', () => {
+  const desktop = focusComposition(body, 1440)
+  assert.equal(desktop.x, -.44)
+  assert.equal(desktop.y, -.02)
+  assert.equal(desktop.heightFraction, .58)
+
   const mobile = focusComposition(body, 390)
   assert.equal(mobile.fov, 42)
-  assert.equal(mobile.heightFraction, .30)
-  assert.ok(mobile.x >= .17)
-  // Portrait focused WebGL canvas is 346px wide. A positive offset moves
-  // Saturn right by ~31px without growing the rings or weakening clearance.
-  assert.ok(mobile.x * 346 / 2 >= 30)
-  const radius = body.radius * 1.28
-  const d = Math.hypot(radius, radius / (Math.tan(mobile.fov * Math.PI / 360) * mobile.heightFraction))
-  assert.ok(d > 10 && d < 11, 'phone focus distance is consistent with the previous 8.2-unit close-up')
+  assert.equal(mobile.x, 0)
+  assert.equal(mobile.y, -.27)
+  assert.equal(mobile.heightFraction, .72)
+
+  assert.ok(body.focus.frameRadius > body.radius * body.ring[1],
+    'Journey frame must include the semantic trajectory outside Saturn rings')
 })
