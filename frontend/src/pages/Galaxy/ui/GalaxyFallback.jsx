@@ -9,7 +9,7 @@ import { getOverview, projectOverview } from '../utils/overview.js'
 import { seededRandom } from '../utils/random.js'
 const random = seededRandom(2709)
 const stars = Array.from({ length: 180 }, () => ({ x: random() * 1440, y: random() * 900, radius: 0.4 + random() * 0.9, opacity: 0.15 + random() * 0.6 }))
-export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width, selectedSkillId = null, hoveredSkillId = null, selectedProjectId = null, hoveredProjectId = null, onSkillSelect, onSkillHover, onProjectSelect, onProjectHover }) {
+export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width, selectedSkillId = null, hoveredSkillId = null, selectedProjectId = null, hoveredProjectId = null, onBodySelect, onBodyHover, onSkillSelect, onSkillHover, onProjectSelect, onProjectHover }) {
   const view = getOverview(width, height)
   const focused = SYSTEM_MAP.find(body => body.id === selectedBodyId)
   const composition = focused?.id === BLACK_HOLE.id ? { x: 0, y: 0, heightFraction: .32 } : focused ? focusComposition(focused, viewportWidth) : null
@@ -42,9 +42,10 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
     return { ...body, ...p, r: zoom * body.radius * (body.orbit ? view.bodyScale : 1) * height / (2 * view.tanY * p.depth) }
   }).sort((a, b) => b.depth - a.depth)
   const sunPosition = project([0, 0, 0])
+  function bodySignal(event) { return event.target.closest?.('[data-body]')?.getAttribute('data-body') || null }
   function skillSignal(event) { return event.target.closest?.('[data-skill]')?.getAttribute('data-skill') || null }
   function projectSignal(event) { return event.target.closest?.('[data-project]')?.getAttribute('data-project') || null }
-  return <svg onClick={event => { const skill = skillSignal(event), project = projectSignal(event); if (skill) onSkillSelect?.(skill); if (project) onProjectSelect?.(project) }} onPointerMove={event => { if (event.pointerType === 'touch') return; onSkillHover?.(skillSignal(event)); onProjectHover?.(projectSignal(event)) }} onPointerLeave={() => { onSkillHover?.(null); onProjectHover?.(null) }} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: ten technology satellites${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : projectsFocused ? `Projects: six project signals${selectedProjectId ? `, selected ${projectById(selectedProjectId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.name}, a fictional ocean world` : composition && focused.id === BLACK_HOLE.id ? 'Black Hole: fictional event horizon and accretion disk; portal inactive' : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab and black hole signal`}>
+  return <svg onClick={event => { const skill = skillSignal(event), project = projectSignal(event), body = bodySignal(event); if (skill) onSkillSelect?.(skill); else if (project) onProjectSelect?.(project); else if (body) onBodySelect?.(body) }} onPointerMove={event => { if (event.pointerType === 'touch') return; const skill = skillSignal(event), project = projectSignal(event); onSkillHover?.(skill); onProjectHover?.(project); onBodyHover?.(skill || project ? null : bodySignal(event)) }} onPointerLeave={() => { onBodyHover?.(null); onSkillHover?.(null); onProjectHover?.(null) }} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: ten technology satellites${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : projectsFocused ? `Projects: six project signals${selectedProjectId ? `, selected ${projectById(selectedProjectId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.name}, a fictional ocean world` : composition && focused.id === BLACK_HOLE.id ? 'Black Hole: fictional event horizon and accretion disk; portal inactive' : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab and black hole signal`}>
     <defs>
       {bodies.map(body => {
         const dx = sunPosition.x - body.x, dy = sunPosition.y - body.y, length = Math.hypot(dx, dy) || 1
@@ -111,6 +112,6 @@ export default function GalaxyFallback({ selectedBodyId, selectedSkillId, hovere
     <svg className="GalaxyStaticSky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       {stars.map((star, index) => <circle key={index} cx={star.x} cy={star.y} r={star.radius} fill="#e5e8ef" opacity={star.opacity} />)}
     </svg>
-    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} selectedSkillId={selectedSkillId} hoveredSkillId={hoveredSkillId} selectedProjectId={selectedProjectId} hoveredProjectId={hoveredProjectId} onSkillSelect={navigation?.selectSkill} onSkillHover={navigation?.setSkillHover} onProjectSelect={navigation?.selectProject} onProjectHover={navigation?.setProjectHover} />
+    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} selectedSkillId={selectedSkillId} hoveredSkillId={hoveredSkillId} selectedProjectId={selectedProjectId} hoveredProjectId={hoveredProjectId} onBodySelect={navigation?.focusBody} onBodyHover={navigation?.setHover} onSkillSelect={navigation?.selectSkill} onSkillHover={navigation?.setSkillHover} onProjectSelect={navigation?.selectProject} onProjectHover={navigation?.setProjectHover} />
   </div>
 }
