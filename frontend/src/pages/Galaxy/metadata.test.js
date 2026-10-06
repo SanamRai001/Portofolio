@@ -95,4 +95,9 @@ test('Vercel exact project rewrites stay aligned with all curated prerender page
 
   assert.ok(config.rewrites.some(rule =>
     rule.source === '/galaxy/:path*' && rule.destination === '/index.html'))
+
+  assert.deepEqual(config.git?.deploymentEnabled, {
+    '*': false,
+    master: true,
+  }, 'Vercel previews stay off while master retains automatic production deployment')
 })
