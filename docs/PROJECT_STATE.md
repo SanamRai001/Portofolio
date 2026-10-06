@@ -7,7 +7,7 @@
 - **Design decision:** keep Earth, Moon, atmosphere, clouds, camera composition and all motion untouched. Identity already has a strong world; G3E removes unfinished-looking content and reduces copy instead of adding another local constellation.
 - **Content refinement:** the former `Portrait signal / Image pending` placeholder is removed. A compact `Current compass` now expresses `Logic → Systems → Exploration`. Identity metadata is shortened to `BIT Graduate` / `Nepal`, and the think/learn/curiosity/trait copy is tightened while preserving the six-step learning loop.
 - **Separation from Core:** Identity remains the personal thinking/learning signal and intentionally does not repeat Core's professional role or `Build • Scale • Solve` tagline.
-- **Verification state:** deterministic frontend suite is running on the current branch head. Acceptance requires no portrait placeholder, semantic compass coverage, unchanged Earth renderer/motion tests, and clean desktop/laptop/phone Identity captures.
+- **Verification:** code head `69575221e5991340566e8b6cc2ccf50e1b46bfa6` passed full Frontend Auth Runtime Tests run `37416865733`; PR head `256e8d7deae25974ad65058dae0c539a02bc813f` passed run `37416988499`. Galaxy Visual Capture run `37416956144` passed; artifact `11392091336` contains desktop/laptop/phone Identity states plus normal-motion and portal proof. `desktop-identity-reduced.png` and `phone-identity-reduced.png` were visually inspected: the Current compass fits cleanly, the former portrait placeholder is gone, phone remains 390px document width with no horizontal overflow, and capture JSON reports zero browser errors. The temporary workflow branch trigger was restored before merge.
 
 ## Production verified — G3D Journey trajectory (2026-10-06)
 
