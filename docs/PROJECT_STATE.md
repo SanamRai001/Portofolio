@@ -1,16 +1,21 @@
 # PROJECT_STATE
 
-## Active — G3D Journey trajectory (2026-10-06)
+## Active — G3E restrained Identity refinement (2026-10-06)
 
-- **Production baseline:** G3C Skills capability system merged into `master` as PR #27 at `8227e98575ccf90bb28984bde43b9a039092988d`; exact post-merge Frontend Auth Runtime Tests run `37409738268` passed and Vercel production status succeeded.
-- **Branch:** `feat/galaxy-g3d-journey-trajectory`.
-- **Story model:** Journey now represents five real progression stages: BIT foundation; QA internship at Danfe Solution; backend direction around Node/APIs/databases; MIH Group full-stack internship from Aug 2026; current personal research/systems exploration. Company work is described as work experience while StateScout / Reality Archive remain personal exploration.
-- **3D architecture:** Saturn keeps its authored surface, optical rings, axial spin and world revolution. G3D adds one fixed semantic arc outside the physical rings with five low-cost waypoint beacons. The waypoints do not orbit, preserving chronological order.
-- **Interaction:** Journey-local hover/selection lives in the shared navigation controller and interaction adapter. Selecting a waypoint changes only local Journey detail and never starts another camera transition. Waypoint hit meshes exist only after Journey arrival.
-- **Accessible content:** `JourneyContent.jsx` exposes the same five stages through native buttons and one semantic live detail region. Static/no-WebGL fallback mirrors the trajectory, marker selection and accessibility labels.
-- **Performance:** the first waypoint mesh design exceeded the strict sub-12k phone triangle ceiling; markers/hit targets were simplified to shared octahedron/box geometry. Full frontend CI then returned green while preserving the established Saturn renderer and G2R ring contracts.
-- **Verification:** deterministic frontend suite passed on `0b1b3286b092fb09f854ae46d3fe4a6e1f218f27`; current capture/code head `02ceae74751e09d8ca693dcd38addbf5cc1c7bc5` passed push run `37410735814` and PR run `37410740268`. Galaxy Visual Capture run `37410735711` passed; artifact `11389391102` contains desktop/laptop/phone Journey views, selected Production Systems views, normal-motion samples, and portal proof. `desktop-journey-production-systems.png` and `phone-journey-production-systems.png` were visually inspected: Saturn/trajectory stays clear of text, all five waypoints remain legible, selected detail fits without horizontal overflow, and the capture JSON reports zero browser errors. Desktop/phone/phone-reduced portal scenarios all passed. The temporary workflow branch trigger was restored before merge.
+- **Production baseline:** G3D Journey trajectory merged into `master` as PR #28 at `6d642419f07eef0f006cc07be26f21fee84d3172`; exact post-merge Frontend Auth Runtime Tests run `37416593605` passed and Vercel production status succeeded.
+- **Branch:** `feat/galaxy-g3e-identity-refinement`.
+- **Design decision:** keep Earth, Moon, atmosphere, clouds, camera composition and all motion untouched. Identity already has a strong world; G3E removes unfinished-looking content and reduces copy instead of adding another local constellation.
+- **Content refinement:** the former `Portrait signal / Image pending` placeholder is removed. A compact `Current compass` now expresses `Logic → Systems → Exploration`. Identity metadata is shortened to `BIT Graduate` / `Nepal`, and the think/learn/curiosity/trait copy is tightened while preserving the six-step learning loop.
+- **Separation from Core:** Identity remains the personal thinking/learning signal and intentionally does not repeat Core's professional role or `Build • Scale • Solve` tagline.
+- **Verification state:** deterministic frontend suite is running on the current branch head. Acceptance requires no portrait placeholder, semantic compass coverage, unchanged Earth renderer/motion tests, and clean desktop/laptop/phone Identity captures.
 
+## Production verified — G3D Journey trajectory (2026-10-06)
+
+- **Merged:** PR #28 into `master` at `6d642419f07eef0f006cc07be26f21fee84d3172`.
+- **Production verification:** exact merge Frontend Auth Runtime Tests run `37416593605` passed and Vercel production status succeeded.
+- **Story/3D model:** five fixed progression waypoints outside Saturn's physical rings represent BIT foundation, Danfe QA internship, backend direction, MIH Group production experience and current personal research/exploration. Local selection never retargets the camera.
+- **Performance:** the final shared octahedron/box waypoint geometry preserves the strict sub-12k low-power triangle budget.
+- **Browser proof:** run `37410735711` / artifact `11389391102` passed desktop/laptop/phone Journey states, selected Production Systems views, normal-motion samples and all portal scenarios; desktop/phone screenshots were visually inspected cleanly with zero recorded browser errors.
 ## Production verified — G3C Skills capability system (2026-10-06)
 
 - **Merged:** PR #27 into `master` at `8227e98575ccf90bb28984bde43b9a039092988d`.
