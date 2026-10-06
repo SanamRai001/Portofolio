@@ -257,6 +257,11 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-journey-reduced.png`, fullPage: true })
       await page.locator('.JourneyPath').getByRole('button', { name: /Production Systems/ }).click()
       await page.screenshot({ path: `${output}/${view.name}-journey-production-systems.png`, fullPage: true })
+      await selectBody(page, 'The Lab')
+      await page.locator('.LabContent.is-revealed').waitFor()
+      await page.screenshot({ path: `${output}/${view.name}-lab-reduced.png`, fullPage: true })
+      await page.locator('.LabConsole').getByRole('button', { name: /Interface State Exploration/ }).click()
+      await page.screenshot({ path: `${output}/${view.name}-lab-state-space.png`, fullPage: true })
 
       const layout = await page.evaluate(() => ({
         width: window.innerWidth,

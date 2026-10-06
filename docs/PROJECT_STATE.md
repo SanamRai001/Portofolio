@@ -1,16 +1,22 @@
 # PROJECT_STATE
 
-## Active — G3E Identity working model (2026-10-06)
+## Active — G3F Lab research console (2026-10-06)
 
-- **Production baseline:** G3D Journey trajectory merged into `master` as PR #28 at `6d642419f07eef0f006cc07be26f21fee84d3172`; exact post-merge Frontend Auth Runtime Tests run `37416593605` passed and Vercel production status succeeded.
-- **Branch:** `feat/galaxy-g3e-identity-working-model`.
-- **Design decision:** Identity stays visually restrained. Earth, Moon, atmosphere, cloud layers, axial spin, world revolution, camera path, soundscape and fallback rendering are unchanged. G3E changes only the content hierarchy and presentation.
-- **Content model:** Identity now explains a working model instead of repeating Core. Three principles are explicit: trace before changing; build to understand; simplify after understanding. The six-step Learn → Build → Break → Understand → Fix → Repeat cycle remains. Three forward directions are Backend & systems, AI & automation, and Research & experiments.
-- **Removed redundancy:** the duplicated visible name/metadata block, generic trait cards, and the unfinished `Portrait signal / Image pending` placeholder are removed from Identity. Core remains the concise public identity anchor.
-- **Accessibility/fallback:** the semantic heading is now `How I approach difficult things.` and the static Earth fallback describes the same working-model destination. Return/focus behavior remains unchanged.
-- **Camera contract:** an initial layout tweak changed proven Earth framing and immediately failed G2R camera assertions; the values were reverted. Desktop composition remains x `-.46`, y `.08`, height fraction `.45`; mobile remains unchanged.
-- **Verification:** exact code head `327a49c6beaad5ac7028231b52b6159fa813e042` passed Frontend Auth Runtime Tests run `37423251207`; PR-head run `37423391134` also passed. Galaxy Visual Capture run `37423369142` passed end-to-end; artifact `11393529191` contains desktop/laptop/phone Identity captures, normal-motion samples, and portal proof. `desktop-identity-reduced.png` and `phone-identity-reduced.png` were visually inspected: Earth remains clear of copy, principles/learning/directions read cleanly, phone stacks without horizontal overflow, and the run reports zero browser errors with all expected planet assets returning HTTP 200. Desktop/phone/phone-reduced portal scenarios all passed. The temporary visual-workflow branch trigger was restored before merge.
+- **Code baseline:** G3E Identity working model merged into `master` as PR #30 at `ea29fdb4c78d2c237b26f081c067be13b23e4f8e`. Exact post-merge Frontend Auth Runtime Tests run `37423947062` passed. Vercel rejected the corresponding preview/production build because the project hit its build-rate quota; the target explicitly reports `build-rate-limit`, so this is tracked as an external deployment delay rather than a code failure.
+- **Branch:** `feat/galaxy-g3f-lab-research-console`.
+- **Product distinction:** Lab is not a second Projects world. Its content is four question-driven research threads grounded in active repositories: semantic UI-state exploration (StateScout), reality reconstruction (Reality Archive), vector reconstruction (ScanSketch), and low-compute expressive speech (Pocket TTS fork).
+- **3D architecture:** no new Lab objects are added. The existing dark core, single ring and signal shell are retained and named. A lightweight `LabBody` presentation retunes only ring/shell color and intensity to the hovered/selected experiment. The scanner pulse runs only while Lab is focused and shares the existing scene clock.
+- **Interaction:** Lab experiment selection/hover is local semantic state in `NavigationController`; it never creates a camera transition and adds no 3D hit meshes. Leaving Lab clears the local state.
+- **Fallback/accessibility:** `LabContent.jsx` exposes four native experiment controls, a live research detail region, evidence links and focus areas. Static SVG Lab uses the same selected signal color and accessible label. The old `Unknown signal · Content locked` contract is removed.
+- **Camera contract:** Lab now has an off-axis content composition. Old teardown tests that used Lab specifically as a no-composition world were correctly retargeted to Black Hole.
+- **Verification:** exact implementation head `1195d68628feef78ac0e24a309a97549fe497845` passed Frontend Auth Runtime Tests run `37424633075`; PR-head run `37424814329` also passed. Galaxy Visual Capture run `37424783348` passed end-to-end; artifact `11394951412` contains desktop/laptop/phone Lab views, selected Interface State Exploration views, normal-motion samples, and portal proof. `desktop-lab-state-space.png` and `phone-lab-state-space.png` were visually inspected: Lab stays visually distinct from Projects, selected scanner color is obvious without extra objects, the research console remains readable, phone stacks without horizontal overflow, and the capture reports zero browser errors with all expected planet assets returning HTTP 200. Desktop/phone/phone-reduced portal scenarios all passed. The temporary visual-workflow branch trigger was restored before merge.
 
+## Code verified — G3E Identity working model (2026-10-06)
+
+- **Merged:** PR #30 into `master` at `ea29fdb4c78d2c237b26f081c067be13b23e4f8e`.
+- **Verification:** pre-merge frontend/browser evidence passed (`37423251207`, `37423391134`, Galaxy capture `37423369142` / artifact `11393529191`); exact post-merge frontend run `37423947062` passed.
+- **Hosting note:** matching Vercel build was not executed because the project hit Vercel's build-rate limit. The live site may remain on the previous deployment until that quota window clears or a deployment is retried.
+- **Identity result:** Earth/Moon/camera/motion remain unchanged; visible duplicate biography/portrait placeholder was replaced with three engineering principles, the six-step learning loop, and three forward directions.
 ## Production verified — G3D Journey trajectory (2026-10-06)
 
 - **Merged:** PR #28 into `master` at `6d642419f07eef0f006cc07be26f21fee84d3172`.

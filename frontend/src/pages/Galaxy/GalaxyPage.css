@@ -265,3 +265,35 @@
  .JourneyDetail { min-height:255px; }
 }
 @media(prefers-reduced-motion:reduce) { .JourneyContent.is-revealed { animation:none; } }
+
+
+/* G3F: Lab is a research console, not a second Projects directory. */
+.LabContent { position:relative; z-index:2; width:46%; max-width:560px; margin:0 1% 0 auto; padding:64px 0 42px; visibility:hidden; opacity:0; }
+.LabContent.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
+.LabContent h2 { max-width:12ch; margin:14px 0 18px; font-size:clamp(32px,3.5vw,50px); font-weight:450; letter-spacing:-.045em; line-height:1.12; }
+.LabIntro { max-width:48ch; color:#bbb6c5; font-size:15px; line-height:1.8; }
+.LabConsole { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 18px; margin:26px 0; }
+.LabConsole button { display:grid; grid-template-columns:38px 1fr; gap:10px; align-items:start; min-width:0; min-height:66px; padding:12px 0; border:0; border-top:1px solid color-mix(in srgb,var(--lab-color) 45%,#302c38); background:none; color:#c9c4cf; text-align:left; font:inherit; cursor:pointer; }
+.LabConsole button > span:first-child { color:var(--lab-color); font:9px/1.7 ui-monospace,monospace; letter-spacing:.08em; }
+.LabConsole strong { display:block; color:#ddd7e4; font-size:12px; font-weight:520; line-height:1.45; }
+.LabConsole small { display:block; margin-top:4px; color:#8e8797; font-size:10px; line-height:1.45; text-transform:uppercase; letter-spacing:.04em; }
+.LabConsole button:hover, .LabConsole button:focus-visible, .LabConsole button[aria-pressed='true'] { border-top-color:var(--lab-color); }
+.LabConsole button[aria-pressed='true'] strong { color:#fff5ff; }
+.LabConsole button[aria-pressed='true'] > span:first-child { text-shadow:0 0 10px color-mix(in srgb,var(--lab-color) 55%,transparent); }
+.LabDetail { min-height:260px; padding:20px 0 0; border-top:1px solid #5d5368; }
+.LabDetail h3 { margin:9px 0; color:#eee6f4; font-size:27px; font-weight:450; letter-spacing:-.035em; }
+.LabQuestion { max-width:48ch; color:#ccc3d3 !important; font-size:15px !important; line-height:1.8 !important; }
+.LabEvidence { margin-top:12px; color:#9d96a8 !important; font:10px/1.6 ui-monospace,monospace !important; letter-spacing:.05em; text-transform:uppercase; }
+.LabEvidence strong { color:#c9bcd4; font-weight:500; }
+.LabDetail ul { display:flex; flex-wrap:wrap; gap:8px 18px; list-style:none; padding:0; margin:17px 0 0; color:#b4a9bf; font-size:12px; }
+.LabDetail li { padding-left:10px; border-left:1px solid #7d6b8d; }
+.LabDetail a { display:inline-flex; align-items:center; gap:10px; min-height:44px; margin-top:18px; border-bottom:1px solid #756681; color:#cabbd4; font-size:12px; }
+.LabDetail a:hover { color:#fff4ff; border-bottom-color:#b894c5; }
+@media(max-width:760px) {
+ .LabContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
+ .LabContent h2 { font-size:36px; }
+ .LabConsole { grid-template-columns:1fr; gap:0; }
+ .LabConsole button { min-height:58px; }
+ .LabDetail { min-height:250px; }
+}
+@media(prefers-reduced-motion:reduce) { .LabContent.is-revealed { animation:none; } }

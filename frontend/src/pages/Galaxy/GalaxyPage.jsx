@@ -118,7 +118,7 @@ export default function GalaxyPage() {
 
       <GalaxyNavigation navigation={navigation} portal={portal} staticView={fallback} reducedMotion={reducedMotion} onInteract={enableSoundFromInteraction}>
         {(selectedBodyId, state) => <>
-          {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} selectedProjectId={state.selectedProjectId} hoveredProjectId={state.hoveredProjectId} selectedJourneyId={state.selectedJourneyId} hoveredJourneyId={state.hoveredJourneyId} navigation={navigation} /> : <GalaxyScene navigation={navigation} portal={portal} paused={false} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
+          {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} selectedProjectId={state.selectedProjectId} hoveredProjectId={state.hoveredProjectId} selectedJourneyId={state.selectedJourneyId} hoveredJourneyId={state.hoveredJourneyId} selectedLabId={state.selectedLabId} hoveredLabId={state.hoveredLabId} navigation={navigation} /> : <GalaxyScene navigation={navigation} portal={portal} paused={false} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
           {!fallback && !ready && <p className="GalaxyLoading" role="status">Opening the solar system…</p>}
         </>}
       </GalaxyNavigation>

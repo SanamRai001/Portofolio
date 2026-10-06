@@ -4,13 +4,14 @@ import { SKILLS, SKILL_GROUPS, SKILL_NODES, SKILL_ORBITS, skillById } from '../d
 import { IDENTITY, IDENTITY_APPEARANCE } from '../data/identity.js'
 import { PROJECT_NODES, PROJECT_ORBITS, projectById } from '../data/projects.js'
 import { JOURNEY, JOURNEY_TRAJECTORY, JOURNEY_WAYPOINTS, journeyById } from '../data/journey.js'
+import { LAB_CONTENT, labExperimentById } from '../data/lab.js'
 import { SUN, PLANETS, LAB, BLACK_HOLE, SYSTEM_MAP } from '../data/solarSystem.js'
 import { orbitPosition } from '../utils/orbits.js'
 import { getOverview, projectOverview } from '../utils/overview.js'
 import { seededRandom } from '../utils/random.js'
 const random = seededRandom(2709)
 const stars = Array.from({ length: 180 }, () => ({ x: random() * 1440, y: random() * 900, radius: 0.4 + random() * 0.9, opacity: 0.15 + random() * 0.6 }))
-export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width, selectedSkillId = null, hoveredSkillId = null, selectedProjectId = null, hoveredProjectId = null, selectedJourneyId = null, hoveredJourneyId = null, onBodySelect, onBodyHover, onSkillSelect, onSkillHover, onProjectSelect, onProjectHover, onJourneySelect, onJourneyHover }) {
+export function SolarDiagram({ width, height, prefix, selectedBodyId = null, viewportWidth = width, selectedSkillId = null, hoveredSkillId = null, selectedProjectId = null, hoveredProjectId = null, selectedJourneyId = null, hoveredJourneyId = null, selectedLabId = null, hoveredLabId = null, onBodySelect, onBodyHover, onSkillSelect, onSkillHover, onProjectSelect, onProjectHover, onJourneySelect, onJourneyHover }) {
   const view = getOverview(width, height)
   const focused = SYSTEM_MAP.find(body => body.id === selectedBodyId)
   const composition = focused?.id === BLACK_HOLE.id ? { x: 0, y: 0, heightFraction: .32 } : focused ? focusComposition(focused, viewportWidth) : null
@@ -24,6 +25,8 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
   const skillsFocused = selectedBodyId === SKILLS.id
   const projectsFocused = selectedBodyId === 'projects'
   const journeyFocused = selectedBodyId === JOURNEY.id
+  const labFocused = selectedBodyId === LAB_CONTENT.id
+  const labSignal = labFocused && labExperimentById(hoveredLabId || selectedLabId)
   const skillsBody = PLANETS.find(body => body.id === SKILLS.id)
   const skillsPosition = orbitPosition(skillsBody.orbit)
   const nodePosition = orbit => orbitPosition(orbit).map((value, index) => value * view.bodyScale + skillsPosition[index])
@@ -59,7 +62,7 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
     const p = project(journeyPositionFor(phase))
     return `${index ? 'L' : 'M'}${p.x.toFixed(2)},${p.y.toFixed(2)}`
   }).join(' ') : ''
-  return <svg onClick={event => { const skill = skillSignal(event), project = projectSignal(event), journey = journeySignal(event), body = bodySignal(event); if (skill) onSkillSelect?.(skill); else if (project) onProjectSelect?.(project); else if (journey) onJourneySelect?.(journey); else if (body) onBodySelect?.(body) }} onPointerMove={event => { if (event.pointerType === 'touch') return; const skill = skillSignal(event), project = projectSignal(event), journey = journeySignal(event); onSkillHover?.(skill); onProjectHover?.(project); onJourneyHover?.(journey); onBodyHover?.(skill || project || journey ? null : bodySignal(event)) }} onPointerLeave={() => { onBodyHover?.(null); onSkillHover?.(null); onProjectHover?.(null); onJourneyHover?.(null) }} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: three capability rings with ten technology signals${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : projectsFocused ? `Projects: six project signals${selectedProjectId ? `, selected ${projectById(selectedProjectId)?.label}` : ''}` : journeyFocused ? `Journey: five progression waypoints${selectedJourneyId ? `, selected ${journeyById(selectedJourneyId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.title}, a fictional ocean world` : composition && focused.id === BLACK_HOLE.id ? 'Black Hole: fictional event horizon and accretion disk; portal inactive' : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab and black hole signal`}>
+  return <svg onClick={event => { const skill = skillSignal(event), project = projectSignal(event), journey = journeySignal(event), body = bodySignal(event); if (skill) onSkillSelect?.(skill); else if (project) onProjectSelect?.(project); else if (journey) onJourneySelect?.(journey); else if (body) onBodySelect?.(body) }} onPointerMove={event => { if (event.pointerType === 'touch') return; const skill = skillSignal(event), project = projectSignal(event), journey = journeySignal(event); onSkillHover?.(skill); onProjectHover?.(project); onJourneyHover?.(journey); onBodyHover?.(skill || project || journey ? null : bodySignal(event)) }} onPointerLeave={() => { onBodyHover?.(null); onSkillHover?.(null); onProjectHover?.(null); onJourneyHover?.(null) }} className="GalaxySolarDiagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={skillsFocused ? `Skills: three capability rings with ten technology signals${selectedSkillId ? `, selected ${skillById(selectedSkillId)?.label}` : ''}` : projectsFocused ? `Projects: six project signals${selectedProjectId ? `, selected ${projectById(selectedProjectId)?.label}` : ''}` : journeyFocused ? `Journey: five progression waypoints${selectedJourneyId ? `, selected ${journeyById(selectedJourneyId)?.label}` : ''}` : labFocused ? `Lab: four research questions${selectedLabId ? `, selected ${labExperimentById(selectedLabId)?.label}` : ''}` : composition && focused.id === IDENTITY.id ? `${IDENTITY.label}: ${IDENTITY.title}, a fictional ocean world` : composition && focused.id === BLACK_HOLE.id ? 'Black Hole: fictional event horizon and accretion disk; portal inactive' : composition ? `${CORE.signal}: ${CORE.name}, the Sun at the center of the system` : `Solar system: ${CORE.shortName} at the center, Identity, Skills, Projects and Journey on four orbits, and a distant Lab and black hole signal`}>
     <defs>
       {bodies.map(body => {
         const dx = sunPosition.x - body.x, dy = sunPosition.y - body.y, length = Math.hypot(dx, dy) || 1
@@ -112,11 +115,11 @@ export function SolarDiagram({ width, height, prefix, selectedBodyId = null, vie
       </g>}
       {body.id === 'skills' && <g fill="none" stroke="#d7e7e8" opacity=".28" strokeWidth=".7"><ellipse cx={body.x} cy={body.y} rx={body.r * .9} ry={body.r * .3} /><ellipse cx={body.x} cy={body.y} rx={body.r * .35} ry={body.r * .95} /></g>}
       {body.id === 'projects' && <g fill="#2d2828" opacity=".5"><circle cx={body.x - body.r * .25} cy={body.y + body.r * .25} r={body.r * .23} /><circle cx={body.x + body.r * .3} cy={body.y - body.r * .3} r={body.r * .15} /></g>}
-      {body.id === 'lab' && <ellipse cx={body.x} cy={body.y} rx={body.r * 1.6} ry={body.r * .65} transform={`rotate(-28 ${body.x} ${body.y})`} fill="none" stroke={body.color} strokeWidth="1.2" opacity=".65" />}
+      {body.id === 'lab' && <ellipse cx={body.x} cy={body.y} rx={body.r * 1.6} ry={body.r * .65} transform={`rotate(-28 ${body.x} ${body.y})`} fill="none" stroke={labSignal?.color || body.color} strokeWidth="1.2" opacity={labSignal ? '.88' : '.65'} />}
     </g>)}
   </svg>
 }
-export default function GalaxyFallback({ selectedBodyId, selectedSkillId, hoveredSkillId, selectedProjectId, hoveredProjectId, selectedJourneyId, hoveredJourneyId, navigation }) {
+export default function GalaxyFallback({ selectedBodyId, selectedSkillId, hoveredSkillId, selectedProjectId, hoveredProjectId, selectedJourneyId, hoveredJourneyId, selectedLabId, hoveredLabId, navigation }) {
   const ref = useRef(null), prefix = useId().replaceAll(':', '')
   const [size, setSize] = useState({ width: 1000, height: 560 })
   useEffect(() => {
@@ -131,6 +134,6 @@ export default function GalaxyFallback({ selectedBodyId, selectedSkillId, hovere
     <svg className="GalaxyStaticSky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       {stars.map((star, index) => <circle key={index} cx={star.x} cy={star.y} r={star.radius} fill="#e5e8ef" opacity={star.opacity} />)}
     </svg>
-    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} selectedSkillId={selectedSkillId} hoveredSkillId={hoveredSkillId} selectedProjectId={selectedProjectId} hoveredProjectId={hoveredProjectId} selectedJourneyId={selectedJourneyId} hoveredJourneyId={hoveredJourneyId} onBodySelect={navigation?.focusBody} onBodyHover={navigation?.setHover} onSkillSelect={navigation?.selectSkill} onSkillHover={navigation?.setSkillHover} onProjectSelect={navigation?.selectProject} onProjectHover={navigation?.setProjectHover} onJourneySelect={navigation?.selectJourney} onJourneyHover={navigation?.setJourneyHover} />
+    <SolarDiagram {...size} prefix={prefix} selectedBodyId={selectedBodyId} selectedSkillId={selectedSkillId} hoveredSkillId={hoveredSkillId} selectedProjectId={selectedProjectId} hoveredProjectId={hoveredProjectId} selectedJourneyId={selectedJourneyId} hoveredJourneyId={hoveredJourneyId} selectedLabId={selectedLabId} hoveredLabId={hoveredLabId} onBodySelect={navigation?.focusBody} onBodyHover={navigation?.setHover} onSkillSelect={navigation?.selectSkill} onSkillHover={navigation?.setSkillHover} onProjectSelect={navigation?.selectProject} onProjectHover={navigation?.setProjectHover} onJourneySelect={navigation?.selectJourney} onJourneyHover={navigation?.setJourneyHover} />
   </div>
 }

@@ -3,6 +3,7 @@ import { SKILLS, SKILLS_COMPOSITION, SKILLS_FRAME_RADIUS } from './skills.js'
 import { IDENTITY, IDENTITY_COMPOSITION } from './identity.js'
 import { JOURNEY_COMPOSITION, JOURNEY_FRAME_RADIUS } from './journey.js'
 import { PROJECTS_COMPOSITION, PROJECTS_FRAME_RADIUS } from './projects.js'
+import { LAB_CONTENT, LAB_COMPOSITION } from './lab.js'
 
 const focus = (distance, azimuth, elevation, fov = 38) => Object.freeze({ distance, azimuth, elevation, fov })
 const rotation = (axialTilt, surfaceSpeed, direction = 1, phase = 0, cloudSpeed = null) => Object.freeze({ axialTilt, surfaceSpeed, direction, phase, cloudSpeed })
@@ -15,7 +16,7 @@ export const PLANETS = Object.freeze([
   { id: 'projects', focus: Object.freeze({ ...focus(8, 0.35, 0.8), composition: PROJECTS_COMPOSITION, frameRadius: PROJECTS_FRAME_RADIUS }), label: 'Projects', meaning: 'Projects', radius: 1.3, color: '#a58b79', surface: 'rock', rotation: rotation(.08, .045), orbit: { radius: 12.3, speed: 0.017, phase: 0.65, inclination: 0.1 } },
   { id: 'journey', focus: Object.freeze({ ...focus(8.2, -0.4, 0.75, 40), composition: JOURNEY_COMPOSITION, frameRadius: JOURNEY_FRAME_RADIUS }), label: 'Journey', meaning: 'Journey', radius: 0.95, color: '#b9a5c5', surface: 'weathered', rotation: rotation(.31, .009, -1), ring: [1.235, 2.295], orbit: { radius: 16.4, speed: 0.011, phase: 3.7, inclination: -0.04 } },
 ].map(body => Object.freeze({ ...body, orbit: Object.freeze(body.orbit) })))
-export const LAB = Object.freeze({ id: 'lab', focus: focus(5.6, -0.5, 0.85), label: 'The Lab', meaning: 'Unknown signal', radius: 0.65, color: '#897da4', position: [20, 1.4, -9] })
+export const LAB = Object.freeze({ id: LAB_CONTENT.id, focus: Object.freeze({ ...focus(5.6, -0.5, 0.85), composition: LAB_COMPOSITION }), label: LAB_CONTENT.label, meaning: 'Research signal', radius: 0.65, color: '#897da4', position: [20, 1.4, -9] })
 // A peripheral signal beyond Journey's orbit: deliberately away from Core,
  // with a complete focus target but no route/portal action until G2R.8.
 export const BLACK_HOLE = Object.freeze({
