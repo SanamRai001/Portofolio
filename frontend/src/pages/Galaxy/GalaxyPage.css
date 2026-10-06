@@ -4,6 +4,13 @@
 .GalaxyPage p, .GalaxyPage h1 { margin:0; }
 .GalaxyPage :is(a,button):focus-visible { outline:2px solid var(--galaxy-gold); outline-offset:5px; }
 .GalaxyHeader { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.GalaxyHeaderActions { display:flex; align-items:center; gap:22px; }
+.GalaxySoundGlyph { display:inline-flex; align-items:center; gap:7px; min-height:44px; padding:0; border:0; background:none; color:var(--galaxy-muted); font:10px/1.4 ui-monospace,monospace; letter-spacing:.11em; text-transform:uppercase; cursor:pointer; }
+.GalaxySoundGlyph > span:first-child { color:#73818d; font-size:12px; line-height:1; transition:color 180ms ease,text-shadow 180ms ease; }
+.GalaxySoundGlyph[aria-pressed='true'] { color:#d8c5a8; }
+.GalaxySoundGlyph[aria-pressed='true'] > span:first-child { color:#e2bd89; text-shadow:0 0 10px #e2bd8955; }
+.GalaxySoundGlyph:hover:not(:disabled), .GalaxySoundGlyph:focus-visible { color:var(--galaxy-gold); }
+.GalaxySoundGlyph:disabled { opacity:.4; cursor:not-allowed; }
 .GalaxyHeader h1 { display:flex; gap:16px; font-size:14px; font-weight:450; letter-spacing:.13em; text-transform:uppercase; }
 .GalaxyHeader h1 span { color:var(--galaxy-muted); }
 .GalaxyExit { display:inline-flex; align-items:center; gap:22px; min-height:44px; font-size:14px; }
@@ -32,7 +39,9 @@
 @media(max-width:760px) {
  .GalaxyPage { padding:18px 22px 24px; }
  .GalaxyHeader { flex-wrap:wrap; gap:8px; }
+ .GalaxyHeaderActions { gap:14px; }
  .GalaxyHeader h1 { font-size:11px; gap:8px; }
+ .GalaxySoundGlyph { min-height:38px; font-size:9px; }
  .GalaxyExit { font-size:12px; gap:9px; }
  .GalaxyStage { min-height:520px; height:calc(100svh - 240px); }
  .GalaxyTarget { top:4px; }
@@ -210,3 +219,7 @@
  .ProjectSignalDetail { min-height:255px; }
 }
 @media(prefers-reduced-motion:reduce) { .ProjectsContent.is-revealed { animation:none; } }
+
+@media(prefers-reduced-motion:reduce) {
+ .GalaxySoundGlyph > span:first-child { transition:none; }
+}
