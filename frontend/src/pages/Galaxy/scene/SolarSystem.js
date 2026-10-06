@@ -87,7 +87,7 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
     dispose() { sun.dispose(); presentations.forEach(presentation => presentation.dispose?.()) },
     get hitMeshes() {
       return [...targets.values()].map(body => body.interactionMesh)
-        .concat(presentations.get('skills').hitMeshes, presentations.get('projects').hitMeshes)
+        .concat(presentations.get('skills').hitMeshes, presentations.get('projects').hitMeshes, presentations.get('journey').hitMeshes)
     },
     getAnchor(id, point) { return targets.get(id)?.focusAnchor.getWorldPosition(point) },
     setInteraction(state, instant = false) {

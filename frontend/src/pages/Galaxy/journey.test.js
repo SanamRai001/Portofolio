@@ -2,11 +2,13 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Scene, SRGBColorSpace } from 'three'
 import { PLANETS } from './data/solarSystem.js'
-import { JOURNEY_APPEARANCE, JOURNEY_RING_APPEARANCE } from './data/journey.js'
+import { JOURNEY_APPEARANCE, JOURNEY_RING_APPEARANCE, JOURNEY_TRAJECTORY, JOURNEY_WAYPOINTS, journeyById } from './data/journey.js'
 import { createJourneySurfaceMap } from './utils/journeySurface.js'
 import { createJourneyPlanet } from './scene/JourneyPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { disposeScene } from './utils/disposeScene.js'
+import { createNavigationController } from './navigation/NavigationController.js'
+import { galaxyInteraction } from './navigation/GalaxyInteraction.js'
 
 const journey = PLANETS.find(body => body.id === 'journey')
 function release(group) {
@@ -14,6 +16,122 @@ function release(group) {
   scene.add(group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 }
+
+
+test('G3D Journey waypoints preserve real progression and stay local to Saturn', () => {
+  assert.deepEqual(
+    JOURNEY_WAYPOINTS.map(waypoint => waypoint.id),
+    ['foundation', 'qa', 'backend', 'mih', 'research'],
+  )
+  assert.match(journeyById('qa').period, /Danfe Solution/)
+  assert.match(journeyById('mih').period, /MIH Group/)
+  assert.match(journeyById('research').focus.join(' '), /StateScout/)
+  assert.equal(journeyById('missing'), undefined)
+
+  const navigation = createNavigationController()
+  const input = galaxyInteraction(navigation)
+
+  input.focusBody('journey:qa')
+  assert.equal(navigation.getSnapshot().selectedJourneyId, null)
+
+  navigation.focusBody('journey')
+  input.focusBody('journey:qa')
+  assert.equal(navigation.getSnapshot().selectedJourneyId, null)
+
+  navigation.complete(navigation.getSnapshot().transitionId)
+  const transitionId = navigation.getSnapshot().transitionId
+
+  input.setHover('journey:qa')
+  assert.equal(navigation.getSnapshot().hoveredJourneyId, 'qa')
+
+  navigation.setJourneyHover('mih', 'keyboard')
+  input.setHover(null)
+  assert.equal(navigation.getSnapshot().hoveredJourneyId, 'mih')
+
+  input.focusBody('journey:mih')
+  assert.equal(navigation.getSnapshot().selectedJourneyId, 'mih')
+  assert.equal(navigation.getSnapshot().transitionId, transitionId)
+
+  navigation.focusBody('projects')
+  assert.equal(navigation.getSnapshot().selectedJourneyId, null)
+  assert.equal(navigation.getSnapshot().hoveredJourneyId, null)
+})
+
+test('G3D Journey trajectory is fixed, bounded and only pickable after arrival', () => {
+  const high = createJourneyPlanet(journey, false)
+  const low = createJourneyPlanet(journey, true)
+  const focused = {
+    selectedBodyId: 'journey',
+    mode: 'body_focused',
+    selectedJourneyId: null,
+    hoveredJourneyId: null,
+  }
+
+  for (const presentation of [high, low]) {
+    const trajectory = presentation.group.getObjectByName('journey-trajectory')
+    assert.equal(trajectory.visible, false)
+    assert.equal(presentation.hitMeshes.length, 0)
+
+    presentation.setSelection(focused)
+    assert.equal(trajectory.visible, true)
+    assert.equal(presentation.hitMeshes.length, JOURNEY_WAYPOINTS.length)
+    assert.ok(presentation.hitMeshes.every(mesh => mesh.layers.mask === 2))
+
+    const before = presentation.nodes.get('mih').root.position.clone()
+    presentation.update(.05, true)
+    assert.ok(presentation.nodes.get('mih').root.position.distanceTo(before) < 1e-12,
+      'career progression markers are fixed, not orbiting satellites')
+
+    for (const waypoint of JOURNEY_WAYPOINTS) {
+      const position = presentation.nodes.get(waypoint.id).root.position
+      assert.ok(Math.abs(position.length() - JOURNEY_TRAJECTORY.radius) < 1e-8)
+    }
+
+    presentation.setSelection({
+      ...focused,
+      selectedJourneyId: 'mih',
+      hoveredJourneyId: 'research',
+    })
+    assert.ok(presentation.nodes.get('mih').mesh.scale.x > .16)
+    assert.ok(presentation.nodes.get('research').mesh.scale.x > .13)
+
+    presentation.setSelection({ ...focused, selectedBodyId: 'identity' })
+    assert.equal(trajectory.visible, false)
+    assert.equal(presentation.hitMeshes.length, 0)
+  }
+
+  const highPath = high.group.getObjectByName('journey-trajectory-path')
+  const lowPath = low.group.getObjectByName('journey-trajectory-path')
+  assert.equal(highPath.geometry.attributes.position.count, JOURNEY_TRAJECTORY.desktopSegments + 1)
+  assert.equal(lowPath.geometry.attributes.position.count, JOURNEY_TRAJECTORY.mobileSegments + 1)
+  assert.ok(lowPath.geometry.attributes.position.count < highPath.geometry.attributes.position.count)
+
+  release(high.group)
+  release(low.group)
+})
+
+test('G3D solar picker exposes Journey waypoints only while Journey is focused', () => {
+  const system = createSolarSystem({ lowPower: true })
+  const base = {
+    selectedBodyId: 'journey',
+    hoveredBodyId: null,
+    mode: 'focusing_body',
+    selectedJourneyId: null,
+    hoveredJourneyId: null,
+  }
+
+  system.setInteraction(base, true)
+  assert.equal(system.hitMeshes.length, 7)
+
+  system.setInteraction({ ...base, mode: 'body_focused' }, true)
+  assert.equal(system.hitMeshes.length, 7 + JOURNEY_WAYPOINTS.length)
+
+  system.setInteraction({ ...base, selectedBodyId: 'core', mode: 'body_focused' }, true)
+  assert.equal(system.hitMeshes.length, 7)
+
+  system.dispose()
+  release(system.group)
+})
 
 test('Journey cloud-top map is deterministic, non-flat and has continuous longitude edges', () => {
   const first = createJourneySurfaceMap(192, 96)

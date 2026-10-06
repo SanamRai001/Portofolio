@@ -6,6 +6,7 @@ export function galaxyInteraction(navigation) {
     setHover(id) {
       if (id?.startsWith('skill:')) {
         navigation.setProjectHover(null)
+        navigation.setJourneyHover(null)
         navigation.setSkillHover(id.slice(6))
         navigation.setHover(null)
         return
@@ -13,13 +14,23 @@ export function galaxyInteraction(navigation) {
 
       if (id?.startsWith('project:')) {
         navigation.setSkillHover(null)
+        navigation.setJourneyHover(null)
         navigation.setProjectHover(id.slice(8))
+        navigation.setHover(null)
+        return
+      }
+
+      if (id?.startsWith('journey:')) {
+        navigation.setSkillHover(null)
+        navigation.setProjectHover(null)
+        navigation.setJourneyHover(id.slice(8))
         navigation.setHover(null)
         return
       }
 
       navigation.setSkillHover(null)
       navigation.setProjectHover(null)
+      navigation.setJourneyHover(null)
       navigation.setHover(id)
     },
     focusBody(id) {
@@ -30,6 +41,11 @@ export function galaxyInteraction(navigation) {
 
       if (id?.startsWith('project:')) {
         navigation.selectProject(id.slice(8))
+        return
+      }
+
+      if (id?.startsWith('journey:')) {
+        navigation.selectJourney(id.slice(8))
         return
       }
 
