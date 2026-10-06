@@ -3,6 +3,7 @@ import {
   LAB_EXPERIMENTS,
   labExperimentById,
 } from '../data/lab.js'
+import { galaxyPathForProject } from '../navigation/GalaxyHistory.js'
 
 export default function LabContent({ revealed, state, navigation, onReturn }) {
   const selected = labExperimentById(state.selectedLabId)
@@ -49,9 +50,14 @@ export default function LabContent({ revealed, state, navigation, onReturn }) {
         <ul aria-label={`${selected.label} research focus`}>
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
-        <a href={selected.href} target="_blank" rel="noreferrer">
-          Inspect evidence <span aria-hidden="true">↗</span>
-        </a>
+        <div className="LabEvidenceLinks">
+          {selected.projectId && <a className="GalaxyContextLink" href={galaxyPathForProject(selected.projectId)}>
+            Open engineering case study <span aria-hidden="true">→</span>
+          </a>}
+          <a href={selected.href} target="_blank" rel="noreferrer">
+            Inspect repository evidence <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </> : <>
         <p className="GalaxyEyebrow">Open questions</p>
         <p>{LAB_CONTENT.prompt}</p>
