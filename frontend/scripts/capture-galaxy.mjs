@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { chromium } from 'playwright'
 import { GALAXY_TEXTURES } from '../src/pages/Galaxy/data/photorealAssets.js'
@@ -174,6 +175,20 @@ async function createCaptureContext(view, reducedMotion) {
 try {
   for (const view of views) {
     const context = await createCaptureContext(view, 'reduce')
+    if (view.name === 'desktop') {
+      await context.addInitScript(() => {
+        const NativeContext = window.AudioContext
+        window.__galaxyAudioCreated = 0
+        if (NativeContext) {
+          window.AudioContext = class ObservedAudioContext extends NativeContext {
+            constructor(...args) {
+              super(...args)
+              window.__galaxyAudioCreated++
+            }
+          }
+        }
+      })
+    }
     const page = await context.newPage()
     const errors = []
     attachErrors(page, errors)
@@ -189,7 +204,34 @@ try {
       const mercuryAsset = verifyMercuryAsset()
       const saturnAsset = verifySaturnAsset()
       await page.screenshot({ path: `${output}/${view.name}-overview.png`, fullPage: true })
+
+      if (view.name === 'desktop') {
+        const sound = page.locator('.GalaxySoundGlyph')
+        assert.equal(await sound.getAttribute('aria-pressed'), 'false')
+        assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 0,
+          'Galaxy must create no AudioContext before a user gesture')
+      }
+
       await selectBody(page, 'Identity')
+
+      if (view.name === 'desktop') {
+        const sound = page.locator('.GalaxySoundGlyph')
+        await page.waitForFunction(() =>
+          document.querySelector('.GalaxySoundGlyph')?.getAttribute('aria-pressed') === 'true')
+        assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 1,
+          'first world interaction creates exactly one AudioContext')
+        await page.screenshot({ path: `${output}/desktop-sound-active.png`, fullPage: true })
+
+        await sound.click()
+        await page.waitForFunction(() =>
+          document.querySelector('.GalaxySoundGlyph')?.getAttribute('aria-pressed') === 'false')
+        await sound.click()
+        await page.waitForFunction(() =>
+          document.querySelector('.GalaxySoundGlyph')?.getAttribute('aria-pressed') === 'true')
+        assert.equal(await page.evaluate(() => window.__galaxyAudioCreated), 1,
+          'mute/re-enable must reuse the existing AudioContext')
+      }
+
       await page.screenshot({ path: `${output}/${view.name}-identity-reduced.png`, fullPage: true })
       await selectBody(page, 'Projects')
       await page.locator('.ProjectsContent.is-revealed').waitFor()

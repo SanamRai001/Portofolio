@@ -6,6 +6,7 @@ import { createNavigationController } from './navigation/NavigationController.js
 import { bindGalaxyHistory } from './navigation/GalaxyHistory.js'
 import { createPortalController } from './navigation/PortalController.js'
 import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
+import { createGalaxySoundscape } from './audio/Soundscape.js'
 import { CORE } from './data/core.js'
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
@@ -13,6 +14,9 @@ import './GalaxyPage.css'
 export default function GalaxyPage() {
   const reducedMotion = useReducedMotion()
   const [navigation] = useState(createNavigationController)
+  const [soundscape] = useState(createGalaxySoundscape)
+  const [soundEnabled, setSoundEnabled] = useState(false)
+  const [soundUnavailable, setSoundUnavailable] = useState(false)
   const [portal] = useState(() => createPortalController({
     destination: '/',
     onCommit: destination => window.location.assign(destination),
@@ -25,11 +29,66 @@ export default function GalaxyPage() {
   const onReady = useCallback(() => setReady(true), [])
   const onError = useCallback(() => {
     portal.cancel()
+    soundscape.disable()
+    setSoundEnabled(false)
     setFailed(true)
-  }, [portal])
+  }, [portal, soundscape])
   const fallback = failed
 
   useEffect(() => bindGalaxyHistory({ navigation }), [navigation])
+
+  const syncSoundscape = useCallback(() => {
+    const nav = navigation.getSnapshot()
+    soundscape.setSignals({
+      selectedBodyId: nav.selectedBodyId,
+      hoveredBodyId: nav.hoveredBodyId,
+      navigationMode: nav.mode,
+      portalMode: portal.getSnapshot().mode,
+      hidden: document.hidden,
+      staticView: fallback,
+      reducedMotion,
+    })
+  }, [fallback, navigation, portal, reducedMotion, soundscape])
+
+  useEffect(() => {
+    syncSoundscape()
+    const navUnsubscribe = navigation.subscribe(syncSoundscape)
+    const portalUnsubscribe = portal.subscribe(syncSoundscape)
+    const onVisibility = () => {
+      if (document.hidden) {
+        soundscape.disable()
+        setSoundEnabled(false)
+      }
+      syncSoundscape()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      navUnsubscribe()
+      portalUnsubscribe()
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [navigation, portal, soundscape, syncSoundscape])
+
+  useEffect(() => () => soundscape.dispose(), [soundscape])
+
+  const enableSoundFromInteraction = useCallback(async () => {
+    if (soundEnabled || soundUnavailable || fallback) return
+    const enabled = await soundscape.enable()
+    setSoundEnabled(enabled)
+    if (!enabled) setSoundUnavailable(true)
+  }, [fallback, soundEnabled, soundUnavailable, soundscape])
+
+  const toggleSound = useCallback(async () => {
+    if (soundEnabled) {
+      soundscape.disable()
+      setSoundEnabled(false)
+      return
+    }
+    if (soundUnavailable || fallback) return
+    const enabled = await soundscape.enable()
+    setSoundEnabled(enabled)
+    if (!enabled) setSoundUnavailable(true)
+  }, [fallback, soundEnabled, soundUnavailable, soundscape])
 
   useEffect(() => {
     const previousTitle = document.title
@@ -41,10 +100,23 @@ export default function GalaxyPage() {
     <main className={`GalaxyPage${portalEntering ? ' is-portal-entering' : ''}`} aria-labelledby="galaxy-title">
       <header className="GalaxyHeader">
         <h1 id="galaxy-title"><span>{CORE.shortName}</span><span aria-hidden="true">/</span>Galaxy</h1>
-        <a className="GalaxyExit" href="/">Exit to portfolio <span aria-hidden="true">↗</span></a>
+        <div className="GalaxyHeaderActions">
+          <button
+            type="button"
+            className="GalaxySoundGlyph"
+            aria-label={soundUnavailable ? 'Galaxy ambience unavailable' : soundEnabled ? 'Mute Galaxy ambience' : 'Enable Galaxy ambience'}
+            aria-pressed={soundEnabled}
+            disabled={soundUnavailable || fallback}
+            onClick={toggleSound}
+          >
+            <span aria-hidden="true">{soundEnabled ? '◉' : '○'}</span>
+            <span>Sound</span>
+          </button>
+          <a className="GalaxyExit" href="/">Exit to portfolio <span aria-hidden="true">↗</span></a>
+        </div>
       </header>
 
-      <GalaxyNavigation navigation={navigation} portal={portal} staticView={fallback} reducedMotion={reducedMotion}>
+      <GalaxyNavigation navigation={navigation} portal={portal} staticView={fallback} reducedMotion={reducedMotion} onInteract={enableSoundFromInteraction}>
         {(selectedBodyId, state) => <>
           {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} selectedProjectId={state.selectedProjectId} hoveredProjectId={state.hoveredProjectId} navigation={navigation} /> : <GalaxyScene navigation={navigation} portal={portal} paused={false} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
           {!fallback && !ready && <p className="GalaxyLoading" role="status">Opening the solar system…</p>}
