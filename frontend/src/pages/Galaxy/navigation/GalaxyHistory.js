@@ -133,7 +133,14 @@ export function bindGalaxyHistory({ navigation, win = window }) {
         }
       } else if (route.kind === 'body') {
         clearPendingProject()
-        navigation.focusBody(route.bodyId)
+        if (
+          route.bodyId === 'projects'
+          && navigation.getSnapshot().selectedBodyId === 'projects'
+        ) {
+          navigation.clearProjectSelection()
+        } else {
+          navigation.focusBody(route.bodyId)
+        }
       } else {
         clearPendingProject()
         if (navigation.getSnapshot().selectedBodyId) navigation.returnToOverview()
