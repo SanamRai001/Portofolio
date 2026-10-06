@@ -4,9 +4,11 @@ import { IDENTITY } from '../data/identity.js'
 import { SKILLS, skillById } from '../data/skills.js'
 import { PROJECTS, projectById } from '../data/projects.js'
 import { JOURNEY, journeyById } from '../data/journey.js'
+import { LAB_CONTENT, labExperimentById } from '../data/lab.js'
 import SkillsContent from './SkillsContent.jsx'
 import ProjectsContent from './ProjectsContent.jsx'
 import JourneyContent from './JourneyContent.jsx'
+import LabContent from './LabContent.jsx'
 import IdentityContent from './IdentityContent.jsx'
 import CoreIdentity from './CoreIdentity.jsx'
 import { SYSTEM_MAP } from '../data/solarSystem.js'
@@ -37,12 +39,14 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
   const projectSignal = projectsSelected && projectById(state.hoveredProjectId || state.selectedProjectId)
   const journeySelected = state.selectedBodyId === JOURNEY.id
   const journeySignal = journeySelected && journeyById(state.hoveredJourneyId || state.selectedJourneyId)
+  const labSelected = state.selectedBodyId === LAB_CONTENT.id
+  const labSignal = labSelected && labExperimentById(state.hoveredLabId || state.selectedLabId)
   const returning = state.mode === 'returning_overview'
 
   function goBack() {
     if (portalState.mode === 'committed') return
     const restore = document.activeElement === backButton.current
-      || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent, .JourneyContent'))
+      || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent, .JourneyContent, .LabContent'))
 
     if (portalActive) portal?.cancel()
     navigation.goBack()
@@ -84,7 +88,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
       ) return
 
       const restore = document.activeElement === backButton.current
-        || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent, .JourneyContent'))
+        || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent, .JourneyContent, .LabContent'))
 
       if (portal && portal.getSnapshot().mode !== 'idle') portal.cancel()
       navigation.goBack()
@@ -133,7 +137,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
 
   return <div
     ref={stageRef}
-    className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected || journeySelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : journeySelected ? ' is-journey' : ''}`}
+    className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected || journeySelected || labSelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : journeySelected ? ' is-journey' : labSelected ? ' is-lab' : ''}`}
     tabIndex={0}
     aria-label="Interactive solar system. Use arrow keys to choose a world and Enter to explore."
     aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End Enter Escape"
@@ -154,15 +158,17 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
     {skillsSelected && <SkillsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
     {projectsSelected && <ProjectsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
     {journeySelected && <JourneyContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
+    {labSelected && <LabContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
 
     <div className="GalaxyTarget">
       {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
       <div className="GalaxyTargetLabel" role="status" aria-live="polite" aria-atomic="true">
         {(selected || hovered || returning) && <>
           <p className="GalaxyEyebrow">{selected ? status : returning ? status : coreHovered ? CORE.signal : 'Signal detected'}</p>
-          {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : journeySignal ? journeySignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
+          {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : journeySignal ? journeySignal.label : labSignal ? labSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
           {!selected && hovered?.id === SKILLS.id && <small>{SKILLS.hover}</small>}
           {identityHovered && <small>{IDENTITY.hover}</small>}
+          {!selected && hovered?.id === LAB_CONTENT.id && <small>{LAB_CONTENT.hover}</small>}
           {selected && !coreSelected && <small>{
             skillSignal
               ? `${SKILLS.label} / ${skillSignal.category}`
@@ -170,8 +176,10 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
                 ? `${PROJECTS.label} / ${projectSignal.category}`
                 : journeySignal
                   ? `${JOURNEY.label} / ${journeySignal.kind}`
-                  : selected.id === 'lab'
-                  ? 'Unknown signal · Content locked'
+                  : labSignal
+                    ? `${LAB_CONTENT.label} / ${labSignal.code}`
+                    : selected.id === LAB_CONTENT.id
+                      ? 'Research signal · Open questions'
                   : selected.id === 'black-hole'
                     ? portalActive
                       ? 'Entering horizon · Esc to cancel'
