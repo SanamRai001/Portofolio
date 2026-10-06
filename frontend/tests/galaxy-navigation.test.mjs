@@ -235,7 +235,7 @@ test('static Core has the same content, shared return action, and safe focus res
 test('Identity arrives through the shared controller, shows a semantic learning cycle and clears rapid retargets', async () => {
   await render(false)
   await act(async () => navigation.setHover('identity', 'keyboard'))
-  assert.match(container.querySelector('[role="status"]').textContent, /IdentityWho I am/)
+  assert.match(container.querySelector('[role="status"]').textContent, /IdentityWorking model/)
 
   await selectBody('identity')
   const identity = () => container.querySelector('.IdentityContent')
@@ -245,13 +245,19 @@ test('Identity arrives through the shared controller, shows a semantic learning 
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
   assert.equal(identity().getAttribute('aria-hidden'), 'false')
   assert.equal(identity().hasAttribute('inert'), false)
-  assert.equal(identity().querySelector('h2').textContent, 'Sanam Rai')
+  assert.equal(identity().querySelector('h2').textContent, 'How I approach difficult things.')
   assert.deepEqual(
     [...identity().querySelectorAll('.IdentityLoop strong')].map(node => node.textContent),
     ['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat'],
   )
   assert.equal(identity().querySelectorAll('img').length, 0)
-  assert.match(identity().textContent, /Portrait signalImage pending/)
+  assert.equal(identity().querySelectorAll('.IdentityPrinciples article').length, 3)
+  assert.deepEqual(
+    [...identity().querySelectorAll('.IdentityPrinciples h3')].map(node => node.textContent),
+    ['Trace before changing', 'Build to understand', 'Simplify after understanding'],
+  )
+  assert.equal(identity().querySelectorAll('.IdentityDirections dt').length, 3)
+  assert.doesNotMatch(identity().textContent, /Portrait signal|Image pending|Sanam Rai/)
   assert.doesNotMatch(
     identity().textContent,
     /Build • Scale • Solve|Backend-focused Full-Stack Developer/,
@@ -276,11 +282,11 @@ test('fallback Identity presents the personal world and both return paths restor
 
   assert.match(
     container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
-    /Identity: Sanam Rai/,
+    /Identity: How I approach difficult things\./,
   )
   const earth = container.querySelector('[data-body="identity"] > circle')
   assert.ok(Number(earth.getAttribute('r')) > 100)
-  assert.equal(container.querySelectorAll('#identity-name').length, 1)
+  assert.equal(container.querySelectorAll('#identity-title').length, 1)
 
   await act(async () => container.querySelector('.IdentityReturn').focus())
   await escape()
