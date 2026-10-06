@@ -1,15 +1,24 @@
 # PROJECT_STATE
 
-## Active — G3B.1 direct interaction simplification (2026-10-06)
+## Active — G3B.2 adaptive cinematic soundscape (2026-10-06)
 
-- **Production baseline:** G3B Projects World merged as PR #23 into `master` at `b652d994de5db501d0be5a9d3740d82b13326dd9`. Exact post-merge Frontend Auth Runtime Tests run `37405106087` passed and Vercel production deployment status succeeded.
-- **Branch:** `ux/galaxy-direct-horizon-simplify`.
-- **Black Hole interaction:** clicking/selecting Black Hole now remains the single explicit user action. The normal camera focus still happens first, then the existing approach → plunge → blackout → route handoff starts automatically after arrival. The redundant `Enter the horizon` CTA is removed. Escape / Return to system still cancels before committed blackout.
-- **Navigation chrome:** the seven-item visible System Map strip and the Pause / Sound / Still-view controls are removed from the bottom UI. The footer now carries one quiet instruction: `Click the sun and planets to explore.`
-- **Accessibility replacement:** removing the map buttons does not remove keyboard access. `.GalaxyStage` is now focusable; Arrow keys cycle worlds, Home/End jump to the edges, Enter selects, Escape returns. Focus from semantic world content returns to the stage. Static/no-WebGL mode makes the SVG worlds themselves directly clickable.
-- **Runtime simplification:** user-created pause/still/audio UI state is removed from `GalaxyPage`; OS reduced-motion, visibility/offscreen pausing, WebGL fallback, single render clock and all existing world motion logic remain intact.
-- **Verification:** exact implementation head `47a86ca6e4d8d1504b967a3659368ad50b0ec409` passed Frontend Auth Runtime Tests run `37405811359` (auth runtime, Galaxy tests, homepage tests, lint and production build). Browser run `37405882058` passed the complete Galaxy capture plus the rewritten automatic-portal suite; artifact `11386802331` has desktop/laptop/phone overview and world captures. Portal results passed desktop, phone and phone-reduced with exactly one route handoff, an observed fully opaque blackout and no browser errors. Desktop/phone overview screenshots were inspected: the duplicate system-map/preference controls are gone, the interaction hint is readable, and world spacing remains intact. The temporary visual-workflow branch trigger was restored before merge review.
+- **Production baseline:** G3B.1 direct interaction simplification merged as PR #24 into `master` at `9049d6e300cca9a07c6c9f7f7cbda5287c173497`. Exact post-merge Frontend Auth Runtime Tests run `37406379063` passed and Vercel production status succeeded.
+- **Branch:** `feat/galaxy-cinematic-soundscape`.
+- **Sound direction:** upgraded the existing original procedural Web Audio engine from three plain sustained tones into a five-layer cinematic ambient bed with sub, fundamental, fifth-like body, distant partial and shimmer layers behind two filters. No external soundtrack/audio file, network request, licence dependency or new package.
+- **Adaptive score:** Core, Identity, Skills, Projects, Journey, Lab and Black Hole retune the same sound bed with different root/filter targets. Deliberate world arrival can add one quiet bloom; hover never fires notes. Black Hole lowers and closes the spectrum through approach/plunge, then reaches absolute silence at blackout.
+- **Interaction contract:** initial load creates no AudioContext. First real Galaxy pointer/keyboard interaction unlocks ambience using the browser user gesture. One tiny Sound control beside Exit to portfolio provides mute/re-enable without restoring the removed footer control cluster. Hidden tabs and renderer fallback silence the graph; next deliberate interaction can resume it.
+- **Resource contract:** one AudioContext, five long-lived oscillator voices, two filters, shared buses, no timers/workers/audio render loop or audio files. Master gain remains hard-bounded at 0.034.
+- **Verification:** implementation head `e5697b8a6dc0b4f07ace7825055ebd81413e7b06` passed full Frontend Auth Runtime Tests run `37406887103`. Browser activation/context-reuse capture is running on the temporary visual-workflow head; restore that workflow trigger before merge.
+- **Subjective limit:** CI cannot certify speaker/headphone sound quality. The live-site listen is the one useful manual check after deployment.
 
+## Production verified — G3B.1 direct interaction simplification (2026-10-06)
+
+- **Merged:** PR #24 into `master` at `9049d6e300cca9a07c6c9f7f7cbda5287c173497`.
+- **Production verification:** exact merge Frontend Auth Runtime Tests run `37406379063` passed and Vercel deployment status succeeded.
+- **Interaction:** Black Hole selection automatically begins the existing approach → plunge → blackout → route handoff after focus arrival; the redundant Enter-horizon CTA is gone. Escape / Return to system can still cancel before commit.
+- **Chrome simplification:** visible System Map and Pause/Sound/Still footer controls were removed; the footer now says `Click the sun and planets to explore.`.
+- **Accessibility:** GalaxyStage is keyboard navigable (arrows, Home/End, Enter, Escape), and static/no-WebGL worlds remain directly clickable.
+- **Browser proof:** Galaxy Visual Capture `37405882058` / artifact `11386802331` passed desktop/laptop/phone plus automatic portal cancel/blackout/commit scenarios; screenshots were visually inspected and the temporary branch trigger was restored before merge.
 ## Production verified — G3B Projects World (2026-10-06)
 
 - **Merged:** PR #23 into `master` at `b652d994de5db501d0be5a9d3740d82b13326dd9`.
