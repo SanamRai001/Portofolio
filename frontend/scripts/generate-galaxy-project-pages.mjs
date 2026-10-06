@@ -46,8 +46,12 @@ function projectHtml(project) {
   html = replaceRequired(html, '<meta property="og:url" content="https://sanam-rai.com.np/" />', `<meta property="og:url" content="${meta.url}" />`, 'og:url')
   html = replaceRequired(html, '<meta property="og:title" content="Sanam Rai | Backend & Full-Stack Developer" />', `<meta property="og:title" content="${escapeAttribute(meta.title)}" />`, 'og:title')
   html = replaceRequired(html, '<meta property="og:description" content="Interactive backend portfolio demonstrating authentication, databases, caching, logging, pagination and transparent runtime configuration alongside full-stack projects." />', `<meta property="og:description" content="${escapeAttribute(meta.description)}" />`, 'og:description')
+  html = replaceRequired(html, '<meta property="og:image" content="https://sanam-rai.com.np/projects/portfolio-system.png" />', `<meta property="og:image" content="${meta.image}" />`, 'og:image')
+  html = replaceRequired(html, '<meta property="og:image:alt" content="Sanam Rai backend-controlled portfolio system interface" />', `<meta property="og:image:alt" content="${escapeAttribute(meta.imageAlt)}" />`, 'og:image:alt')
   html = replaceRequired(html, '<meta name="twitter:title" content="Sanam Rai | Backend & Full-Stack Developer" />', `<meta name="twitter:title" content="${escapeAttribute(meta.title)}" />`, 'twitter:title')
   html = replaceRequired(html, '<meta name="twitter:description" content="Interactive backend portfolio and selected full-stack projects by Sanam Rai." />', `<meta name="twitter:description" content="${escapeAttribute(meta.description)}" />`, 'twitter:description')
+  html = replaceRequired(html, '<meta name="twitter:image" content="https://sanam-rai.com.np/projects/portfolio-system.png" />', `<meta name="twitter:image" content="${meta.image}" />`, 'twitter:image')
+  html = replaceRequired(html, '<meta name="twitter:image:alt" content="Sanam Rai backend-controlled portfolio system interface" />', `<meta name="twitter:image:alt" content="${escapeAttribute(meta.imageAlt)}" />`, 'twitter:image:alt')
 
   const structured = JSON.stringify(projectStructuredData(project)).replaceAll('<', '\\u003c')
   html = html.replace(
