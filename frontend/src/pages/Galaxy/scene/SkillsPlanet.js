@@ -37,7 +37,7 @@ export function createSkillsPlanet(body, lowPower, onSurfaceReady = () => {}) {
     const count = lowPower ? 48 : 80
     const group = SKILL_GROUPS.find(candidate => candidate.id === orbit.groupId)
     const points = Array.from({ length: count }, (_, i) => new Vector3(...orbitPosition(orbit, i / count * Math.PI * 2)))
-    const material = new LineBasicMaterial({ color: group?.color || '#8292a2', transparent: true, opacity: .22, depthWrite: false })
+    const material = new LineBasicMaterial({ color: group?.color || '#8292a2', transparent: true, opacity: .2, depthWrite: false })
     constellation.add(new LineLoop(new BufferGeometry().setFromPoints(points), material))
   }
   for (const skill of SKILL_NODES) {
