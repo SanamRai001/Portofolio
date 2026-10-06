@@ -9,7 +9,7 @@
 - **Removed redundancy:** the duplicated visible name/metadata block, generic trait cards, and the unfinished `Portrait signal / Image pending` placeholder are removed from Identity. Core remains the concise public identity anchor.
 - **Accessibility/fallback:** the semantic heading is now `How I approach difficult things.` and the static Earth fallback describes the same working-model destination. Return/focus behavior remains unchanged.
 - **Camera contract:** an initial layout tweak changed proven Earth framing and immediately failed G2R camera assertions; the values were reverted. Desktop composition remains x `-.46`, y `.08`, height fraction `.45`; mobile remains unchanged.
-- **Verification:** exact code head `327a49c6beaad5ac7028231b52b6159fa813e042` passed Frontend Auth Runtime Tests run `37423251207`. Browser desktop/laptop/phone visual capture and portal regression are pending.
+- **Verification:** exact code head `327a49c6beaad5ac7028231b52b6159fa813e042` passed Frontend Auth Runtime Tests run `37423251207`; PR-head run `37423391134` also passed. Galaxy Visual Capture run `37423369142` passed end-to-end; artifact `11393529191` contains desktop/laptop/phone Identity captures, normal-motion samples, and portal proof. `desktop-identity-reduced.png` and `phone-identity-reduced.png` were visually inspected: Earth remains clear of copy, principles/learning/directions read cleanly, phone stacks without horizontal overflow, and the run reports zero browser errors with all expected planet assets returning HTTP 200. Desktop/phone/phone-reduced portal scenarios all passed. The temporary visual-workflow branch trigger was restored before merge.
 
 ## Production verified — G3D Journey trajectory (2026-10-06)
 
