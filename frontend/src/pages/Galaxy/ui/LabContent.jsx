@@ -51,15 +51,15 @@ export default function LabContent({ revealed, state, navigation, onReturn, onOp
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
         <div className="LabEvidenceActions">
+          <a href={selected.href} target="_blank" rel="noreferrer">
+            Inspect repository <span aria-hidden="true">↗</span>
+          </a>
           {selected.projectId && <ProjectDeepLink
             projectId={selected.projectId}
             onOpenProject={onOpenProject}
           >
             Open case study <span aria-hidden="true">→</span>
           </ProjectDeepLink>}
-          <a href={selected.href} target="_blank" rel="noreferrer">
-            Inspect repository <span aria-hidden="true">↗</span>
-          </a>
         </div>
       </> : <>
         <p className="GalaxyEyebrow">Open questions</p>
