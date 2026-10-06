@@ -1,6 +1,36 @@
 {
   "rewrites": [
-    { "source": "/galaxy", "destination": "/index.html" },
-    { "source": "/galaxy/:path*", "destination": "/index.html" }
+    {
+      "source": "/galaxy/projects/reality-archive",
+      "destination": "/galaxy/projects/reality-archive/index.html"
+    },
+    {
+      "source": "/galaxy/projects/statescout",
+      "destination": "/galaxy/projects/statescout/index.html"
+    },
+    {
+      "source": "/galaxy/projects/reposcout",
+      "destination": "/galaxy/projects/reposcout/index.html"
+    },
+    {
+      "source": "/galaxy/projects/eonborne",
+      "destination": "/galaxy/projects/eonborne/index.html"
+    },
+    {
+      "source": "/galaxy/projects/dear-future",
+      "destination": "/galaxy/projects/dear-future/index.html"
+    },
+    {
+      "source": "/galaxy/projects/sajilo-business",
+      "destination": "/galaxy/projects/sajilo-business/index.html"
+    },
+    {
+      "source": "/galaxy",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/galaxy/:path*",
+      "destination": "/index.html"
+    }
   ]
 }
