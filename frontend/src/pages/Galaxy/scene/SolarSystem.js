@@ -7,7 +7,8 @@ import { createSkillsPlanet } from './SkillsPlanet.js'
 import { createIdentityPlanet } from './IdentityPlanet.js'
 import { createProjectsPlanet } from './ProjectsPlanet.js'
 import { createJourneyPlanet } from './JourneyPlanet.js'
-import { createSun, createCelestialBody, createLab } from './CelestialBody.js'
+import { createSun, createCelestialBody } from './CelestialBody.js'
+import { createLabBody } from './LabBody.js'
 import { createBlackHole } from './BlackHole.js'
 import { BLACK_HOLE_APPEARANCE } from '../data/blackHole.js'
 
@@ -78,7 +79,9 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
     orbits.set(body.id, line)
     group.add(line)
   }
-  register(LAB, createLab(LAB))
+  const lab = createLabBody(LAB)
+  presentations.set(LAB.id, lab)
+  register(LAB, lab.group)
   const blackHole = createBlackHole(BLACK_HOLE, profile.lowPower)
   presentations.set(BLACK_HOLE.id, blackHole)
   register(BLACK_HOLE, blackHole.group).position.fromArray(BLACK_HOLE.position)
@@ -95,6 +98,7 @@ export function createSolarSystem(profile, { onSurfaceReady } = {}) {
       selected = state.selectedBodyId
       sun.setInteraction(hovered === SUN.id, state.selectedBodyId === SUN.id, instant)
       blackHole.setInteraction(hovered === BLACK_HOLE.id, state.selectedBodyId === BLACK_HOLE.id, instant)
+      lab.setSelection(state, instant)
       for (const body of PLANETS) {
         presentations.get(body.id)?.setSelection?.(state, instant)
         presentations.get(body.id)?.setInteraction?.(hovered === body.id, state.selectedBodyId === body.id, instant)
