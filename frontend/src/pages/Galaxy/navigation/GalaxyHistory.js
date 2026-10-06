@@ -90,6 +90,54 @@ export function parseGalaxyPath(pathname) {
   return null
 }
 
+function emitPopState(win) {
+  if (typeof win.dispatchEvent !== 'function') return
+  const event = typeof win.PopStateEvent === 'function'
+    ? new win.PopStateEvent('popstate', { state: win.history.state })
+    : new Event('popstate')
+  win.dispatchEvent(event)
+}
+
+// Cross-world project links preserve the information hierarchy instead of
+// reloading the app or jumping straight from Lab/Journey into a detail leaf.
+// One click creates: current world -> Projects -> selected project. Therefore
+// browser Back and the case-study close action both land on Mars first.
+export function openGalaxyProject(projectId, win = window) {
+  const target = galaxyPathForProject(projectId)
+  if (!target) return false
+
+  const route = parseGalaxyPath(win.location.pathname)
+  if (route?.kind === 'project' && route.projectId === projectId) return true
+
+  if (route?.kind === 'project') {
+    const parentManaged = Boolean(win.history.state?.__galaxyParentManaged)
+    win.history.replaceState(
+      historyState(win.history, true, 'project', parentManaged),
+      '',
+      locationTarget(win, target),
+    )
+    emitPopState(win)
+    return true
+  }
+
+  if (!(route?.kind === 'body' && route.bodyId === 'projects')) {
+    win.history.pushState(
+      historyState(win.history, true, 'world'),
+      '',
+      locationTarget(win, galaxyPathForBody('projects')),
+    )
+  }
+
+  const parentManaged = Boolean(win.history.state?.__galaxyManaged)
+  win.history.pushState(
+    historyState(win.history, true, 'project', parentManaged),
+    '',
+    locationTarget(win, target),
+  )
+  emitPopState(win)
+  return true
+}
+
 // G4 keeps NavigationController authoritative. History mirrors only stable
 // semantic destinations: overview, a focused world, or a focused project.
 export function bindGalaxyHistory({ navigation, win = window }) {
