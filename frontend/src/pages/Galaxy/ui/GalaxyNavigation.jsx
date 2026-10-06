@@ -17,7 +17,7 @@ const IDLE_PORTAL = Object.freeze({ mode: 'idle', transitionId: 0 })
 const emptyPortalSnapshot = () => IDLE_PORTAL
 const subscribeEmptyPortal = () => () => {}
 
-export default function GalaxyNavigation({ navigation, portal, staticView, reducedMotion = false, onInteract = () => {}, children }) {
+export default function GalaxyNavigation({ navigation, portal, staticView, reducedMotion = false, onInteract = () => {}, onOpenProject = null, children }) {
   const state = useSyncExternalStore(navigation.subscribe, navigation.getSnapshot)
   const portalState = useSyncExternalStore(
     portal?.subscribe || subscribeEmptyPortal,
@@ -157,8 +157,8 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
     {identitySelected && <IdentityContent revealed={state.mode === 'body_focused'} onReturn={goBack} />}
     {skillsSelected && <SkillsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
     {projectsSelected && <ProjectsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
-    {journeySelected && <JourneyContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
-    {labSelected && <LabContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
+    {journeySelected && <JourneyContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} onOpenProject={onOpenProject} />}
+    {labSelected && <LabContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} onOpenProject={onOpenProject} />}
 
     <div className="GalaxyTarget">
       {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
