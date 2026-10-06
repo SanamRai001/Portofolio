@@ -5,6 +5,7 @@ on:
     branches:
       - feat/galaxy-cinematic-surface-spike
       - feat/galaxy-cinematic-realism
+      - feat/galaxy-g4a-project-deep-links
     paths:
       - 'frontend/**'
       - '.github/workflows/galaxy-visual-capture.yml'
