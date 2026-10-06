@@ -126,9 +126,29 @@ async function openGalaxy(page) {
   if (await page.locator('.GalaxyFallbackNote').count()) throw new Error('WebGL fallback was displayed')
 }
 
+const bodyOrder = [
+  ['Core', 'core'],
+  ['Identity', 'identity'],
+  ['Skills', 'skills'],
+  ['Projects', 'projects'],
+  ['Journey', 'journey'],
+  ['The Lab', 'lab'],
+  ['Black Hole', 'black-hole'],
+]
+
 async function selectBody(page, name) {
-  await page.getByRole('button', { name, exact: true }).click()
-  await page.waitForFunction(() => document.querySelector('.GalaxyMapHeading span:last-child')?.textContent === 'Signal locked')
+  const index = bodyOrder.findIndex(([label]) => label === name)
+  if (index < 0) throw new Error('Unknown Galaxy body: ' + name)
+
+  const stage = page.locator('.GalaxyStage')
+  await stage.focus()
+  await page.keyboard.press('Home')
+  for (let step = 0; step < index; step++) await page.keyboard.press('ArrowRight')
+  await page.keyboard.press('Enter')
+
+  const [, id] = bodyOrder[index]
+  await page.waitForFunction(expected => window.location.pathname === '/galaxy/' + expected, id)
+  await page.waitForFunction(() => document.querySelector('.GalaxyTargetLabel .GalaxyEyebrow')?.textContent === 'Signal locked')
 }
 
 async function createCaptureContext(view, reducedMotion) {
@@ -189,9 +209,6 @@ try {
       // so a true blank Core remains distinguishable from a screenshot race.
       await page.waitForTimeout(500)
       await page.screenshot({ path: `${output}/${view.name}-core.png`, fullPage: true })
-      // G2R.7: reduced-motion black-hole focus is selectable with no portal.
-      await selectBody(page, 'Black Hole')
-      await page.screenshot({ path: `${output}/${view.name}-black-hole-reduced.png`, fullPage: true })
       // G2R.6: retain the ring-focused reduced-motion evidence at each size.
       await selectBody(page, 'Journey')
       await page.screenshot({ path: `${output}/${view.name}-journey-reduced.png`, fullPage: true })
@@ -251,12 +268,7 @@ try {
         await page.waitForTimeout(8_000)
         await page.screenshot({ path: `${output}/${view.name}-${slug}-motion-after-8s.png`, fullPage: true })
       }
-      // G2R.7: dedicated normal-motion focus evidence (no G2R.8 plunge yet).
-      await selectBody(page, 'Black Hole')
-      await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-start.png`, fullPage: true })
-      await page.waitForTimeout(8_000)
-      await page.screenshot({ path: `${output}/${view.name}-black-hole-motion-after-8s.png`, fullPage: true })
-      results.push({ view: `${view.name} normal-motion hero Sun, primary planets + black hole`, bodies: ['Core', ...rotatingBodies, 'Black Hole'], earthAssets, marsAsset, mercuryAsset, sampleSeconds: 8, errors })
+      results.push({ view: `${view.name} normal-motion hero Sun + primary planets`, bodies: ['Core', ...rotatingBodies], earthAssets, marsAsset, mercuryAsset, sampleSeconds: 8, errors })
     } catch (error) {
       results.push({ view: `${view.name} normal-motion primary planets`, errors: [...errors, error.message] })
     } finally {

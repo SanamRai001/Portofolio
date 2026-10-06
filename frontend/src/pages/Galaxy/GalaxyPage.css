@@ -9,54 +9,38 @@
 .GalaxyExit { display:inline-flex; align-items:center; gap:22px; min-height:44px; font-size:14px; }
 .GalaxyExit span { color:var(--galaxy-gold); font-size:20px; }
 .GalaxyExit:hover { color:var(--galaxy-gold); }
-.GalaxyStage { position:relative; isolation:isolate; flex:1; min-height:420px; height:calc(100svh - 270px); }
+.GalaxyStage { position:relative; isolation:isolate; flex:1; min-height:420px; height:calc(100svh - 220px); outline:none; }
+.GalaxyStage:focus-visible { outline:1px solid #6f675e; outline-offset:8px; }
 .GalaxyScene, .GalaxyFallback, .GalaxyStaticSky, .GalaxySolarDiagram { position:absolute; inset:0; width:100%; height:100%; }
 .GalaxyScene canvas { display:block; width:100%; height:100%; }
 .GalaxyStaticSky { z-index:-1; }
 .GalaxyLoading { position:absolute; top:48%; left:0; right:0; text-align:center; color:var(--galaxy-muted); font-size:14px; }
-.GalaxySystemMap { border-top:1px solid #24252b; padding-top:12px; }
-.GalaxyMapHeading { display:flex; justify-content:space-between; gap:12px; color:var(--galaxy-muted); font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.15em; }
-.GalaxySystemMap ol { list-style:none; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:18px; margin:18px 0 0; padding:0; }
-.GalaxySystemMap li { min-width:0; }
-.GalaxySystemMap button { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding:5px 0; border:0; border-bottom:1px solid transparent; border-radius:0; background:none; color:inherit; text-align:left; cursor:pointer; }
-.GalaxySystemMap.has-selection button[aria-pressed='false'] { opacity:.58; }
-.GalaxySystemMap button:hover, .GalaxySystemMap button:focus-visible, .GalaxySystemMap button[aria-pressed='true'] { opacity:1; border-bottom-color:var(--body-color); }
 .GalaxyTarget { position:absolute; top:12px; left:0; right:0; z-index:1; pointer-events:none; }
 .GalaxyBack { display:inline-flex; align-items:center; gap:20px; min-height:44px; padding:0 12px 0 0; background:#020204cc; border:0; color:var(--galaxy-ink); font:11px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; pointer-events:auto; }
 .GalaxyBack span { color:var(--galaxy-muted); font-size:9px; }
 .GalaxyTargetLabel { max-width:250px; padding:8px 0; }
 .GalaxyTargetLabel > p:nth-child(2) { margin-top:3px; font-size:18px; letter-spacing:.1em; text-transform:uppercase; }
 .GalaxyTargetLabel small { display:block; margin-top:3px; color:var(--galaxy-muted); font-size:11px; }
-.GalaxyMapIndex { color:var(--body-color); font:11px/1.9 ui-monospace,monospace; }
-.GalaxySystemMap strong { display:block; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.09em; }
-.GalaxySystemMap small { display:block; color:var(--galaxy-muted); font-size:11px; }
 .GalaxyFooter { display:flex; justify-content:space-between; align-items:end; gap:24px; padding-top:26px; }
 .GalaxyPage .GalaxyEyebrow { color:var(--galaxy-muted); font:10px/1.5 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.2em; }
 .GalaxyCaption > p:nth-child(2) { margin-top:7px; font-size:clamp(18px,2.3vw,26px); font-weight:350; letter-spacing:-.035em; }
 .GalaxyCaption .GalaxyTextureCredit { margin-top:12px; color:var(--galaxy-muted); font-size:10px; line-height:1.5; letter-spacing:normal; }
 .GalaxyTextureCredit a { color:inherit; text-underline-offset:3px; }
 .GalaxyTextureCredit a:hover { color:var(--galaxy-gold); }
-.GalaxyControls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px 22px; }
-.GalaxyControls button { min-height:44px; padding:5px 0; border:0; border-bottom:1px solid #52525f; border-radius:0; background:transparent; color:var(--galaxy-muted); font:inherit; font-size:13px; cursor:pointer; }
-.GalaxyControls button:hover, .GalaxyControls button[aria-pressed='true'] { color:var(--galaxy-gold); border-bottom-color:var(--galaxy-gold); }
-.GalaxyMotionNote, .GalaxyFallbackNote { color:var(--galaxy-muted); font-size:12px; }
+.GalaxyInteractionHint, .GalaxyFallbackNote { color:var(--galaxy-muted); font:11px/1.6 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; }
+.GalaxyInteractionHint { max-width:250px; text-align:right; }
 @media(max-width:760px) {
  .GalaxyPage { padding:18px 22px 24px; }
  .GalaxyHeader { flex-wrap:wrap; gap:8px; }
  .GalaxyHeader h1 { font-size:11px; gap:8px; }
  .GalaxyExit { font-size:12px; gap:9px; }
- .GalaxyStage { min-height:460px; height:calc(100svh - 350px); }
- .GalaxySystemMap ol { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 10px; }
- .GalaxySystemMap li:last-child:nth-child(3n + 1) { grid-column:2; }
- .GalaxySystemMap button { gap:7px; }
+ .GalaxyStage { min-height:520px; height:calc(100svh - 240px); }
  .GalaxyTarget { top:4px; }
  .GalaxyTargetLabel > p:nth-child(2) { font-size:15px; }
  .GalaxyBack span { display:none; }
- .GalaxySystemMap strong { font-size:10px; }
- .GalaxySystemMap small { font-size:10px; }
  .GalaxyFooter { flex-wrap:wrap; align-items:start; gap:12px; padding-top:22px; }
  .GalaxyCaption { flex-basis:100%; }
- .GalaxyControls { justify-content:flex-start; }
+ .GalaxyInteractionHint { max-width:none; text-align:left; }
 }
 
 /* Core is an open composition, with the star and copy occupying separate space. */
@@ -157,17 +141,6 @@
 
 
 /* G2R.8: user opts into the portal only after a normal black-hole focus. */
-.GalaxyPortalEnter {
- position:absolute; left:0; bottom:22px; z-index:3;
- display:inline-flex; align-items:center; justify-content:space-between; gap:20px;
- min-height:44px; padding:8px 16px;
- border:1px solid #b78d6899; border-radius:2px; background:#0b0908e8;
- color:#ead5b5; font:11px/1.6 ui-monospace,monospace;
- letter-spacing:.13em; text-transform:uppercase; cursor:pointer;
-}
-.GalaxyPortalEnter:hover, .GalaxyPortalEnter:focus-visible { border-color:#e9be86; background:#1b110e; }
-.GalaxyPortalEnter span { font-size:19px; line-height:1; }
-
 /* Rendered in document.body, outside GalaxyStage's stacking context. Passing
    pointer events through until blackout keeps Back/Escape cancellation usable. */
 .GalaxyPortalVeil {
@@ -179,9 +152,6 @@
 .GalaxyPortalVeil.is-plunge { opacity:.19; }
 .GalaxyPortalVeil.is-blackout, .GalaxyPortalVeil.is-committed {
  opacity:1; pointer-events:auto;
-}
-@media (max-width:760px) {
- .GalaxyPortalEnter { left:0; bottom:14px; padding:8px 11px; font-size:10px; }
 }
 @media (prefers-reduced-motion:reduce) {
  .GalaxyPortalVeil { transition-duration:110ms; }
@@ -197,7 +167,7 @@
  width:100vw; height:100dvh; min-height:0; max-height:none; flex:none;
  background:#020204;
 }
-.GalaxyPage.is-portal-entering :is(.GalaxyHeader,.GalaxySystemMap,.GalaxyFooter,.GalaxyTarget) {
+.GalaxyPage.is-portal-entering :is(.GalaxyHeader,.GalaxyFooter,.GalaxyTarget) {
  opacity:0; pointer-events:none;
 }
 .GalaxyPortalAbort {
@@ -213,24 +183,6 @@
 @media(max-width:760px) {
  .GalaxyPortalAbort { left:max(22px,env(safe-area-inset-left)); top:max(18px,env(safe-area-inset-top)); }
 }
-
-/* G2R.9: sound is opt-in; visual feedback never substitutes for aria-pressed.
-   These are compositor-only accents, disabled under reduced motion. */
-.GalaxyControls .GalaxySoundToggle { display:inline-flex; align-items:center; gap:9px; }
-.GalaxySoundToggle::before {
- content:''; display:block; width:5px; height:5px; flex:none;
- border-radius:50%; background:#68727c; transition:background-color 180ms ease, box-shadow 180ms ease;
-}
-.GalaxyControls .GalaxySoundToggle[aria-pressed='true'] { color:#e7c69b; border-bottom-color:#ab825c; }
-.GalaxySoundToggle[aria-pressed='true']::before { background:#dec391; box-shadow:0 0 0 3px #dec39118; }
-.GalaxyControls .GalaxySoundToggle:disabled { opacity:.43; cursor:not-allowed; }
-.GalaxyPortalEnter > span { transition:transform 200ms ease; }
-.GalaxyPortalEnter:is(:hover,:focus-visible) > span { transform:translate(3px,-2px); }
-@media (prefers-reduced-motion:reduce) {
- .GalaxySoundToggle::before, .GalaxyPortalEnter > span { transition:none; }
- .GalaxyPortalEnter:is(:hover,:focus-visible) > span { transform:none; }
-}
-
 
 /* G3B: Projects is a curated constellation, not a generic project-card wall. */
 .ProjectsContent { position:relative; z-index:2; width:46%; max-width:560px; margin:0 1% 0 auto; padding:66px 0 42px; visibility:hidden; opacity:0; }

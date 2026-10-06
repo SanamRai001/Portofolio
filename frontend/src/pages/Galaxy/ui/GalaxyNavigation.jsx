@@ -15,9 +15,13 @@ const subscribeEmptyPortal = () => () => {}
 
 export default function GalaxyNavigation({ navigation, portal, staticView, reducedMotion = false, children }) {
   const state = useSyncExternalStore(navigation.subscribe, navigation.getSnapshot)
-  const portalState = useSyncExternalStore(portal?.subscribe || subscribeEmptyPortal, portal?.getSnapshot || emptyPortalSnapshot)
+  const portalState = useSyncExternalStore(
+    portal?.subscribe || subscribeEmptyPortal,
+    portal?.getSnapshot || emptyPortalSnapshot,
+  )
   const portalActive = portalState.mode !== 'idle' && portalState.mode !== 'committed'
-  const buttons = useRef(new Map()), backButton = useRef(null)
+  const stageRef = useRef(null)
+  const backButton = useRef(null)
   const selected = SYSTEM_MAP.find(body => body.id === state.selectedBodyId)
   const hovered = SYSTEM_MAP.find(body => body.id === state.hoveredBodyId)
   const coreSelected = state.selectedBodyId === CORE.id
@@ -33,66 +37,142 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
 
   function goBack() {
     if (portalState.mode === 'committed') return
-    const id = state.selectedBodyId
-    const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
+    const restore = document.activeElement === backButton.current
+      || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
+
     if (portalActive) portal?.cancel()
     navigation.goBack()
-    if (restore) buttons.current.get(id)?.focus()
+    if (restore) stageRef.current?.focus()
   }
+
+  function keyboardTarget(delta = 0, absolute = null) {
+    const currentId = state.hoveredBodyId || state.selectedBodyId || CORE.id
+    const current = Math.max(0, SYSTEM_MAP.findIndex(body => body.id === currentId))
+    const index = absolute ?? ((current + delta + SYSTEM_MAP.length) % SYSTEM_MAP.length)
+    const body = SYSTEM_MAP[index]
+    navigation.setHover(body.id, 'keyboard')
+    return body.id
+  }
+
+  function onStageKeyDown(event) {
+    if (event.target !== event.currentTarget || portalActive || portalState.mode === 'committed') return
+
+    let target = null
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') target = keyboardTarget(1)
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') target = keyboardTarget(-1)
+    else if (event.key === 'Home') target = keyboardTarget(0, 0)
+    else if (event.key === 'End') target = keyboardTarget(0, SYSTEM_MAP.length - 1)
+    else if (event.key === 'Enter' || event.key === ' ') {
+      target = state.hoveredBodyId || state.selectedBodyId || CORE.id
+      navigation.focusBody(target)
+    } else return
+
+    event.preventDefault()
+  }
+
   useEffect(() => {
     function escape(event) {
-      if (event.key !== 'Escape' || !navigation.getSnapshot().selectedBodyId || portal?.getSnapshot().mode === 'committed') return
-      const id = navigation.getSnapshot().selectedBodyId
-      const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
+      if (
+        event.key !== 'Escape'
+        || !navigation.getSnapshot().selectedBodyId
+        || portal?.getSnapshot().mode === 'committed'
+      ) return
+
+      const restore = document.activeElement === backButton.current
+        || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
+
       if (portal && portal.getSnapshot().mode !== 'idle') portal.cancel()
       navigation.goBack()
-      if (restore) buttons.current.get(id)?.focus()
+      if (restore) stageRef.current?.focus()
     }
+
     window.addEventListener('keydown', escape)
     return () => window.removeEventListener('keydown', escape)
   }, [navigation, portal])
+
   useEffect(() => {
     if (staticView) navigation.complete(state.transitionId)
   }, [navigation, staticView, state.transitionId])
 
-  const status = selected ? (state.mode === 'focusing_body' ? 'Navigating' : staticView ? 'Static selection' : 'Signal locked') : returning ? 'Returning to system' : 'Overview'
-  return <>
-    <div className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : ''}`}>
-      {children(state.selectedBodyId, state)}
-      {coreSelected && <CoreIdentity revealed={coreRevealed} />}
-      {identitySelected && <IdentityContent revealed={state.mode === 'body_focused'} onReturn={goBack} />}
-      {skillsSelected && <SkillsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
-      {projectsSelected && <ProjectsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
-      <div className="GalaxyTarget">
-        {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
-        <div className="GalaxyTargetLabel" role="status" aria-live="polite" aria-atomic="true">
-          {(selected || hovered || returning) && <>
-            <p className="GalaxyEyebrow">{selected ? status : returning ? status : coreHovered ? CORE.signal : 'Signal detected'}</p>
-            {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
-            {!selected && hovered?.id === SKILLS.id && <small>{SKILLS.hover}</small>}
-            {identityHovered && <small>{IDENTITY.hover}</small>}
-            {selected && !coreSelected && <small>{skillSignal ? `${SKILLS.label} / ${skillSignal.category}` : projectSignal ? `${PROJECTS.label} / ${projectSignal.category}` : selected.id === 'lab' ? 'Unknown signal · Content locked' : selected.id === 'black-hole' ? (portalActive ? 'Entering horizon · Esc to cancel' : portal ? 'Event horizon · Portal ready' : 'Event horizon · Portal inactive') : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
-          </>}
-        </div>
+  // Black Hole is itself the portal interaction. Arrival immediately starts the
+  // existing cinematic horizon sequence; there is no redundant confirmation CTA.
+  useEffect(() => {
+    if (
+      !portal
+      || state.selectedBodyId !== 'black-hole'
+      || state.mode !== 'body_focused'
+      || portalState.mode !== 'idle'
+    ) return
+
+    portal.begin(state.selectedBodyId, state.mode, {
+      reduceMotion: reducedMotion || staticView,
+    })
+  }, [
+    portal,
+    portalState.mode,
+    reducedMotion,
+    state.mode,
+    state.selectedBodyId,
+    staticView,
+  ])
+
+  const status = selected
+    ? state.mode === 'focusing_body'
+      ? 'Navigating'
+      : staticView
+        ? 'Static selection'
+        : 'Signal locked'
+    : returning
+      ? 'Returning to system'
+      : 'Overview'
+
+  return <div
+    ref={stageRef}
+    className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : ''}`}
+    tabIndex={0}
+    aria-label="Interactive solar system. Use arrow keys to choose a world and Enter to explore."
+    aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End Enter Escape"
+    onKeyDown={onStageKeyDown}
+    onFocus={event => {
+      if (event.target === event.currentTarget && !state.selectedBodyId && !state.hoveredBodyId) {
+        navigation.setHover(CORE.id, 'keyboard')
+      }
+    }}
+    onBlur={event => {
+      if (!event.currentTarget.contains(event.relatedTarget)) navigation.setHover(null, 'keyboard')
+    }}
+  >
+    {children(state.selectedBodyId, state)}
+    {coreSelected && <CoreIdentity revealed={coreRevealed} />}
+    {identitySelected && <IdentityContent revealed={state.mode === 'body_focused'} onReturn={goBack} />}
+    {skillsSelected && <SkillsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
+    {projectsSelected && <ProjectsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
+
+    <div className="GalaxyTarget">
+      {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
+      <div className="GalaxyTargetLabel" role="status" aria-live="polite" aria-atomic="true">
+        {(selected || hovered || returning) && <>
+          <p className="GalaxyEyebrow">{selected ? status : returning ? status : coreHovered ? CORE.signal : 'Signal detected'}</p>
+          {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
+          {!selected && hovered?.id === SKILLS.id && <small>{SKILLS.hover}</small>}
+          {identityHovered && <small>{IDENTITY.hover}</small>}
+          {selected && !coreSelected && <small>{
+            skillSignal
+              ? `${SKILLS.label} / ${skillSignal.category}`
+              : projectSignal
+                ? `${PROJECTS.label} / ${projectSignal.category}`
+                : selected.id === 'lab'
+                  ? 'Unknown signal · Content locked'
+                  : selected.id === 'black-hole'
+                    ? portalActive
+                      ? 'Entering horizon · Esc to cancel'
+                      : portal
+                        ? 'Event horizon'
+                        : 'Event horizon · Portal inactive'
+                    : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`
+          }</small>}
+        </>}
       </div>
-      {selected?.id === 'black-hole' && portal && state.mode === 'body_focused' && portalState.mode === 'idle' && (
-          <button type="button" className="GalaxyPortalEnter"
-            onClick={() => portal.begin(state.selectedBodyId, state.mode, { reduceMotion: reducedMotion || staticView })}>
-            Enter the horizon <span aria-hidden="true">↗</span>
-          </button>
-      )}
     </div>
-    <section className={`GalaxySystemMap${selected ? ' has-selection' : ''}`} aria-label="Solar system map">
-      <div className="GalaxyMapHeading"><span>System map / 01</span><span>{status}</span></div>
-      <ol>{SYSTEM_MAP.map((body, index) => <li key={body.id} style={{ '--body-color': body.color }}>
-        <button ref={node => { if (node) buttons.current.set(body.id, node); else buttons.current.delete(body.id) }}
-          type="button" disabled={portalActive || portalState.mode === 'committed'} aria-pressed={state.selectedBodyId === body.id} aria-label={body.label}
-          onClick={() => navigation.focusBody(body.id)}
-          onFocus={() => navigation.setHover(body.id, 'keyboard')} onBlur={() => navigation.setHover(null, 'keyboard')}>
-          <span className="GalaxyMapIndex" aria-hidden="true">{state.selectedBodyId === body.id ? '●' : String(index).padStart(2, '0')}</span>
-          <span><strong>{body.label}</strong><small>{body.id === CORE.id ? body.meaning : body.id === 'lab' ? 'Unknown signal' : body.id === 'black-hole' ? 'Event horizon' : `Planet ${String(index).padStart(2, '0')}`}</small></span>
-        </button>
-      </li>)}</ol>
-    </section>
-  </>
+  </div>
 }
