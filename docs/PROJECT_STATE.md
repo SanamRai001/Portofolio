@@ -1,16 +1,22 @@
 # PROJECT_STATE
 
-## Active — G4B contextual case-study bridges (2026-10-06)
+## Active — G4C project metadata & static entry pages (2026-10-06)
 
-- **Baseline:** G4A shareable project deep dives merged as PR #34 into `master` at `a391c231b6053365d4031295d90f5a22d1a047a5`. Exact post-merge Frontend Auth Runtime Tests run `37433221315` passed. The matching Vercel status is currently blocked by the external `build-rate-limit` quota, not an application build failure.
-- **Branch:** `feat/galaxy-g4b-context-bridges`.
-- **Product goal:** connect existing semantic worlds instead of duplicating content. Journey and Lab can now hand off into the canonical G4A project case studies when a personal project genuinely explains that stage/question.
-- **Journey bridges:** QA Lens → StateScout; Backend Direction → RepoScout + Dear Future; Research & Exploration → StateScout + Reality Archive. BIT Foundation and MIH Production Systems intentionally have no personal-project bridge.
-- **Lab bridges:** Interface State Exploration → StateScout and Reality Reconstruction → Reality Archive. Vector Reconstruction / Expressive Small Models remain repository-evidence only because they do not have curated G4A case-study routes.
-- **Navigation boundary:** bridges use the canonical `/galaxy/projects/<project>` URLs rather than creating another local state machine. The link remains valid/accessibile without JS and browser Back returns to the originating Journey/Lab world.
-- **No new 3D scope:** no objects, camera model, renderer, local picker, orbit, motion, or audio behavior changes.
-- **Verification:** runtime/capture code head `0f0e806073a9062a26cefe86c88e8dbf3ea0c83b` passed Frontend Auth Runtime Tests run `37444942354`; PR-head frontend run `37445079113` also passed. Galaxy Visual Capture run `37444949150` passed end-to-end; artifact `11403157302` reports zero errors, proves Journey Research → StateScout → browser Back to `/galaxy/journey`, proves Lab State Exploration → StateScout → Back to `/galaxy/lab`, and retains all world/motion/portal gates. `desktop-lab-state-space.png` and `phone-lab-state-space.png` were visually inspected: the internal case-study handoff and external repository evidence remain distinct and fit cleanly without horizontal overflow. The temporary visual-workflow branch trigger was restored before merge.
+- **Baseline:** G4B contextual bridges merged as PR #36 into `master` at `83b6bf2e38341b469f38a998b38ccb98aed922d1`. Exact post-merge Frontend Auth Runtime Tests run `37445919315` passed. Vercel remains externally blocked by the project `build-rate-limit` quota.
+- **Branch:** `feat/galaxy-g4c-project-metadata`.
+- **Problem:** the six G4A project URLs are shareable, but their initial HTML still inherits the homepage title, description, canonical URL and social metadata. Runtime `document.title` changes are not enough for crawlers/share previews that inspect the initial response.
+- **Build architecture:** after Vite builds `dist/index.html`, a small Node generator creates `dist/galaxy/projects/<project>/index.html` for all six curated projects. Each entry keeps the same Vite assets/app root but receives project-specific title, description, canonical URL, `og:type=article`, OG/Twitter title+description, and project CreativeWork JSON-LD.
+- **Deployment routing:** `frontend/vercel.json` contains six exact project-route rewrites to those generated HTML files before the generic Galaxy SPA catch-all. The route list is test-locked to `PROJECT_NODES` so metadata pages cannot silently drift from case-study routes.
+- **Runtime head sync:** in-app project switching updates title/canonical/OG/Twitter metadata and replaces/removes project JSON-LD. Direct project loads derive metadata from the current route even while the camera/project selection is still settling.
+- **No framework migration:** no SSR framework, React router, server function, package, or new rendering model is introduced.
+- **Verification state:** metadata unit/DOM contracts and post-build prerender verification are implemented. Full frontend CI plus browser proof of raw prerender HTML and runtime StateScout → Reality Archive metadata transitions are pending on the latest head. Temporary visual-workflow trigger must be restored before merge.
 
+## Code/browser verified — G4B contextual case-study bridges (2026-10-06)
+
+- **Merged:** PR #36 into `master` at `83b6bf2e38341b469f38a998b38ccb98aed922d1`.
+- **Verification:** frontend runs `37444942354` / `37445079113`, browser run `37444949150` / artifact `11403157302`, and exact post-merge run `37445919315` passed.
+- **Bridge result:** Journey and Lab now hand off only to relevant curated personal case studies; browser Back returns to the originating world. No new 3D objects/state/camera logic was added.
+- **Hosting note:** Vercel deployment remains blocked only by the external build-rate quota.
 ## Code/browser verified — G4A shareable project deep dives (2026-10-06)
 
 - **Merged:** PR #34 into `master` at `a391c231b6053365d4031295d90f5a22d1a047a5`.
