@@ -34,7 +34,7 @@ G3 remains closed. G4 begins only where deeper portfolio reading/sharing needs a
 
 | Order | Phase | How to implement | Acceptance |
 | --- | --- | --- | --- |
-| P12 | G4A project deep links (**ACTIVE** on `feat/galaxy-g4a-project-deep-links`) | Extend the existing G3A history adapter to `/galaxy/projects/<project>`; keep Mars focused while local project detail opens; add concise repository-grounded engineering case studies in semantic DOM. | Full frontend CI; direct project refresh; one-level nested Back/Forward; project retarget without history spam; Escape/System overview return; desktop/laptop/phone case-study capture; portal regression; screenshot inspection. |
+| P12 | G4A project deep links (**VERIFIED / MERGE READY** on `feat/galaxy-g4a-project-deep-links`) | Extend the existing G3A history adapter to `/galaxy/projects/<project>`; keep Mars focused while local project detail opens; add concise repository-grounded engineering case studies in semantic DOM. | Push/PR frontend runs `37432496869` / `37432498212` passed; browser run `37432496672` / artifact `11397507451` passed direct project refresh, nested history, desktop/laptop/phone case-study states and all portal modes; desktop/phone captures inspected cleanly. Vercel preview hit external build-rate quota. |
 | Later | G4B+ | Only after G4A ships: evaluate cross-links from Lab/Journey into relevant project case studies, project-detail metadata/SEO, or additional readable research evidence. Do not add new 3D objects unless the information architecture requires them. | Separate scope review and evidence-driven acceptance. |
 
 ## G3 status — COMPLETE
