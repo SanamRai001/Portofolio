@@ -1,5 +1,22 @@
 # PROJECT_STATE
 
+## Active — G3 final integration & release (2026-10-06)
+
+- **Production baseline:** G3F Lab research console merged as PR #31 into `master` at `628798640a58abb5c6c3f65411adc94feb8e3f8d`. Exact post-merge Frontend Auth Runtime Tests run `37428739943` passed and Vercel production deployment status succeeded. This successful deployment also carries the previously code-verified G3E Identity changes, resolving its earlier Vercel build-rate delay.
+- **Branch:** `release/galaxy-g3-integration`.
+- **Scope:** no new renderer/world/content feature. Reconcile public README and canonical Galaxy docs against the completed G3 system; add final real-browser deep-link/history proof; keep project-level routes such as `/galaxy/projects/statescout` deliberately out of G3.
+- **Completed G3 product:** G3A URL/history architecture; G3B Projects constellation + direct interaction simplification + procedural soundscape; G3C semantic Skills capability rings; G3D Journey progression trajectory; G3E Identity working model; G3F Lab research console.
+- **Release browser contract:** fresh navigation must settle `/galaxy/core`, `/identity`, `/skills`, `/projects`, `/journey`, and `/lab` on their semantic world content. Unknown nested routes must fail closed to `/galaxy`. In-app world retargeting must keep the managed history compact so Back returns to overview and Forward restores the final world. Black Hole direct/portal behavior remains covered by the dedicated portal suite.
+- **Documentation cleanup:** README now describes semantic G3 worlds, deep links, procedural audio, and the removed duplicate controls. Motion audit/roadmap no longer instruct visitors to use the deleted Pause control.
+- **Manual limits after release:** real laptop integrated-GPU frame pacing/thermals, real-phone FPS/touch feel, and optional ~140-second Mars full-turn seam capture. These are hardware/long-duration verification tasks, not unfinished G3 features.
+- **Future boundary:** project-detail routes/case-study navigation or any new world system belong to a future G4-style scope, not this release.
+
+## Production verified — G3F Lab research console (2026-10-06)
+
+- **Merged:** PR #31 into `master` at `628798640a58abb5c6c3f65411adc94feb8e3f8d`.
+- **Production verification:** exact post-merge Frontend Auth Runtime Tests run `37428739943` passed and Vercel production deployment status succeeded.
+- **Lab result:** four question-driven research threads are presented through the existing distant Lab core/ring/shell, with semantic selection retuning the scanner rather than creating extra decorative objects.
+- **Pre-merge proof:** frontend runs `37424633075` / `37424814329`; Galaxy Visual Capture `37424783348` / artifact `11394951412` passed desktop/laptop/phone default + selected Lab states, fallback parity and all portal scenarios.
 ## Active — G3F Lab research console (2026-10-06)
 
 - **Code baseline:** G3E Identity working model merged into `master` as PR #30 at `ea29fdb4c78d2c237b26f081c067be13b23e4f8e`. Exact post-merge Frontend Auth Runtime Tests run `37423947062` passed. Vercel rejected the corresponding preview/production build because the project hit its build-rate quota; the target explicitly reports `build-rate-limit`, so this is tracked as an external deployment delay rather than a code failure.
