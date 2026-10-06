@@ -3,8 +3,9 @@ import {
   LAB_EXPERIMENTS,
   labExperimentById,
 } from '../data/lab.js'
+import ProjectDeepLink from './ProjectDeepLink.jsx'
 
-export default function LabContent({ revealed, state, navigation, onReturn }) {
+export default function LabContent({ revealed, state, navigation, onReturn, onOpenProject }) {
   const selected = labExperimentById(state.selectedLabId)
 
   return <section
@@ -49,9 +50,17 @@ export default function LabContent({ revealed, state, navigation, onReturn }) {
         <ul aria-label={`${selected.label} research focus`}>
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
-        <a href={selected.href} target="_blank" rel="noreferrer">
-          Inspect evidence <span aria-hidden="true">↗</span>
-        </a>
+        <div className="LabEvidenceActions">
+          {selected.projectId && <ProjectDeepLink
+            projectId={selected.projectId}
+            onOpenProject={onOpenProject}
+          >
+            Open case study <span aria-hidden="true">→</span>
+          </ProjectDeepLink>}
+          <a href={selected.href} target="_blank" rel="noreferrer">
+            Inspect repository <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </> : <>
         <p className="GalaxyEyebrow">Open questions</p>
         <p>{LAB_CONTENT.prompt}</p>
