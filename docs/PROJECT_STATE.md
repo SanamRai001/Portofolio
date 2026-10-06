@@ -1,5 +1,16 @@
 # PROJECT_STATE
 
+## Active — G3A URL-driven interaction architecture (2026-10-05)
+
+- **Production baseline:** G2R is closed on `master` at `fd4944f7ae52acbf5243327a30b1e9a2f46c975d` (PR #20). G3A branch: `feat/galaxy-g3a-route-state`. No G2R renderer, orbit, texture, camera-path or motion-rate changes are in scope.
+- **Architecture decision:** keep `NavigationController` as the single semantic/camera authority. G3A adds a thin `GalaxyHistory` adapter that maps URL state to the existing `overview → focusing_body → body_focused → returning_overview` flow rather than creating a second state machine.
+- **World deep links:** `/galaxy/core`, `/galaxy/identity`, `/galaxy/skills`, `/galaxy/projects`, `/galaxy/journey`, `/galaxy/lab`, and `/galaxy/black-hole` now map to the same body selections as pointer/keyboard navigation. Unknown nested Galaxy paths fail closed to `/galaxy`; project-detail paths such as `/galaxy/projects/statescout` are deliberately reserved for G3B and are not accepted yet.
+- **History contract:** selecting a world from overview creates one browser-history entry; retargeting between worlds replaces that entry so repeated exploration does not flood history. Browser Back/Forward replays Galaxy selection. System/Escape returns through the managed overview entry when one exists; a directly shared deep link canonicalizes to `/galaxy` without manufacturing fake prior history.
+- **Production routing:** `PortfolioRoutes` lazy-loads all `/galaxy/*` paths, and `frontend/vercel.json` now includes a `/galaxy/:path*` SPA rewrite so direct deep-link refreshes can reach the client route in production.
+- **Regression coverage:** new `routing.test.js` covers canonical parsing, invalid nested routes, direct deep-link entry, no-history-flood retargeting, Back/Forward replay, System return behavior and the Vercel catch-all rewrite. Existing Galaxy navigation/camera/renderer tests remain unchanged.
+- **Verification state:** full frontend push CI passed on code head `420bd9c71312cfb83ed7c39bdcd5ab714e838069` in run `37336302978` (auth runtime, Galaxy tests including new route/history cases, homepage DOM tests, lint and production build). Draft PR #21 is open from this branch and Vercel reported a successful preview deployment status on PR head `bbcb3adb`. Manual browser acceptance still needs direct-refresh + Back/Forward checks on the preview at desktop/phone widths; physical-device FPS/touch remains separate G2R manual QA debt.
+- **Next after G3A:** G3B Projects World should consume this route contract rather than inventing its own navigation. Project-level detail routes/content are explicitly deferred until G3A is merged and verified.
+
 ## Production verified — G2R.16 motion/orbit readability and focused UI (2026-10-05)
 
 - **Merged:** PR #18 `fix/galaxy-focused-orbit-ui-cleanup` into `master` at `69b6bedc5de15a9ca77151b20e9e2bd846c7693b`. Exact post-merge [CI 37329770084](https://github.com/SanamRai001/Portofolio/actions/runs/37329770084) **passed**; matching Vercel deployment status succeeded.

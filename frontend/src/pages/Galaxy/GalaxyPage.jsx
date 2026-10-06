@@ -3,6 +3,7 @@ import useReducedMotion from '../../motion/useReducedMotion.js'
 import GalaxyScene from './scene/GalaxyScene.jsx'
 import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
+import { bindGalaxyHistory } from './navigation/GalaxyHistory.js'
 import { createPortalController } from './navigation/PortalController.js'
 import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
 import { createGalaxySoundscape } from './audio/Soundscape.js'
@@ -37,6 +38,8 @@ export default function GalaxyPage() {
     setFailed(true)
   }, [portal, soundscape])
   const fallback = still || failed
+
+  useEffect(() => bindGalaxyHistory({ navigation }), [navigation])
 
   const syncSoundscape = useCallback(() => {
     const nav = navigation.getSnapshot()
