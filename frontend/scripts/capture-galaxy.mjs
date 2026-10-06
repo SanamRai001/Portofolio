@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { chromium } from 'playwright'
 import { GALAXY_TEXTURES } from '../src/pages/Galaxy/data/photorealAssets.js'
+import { PROJECT_NODES } from '../src/pages/Galaxy/data/projects.js'
+import { projectMetadata } from '../src/pages/Galaxy/projectMetadata.js'
 
 const origin = 'http://127.0.0.1:4173'
 const output = 'artifacts/galaxy-visual'
@@ -27,8 +29,22 @@ for (let attempt = 0; attempt < 40; attempt++) {
 }
 if (!serverReady) throw new Error('Vite preview did not start within 10 seconds')
 
+const socialImages = []
+for (const project of PROJECT_NODES) {
+  const meta = projectMetadata(project)
+  const response = await fetch(meta.image.replace('https://sanam-rai.com.np', origin))
+  const bytes = Buffer.from(await response.arrayBuffer())
+  const contentType = response.headers.get('content-type') || ''
+  if (!response.ok || !contentType.toLowerCase().startsWith('image/png')
+    || bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a'
+    || bytes.readUInt32BE(16) !== 1200 || bytes.readUInt32BE(20) !== 630) {
+    throw new Error('Galaxy project social image missing/invalid: ' + project.id)
+  }
+  socialImages.push({ id: project.id, status: response.status, type: contentType, width: 1200, height: 630 })
+}
+
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
-const results = []
+const results = [{ view: 'G4D social preview assets', socialImages, errors: [] }]
 let failed = false
 
 // Screenshots alone can silently accept a procedural fallback after an HTTP 404.

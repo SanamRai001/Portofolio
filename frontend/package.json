@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/generate-galaxy-project-pages.mjs && node scripts/check-galaxy-prerender.mjs && node scripts/check-galaxy-bundle.mjs",
+    "build": "vite build && node scripts/generate-galaxy-social-cards.mjs && node scripts/generate-galaxy-project-pages.mjs && node scripts/check-galaxy-prerender.mjs && node scripts/check-galaxy-bundle.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:auth-runtime": "node --test src/authRuntime.test.js",

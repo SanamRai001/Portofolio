@@ -1,5 +1,14 @@
 # PROJECT_STATE
 
+## Active — G4D project-specific social preview cards (2026-10-06)
+
+- **Baseline:** G4C handoff/docs merged as PR #38 into `master` at `8d9134ba51b1e93048c5626fb1661800ca638a66`.
+- **Problem:** all six canonical case-study routes have project-specific text metadata but still publish the same generic `/projects/portfolio-system.png` for Open Graph/Twitter.
+- **Architecture:** add a pure-Node, dependency-free build generator that emits six deterministic 1200×630 PNGs into `dist/galaxy/social/<project>.png`. It uses only Node built-ins and `PROJECT_NODES`; no browser canvas, native image package, network request or WebGL work.
+- **Metadata:** `projectMetadata(project)` becomes the single source for each project-specific absolute image URL and alt text. Raw G4C prerender pages and runtime head synchronization use that same object.
+- **Verification:** metadata tests require six unique absolute image URLs; the build verifier requires PNG signature, exact 1200×630 dimensions and bounded byte size; the Galaxy browser gate fetches all six generated images over HTTP and requires 200/image/png before visual scenarios run.
+- **Motion boundary:** no changes to planet rotation, revolution, orbit geometry, camera state or render loops. G2R motion/orbit verification remains authoritative.
+
 ## Current handoff — G4C merged; G4D share-preview cards next (2026-10-06)
 
 - **Current master:** PR #37 merged at `f5e5162e4f122a63c89b59c604730c1496c05bf7`. Exact post-merge Frontend Auth Runtime Tests run `37447737594` passed. Vercel currently reports only the external project `build-rate-limit` quota, so do not mislabel that as a code/test failure.
