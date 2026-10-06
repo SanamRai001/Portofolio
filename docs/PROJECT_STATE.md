@@ -1,18 +1,24 @@
 # PROJECT_STATE
 
-## Active — G4A shareable project deep dives (2026-10-06)
+## Active — G4B semantic connections & share metadata (2026-10-06)
 
-- **Baseline:** G3 is closed and release-documented on `master` at `9365e895ad98c9e24288cabb434c9fff2d54eee0`; the complete G3 runtime is already production-verified from the G3F/integration release chain.
-- **Branch:** `feat/galaxy-g4a-project-deep-links`.
-- **G4 boundary:** G4 does not add another planet, renderer, moon system or camera model. G4A deepens the existing Mars/Projects information architecture by making project selections readable, URL-addressable engineering case studies.
-- **Routes:** the six existing curated personal projects now have canonical `/galaxy/projects/<project>` paths. Unknown project IDs and deeper unsupported nesting still fail closed to `/galaxy`.
-- **History contract:** entering a case study from `/galaxy/projects` adds exactly one nested browser-history entry; switching case studies replaces that entry; browser Back returns to Mars/Projects; Forward restores the case study. Escape/System still returns all the way to Galaxy overview. Direct shared project URLs manufacture no fake prior history.
-- **Controller contract:** `NavigationController.clearProjectSelection()` clears only the local project detail/hover state and keeps Mars in `body_focused`; no camera transition or project-orbit reset is introduced.
-- **Case-study content:** all six G3B projects now expose concise engineering narratives grounded in their current repositories: problem/question, three architecture/approach points, one engineering lesson, current state, focus tags and repository evidence. The content intentionally distinguishes implemented work from explicit research/prototype gates.
-- **Readable UI:** selecting a Mars project condenses the six-project directory and opens one semantic case-study article in the existing right-side content layer. Mars and its constellation remain the spatial context; long-form copy remains DOM, not WebGL.
-- **Deterministic verification:** final runtime candidate `c91a4c838a2ebbaf2c39ad091e88e5c580ab1f47` passed push run `37432496869` and PR run `37432498212`, covering nested-route/history, abandoned-deep-link cleanup, project-local state, focus restoration, DOM accessibility, homepage isolation, lint and production build. Vercel preview was rejected only by the external project `build-rate-limit` quota, not by application build failure.
-- **Browser verification:** Galaxy Visual Capture run `37432496672` passed end-to-end; artifact `11397507451` contains desktop/laptop/phone case-study states, direct StateScout deep-link proof, normal-motion evidence and portal regression. The release-gate JSON reports zero errors and proves `/galaxy/projects/statescout` direct refresh, StateScout → Reality Archive history replacement, detail Back → `/galaxy/projects`, Forward → detail, and Escape → `/galaxy`. `desktop-project-detail-direct-statescout.png` and `phone-projects-statescout.png` were visually inspected: Mars remains the spatial anchor, case-study copy is readable, phone stacks without horizontal overflow, and all focus/repository actions remain reachable. Desktop/phone/phone-reduced Black Hole portal scenarios all passed. The temporary visual-workflow branch trigger was restored before merge.
+- **Baseline:** G4A merged as PR #34 into `master` at `a391c231b6053365d4031295d90f5a22d1a047a5`. Exact merge Frontend Auth Runtime Tests run `37433221315` passed. Vercel rejected the PR and merge deployment only because the project hit the external `build-rate-limit` quota; no application build failure is recorded, so G4A may not be live until the quota window permits another deployment.
+- **Branch:** `feat/galaxy-g4b-semantic-links`.
+- **Scope:** connect already-related semantic worlds to the G4A case-study routes and improve browser/share metadata. No new planet, local 3D object, camera transition, renderer, hit target or route hierarchy is introduced.
+- **Lab connections:** Interface State Exploration links to the StateScout case study; Reality Reconstruction links to Reality Archive. Vector Reconstruction (ScanSketch) and Expressive Small Models (Pocket TTS) intentionally have no Mars case-study link because those projects are not among the six curated Projects-world deep dives.
+- **Journey connections:** only the Research & Exploration waypoint links to StateScout and Reality Archive. Earlier education/work waypoints remain unchanged; no artificial project relationships are added.
+- **Navigation decision:** semantic cross-world links are ordinary same-tab anchors to `/galaxy/projects/<project>`. A fresh route load is intentional: browser Back naturally returns to the originating Journey/Lab URL and G4A resolves the destination through the already-verified deep-link contract. No second cross-world navigation state machine is added.
+- **Metadata:** `GalaxyMetadata.js` derives browser title and description from stable semantic state. Project detail becomes e.g. `StateScout | Galaxy | Sanam Rai` with the curated project summary; world routes get world-specific titles; Galaxy overview keeps the general description. Existing page metadata is restored when Galaxy unmounts.
+- **Accessibility/UI:** links remain semantic anchors, work without WebGL-specific picking, and stack normally on phone. Lab still keeps its external evidence link beside the internal case-study link.
+- **Deterministic verification:** implementation/test head `a0e8793ee4be660b4d703f9984a28de06e93a82d` passed Frontend Auth Runtime Tests run `37433690092`; prior metadata head `bdd2e1c3deb9111ea87428602c928d8fd2e97440` also passed. Browser proof is pending.
 
+## Code verified — G4A shareable project deep dives (2026-10-06)
+
+- **Merged:** PR #34 into `master` at `a391c231b6053365d4031295d90f5a22d1a047a5`.
+- **Deterministic verification:** final runtime candidate `c91a4c838a2ebbaf2c39ad091e88e5c580ab1f47` passed push run `37432496869` and PR run `37432498212`; exact merge run `37433221315` passed.
+- **Browser verification:** Galaxy Visual Capture `37432496672` / artifact `11397507451` passed direct StateScout refresh, nested project Back/Forward, project-to-project replacement, Escape/System overview return, desktop/laptop/phone case-study states and all Black Hole portal scenarios.
+- **Deployment note:** matching Vercel PR/merge attempts report only `build-rate-limit`. Treat G4A as merged and code-verified, but do not claim the live domain contains it until a later successful Vercel deployment includes `a391c23` or a descendant.
+- **Result:** six Mars projects now have repository-grounded engineering case studies at `/galaxy/projects/<project>` while Mars remains the spatial context and readable content remains semantic DOM.
 ## Production verified — G3 final integration & release (2026-10-06)
 
 - **Merged:** PR #32 into `master` at `03143e59f8e30e676829d283bc7e3b092f6e25f1`.
