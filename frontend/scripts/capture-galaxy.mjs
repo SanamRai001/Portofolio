@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, writeFile } from 'node:fs/promises'
 import { chromium } from 'playwright'
 import { GALAXY_TEXTURES } from '../src/pages/Galaxy/data/photorealAssets.js'
 import { PROJECT_NODES } from '../src/pages/Galaxy/data/projects.js'
@@ -41,6 +41,7 @@ for (const project of PROJECT_NODES) {
     throw new Error('Galaxy project social image missing/invalid: ' + project.id)
   }
   socialImages.push({ id: project.id, status: response.status, type: contentType, width: 1200, height: 630 })
+  await copyFile(`dist/galaxy/social/${project.id}.png`, `${output}/social-${project.id}.png`)
 }
 
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
