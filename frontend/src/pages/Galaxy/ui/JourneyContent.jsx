@@ -1,6 +1,7 @@
 import { JOURNEY, JOURNEY_WAYPOINTS, journeyById } from '../data/journey.js'
+import ProjectDeepLink from './ProjectDeepLink.jsx'
 
-export default function JourneyContent({ revealed, state, navigation, onReturn }) {
+export default function JourneyContent({ revealed, state, navigation, onReturn, onOpenProject }) {
   const selected = journeyById(state.selectedJourneyId)
 
   return <section
@@ -46,6 +47,16 @@ export default function JourneyContent({ revealed, state, navigation, onReturn }
         <ul aria-label={`${selected.label} focus areas`}>
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
+        {selected.relatedProjects.length > 0 && <div className="GalaxyEvidenceLinks" aria-label={`${selected.label} project evidence`}>
+          <p className="GalaxyEyebrow">Related project evidence</p>
+          <div>
+            {selected.relatedProjects.map(projectId => <ProjectDeepLink
+              key={projectId}
+              projectId={projectId}
+              onOpenProject={onOpenProject}
+            />)}
+          </div>
+        </div>}
       </> : <>
         <p className="GalaxyEyebrow">Follow the path</p>
         <p>{JOURNEY.prompt}</p>
