@@ -183,6 +183,8 @@ export function bindGalaxyHistory({ navigation, win = window }) {
       projectId: navigation.getSnapshot().selectedProjectId,
     }
 
+    if (current.bodyId !== 'projects') clearPendingProject()
+
     if (
       current.bodyId === previous.bodyId
       && current.projectId === previous.projectId
