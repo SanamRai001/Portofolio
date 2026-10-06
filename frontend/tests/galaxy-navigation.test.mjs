@@ -12,69 +12,148 @@ import { createPortalController } from '../src/pages/Galaxy/navigation/PortalCon
 let components, directory, dom, root, container, navigation
 before(async () => {
   process.env.NODE_ENV = 'test'
-  const result = await build({ configFile: false, logLevel: 'silent', plugins: [react()],
-    build: { write: false, minify: false, lib: { entry: fileURLToPath(new URL('./galaxy-navigation-entry.jsx', import.meta.url)), formats: ['es'] },
-      rollupOptions: { external: ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime'] } } })
+  const result = await build({
+    configFile: false,
+    logLevel: 'silent',
+    plugins: [react()],
+    build: {
+      write: false,
+      minify: false,
+      lib: {
+        entry: fileURLToPath(new URL('./galaxy-navigation-entry.jsx', import.meta.url)),
+        formats: ['es'],
+      },
+      rollupOptions: {
+        external: ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
+      },
+    },
+  })
   directory = await mkdtemp(fileURLToPath(new URL('../node_modules/.galaxy-test-', import.meta.url)))
-  const output = (Array.isArray(result) ? result[0] : result).output.find(entry => entry.type === 'chunk' && entry.isEntry)
+  const output = (Array.isArray(result) ? result[0] : result).output
+    .find(entry => entry.type === 'chunk' && entry.isEntry)
   await writeFile(directory + '/entry.mjs', output.code)
   components = await import(pathToFileURL(directory + '/entry.mjs'))
 })
-after(async () => { if (directory) await rm(directory, { recursive: true, force: true }) })
+
+after(async () => {
+  if (directory) await rm(directory, { recursive: true, force: true })
+})
+
 beforeEach(async () => {
-  dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'https://portfolio.test/galaxy', pretendToBeVisual: true })
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true })
-  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: dom.window.navigator })
+  dom = new JSDOM(
+    '<!doctype html><div id="root"></div>',
+    { url: 'https://portfolio.test/galaxy', pretendToBeVisual: true },
+  )
+  Object.assign(globalThis, {
+    window: dom.window,
+    document: dom.window.document,
+    IS_REACT_ACT_ENVIRONMENT: true,
+  })
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: dom.window.navigator,
+  })
   const { createRoot } = await import('react-dom/client')
-  container = document.getElementById('root'); root = createRoot(container)
+  container = document.getElementById('root')
+  root = createRoot(container)
   navigation = createNavigationController()
 })
-afterEach(async () => { await act(async () => root.unmount()); dom.window.close() })
-const button = name => container.querySelector(`button[aria-label="${name}"]`)
-const render = async (staticView = true, portal = null) => act(async () => root.render(React.createElement(components.GalaxyNavigation, { navigation, staticView, portal, reducedMotion: false },
-  (selectedBodyId, state) => React.createElement(components.SolarDiagram, { width: 346, height: 494, prefix: 'test', selectedBodyId, selectedSkillId: state.selectedSkillId, hoveredSkillId: state.hoveredSkillId, onSkillSelect: navigation.selectSkill, onSkillHover: navigation.setSkillHover }))))
-const click = async node => act(async () => node.dispatchEvent(new window.MouseEvent('click', { bubbles: true })))
-const escape = async () => act(async () => window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' })))
 
-test('seven native map buttons select the same static architecture with visible selected feedback', async () => {
+afterEach(async () => {
+  await act(async () => root.unmount())
+  dom.window.close()
+})
+
+const stage = () => container.querySelector('.GalaxyStage')
+const body = id => container.querySelector(`[data-body="${id}"]`)
+const click = async node => act(async () => {
+  node.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+})
+const selectBody = async id => click(body(id))
+const escape = async () => act(async () => {
+  window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' }))
+})
+const stageKey = async key => act(async () => {
+  stage().dispatchEvent(new window.KeyboardEvent('keydown', { key, bubbles: true }))
+})
+
+const render = async (staticView = true, portal = null) => act(async () => {
+  root.render(React.createElement(
+    components.GalaxyNavigation,
+    { navigation, staticView, portal, reducedMotion: false },
+    (selectedBodyId, state) => React.createElement(components.SolarDiagram, {
+      width: 346,
+      height: 494,
+      prefix: 'test',
+      selectedBodyId,
+      selectedSkillId: state.selectedSkillId,
+      hoveredSkillId: state.hoveredSkillId,
+      selectedProjectId: state.selectedProjectId,
+      hoveredProjectId: state.hoveredProjectId,
+      onBodySelect: navigation.focusBody,
+      onBodyHover: navigation.setHover,
+      onSkillSelect: navigation.selectSkill,
+      onSkillHover: navigation.setSkillHover,
+      onProjectSelect: navigation.selectProject,
+      onProjectHover: navigation.setProjectHover,
+    }),
+  ))
+})
+
+test('visible system-map buttons are removed while direct world selection remains available', async () => {
   await render()
-  assert.equal(container.querySelectorAll('.GalaxySystemMap button').length, 7)
-  for (const [label, id] of [['Core', 'core'], ['Identity', 'identity'], ['Skills', 'skills'], ['Projects', 'projects'], ['Journey', 'journey'], ['The Lab', 'lab'], ['Black Hole', 'black-hole']]) {
-    assert.equal(button(label).type, 'button')
-    assert.equal(button(label).tabIndex, 0)
-    await click(button(label))
+
+  assert.equal(container.querySelector('.GalaxySystemMap'), null)
+  assert.equal(container.querySelectorAll('[data-body]').length, 7)
+
+  for (const id of ['core', 'identity', 'skills', 'projects', 'journey', 'lab', 'black-hole']) {
+    await selectBody(id)
     assert.equal(navigation.getSnapshot().mode, 'body_focused')
     assert.equal(navigation.getSnapshot().selectedBodyId, id)
-    assert.equal(button(label).getAttribute('aria-pressed'), 'true')
-    assert.equal(container.querySelectorAll('[aria-pressed="true"]').length, 1)
-    assert.equal(container.querySelector(`[data-body="${id}"]`).getAttribute('opacity'), '1')
+    assert.equal(body(id).getAttribute('opacity'), '1')
     if (id === 'lab') assert.match(container.textContent, /Content locked/)
     assert.match(container.querySelector('[role="status"]').textContent, /Static selection/)
   }
+
   assert.match(container.textContent, /Portal inactive/)
 })
 
-test('keyboard focus exposes feedback; Escape and System return preserve usable focus', async () => {
+test('Galaxy stage is the keyboard navigation surface and return restores usable focus', async () => {
   await render()
-  await act(async () => button('Projects').focus())
+  await act(async () => stage().focus())
+  assert.equal(navigation.getSnapshot().hoveredBodyId, 'core')
+
+  await stageKey('ArrowRight')
+  await stageKey('ArrowRight')
+  await stageKey('ArrowRight')
   assert.equal(navigation.getSnapshot().hoveredBodyId, 'projects')
-  await click(button('Projects'))
+
+  await stageKey('Enter')
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
+
   await escape()
   assert.equal(navigation.getSnapshot().mode, 'overview')
-  assert.equal(document.activeElement, button('Projects'))
-  await click(button('Identity'))
+  assert.equal(document.activeElement, stage())
+
+  await selectBody('identity')
   await act(async () => container.querySelector('.GalaxyBack').focus())
   await click(container.querySelector('.GalaxyBack'))
   assert.equal(navigation.getSnapshot().mode, 'overview')
-  assert.equal(document.activeElement, button('Identity'))
+  assert.equal(document.activeElement, stage())
   assert.equal(container.querySelector('.GalaxyBack'), null)
 })
 
 test('rapid runtime selections synchronize the HUD; context failure settles the latest selection', async () => {
   await render(false)
-  await act(async () => { navigation.focusBody('identity'); navigation.focusBody('projects'); navigation.focusBody('journey') })
-  assert.equal(button('Journey').getAttribute('aria-pressed'), 'true')
+  await act(async () => {
+    navigation.focusBody('identity')
+    navigation.focusBody('projects')
+    navigation.focusBody('journey')
+  })
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'journey')
   assert.match(container.querySelector('[role="status"]').textContent, /NavigatingJourney/)
+
   await render(true)
   assert.equal(navigation.getSnapshot().mode, 'body_focused')
   assert.match(container.textContent, /Static selection/)
@@ -84,21 +163,26 @@ test('rapid runtime selections synchronize the HUD; context failure settles the 
 
 test('unmount removes keyboard subscriptions and repeat entry installs one working handler', async () => {
   await render()
-  await click(button('Skills'))
+  await selectBody('skills')
   await act(async () => root.render(null))
   await escape()
   assert.equal(navigation.getSnapshot().selectedBodyId, 'skills')
+
   navigation = createNavigationController()
-  await render(); await click(button('Journey')); await escape()
+  await render()
+  await selectBody('journey')
+  await escape()
   assert.equal(navigation.getSnapshot().mode, 'overview')
 })
 
 test('Core reveals only after arrival and never leaks into rapid alternate selections', async () => {
   await render(false)
-  await click(button('Core'))
+  await selectBody('core')
   const core = () => container.querySelector('.CoreIdentity')
+
   assert.equal(core().getAttribute('aria-hidden'), 'true')
   assert.equal(core().hasAttribute('inert'), true)
+
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
   assert.equal(core().getAttribute('aria-hidden'), 'false')
   assert.equal(core().hasAttribute('inert'), false)
@@ -106,24 +190,38 @@ test('Core reveals only after arrival and never leaks into rapid alternate selec
   assert.match(core().textContent, /Backend-focused Full-Stack Developer/)
   assert.match(core().textContent, /Build • Scale • Solve/)
   assert.equal(core().querySelectorAll('a').length, 2)
+
   const oldSequence = navigation.getSnapshot().transitionId
-  await act(async () => { navigation.focusBody('identity'); navigation.focusBody('core'); navigation.focusBody('projects'); navigation.complete(oldSequence) })
+  await act(async () => {
+    navigation.focusBody('identity')
+    navigation.focusBody('core')
+    navigation.focusBody('projects')
+    navigation.complete(oldSequence)
+  })
+
   assert.equal(core(), null)
-  assert.equal(button('Projects').getAttribute('aria-pressed'), 'true')
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
   assert.equal(container.querySelectorAll('#core-name').length, 0)
 })
 
 test('static Core has the same content, shared return action, and safe focus restoration', async () => {
   await render()
-  await click(button('Core'))
+  await selectBody('core')
+
   assert.equal(container.querySelector('.CoreIdentity').getAttribute('aria-hidden'), 'false')
-  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /Core signal: Sanam Rai/)
+  assert.match(
+    container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
+    /Core signal: Sanam Rai/,
+  )
+
   const link = container.querySelector('.CoreLinks a[href="/"]')
   await act(async () => link.focus())
   await escape()
-  assert.equal(document.activeElement, button('Core'))
+
+  assert.equal(document.activeElement, stage())
   assert.equal(container.querySelector('.CoreIdentity'), null)
   assert.equal(navigation.getSnapshot().mode, 'overview')
+
   await act(async () => root.render(null))
   navigation = createNavigationController()
   await render()
@@ -132,48 +230,70 @@ test('static Core has the same content, shared return action, and safe focus res
 
 test('Identity arrives through the shared controller, shows a semantic learning cycle and clears rapid retargets', async () => {
   await render(false)
-  await act(async () => button('Identity').focus())
+  navigation.setHover('identity', 'keyboard')
   assert.match(container.querySelector('[role="status"]').textContent, /IdentityWho I am/)
-  await click(button('Identity'))
+
+  await selectBody('identity')
   const identity = () => container.querySelector('.IdentityContent')
   assert.equal(identity().getAttribute('aria-hidden'), 'true')
   assert.ok(identity().hasAttribute('inert'))
+
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
   assert.equal(identity().getAttribute('aria-hidden'), 'false')
   assert.equal(identity().hasAttribute('inert'), false)
   assert.equal(identity().querySelector('h2').textContent, 'Sanam Rai')
-  assert.deepEqual([...identity().querySelectorAll('.IdentityLoop strong')].map(node => node.textContent), ['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat'])
+  assert.deepEqual(
+    [...identity().querySelectorAll('.IdentityLoop strong')].map(node => node.textContent),
+    ['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat'],
+  )
   assert.equal(identity().querySelectorAll('img').length, 0)
   assert.match(identity().textContent, /Portrait signalImage pending/)
-  assert.doesNotMatch(identity().textContent, /Build • Scale • Solve|Backend-focused Full-Stack Developer/)
+  assert.doesNotMatch(
+    identity().textContent,
+    /Build • Scale • Solve|Backend-focused Full-Stack Developer/,
+  )
+
   const stale = navigation.getSnapshot().transitionId
-  await act(async () => { navigation.focusBody('core'); navigation.focusBody('identity'); navigation.focusBody('journey'); navigation.complete(stale) })
+  await act(async () => {
+    navigation.focusBody('core')
+    navigation.focusBody('identity')
+    navigation.focusBody('journey')
+    navigation.complete(stale)
+  })
   assert.equal(identity(), null)
   assert.equal(container.querySelector('.CoreIdentity'), null)
-  assert.equal(button('Journey').getAttribute('aria-pressed'), 'true')
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'journey')
   assert.equal(navigation.getSnapshot().mode, 'focusing_body')
 })
 
-test('fallback Identity presents the personal world and both return paths restore keyboard focus', async () => {
+test('fallback Identity presents the personal world and both return paths restore stage focus', async () => {
   await render()
-  await click(button('Identity'))
-  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /Identity: Sanam Rai/)
-  const body = container.querySelector('[data-body="identity"] > circle')
-  assert.ok(Number(body.getAttribute('r')) > 100)
+  await selectBody('identity')
+
+  assert.match(
+    container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
+    /Identity: Sanam Rai/,
+  )
+  const earth = container.querySelector('[data-body="identity"] > circle')
+  assert.ok(Number(earth.getAttribute('r')) > 100)
   assert.equal(container.querySelectorAll('#identity-name').length, 1)
+
   await act(async () => container.querySelector('.IdentityReturn').focus())
   await escape()
-  assert.equal(document.activeElement, button('Identity'))
+  assert.equal(document.activeElement, stage())
   assert.equal(container.querySelector('.IdentityContent'), null)
-  await click(button('Identity'))
+
+  await selectBody('identity')
   await act(async () => container.querySelector('.IdentityReturn').focus())
   await click(container.querySelector('.IdentityReturn'))
   assert.equal(navigation.getSnapshot().mode, 'overview')
-  assert.equal(document.activeElement, button('Identity'))
-  await click(button('Identity'))
+  assert.equal(document.activeElement, stage())
+
+  await selectBody('identity')
   await act(async () => root.render(null))
   await escape()
   assert.equal(navigation.getSnapshot().selectedBodyId, 'identity')
+
   navigation = createNavigationController()
   await render()
   assert.equal(container.querySelector('.IdentityContent'), null)
@@ -182,49 +302,66 @@ test('fallback Identity presents the personal world and both return paths restor
 
 test('Skills details use native controls and never start another camera flight', async () => {
   await render(false)
-  await click(button('Skills'))
+  await selectBody('skills')
   const content = () => container.querySelector('.SkillsContent')
+
   assert.equal(content().hasAttribute('inert'), true)
   await act(async () => navigation.selectSkill('node'))
   assert.equal(navigation.getSnapshot().selectedSkillId, null)
+
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
   assert.equal(content().hasAttribute('inert'), false)
+
   const nodes = content().querySelectorAll('.SkillsDirectory button')
   assert.equal(nodes.length, 10)
   const transition = navigation.getSnapshot().transitionId
+
   for (const node of nodes) {
     await act(async () => node.focus())
     assert.ok(navigation.getSnapshot().hoveredSkillId)
     await click(node)
     assert.equal(node.getAttribute('aria-pressed'), 'true')
     assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
-    assert.equal(content().querySelector('h3').textContent, node.querySelector('span:last-child').textContent)
+    assert.equal(
+      content().querySelector('h3').textContent,
+      node.querySelector('span:last-child').textContent,
+    )
     assert.equal(content().querySelectorAll('.SkillDetail li').length, 4)
     assert.equal(document.activeElement, node)
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
+
   assert.doesNotMatch(content().textContent, /\d+%/)
   await escape()
   assert.equal(content(), null)
-  assert.equal(document.activeElement, button('Skills'))
+  assert.equal(document.activeElement, stage())
   assert.equal(navigation.getSnapshot().selectedSkillId, null)
 })
 
 test('Skills resets local selections after rapid retarget, fallback entry and unmount', async () => {
   await render()
-  await click(button('Skills'))
+  await selectBody('skills')
   await click(container.querySelector('.SkillsDirectory button'))
   assert.equal(navigation.getSnapshot().selectedSkillId, 'node')
-  await act(async () => { navigation.focusBody('identity'); navigation.focusBody('skills'); navigation.focusBody('core'); navigation.focusBody('journey') })
+
+  await act(async () => {
+    navigation.focusBody('identity')
+    navigation.focusBody('skills')
+    navigation.focusBody('core')
+    navigation.focusBody('journey')
+  })
   assert.equal(container.querySelector('.SkillsContent'), null)
   assert.equal(navigation.getSnapshot().selectedSkillId, null)
   assert.equal(navigation.getSnapshot().hoveredSkillId, null)
-  await click(button('Skills'))
+
+  await selectBody('skills')
   assert.match(container.querySelector('.SkillDetail').textContent, /Select an orbital signal/)
+
   await act(async () => container.querySelector('.SkillsContent .IdentityReturn').focus())
   await click(container.querySelector('.SkillsContent .IdentityReturn'))
-  assert.equal(document.activeElement, button('Skills'))
-  await click(button('Skills'))
+  assert.equal(document.activeElement, stage())
+
+  await selectBody('skills')
   await act(async () => root.render(null))
   navigation = createNavigationController()
   await render()
@@ -234,23 +371,27 @@ test('Skills resets local selections after rapid retarget, fallback entry and un
 
 test('fallback satellite clicks share Skills selection with the native technology directory', async () => {
   await render()
-  await click(button('Skills'))
+  await selectBody('skills')
+
   assert.equal(container.querySelectorAll('[data-skill]').length, 10)
   await click(container.querySelector('[data-skill="postgres"] rect'))
   assert.equal(navigation.getSnapshot().selectedSkillId, 'postgres')
   assert.equal(container.querySelector('.SkillDetail h3').textContent, 'PostgreSQL')
-  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /selected PostgreSQL/)
-  await click(button('Identity'))
+  assert.match(
+    container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
+    /selected PostgreSQL/,
+  )
+
+  await selectBody('identity')
   assert.equal(container.querySelectorAll('[data-skill]').length, 0)
 })
 
-
 test('Projects exposes six accessible project signals without starting another camera flight', async () => {
   await render(false)
-  await click(button('Projects'))
+  await selectBody('projects')
   const content = () => container.querySelector('.ProjectsContent')
-  assert.equal(content().hasAttribute('inert'), true)
 
+  assert.equal(content().hasAttribute('inert'), true)
   await act(async () => navigation.selectProject('statescout'))
   assert.equal(navigation.getSnapshot().selectedProjectId, null)
 
@@ -267,78 +408,89 @@ test('Projects exposes six accessible project signals without starting another c
     await click(project)
     assert.equal(project.getAttribute('aria-pressed'), 'true')
     assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
-    assert.equal(content().querySelector('.ProjectSignalDetail h3').textContent, project.querySelector('strong').textContent)
+    assert.equal(
+      content().querySelector('.ProjectSignalDetail h3').textContent,
+      project.querySelector('strong').textContent,
+    )
     assert.equal(content().querySelectorAll('.ProjectSignalDetail li').length, 4)
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
 
-  assert.match(content().querySelector('.ProjectSignalDetail a').href, /github\.com\/SanamRai001\//)
+  assert.match(
+    content().querySelector('.ProjectSignalDetail a').href,
+    /github\.com\/SanamRai001\//,
+  )
+
   await escape()
   assert.equal(content(), null)
-  assert.equal(document.activeElement, button('Projects'))
+  assert.equal(document.activeElement, stage())
   assert.equal(navigation.getSnapshot().selectedProjectId, null)
 })
 
-
-test('black-hole static focus is labelled, keyboard accessible and has no portal navigation yet', async () => {
+test('black-hole static focus remains inspectable when no portal host is configured', async () => {
   await render()
-  await click(button('Black Hole'))
+  await selectBody('black-hole')
+
   assert.equal(navigation.getSnapshot().selectedBodyId, 'black-hole')
   assert.equal(navigation.getSnapshot().mode, 'body_focused')
-  assert.match(container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'), /Black Hole: fictional event horizon/)
+  assert.match(
+    container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
+    /Black Hole: fictional event horizon/,
+  )
   assert.match(container.querySelector('[role="status"]').textContent, /Black Hole/)
   assert.match(container.textContent, /Portal inactive/)
   assert.ok(container.querySelector('[data-body="black-hole"] ellipse'))
-  // Focus the actual Back control, matching the existing keyboard-return
-  // contract. A synthetic click on a map button does not itself focus it.
+
   await act(async () => container.querySelector('.GalaxyBack').focus())
   await escape()
   assert.equal(navigation.getSnapshot().mode, 'overview')
-  assert.equal(document.activeElement?.getAttribute('aria-label'), 'Black Hole')
+  assert.equal(document.activeElement, stage())
 })
 
-
-test('G2R.8B Enter action requires arrival, and Escape/Back cancels before route commitment', async () => {
+test('Black Hole automatically begins the existing horizon transition after camera arrival', async () => {
   const commits = []
   const portal = createPortalController({ onCommit: path => commits.push(path) })
   await render(false, portal)
+
   assert.equal(container.querySelector('.GalaxyPortalEnter'), null)
-  await click(button('Black Hole'))
+  await selectBody('black-hole')
   assert.equal(navigation.getSnapshot().mode, 'focusing_body')
-  assert.equal(container.querySelector('.GalaxyPortalEnter'), null, 'do not offer entry before camera arrives')
+  assert.equal(portal.getSnapshot().mode, 'idle')
+
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
   assert.equal(navigation.getSnapshot().mode, 'body_focused')
-  const enter = container.querySelector('.GalaxyPortalEnter')
-  assert.equal(enter?.textContent.includes('Enter the horizon'), true)
-  await click(enter)
   assert.equal(portal.getSnapshot().mode, 'approach')
-  assert.equal(button('Journey').disabled, true, 'disable other destinations during plunge')
+  assert.equal(container.querySelector('.GalaxyPortalEnter'), null)
+
   await act(async () => container.querySelector('.GalaxyBack').focus())
   await escape()
   assert.equal(portal.getSnapshot().mode, 'idle')
   assert.equal(navigation.getSnapshot().mode, 'returning_overview')
   assert.deepEqual(commits, [])
+
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
-  await click(button('Black Hole'))
+  await selectBody('black-hole')
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
-  await click(container.querySelector('.GalaxyPortalEnter'))
   assert.equal(portal.getSnapshot().mode, 'approach')
+
   await click(container.querySelector('.GalaxyBack'))
   assert.equal(portal.getSnapshot().mode, 'idle')
   assert.deepEqual(commits, [])
 })
 
-test('G2R.8B static fallback uses a reduced-motion blackout rather than a stalled scene flight', async () => {
+test('static/reduced fallback automatically enters blackout without a redundant CTA', async () => {
   const commits = []
   const portal = createPortalController({ onCommit: path => commits.push(path) })
   await render(true, portal)
-  await click(button('Black Hole'))
-  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
-  assert.ok(container.querySelector('.GalaxyPortalEnter'))
-  await click(container.querySelector('.GalaxyPortalEnter'))
+  await selectBody('black-hole')
+
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
   assert.equal(portal.getSnapshot().mode, 'blackout')
+  assert.equal(container.querySelector('.GalaxyPortalEnter'), null)
   assert.deepEqual(commits, [], 'no navigation without a fully opaque veil')
+
   await escape()
   assert.equal(portal.getSnapshot().mode, 'idle')
+  assert.equal(navigation.getSnapshot().mode, 'returning_overview')
   assert.deepEqual(commits, [])
 })
