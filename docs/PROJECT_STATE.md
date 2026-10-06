@@ -1,16 +1,14 @@
 # PROJECT_STATE
 
-## Active — G3B.2 adaptive cinematic soundscape (2026-10-06)
+## Production verified — G3B.2 adaptive cinematic soundscape (2026-10-06)
 
-- **Production baseline:** G3B.1 direct interaction simplification merged as PR #24 into `master` at `9049d6e300cca9a07c6c9f7f7cbda5287c173497`. Exact post-merge Frontend Auth Runtime Tests run `37406379063` passed and Vercel production status succeeded.
-- **Branch:** `feat/galaxy-cinematic-soundscape`.
-- **Sound direction:** upgraded the existing original procedural Web Audio engine from three plain sustained tones into a five-layer cinematic ambient bed with sub, fundamental, fifth-like body, distant partial and shimmer layers behind two filters. No external soundtrack/audio file, network request, licence dependency or new package.
-- **Adaptive score:** Core, Identity, Skills, Projects, Journey, Lab and Black Hole retune the same sound bed with different root/filter targets. Deliberate world arrival can add one quiet bloom; hover never fires notes. Black Hole lowers and closes the spectrum through approach/plunge, then reaches absolute silence at blackout.
-- **Interaction contract:** initial load creates no AudioContext. First real Galaxy pointer/keyboard interaction unlocks ambience using the browser user gesture. One tiny Sound control beside Exit to portfolio provides mute/re-enable without restoring the removed footer control cluster. Hidden tabs and renderer fallback silence the graph; next deliberate interaction can resume it.
-- **Resource contract:** one AudioContext, five long-lived oscillator voices, two filters, shared buses, no timers/workers/audio render loop or audio files. Master gain remains hard-bounded at 0.034.
-- **Verification:** implementation head `e5697b8a6dc0b4f07ace7825055ebd81413e7b06` passed full Frontend Auth Runtime Tests run `37406887103`. Capture-integrated code head `296f132ebe9a4aa2fdca3bcb814bb12a59f0f79b` passed push/PR frontend CI and Galaxy Visual Capture run `37407283785`; artifact `11386689214` proves zero AudioContexts on load, exactly one after the first real Galaxy interaction, mute/re-enable reuse of that same context, and all Black Hole portal variants passing. `desktop-sound-active.png` was visually inspected; the compact header Sound control fits the simplified layout cleanly. The temporary visual-workflow branch trigger was restored before merge.
-- **Subjective limit:** CI cannot certify speaker/headphone sound quality. The live-site listen is the one useful manual check after deployment.
-
+- **Merged:** PR #25 into `master` at `2c0e108ee1b563465c67765aee299b08de417a39`.
+- **Production verification:** exact merge Frontend Auth Runtime Tests run `37407689836` passed and Vercel production deployment status succeeded.
+- **Sound direction:** five-layer original procedural Web Audio bed with adaptive per-world root/filter tuning, no downloaded soundtrack, audio package, network request or licence dependency.
+- **Activation:** zero AudioContexts on initial load; the first real Galaxy pointer/keyboard interaction unlocks ambience. The compact header Sound control mutes/re-enables without restoring the removed footer control cluster.
+- **Black Hole:** the ambience lowers and darkens through approach/plunge and reaches silence at blackout before route commit.
+- **Browser proof:** Galaxy Visual Capture `37407283785` / artifact `11386689214` passed. It proves zero contexts before interaction, exactly one after the first world interaction, reuse after mute/re-enable, and all automatic Black Hole portal scenarios. `desktop-sound-active.png` was visually inspected.
+- **Manual boundary:** only subjective speaker/headphone listening remains; automated tests cannot honestly decide whether the mix sounds good.
 ## Production verified — G3B.1 direct interaction simplification (2026-10-06)
 
 - **Merged:** PR #24 into `master` at `9049d6e300cca9a07c6c9f7f7cbda5287c173497`.
