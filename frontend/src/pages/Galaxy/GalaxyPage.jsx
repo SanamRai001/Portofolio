@@ -4,6 +4,7 @@ import GalaxyScene from './scene/GalaxyScene.jsx'
 import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
 import { bindGalaxyHistory } from './navigation/GalaxyHistory.js'
+import { galaxyDocumentMetadata } from './navigation/GalaxyMetadata.js'
 import { createPortalController } from './navigation/PortalController.js'
 import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
 import { createGalaxySoundscape } from './audio/Soundscape.js'
@@ -22,6 +23,7 @@ export default function GalaxyPage() {
     onCommit: destination => window.location.assign(destination),
   }))
   const portalState = useSyncExternalStore(portal.subscribe, portal.getSnapshot)
+  const navigationState = useSyncExternalStore(navigation.subscribe, navigation.getSnapshot)
   const portalEntering = portalState.mode !== 'idle'
   const portalActive = portalEntering && portalState.mode !== 'committed'
   const [failed, setFailed] = useState(false)
@@ -92,9 +94,31 @@ export default function GalaxyPage() {
 
   useEffect(() => {
     const previousTitle = document.title
-    document.title = `Galaxy | ${CORE.name}`
-    return () => { document.title = previousTitle }
-  }, [])
+    const existingMeta = document.querySelector('meta[name="description"]')
+    const previousDescription = existingMeta?.getAttribute('content') ?? null
+    const descriptionMeta = existingMeta || document.createElement('meta')
+    const createdMeta = !existingMeta
+
+    if (createdMeta) {
+      descriptionMeta.setAttribute('name', 'description')
+      document.head.append(descriptionMeta)
+    }
+
+    const metadata = galaxyDocumentMetadata(navigationState)
+    document.title = metadata.title
+    descriptionMeta.setAttribute('content', metadata.description)
+
+    return () => {
+      document.title = previousTitle
+      if (createdMeta) {
+        descriptionMeta.remove()
+      } else if (previousDescription === null) {
+        descriptionMeta.removeAttribute('content')
+      } else {
+        descriptionMeta.setAttribute('content', previousDescription)
+      }
+    }
+  }, [navigationState.selectedBodyId, navigationState.selectedProjectId])
 
   return (
     <main className={`GalaxyPage${portalEntering ? ' is-portal-entering' : ''}`} aria-labelledby="galaxy-title">
