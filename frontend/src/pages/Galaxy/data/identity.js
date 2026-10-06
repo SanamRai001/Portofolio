@@ -1,30 +1,66 @@
-import { CORE } from './core.js'
-
 export const IDENTITY = Object.freeze({
-  id: 'identity', label: 'Identity', name: CORE.name, hover: 'Who I am',
-  metadata: ['BIT Graduate', 'Based in Nepal'],
-  intro: 'I enjoy logic, architecture, and understanding why systems behave the way they do.',
-  learning: 'I learn best by building something real, finding what breaks, understanding why, and fixing it properly.',
-  learningStyle: ['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat'],
-  curiosity: 'Backend engineering is where I feel most comfortable. Curiosity pulls me toward frontend interaction, AI, agents, simulations, automation, and unusual software ideas.',
-  traits: [
-    { label: 'Curious', text: 'There is always something outside my main stack to explore.' },
-    { label: 'Builder', text: 'Ideas make more sense when I turn them into something real.' },
-    { label: 'Persistent', text: 'When something breaks, I want to understand the cause.' },
-  ],
-  portrait: { label: 'Portrait signal', status: 'Image pending' },
+  id: 'identity',
+  label: 'Identity',
+  hover: 'Working model',
+  title: 'How I approach difficult things.',
+  intro: 'I am drawn to software where behavior has to make sense: requests, state, data, permissions, failures, and the trade-offs between them.',
+  principles: Object.freeze([
+    Object.freeze({
+      id: 'trace',
+      label: 'Trace before changing',
+      text: 'I want to understand the real request path, data ownership, and failure point before reaching for an abstraction or patch.',
+    }),
+    Object.freeze({
+      id: 'build',
+      label: 'Build to understand',
+      text: 'Working systems expose assumptions faster than theory alone. I learn best when an idea has to survive real behavior.',
+    }),
+    Object.freeze({
+      id: 'simplify',
+      label: 'Simplify after understanding',
+      text: 'The goal is not clever code. It is making a difficult system easier to reason about, maintain, and use.',
+    }),
+  ]),
+  learning: 'My most useful learning loop is practical and repetitive: learn enough to build, let the system break, understand the cause, fix it properly, then repeat with better judgment.',
+  learningStyle: Object.freeze(['Learn', 'Build', 'Break', 'Understand', 'Fix', 'Repeat']),
+  directions: Object.freeze([
+    Object.freeze({
+      label: 'Backend & systems',
+      text: 'APIs, data, authentication, architecture, reliability, and the rules behind the interface.',
+    }),
+    Object.freeze({
+      label: 'AI & automation',
+      text: 'Agents, LLM systems, automation, and ways software can reason through longer workflows.',
+    }),
+    Object.freeze({
+      label: 'Research & experiments',
+      text: 'Browser-state exploration, reconstruction, simulations, algorithms, and unusual ideas worth testing.',
+    }),
+  ]),
 })
+
 export const IDENTITY_COMPOSITION = Object.freeze({
   breakpoint: 760,
-  desktop: Object.freeze({ x: -.46, y: .08, heightFraction: .45 }),
+  desktop: Object.freeze({ x: -.46, y: .04, heightFraction: .47 }),
   mobile: Object.freeze({ x: 0, y: -.22, heightFraction: .54, fov: 30 }),
 })
+
 export const IDENTITY_APPEARANCE = Object.freeze({
-  ocean: '#102a38', shallows: '#2e5963', land: '#627766', highlands: '#96a18d',
-  surfaceRoughness: .72, surfaceMetalness: .02,
-  atmosphere: '#71c6d8', atmosphereScale: 1.068, atmosphereStrength: .29,
-  cloud: '#e3e9df', cloudScale: 1.018, cloudOpacity: .27, cloudSeed: 4.7,
-  selectedBoost: .24, hoverBoost: .12, // Keep authored Earth rotation discernible in a close-up; the former 18%
-  // selected speed looked frozen even with a healthy single scene clock.
-  selectedSpeed: .82, hoverSpeed: .92,
+  ocean: '#102a38',
+  shallows: '#2e5963',
+  land: '#627766',
+  highlands: '#96a18d',
+  surfaceRoughness: .72,
+  surfaceMetalness: .02,
+  atmosphere: '#71c6d8',
+  atmosphereScale: 1.068,
+  atmosphereStrength: .29,
+  cloud: '#e3e9df',
+  cloudScale: 1.018,
+  cloudOpacity: .27,
+  cloudSeed: 4.7,
+  selectedBoost: .24,
+  hoverBoost: .12,
+  selectedSpeed: .82,
+  hoverSpeed: .92,
 })
