@@ -3,9 +3,11 @@ import {
   LAB_EXPERIMENTS,
   labExperimentById,
 } from '../data/lab.js'
+import { projectById } from '../data/projects.js'
 
 export default function LabContent({ revealed, state, navigation, onReturn }) {
   const selected = labExperimentById(state.selectedLabId)
+  const relatedProject = selected?.relatedProjectId ? projectById(selected.relatedProjectId) : null
 
   return <section
     className={`LabContent${revealed ? ' is-revealed' : ''}`}
@@ -49,9 +51,14 @@ export default function LabContent({ revealed, state, navigation, onReturn }) {
         <ul aria-label={`${selected.label} research focus`}>
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
-        <a href={selected.href} target="_blank" rel="noreferrer">
-          Inspect evidence <span aria-hidden="true">↗</span>
-        </a>
+        <div className="LabDetailLinks">
+          <a href={selected.href} target="_blank" rel="noreferrer">
+            Inspect evidence <span aria-hidden="true">↗</span>
+          </a>
+          {relatedProject && <a className="GalaxySemanticLink" href={`/galaxy/projects/${relatedProject.id}`}>
+            Open {relatedProject.label} case study <span aria-hidden="true">→</span>
+          </a>}
+        </div>
       </> : <>
         <p className="GalaxyEyebrow">Open questions</p>
         <p>{LAB_CONTENT.prompt}</p>
