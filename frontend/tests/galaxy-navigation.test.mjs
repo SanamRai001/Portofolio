@@ -230,7 +230,7 @@ test('static Core has the same content, shared return action, and safe focus res
 
 test('Identity arrives through the shared controller, shows a semantic learning cycle and clears rapid retargets', async () => {
   await render(false)
-  navigation.setHover('identity', 'keyboard')
+  await act(async () => navigation.setHover('identity', 'keyboard'))
   assert.match(container.querySelector('[role="status"]').textContent, /IdentityWho I am/)
 
   await selectBody('identity')
@@ -491,6 +491,6 @@ test('static/reduced fallback automatically enters blackout without a redundant 
 
   await escape()
   assert.equal(portal.getSnapshot().mode, 'idle')
-  assert.equal(navigation.getSnapshot().mode, 'returning_overview')
+  assert.equal(navigation.getSnapshot().mode, 'overview')
   assert.deepEqual(commits, [])
 })
