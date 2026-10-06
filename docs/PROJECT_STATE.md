@@ -1,17 +1,15 @@
 # PROJECT_STATE
 
-## Active — G3 final integration & release (2026-10-06)
+## Production verified — G3 final integration & release (2026-10-06)
 
-- **Production baseline:** G3F Lab research console merged as PR #31 into `master` at `628798640a58abb5c6c3f65411adc94feb8e3f8d`. Exact post-merge Frontend Auth Runtime Tests run `37428739943` passed and Vercel production deployment status succeeded. This successful deployment also carries the previously code-verified G3E Identity changes, resolving its earlier Vercel build-rate delay.
-- **Branch:** `release/galaxy-g3-integration`.
-- **Scope:** no new renderer/world/content feature. Reconcile public README and canonical Galaxy docs against the completed G3 system; add final real-browser deep-link/history proof; keep project-level routes such as `/galaxy/projects/statescout` deliberately out of G3.
-- **Completed G3 product:** G3A URL/history architecture; G3B Projects constellation + direct interaction simplification + procedural soundscape; G3C semantic Skills capability rings; G3D Journey progression trajectory; G3E Identity working model; G3F Lab research console.
-- **Release browser contract:** fresh navigation must settle `/galaxy/core`, `/identity`, `/skills`, `/projects`, `/journey`, and `/lab` on their semantic world content. Unknown nested routes must fail closed to `/galaxy`. In-app world retargeting must keep the managed history compact so Back returns to overview and Forward restores the final world. Black Hole direct/portal behavior remains covered by the dedicated portal suite.
-- **Documentation cleanup:** README now describes semantic G3 worlds, deep links, procedural audio, and the removed duplicate controls. Motion audit/roadmap no longer instruct visitors to use the deleted Pause control.
-- **Manual limits after release:** real laptop integrated-GPU frame pacing/thermals, real-phone FPS/touch feel, and optional ~140-second Mars full-turn seam capture. These are hardware/long-duration verification tasks, not unfinished G3 features.
-- **Future boundary:** project-detail routes/case-study navigation or any new world system belong to a future G4-style scope, not this release.
-- **Verification:** frontend release-code head `d2d24e6d4428ecb58f8dfc1788073e2f2ec6eead` passed Frontend Auth Runtime Tests run `37429010666`. Galaxy Visual Capture run `37429136821` passed end-to-end; artifact `11396433352` reports zero errors for desktop/laptop/phone reduced views, desktop/phone normal-motion views, and the new `G3 direct world routes + browser history` record. Fresh `/galaxy/core`, `/identity`, `/skills`, `/projects`, `/journey`, and `/lab` all settled on their semantic content; `/galaxy/projects/statescout` failed closed to `/galaxy`; Skills → Projects retargeting kept one managed history entry so Back returned to overview and Forward restored Projects. Portal results passed desktop, phone, and phone-reduced with exactly one opaque-blackout handoff and no browser errors. Required Earth/Mars/Mercury/Saturn assets returned HTTP 200 with expected image types. The temporary visual-workflow branch trigger was restored before merge.
-
+- **Merged:** PR #32 into `master` at `03143e59f8e30e676829d283bc7e3b092f6e25f1`.
+- **Final deterministic verification:** release-code head `d2d24e6d4428ecb58f8dfc1788073e2f2ec6eead` passed Frontend Auth Runtime Tests run `37429010666`; PR-head run `37429722880` passed; exact post-merge run `37429815471` passed.
+- **Final browser proof:** Galaxy Visual Capture run `37429136821` / artifact `11396433352` passed desktop/laptop/phone reduced views, desktop/phone normal-motion views, all required texture HTTP checks, all three Black Hole portal modes, and the final direct-route/history release gate.
+- **Direct-route contract:** fresh `/galaxy/core`, `/galaxy/identity`, `/galaxy/skills`, `/galaxy/projects`, `/galaxy/journey`, and `/galaxy/lab` all settle on their semantic destination. `/galaxy/projects/statescout` intentionally fails closed to `/galaxy` because project-detail routes are outside G3. Skills → Projects retargeting keeps browser history compact; Back returns to overview and Forward restores Projects.
+- **Deployment note:** Vercel rate-limited the PR #32 preview/final release-document build. This merge changes README/docs and `frontend/scripts/capture-galaxy.mjs`, not application runtime code. The complete G3 runtime was already deployed successfully from G3F master `628798640a58abb5c6c3f65411adc94feb8e3f8d`, including G3E and G3F.
+- **G3 status:** complete. G3A–G3F plus final integration are merged and verified. Do not add another world-specific phase under G3.
+- **Only remaining verification debt:** real laptop integrated-GPU frame pacing/thermals; real-phone FPS/touch feel; optional ~140-second Mars full-turn seam capture. These are hardware/long-duration checks, not missing product features.
+- **Future product boundary:** project-detail routes/case-study navigation, additional research worlds, or a new interaction model require a separate G4-style scope and architecture review.
 ## Production verified — G3F Lab research console (2026-10-06)
 
 - **Merged:** PR #31 into `master` at `628798640a58abb5c6c3f65411adc94feb8e3f8d`.
