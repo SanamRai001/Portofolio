@@ -1,0 +1,17 @@
+.GalaxyEvidenceLinks { margin-top:20px; padding-top:16px; border-top:1px solid #493f3d; }
+.GalaxyEvidenceLinks > div { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:8px; }
+.GalaxyEvidenceLinks a { display:inline-flex; align-items:center; min-height:38px; border-bottom:1px solid #806b5f; color:#d8c4b8; font-size:11px; letter-spacing:.02em; }
+.GalaxyEvidenceLinks a::after { content:'→'; margin-left:9px; color:#d2a782; }
+.GalaxyEvidenceLinks a:hover, .GalaxyEvidenceLinks a:focus-visible { color:#fff2e9; border-bottom-color:#d2a782; }
+
+.LabEvidenceActions { display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px; margin-top:18px; }
+.LabDetail .LabEvidenceActions a { margin-top:0; }
+.LabEvidenceActions a:first-child:not(:last-child) { color:#e0c9ea; border-bottom-color:#9a7eaa; }
+.LabEvidenceActions a:first-child:not(:last-child):hover,
+.LabEvidenceActions a:first-child:not(:last-child):focus-visible { color:#fff4ff; border-bottom-color:#c4a0d3; }
+
+@media(max-width:760px) {
+  .GalaxyEvidenceLinks { margin-top:18px; }
+  .GalaxyEvidenceLinks > div { gap:6px 14px; }
+  .LabEvidenceActions { align-items:flex-start; gap:4px 16px; }
+}
