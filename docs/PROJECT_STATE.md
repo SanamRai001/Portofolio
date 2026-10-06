@@ -9,7 +9,7 @@
 - **Lab bridges:** Interface State Exploration → StateScout and Reality Reconstruction → Reality Archive. Vector Reconstruction / Expressive Small Models remain repository-evidence only because they do not have curated G4A case-study routes.
 - **Navigation boundary:** bridges use the canonical `/galaxy/projects/<project>` URLs rather than creating another local state machine. The link remains valid/accessibile without JS and browser Back returns to the originating Journey/Lab world.
 - **No new 3D scope:** no objects, camera model, renderer, local picker, orbit, motion, or audio behavior changes.
-- **Verification state:** data-integrity and DOM regression coverage is in place; branch frontend CI and browser context-handoff capture are pending on the latest head. Temporary visual-workflow branch trigger must be restored before merge.
+- **Verification:** runtime/capture code head `0f0e806073a9062a26cefe86c88e8dbf3ea0c83b` passed Frontend Auth Runtime Tests run `37444942354`; PR-head frontend run `37445079113` also passed. Galaxy Visual Capture run `37444949150` passed end-to-end; artifact `11403157302` reports zero errors, proves Journey Research → StateScout → browser Back to `/galaxy/journey`, proves Lab State Exploration → StateScout → Back to `/galaxy/lab`, and retains all world/motion/portal gates. `desktop-lab-state-space.png` and `phone-lab-state-space.png` were visually inspected: the internal case-study handoff and external repository evidence remain distinct and fit cleanly without horizontal overflow. The temporary visual-workflow branch trigger was restored before merge.
 
 ## Code/browser verified — G4A shareable project deep dives (2026-10-06)
 
