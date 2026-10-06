@@ -53,9 +53,11 @@ test('runtime metadata updates and removes project JSON-LD without stale case-st
     <meta property="og:title" content="Original">
     <meta property="og:description" content="original">
     <meta property="og:image" content="https://sanam-rai.com.np/projects/portfolio-system.png">
+    <meta property="og:image:alt" content="Original social image">
     <meta name="twitter:title" content="Original">
     <meta name="twitter:description" content="original">
     <meta name="twitter:image" content="https://sanam-rai.com.np/projects/portfolio-system.png">
+    <meta name="twitter:image:alt" content="Original social image">
   </head><body></body></html>`)
   const doc = dom.window.document
   const stateScout = PROJECT_NODES.find(project => project.id === 'statescout')
