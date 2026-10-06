@@ -55,6 +55,7 @@ export const JOURNEY_WAYPOINTS = Object.freeze([
     period: 'Personal systems · Current direction',
     summary: 'Personal work now reaches into browser-state exploration, digital heritage and 3D reconstruction, AI and automation, and deeper system architecture.',
     focus: Object.freeze(['StateScout', 'Reality Archive', 'AI / automation']),
+    relatedProjectIds: Object.freeze(['statescout', 'reality-archive']),
     phase: 1.05,
     color: '#d2b69b',
   }),
