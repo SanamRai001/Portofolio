@@ -3,11 +3,19 @@ import useReducedMotion from '../../motion/useReducedMotion.js'
 import GalaxyScene from './scene/GalaxyScene.jsx'
 import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
-import { bindGalaxyHistory } from './navigation/GalaxyHistory.js'
+import { bindGalaxyHistory, parseGalaxyPath } from './navigation/GalaxyHistory.js'
 import { createPortalController } from './navigation/PortalController.js'
 import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
 import { createGalaxySoundscape } from './audio/Soundscape.js'
 import { CORE } from './data/core.js'
+import { projectById } from './data/projects.js'
+import {
+  GALAXY_METADATA,
+  PORTFOLIO_ORIGIN,
+  applyDocumentMetadata,
+  projectMetadataById,
+  syncProjectStructuredData,
+} from './projectMetadata.js'
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
 
@@ -91,10 +99,62 @@ export default function GalaxyPage() {
   }, [fallback, soundEnabled, soundUnavailable, soundscape])
 
   useEffect(() => {
+    const tracked = [
+      ['link[rel="canonical"]', 'href'],
+      ['meta[name="description"]', 'content'],
+      ['meta[property="og:type"]', 'content'],
+      ['meta[property="og:url"]', 'content'],
+      ['meta[property="og:title"]', 'content'],
+      ['meta[property="og:description"]', 'content'],
+      ['meta[property="og:image"]', 'content'],
+      ['meta[name="twitter:title"]', 'content'],
+      ['meta[name="twitter:description"]', 'content'],
+      ['meta[name="twitter:image"]', 'content'],
+    ].map(([selector, attribute]) => {
+      const node = document.querySelector(selector)
+      return { node, attribute, value: node?.getAttribute(attribute) ?? null }
+    })
     const previousTitle = document.title
-    document.title = `Galaxy | ${CORE.name}`
-    return () => { document.title = previousTitle }
-  }, [])
+    const previousStructured = document.querySelector('script[data-galaxy-project]')?.cloneNode(true)
+
+    function syncMetadata() {
+      const snapshot = navigation.getSnapshot()
+      const route = parseGalaxyPath(window.location.pathname)
+      const projectId = snapshot.selectedProjectId || (route?.kind === 'project' ? route.projectId : null)
+      const project = projectId ? projectById(projectId) : null
+
+      if (project) {
+        applyDocumentMetadata(projectMetadataById(project.id))
+        syncProjectStructuredData(project)
+        return
+      }
+
+      const path = window.location.pathname.replace(/\/+$/, '') || '/galaxy'
+      applyDocumentMetadata({
+        ...GALAXY_METADATA,
+        path,
+        url: `${PORTFOLIO_ORIGIN}${path}`,
+      })
+      syncProjectStructuredData(null)
+    }
+
+    syncMetadata()
+    const unsubscribe = navigation.subscribe(syncMetadata)
+    window.addEventListener('popstate', syncMetadata)
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener('popstate', syncMetadata)
+      document.title = previousTitle
+      for (const { node, attribute, value } of tracked) {
+        if (!node) continue
+        if (value === null) node.removeAttribute(attribute)
+        else node.setAttribute(attribute, value)
+      }
+      document.querySelector('script[data-galaxy-project]')?.remove()
+      if (previousStructured) document.head.appendChild(previousStructured)
+    }
+  }, [navigation])
 
   return (
     <main className={`GalaxyPage${portalEntering ? ' is-portal-entering' : ''}`} aria-labelledby="galaxy-title">
