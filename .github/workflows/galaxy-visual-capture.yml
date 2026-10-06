@@ -5,6 +5,7 @@ on:
     branches:
       - feat/galaxy-cinematic-surface-spike
       - feat/galaxy-cinematic-realism
+      - feat/galaxy-g3c-skill-groups
     paths:
       - 'frontend/**'
       - '.github/workflows/galaxy-visual-capture.yml'
