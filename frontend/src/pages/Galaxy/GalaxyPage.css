@@ -125,17 +125,23 @@
  .IdentityContent.is-revealed { animation:none; }
 }
 
-/* Skills is a constellation with a stable, keyboard-accessible signal directory. */
-.SkillsContent { position:relative; z-index:2; width:44%; max-width:520px; margin:0 1% 0 auto; padding:72px 0 42px; visibility:hidden; opacity:0; }
+/* G3C: Skills keeps the proven satellites but gives each orbit a real capability meaning. */
+.SkillsContent { position:relative; z-index:2; width:46%; max-width:560px; margin:0 1% 0 auto; padding:64px 0 42px; visibility:hidden; opacity:0; }
 .SkillsContent.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
-.SkillsContent h2 { max-width:14ch; margin:14px 0 18px; font-size:clamp(32px,3.4vw,48px); font-weight:450; letter-spacing:-.045em; line-height:1.15; }
-.SkillsContent .SkillsIntro { max-width:45ch; color:#b8bdc4; font-size:15px; line-height:1.8; }
-.SkillsDirectory { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 20px; margin:26px 0; }
-.SkillsDirectory button { display:flex; align-items:center; gap:12px; min-width:0; min-height:48px; padding:8px 0; border:0; border-bottom:1px solid #303840; border-radius:0; background:none; color:#c6ccd4; text-align:left; font:inherit; font-size:14px; line-height:1.5; cursor:pointer; }
-.SkillsDirectory button > span:first-child { color:#8094a5; font:10px/1.6 ui-monospace,monospace; }
-.SkillsDirectory button:hover, .SkillsDirectory button:focus-visible, .SkillsDirectory button[aria-pressed='true'] { color:#edf1f6; border-color:#a9c2d4; }
-.SkillsDirectory button[aria-pressed='true'] > span:first-child { color:#e0b77e; }
-.SkillDetail { min-height:230px; padding:20px 0 0; border-top:1px solid #596674; }
+.SkillsContent h2 { max-width:13ch; margin:14px 0 18px; font-size:clamp(32px,3.4vw,48px); font-weight:450; letter-spacing:-.045em; line-height:1.15; }
+.SkillsContent .SkillsIntro { max-width:48ch; color:#b8bdc4; font-size:15px; line-height:1.8; }
+.SkillsDirectory { display:grid; gap:18px; margin:28px 0 26px; }
+.SkillGroup { padding-top:13px; border-top:1px solid color-mix(in srgb,var(--skill-group-color) 34%,#252b32); }
+.SkillGroup > header { display:grid; grid-template-columns:28px 1fr; gap:10px; align-items:start; }
+.SkillGroup > header > span { color:var(--skill-group-color); font:10px/1.7 ui-monospace,monospace; }
+.SkillGroup h3 { margin:0; color:#dce3e9; font-size:13px; font-weight:520; letter-spacing:.055em; text-transform:uppercase; }
+.SkillGroup header p { max-width:46ch; margin:5px 0 0; color:#8f9aa4; font-size:11px; line-height:1.55; }
+.SkillGroupSignals { display:flex; flex-wrap:wrap; gap:7px 12px; margin:11px 0 0 38px; }
+.SkillGroupSignals button { display:flex; align-items:center; gap:8px; min-height:40px; padding:3px 0; border:0; border-bottom:1px solid transparent; border-radius:0; background:none; color:#b8c0c8; text-align:left; font:inherit; font-size:12px; line-height:1.4; cursor:pointer; }
+.SkillGroupSignals button > span:first-child { color:var(--skill-group-color); font-size:7px; opacity:.72; }
+.SkillGroupSignals button:hover, .SkillGroupSignals button:focus-visible, .SkillGroupSignals button[aria-pressed='true'] { color:#f0f4f7; border-bottom-color:var(--skill-group-color); }
+.SkillGroupSignals button[aria-pressed='true'] > span:first-child { color:#e0b77e; opacity:1; }
+.SkillDetail { min-height:220px; padding:20px 0 0; border-top:1px solid #596674; }
 .SkillDetail h3 { margin:10px 0; color:#e0e7ec; font-size:26px; font-weight:450; letter-spacing:-.03em; }
 .SkillDetail > p:not(.GalaxyEyebrow) { margin-top:12px; color:#b8bdc4; font-size:15px; line-height:1.8; }
 .SkillDetail ul { display:flex; flex-wrap:wrap; gap:8px 20px; list-style:none; padding:0; margin:18px 0 0; color:#a9b9c7; font-size:12px; }
@@ -143,8 +149,10 @@
 @media(max-width:760px) {
  .SkillsContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
  .SkillsContent h2 { font-size:36px; }
- .SkillsDirectory { gap:0 16px; }
- .SkillDetail { min-height:240px; }
+ .SkillsDirectory { gap:16px; }
+ .SkillGroupSignals { margin-left:0; }
+ .SkillGroup > header { grid-template-columns:24px 1fr; }
+ .SkillDetail { min-height:230px; }
 }
 @media(prefers-reduced-motion:reduce) { .SkillsContent.is-revealed { animation:none; } }
 

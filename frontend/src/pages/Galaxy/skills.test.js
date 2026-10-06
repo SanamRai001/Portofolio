@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Scene } from 'three'
 import { PLANETS } from './data/solarSystem.js'
-import { SKILL_NODES } from './data/skills.js'
+import { SKILL_GROUPS, SKILL_NODES, SKILL_ORBITS } from './data/skills.js'
 import { createSkillsPlanet } from './scene/SkillsPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { createNavigationController } from './navigation/NavigationController.js'
@@ -15,6 +15,28 @@ function release(group) {
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 }
 const focused = { selectedBodyId: 'skills', mode: 'body_focused', selectedSkillId: null, hoveredSkillId: null }
+
+
+test('Skills capability groups own the three existing orbital rings', () => {
+  assert.deepEqual(
+    SKILL_GROUPS.map(group => [group.id, group.skillIds.length]),
+    [['runtime', 3], ['data', 3], ['delivery', 4]],
+  )
+
+  assert.deepEqual(
+    SKILL_ORBITS.map(orbit => orbit.groupId),
+    SKILL_GROUPS.map(group => group.id),
+  )
+
+  for (const group of SKILL_GROUPS) {
+    const nodes = SKILL_NODES.filter(skill => skill.groupId === group.id)
+    assert.deepEqual(nodes.map(skill => skill.id), [...group.skillIds])
+    assert.ok(nodes.every(skill => skill.groupLabel === group.label))
+    assert.ok(nodes.every(skill => skill.color === group.color))
+  }
+
+  assert.equal(new Set(SKILL_NODES.map(skill => skill.id)).size, 10)
+})
 
 test('satellite selection stays local, ignores invalid/in-flight signals and clears on retarget', () => {
   const nav = createNavigationController(), input = skillInteraction(nav)
@@ -69,6 +91,7 @@ test('Skills uses shared satellite resources, cheaper low-power orbits and compl
   const full = createSkillsPlanet(body, false), low = createSkillsPlanet(body, true)
   const lines = planet => planet.group.getObjectByName('skills-satellites').children.filter(child => child.isLineLoop)
   assert.equal(lines(full).length, 3)
+  assert.deepEqual(lines(full).map(line => `#${line.material.color.getHexString()}`), SKILL_GROUPS.map(group => group.color))
   assert.ok(lines(low)[0].geometry.attributes.position.count < lines(full)[0].geometry.attributes.position.count)
   assert.equal(full.nodes.get('node').mesh.geometry, full.nodes.get('react').mesh.geometry)
   for (const planet of [full, low]) {

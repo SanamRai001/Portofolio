@@ -1,5 +1,15 @@
 # PROJECT_STATE
 
+## Active — G3C Skills capability system (2026-10-06)
+
+- **Production baseline:** G3B.2 adaptive cinematic soundscape is production-verified on `master`; this branch starts from the release-documentation baseline `acd357cb7eb9773e358880ce724a9ca45ab492c4`.
+- **Branch:** `feat/galaxy-g3c-skill-groups`.
+- **Design decision:** preserve the proven Mercury renderer, 10 technology satellites, three local orbits, one scene clock, picking, fallback, and camera behavior. G3C changes the information architecture rather than adding more objects.
+- **Capability model:** the existing three rings now mean `Runtime & APIs` (Node.js, TypeScript, Express), `Data & Persistence` (MySQL, PostgreSQL, MongoDB), and `System Delivery` (React, Architecture, Git/GitHub, Testing). Each satellite carries its capability-group identity and group color.
+- **Readable UI:** Skills is no longer presented as one flat 10-tool directory. The semantic panel groups technologies under the same three capability headings, explains what each ring represents, and keeps the existing per-technology focus details and native controls.
+- **3D/fallback parity:** WebGL and SVG fallback use the same three capability colors. The existing local-ring opacity stays exactly `.20`; G3C does not overwrite the G2R.16 focused-orbit readability contract.
+- **Scope boundary:** no new AI/LLM, infrastructure, cloud, language or framework claims are introduced just to fill a category. The grouping is derived only from skills already represented in the portfolio.
+- **Verification:** implementation head `d3d2d633fb52704a18a515376a347051f092b906` passed Frontend Auth Runtime Tests run `37409177479`; PR-head run `37409282253` also passed. Galaxy Visual Capture run `37409237339` passed end-to-end; artifact `11387908893` contains desktop/laptop/phone Skills captures plus normal-motion and portal regression evidence. `desktop-skills-reduced.png` and `phone-skills-reduced.png` were visually inspected: all three capability groups are legible, Mercury/satellites stay clear of content, phone stacks cleanly, and the run reported no horizontal overflow/browser errors. The temporary visual-workflow branch trigger was restored before merge review.
 ## Production verified — G3B.2 adaptive cinematic soundscape (2026-10-06)
 
 - **Merged:** PR #25 into `master` at `2c0e108ee1b563465c67765aee299b08de417a39`.

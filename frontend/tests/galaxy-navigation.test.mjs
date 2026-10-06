@@ -312,6 +312,17 @@ test('Skills details use native controls and never start another camera flight',
   await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
   assert.equal(content().hasAttribute('inert'), false)
 
+  const groups = content().querySelectorAll('.SkillGroup')
+  assert.equal(groups.length, 3)
+  assert.deepEqual(
+    [...groups].map(group => group.querySelector('h3').textContent),
+    ['Runtime & APIs', 'Data & Persistence', 'System Delivery'],
+  )
+  assert.deepEqual(
+    [...groups].map(group => group.querySelectorAll('button').length),
+    [3, 3, 4],
+  )
+
   const nodes = content().querySelectorAll('.SkillsDirectory button')
   assert.equal(nodes.length, 10)
   const transition = navigation.getSnapshot().transitionId
@@ -323,7 +334,7 @@ test('Skills details use native controls and never start another camera flight',
     assert.equal(node.getAttribute('aria-pressed'), 'true')
     assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
     assert.equal(
-      content().querySelector('h3').textContent,
+      content().querySelector('.SkillDetail h3').textContent,
       node.querySelector('span:last-child').textContent,
     )
     assert.equal(content().querySelectorAll('.SkillDetail li').length, 4)
@@ -355,7 +366,7 @@ test('Skills resets local selections after rapid retarget, fallback entry and un
   assert.equal(navigation.getSnapshot().hoveredSkillId, null)
 
   await selectBody('skills')
-  assert.match(container.querySelector('.SkillDetail').textContent, /Select an orbital signal/)
+  assert.match(container.querySelector('.SkillDetail').textContent, /Explore one capability ring/)
 
   await act(async () => container.querySelector('.SkillsContent .IdentityReturn').focus())
   await click(container.querySelector('.SkillsContent .IdentityReturn'))
@@ -379,7 +390,7 @@ test('fallback satellite clicks share Skills selection with the native technolog
   assert.equal(container.querySelector('.SkillDetail h3').textContent, 'PostgreSQL')
   assert.match(
     container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
-    /selected PostgreSQL/,
+    /three capability rings with ten technology signals, selected PostgreSQL/,
   )
 
   await selectBody('identity')

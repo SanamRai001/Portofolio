@@ -1,5 +1,5 @@
 import { BoxGeometry, BufferGeometry, Group, LineBasicMaterial, LineLoop, Mesh, MeshBasicMaterial, MeshStandardMaterial, SphereGeometry, Vector3 } from 'three'
-import { SKILL_NODES, SKILL_ORBITS } from '../data/skills.js'
+import { SKILL_GROUPS, SKILL_NODES, SKILL_ORBITS } from '../data/skills.js'
 import { createAxialRotation } from '../utils/axialRotation.js'
 import { GALAXY_TEXTURES } from '../data/photorealAssets.js'
 import { createAuthoredSurfaceController } from './PlanetLayers.js'
@@ -33,11 +33,12 @@ export function createSkillsPlanet(body, lowPower, onSurfaceReady = () => {}) {
   const simulation = createOrbitSimulation(SKILL_NODES), nodes = new Map(), hitMeshes = []
   const geometry = new BoxGeometry(1.7, .8, 1.2)
   const hitGeometry = new SphereGeometry(.25, 8, 6), hitMaterial = new MeshBasicMaterial()
-  const lineMaterial = new LineBasicMaterial({ color: '#8292a2', transparent: true, opacity: .2, depthWrite: false })
   for (const orbit of SKILL_ORBITS) {
     const count = lowPower ? 48 : 80
+    const group = SKILL_GROUPS.find(candidate => candidate.id === orbit.groupId)
     const points = Array.from({ length: count }, (_, i) => new Vector3(...orbitPosition(orbit, i / count * Math.PI * 2)))
-    constellation.add(new LineLoop(new BufferGeometry().setFromPoints(points), lineMaterial))
+    const material = new LineBasicMaterial({ color: group?.color || '#8292a2', transparent: true, opacity: .2, depthWrite: false })
+    constellation.add(new LineLoop(new BufferGeometry().setFromPoints(points), material))
   }
   for (const skill of SKILL_NODES) {
     const root = new Group()
