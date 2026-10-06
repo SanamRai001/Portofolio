@@ -6,9 +6,9 @@
 
 .LabEvidenceActions { display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px; margin-top:18px; }
 .LabDetail .LabEvidenceActions a { margin-top:0; }
-.LabEvidenceActions a:first-child:not(:last-child) { color:#e0c9ea; border-bottom-color:#9a7eaa; }
-.LabEvidenceActions a:first-child:not(:last-child):hover,
-.LabEvidenceActions a:first-child:not(:last-child):focus-visible { color:#fff4ff; border-bottom-color:#c4a0d3; }
+.LabEvidenceActions .LabCaseStudyLink { color:#e0c9ea; border-bottom-color:#9a7eaa; }
+.LabEvidenceActions .LabCaseStudyLink:hover,
+.LabEvidenceActions .LabCaseStudyLink:focus-visible { color:#fff4ff; border-bottom-color:#c4a0d3; }
 
 @media(max-width:760px) {
   .GalaxyEvidenceLinks { margin-top:18px; }
