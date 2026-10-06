@@ -242,6 +242,28 @@ test('direct project deep links resolve after Mars arrival without inventing pri
   dispose()
 })
 
+test('abandoning a direct project route before arrival cannot reopen it later', () => {
+  const win = createWindow('/galaxy/projects/statescout')
+  const navigation = createNavigationController()
+  const dispose = bindGalaxyHistory({ navigation, win })
+
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
+  assert.equal(navigation.getSnapshot().mode, 'focusing_body')
+  assert.equal(navigation.getSnapshot().selectedProjectId, null)
+
+  navigation.goBack()
+  assert.equal(win.location.pathname, '/galaxy')
+  navigation.complete(navigation.getSnapshot().transitionId)
+  assert.equal(navigation.getSnapshot().mode, 'overview')
+
+  navigation.focusBody('projects')
+  navigation.complete(navigation.getSnapshot().transitionId)
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
+  assert.equal(navigation.getSnapshot().selectedProjectId, null)
+
+  dispose()
+})
+
 test('browser Back and Forward replay semantic Galaxy world selection', () => {
   const win = createWindow('/galaxy')
   const navigation = createNavigationController()
