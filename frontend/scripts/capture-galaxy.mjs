@@ -283,6 +283,72 @@ try {
     if (results.at(-1).errors.length) failed = true
   }
 
+  // G3 release gate: prove the stable semantic URLs work after a fresh browser
+  // navigation, not only after in-app selection. Black Hole is covered by the
+  // dedicated portal browser suite because direct focus intentionally commits.
+  {
+    const context = await createCaptureContext({ name: 'desktop', width: 1440, height: 900, mobile: false }, 'reduce')
+    const page = await context.newPage()
+    const errors = []
+    attachErrors(page, errors)
+
+    const routes = [
+      ['core', '.CoreIdentity.is-revealed'],
+      ['identity', '.IdentityContent.is-revealed'],
+      ['skills', '.SkillsContent.is-revealed'],
+      ['projects', '.ProjectsContent.is-revealed'],
+      ['journey', '.JourneyContent.is-revealed'],
+      ['lab', '.LabContent.is-revealed'],
+    ]
+
+    try {
+      for (const [id, selector] of routes) {
+        await page.goto(`${origin}/galaxy/${id}`, { waitUntil: 'networkidle' })
+        await page.locator('.GalaxyScene canvas').waitFor()
+        await page.locator('.GalaxyLoading').waitFor({ state: 'hidden' })
+        await page.locator(selector).waitFor()
+        assert.equal(new URL(page.url()).pathname, `/galaxy/${id}`)
+        assert.equal(
+          await page.locator('.GalaxyTargetLabel .GalaxyEyebrow').textContent(),
+          'Signal locked',
+          `direct route ${id} must settle on the semantic destination`,
+        )
+      }
+
+      // Unimplemented nested project-detail routes fail closed to the system
+      // overview until a future phase explicitly defines that URL contract.
+      await page.goto(`${origin}/galaxy/projects/statescout`, { waitUntil: 'networkidle' })
+      await page.waitForURL(`${origin}/galaxy`)
+      assert.equal(await page.locator('.GalaxyBack').count(), 0)
+
+      // Real browser history must retain the G3A rule: retargeting worlds
+      // replaces the focused entry instead of creating a long back stack.
+      await openGalaxy(page)
+      await selectBody(page, 'Skills')
+      await selectBody(page, 'Projects')
+      assert.equal(new URL(page.url()).pathname, '/galaxy/projects')
+      await page.goBack()
+      await page.waitForURL(`${origin}/galaxy`)
+      await page.goForward()
+      await page.waitForURL(`${origin}/galaxy/projects`)
+      await page.locator('.ProjectsContent.is-revealed').waitFor()
+
+      if (errors.length) throw new Error('Browser errors: ' + errors.join('; '))
+      results.push({
+        view: 'G3 direct world routes + browser history',
+        routes: routes.map(([id]) => `/galaxy/${id}`),
+        invalidNestedRoute: '/galaxy/projects/statescout -> /galaxy',
+        retargetHistory: '/galaxy -> /galaxy/projects -> Back /galaxy -> Forward /galaxy/projects',
+        errors,
+      })
+    } catch (error) {
+      results.push({ view: 'G3 direct world routes + browser history', errors: [...errors, error.message] })
+    } finally {
+      await context.close()
+    }
+    if (results.at(-1).errors.length) failed = true
+  }
+
   // G2R.1: prove every primary planet has visible local motion in both desktop
   // and phone compositions. Eight seconds is long enough to expose movement
   // without turning the visual gate into a long-running animation test.
