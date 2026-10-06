@@ -412,7 +412,7 @@ test('fallback satellite clicks share Skills selection with the native technolog
   assert.equal(container.querySelectorAll('[data-skill]').length, 0)
 })
 
-test('Projects exposes six accessible project signals without starting another camera flight', async () => {
+test('Projects exposes six shareable engineering case studies without another camera flight', async () => {
   await render(false)
   await selectBody('projects')
   const content = () => container.querySelector('.ProjectsContent')
@@ -432,20 +432,28 @@ test('Projects exposes six accessible project signals without starting another c
     await act(async () => project.focus())
     assert.ok(navigation.getSnapshot().hoveredProjectId)
     await click(project)
+
+    const caseStudy = content().querySelector('.ProjectCaseStudy')
     assert.equal(project.getAttribute('aria-pressed'), 'true')
     assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
     assert.equal(
-      content().querySelector('.ProjectSignalDetail h3').textContent,
+      caseStudy.querySelector('#project-case-title').textContent,
       project.querySelector('strong').textContent,
     )
-    assert.equal(content().querySelectorAll('.ProjectSignalDetail li').length, 4)
+    assert.equal(caseStudy.querySelectorAll('.ProjectArchitecture li').length, 3)
+    assert.equal(caseStudy.querySelectorAll('.ProjectCaseFooter li').length, 4)
+    assert.match(caseStudy.querySelector('.ProjectCaseQuestion').textContent, /\?$/)
+    assert.match(caseStudy.querySelector('.ProjectCaseFooter a').href, /github\.com\/SanamRai001\//)
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
 
-  assert.match(
-    content().querySelector('.ProjectSignalDetail a').href,
-    /github\.com\/SanamRai001\//,
-  )
+  const close = content().querySelector('.ProjectCaseHeader button')
+  await click(close)
+  assert.equal(navigation.getSnapshot().selectedProjectId, null)
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
+  assert.equal(content().querySelector('.ProjectCaseStudy'), null)
+  assert.match(content().querySelector('.ProjectSignalDetail').textContent, /Select a project signal/)
+  assert.equal(navigation.getSnapshot().transitionId, transition)
 
   await escape()
   assert.equal(content(), null)
