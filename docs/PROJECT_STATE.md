@@ -1,5 +1,18 @@
 # PROJECT_STATE
 
+## Active — G4A shareable project deep dives (2026-10-06)
+
+- **Baseline:** G3 is closed and release-documented on `master` at `9365e895ad98c9e24288cabb434c9fff2d54eee0`; the complete G3 runtime is already production-verified from the G3F/integration release chain.
+- **Branch:** `feat/galaxy-g4a-project-deep-links`.
+- **G4 boundary:** G4 does not add another planet, renderer, moon system or camera model. G4A deepens the existing Mars/Projects information architecture by making project selections readable, URL-addressable engineering case studies.
+- **Routes:** the six existing curated personal projects now have canonical `/galaxy/projects/<project>` paths. Unknown project IDs and deeper unsupported nesting still fail closed to `/galaxy`.
+- **History contract:** entering a case study from `/galaxy/projects` adds exactly one nested browser-history entry; switching case studies replaces that entry; browser Back returns to Mars/Projects; Forward restores the case study. Escape/System still returns all the way to Galaxy overview. Direct shared project URLs manufacture no fake prior history.
+- **Controller contract:** `NavigationController.clearProjectSelection()` clears only the local project detail/hover state and keeps Mars in `body_focused`; no camera transition or project-orbit reset is introduced.
+- **Case-study content:** all six G3B projects now expose concise engineering narratives grounded in their current repositories: problem/question, three architecture/approach points, one engineering lesson, current state, focus tags and repository evidence. The content intentionally distinguishes implemented work from explicit research/prototype gates.
+- **Readable UI:** selecting a Mars project condenses the six-project directory and opens one semantic case-study article in the existing right-side content layer. Mars and its constellation remain the spatial context; long-form copy remains DOM, not WebGL.
+- **Deterministic verification:** code/test head `3b6cfec996e2901da97b8278075a10766572b668` passed Frontend Auth Runtime Tests run `37431945935`, including nested-route/history, project-local state, DOM accessibility, homepage isolation, lint and production build.
+- **Browser gate:** G4A visual/direct-route capture is pending. Acceptance must prove direct refresh into StateScout, nested Back/Forward, project-to-project history replacement, Escape/System overview return, desktop/phone case-study readability, portal regression and zero browser errors.
+
 ## Production verified — G3 final integration & release (2026-10-06)
 
 - **Merged:** PR #32 into `master` at `03143e59f8e30e676829d283bc7e3b092f6e25f1`.
