@@ -3,8 +3,10 @@ import { CORE } from '../data/core.js'
 import { IDENTITY } from '../data/identity.js'
 import { SKILLS, skillById } from '../data/skills.js'
 import { PROJECTS, projectById } from '../data/projects.js'
+import { JOURNEY, journeyById } from '../data/journey.js'
 import SkillsContent from './SkillsContent.jsx'
 import ProjectsContent from './ProjectsContent.jsx'
+import JourneyContent from './JourneyContent.jsx'
 import IdentityContent from './IdentityContent.jsx'
 import CoreIdentity from './CoreIdentity.jsx'
 import { SYSTEM_MAP } from '../data/solarSystem.js'
@@ -33,12 +35,14 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
   const skillSignal = skillsSelected && skillById(state.hoveredSkillId || state.selectedSkillId)
   const projectsSelected = state.selectedBodyId === PROJECTS.id
   const projectSignal = projectsSelected && projectById(state.hoveredProjectId || state.selectedProjectId)
+  const journeySelected = state.selectedBodyId === JOURNEY.id
+  const journeySignal = journeySelected && journeyById(state.hoveredJourneyId || state.selectedJourneyId)
   const returning = state.mode === 'returning_overview'
 
   function goBack() {
     if (portalState.mode === 'committed') return
     const restore = document.activeElement === backButton.current
-      || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
+      || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent, .JourneyContent'))
 
     if (portalActive) portal?.cancel()
     navigation.goBack()
@@ -80,7 +84,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
       ) return
 
       const restore = document.activeElement === backButton.current
-        || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
+        || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent, .JourneyContent'))
 
       if (portal && portal.getSnapshot().mode !== 'idle') portal.cancel()
       navigation.goBack()
@@ -129,7 +133,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
 
   return <div
     ref={stageRef}
-    className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : ''}`}
+    className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected || journeySelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : journeySelected ? ' is-journey' : ''}`}
     tabIndex={0}
     aria-label="Interactive solar system. Use arrow keys to choose a world and Enter to explore."
     aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End Enter Escape"
@@ -155,7 +159,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
       <div className="GalaxyTargetLabel" role="status" aria-live="polite" aria-atomic="true">
         {(selected || hovered || returning) && <>
           <p className="GalaxyEyebrow">{selected ? status : returning ? status : coreHovered ? CORE.signal : 'Signal detected'}</p>
-          {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
+          {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : journeySignal ? journeySignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
           {!selected && hovered?.id === SKILLS.id && <small>{SKILLS.hover}</small>}
           {identityHovered && <small>{IDENTITY.hover}</small>}
           {selected && !coreSelected && <small>{
@@ -163,7 +167,9 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
               ? `${SKILLS.label} / ${skillSignal.category}`
               : projectSignal
                 ? `${PROJECTS.label} / ${projectSignal.category}`
-                : selected.id === 'lab'
+                : journeySignal
+                  ? `${JOURNEY.label} / ${journeySignal.kind}`
+                  : selected.id === 'lab'
                   ? 'Unknown signal · Content locked'
                   : selected.id === 'black-hole'
                     ? portalActive
