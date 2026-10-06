@@ -1,8 +1,8 @@
 # Galaxy remaining implementation roadmap
 
-Canonical next-phase checklist, reconciled 2026-10-05 after the final focused-orbit release. docs/PROJECT_STATE.md is the chronological evidence log; docs/GALAXY_MOTION_AUDIT.md explains animation behaviour. Prior draft realism plans predate merged Earth/Sun/Saturn PRs.
+Canonical next-phase checklist, reconciled 2026-10-06 after G4C project metadata/prerender merged. `docs/PROJECT_STATE.md` is the chronological evidence log; `docs/GALAXY_MOTION_AUDIT.md` is the authoritative explanation of spin, revolution, focus-rate policy and orbit visibility. Repository state wins if an older phase note conflicts with this file.
 
-## Merged production baseline (G2R.17 `4ee1dc8`, 2026-10-05)
+## Current merged baseline (`f5e5162`, 2026-10-06)
 
 - G1–G6 navigation, camera, content foundation, single render loop, user controls and black-hole portal.
 - Earth / Identity NASA-imagery day, cloud, night and terrain treatment, desktop and mobile.
@@ -12,6 +12,10 @@ Canonical next-phase checklist, reconciled 2026-10-05 after the final focused-or
 - Mars / Projects photographic day/night and no fictitious settlements: canonical [PR #15](https://github.com/SanamRai001/Portofolio/pull/15) **merged** as `0d0a92c3`; exact post-merge [CI 37216453383](https://github.com/SanamRai001/Portofolio/actions/runs/37216453383) and Vercel status succeeded. Mars retains orbit/axial motion improvements from #13. Conflicting standalone alternatives [#10](https://github.com/SanamRai001/Portofolio/pull/10) and [#11](https://github.com/SanamRai001/Portofolio/pull/11) have been closed unmerged. Mercury / Skills realism is merged in PR #17 (`6c710da9`) with its credited 2K atlas, nonmetallic regolith shading and preserved Skills interaction.
 - Release/handoff documentation: [PR #19](https://github.com/SanamRai001/Portofolio/pull/19) merged as `4ee1dc8`; README, attribution, state log and remaining-check list are reconciled. This docs-only merge had successful Vercel status and correctly did not trigger the frontend Action because that workflow is path-filtered to `frontend/**`.
 - Focused world-orbit/UI cleanup: [PR #18](https://github.com/SanamRai001/Portofolio/pull/18) merged as `69b6bedc`; exact post-merge [CI 37329770084](https://github.com/SanamRai001/Portofolio/actions/runs/37329770084) **passed** and Vercel status succeeded. Overview keeps four readable true orbit loci at .48 while focused views fade only WORLD-scale traces; Skills-local rings and 100/82/65 revolution behavior are unchanged.
+- G3 exploration/content architecture is complete through G3F plus release integration: URL-addressable worlds, Projects constellation, direct interaction, adaptive soundscape, semantic Skills groups, Journey progression, Identity working model and Lab research console.
+- G4A shareable project deep links merged as PR #34 (`a391c23`); G4B contextual Journey/Lab bridges merged as PR #36 (`83b6bf2`).
+- G4C project metadata/prerender merged as PR #37 at current master `f5e5162e4f122a63c89b59c604730c1496c05bf7`. Exact post-merge Frontend Auth Runtime Tests run `37447737594` **passed**. Vercel currently reports only the external `build-rate-limit` quota rather than an application/build-test failure.
+- Superseded PR #35 was closed on 2026-10-06 because merged PR #36 and #37 already contain the authoritative contextual-link/metadata direction; do not revive that diverged branch wholesale.
 
 ## Ordered remaining work
 
@@ -35,7 +39,7 @@ G3 remains closed. G4 begins only where deeper portfolio reading/sharing needs a
 | Order | Phase | How to implement | Acceptance |
 | --- | --- | --- | --- |
 | P12 | G4A project deep links (**MERGED / CODE+ BROWSER VERIFIED**: PR #34, `a391c23`) | Extend the existing G3A history adapter to `/galaxy/projects/<project>`; keep Mars focused while local project detail opens; add concise repository-grounded engineering case studies in semantic DOM. | Push/PR frontend runs `37432496869` / `37432498212`, browser run `37432496672` / artifact `11397507451`, and exact post-merge frontend run `37433221315` passed. Vercel merge deployment is externally blocked by build-rate quota. |
-| P13 | G4B contextual bridges (**MERGED / VERIFIED**: PR #36, `83b6bf2`) | Add only evidence-based Journey/Lab → canonical project-case-study links. Keep them normal semantic URLs; do not add 3D objects or another navigation/state model. | Frontend/browser verification passed before merge and exact post-merge frontend run `37445919315` passed. Vercel remains externally build-rate limited. |\n| P14 | G4C project metadata/prerender (**VERIFIED / MERGE READY** on `feat/galaxy-g4c-project-metadata`) | Generate six static project entry HTML files after Vite build; route canonical case-study URLs to them on Vercel; keep runtime metadata/JSON-LD synchronized when switching projects in-app. No SSR migration. | Frontend runs `37446727413` / `37446871281` passed; browser run `37446786063` / artifact `11403827088` proved raw prerender metadata, runtime StateScout → Reality Archive head/JSON-LD replacement, Back cleanup, zero desktop/laptop/phone errors, and all portal modes. |\n| Later | G4D+ | Evaluate project-specific social preview images or additional readable research evidence only if the share/deep-reading UX benefits. | Separate scope review and evidence-driven acceptance. |
+| P13 | G4B contextual bridges (**MERGED / VERIFIED**: PR #36, `83b6bf2`) | Add only evidence-based Journey/Lab → canonical project-case-study links. Keep them normal semantic URLs; do not add 3D objects or another navigation/state model. | Frontend/browser verification passed before merge and exact post-merge frontend run `37445919315` passed. Vercel remains externally build-rate limited. |\n| P14 | G4C project metadata/prerender (**MERGED / VERIFIED**: PR #37, `f5e5162`) | Six static project entry HTML files are generated after Vite build; canonical project URLs route to those files; runtime metadata/JSON-LD stays synchronized when switching projects in-app. No SSR migration. | Frontend runs `37446727413` / `37446871281` and browser run `37446786063` / artifact `11403827088` passed; exact post-merge run `37447737594` passed. Vercel is externally blocked by `build-rate-limit`. |\n| P15 | G4D project-specific social preview cards (**NEXT / PLANNED**) | Replace the one generic `portfolio-system.png` OG/Twitter image with six project-specific 1200×630 static PNG cards. Keep metadata data-driven from `PROJECT_NODES`; no runtime canvas, no new 3D work and no network image dependency. Add exact asset existence/dimensions tests and ensure generated project HTML contains the corresponding absolute `og:image` / `twitter:image`. | Each canonical project page must expose its own 200-response PNG, raw prerender HTML must reference that project image before React runs, runtime project switching must update both OG/Twitter image tags, and desktop/phone Galaxy behavior must remain unchanged. |\n| P16 | G4E evidence expansion (**REVIEW ONLY AFTER G4D**) | Add deeper readable research evidence only where a case study has real architecture/results worth surfacing. Prefer concise evidence links/diagrams over adding more 3D objects. | Separate scope review; no implementation merely to make pages longer. |
 
 ## G3 status — COMPLETE
 
@@ -49,6 +53,11 @@ G3A through G3F plus P11 final integration are merged and verified. Remaining it
 
 ## Current handoff checkpoint
 
+- **Current master:** `f5e5162e4f122a63c89b59c604730c1496c05bf7` (PR #37, G4C metadata/prerender). Exact post-merge frontend run `37447737594` passed. Vercel's current failure status is the external project `build-rate-limit` quota.
+- **Next implementation:** G4D project-specific social preview cards. The concrete gap is that all six case-study URLs currently share `/projects/portfolio-system.png` even though titles/descriptions/canonicals are project-specific.
+- **After G4D:** perform a separate evidence-value review before any G4E content expansion. Do not reopen G2R/G3 renderer/world work unless a regression is proven.
+- **Stale branch hygiene:** PR #35 is closed as superseded by merged #36/#37.
+
 - Verified merged Mars baseline: `0d0a92c3d1788f9af2bc28266217dce37a7501d6` (PR #15), retaining motion/orbit fix #13, the four brighter orbital tracks and the original Earth/Sun/Saturn renderers. Full production CI 37216453383 and Vercel commit status succeeded.
 - Production Mercury checkpoint: PR #17 merged at `6c710da9`; [CI 37327445720](https://github.com/SanamRai001/Portofolio/actions/runs/37327445720) passed and Vercel deployment status succeeded. Browser [run 37218653139](https://github.com/SanamRai001/Portofolio/actions/runs/37218653139), artifact `11309456482`, proved the real Mercury JPEG and Skills interaction across desktop/laptop/phone. Motion/orbit improvements from PR #13 remain intact.
 - Production G2R.16 checkpoint: PR #18 merged at `69b6bedc`; [CI 37329770084](https://github.com/SanamRai001/Portofolio/actions/runs/37329770084) passed and Vercel commit status succeeded. Browser run 37328241293 / artifact 11353685738 is green and visually inspected: focused phone Skills no longer competes with world tracks while overview retains all four paths.
@@ -56,6 +65,11 @@ G3A through G3F plus P11 final integration are merged and verified. Remaining it
 - G2R.17 handoff is merged as PR #19 / `4ee1dc8`; Vercel commit status succeeded. The frontend Action intentionally did not run because the merge changed docs only and the workflow is path-filtered to `frontend/**`. Runtime work is complete. Manual/non-headless checks that remain are real integrated-GPU/phone FPS + touch behavior and the optional ~140-second Mars full-turn seam proof.
 
 ## How to verify spin, revolution and the orbit paths
+
+**This is not remaining implementation work. It is already merged and regression-tested.** The important distinction is:
+- **rotation / spin:** each planet surface changes `surface.rotation.y`;
+- **revolution:** each planet root changes world `position` from `orbitPosition()`;
+- **orbit line:** a stationary `LineLoop` locus generated from that same `orbitPosition()`; the line itself should not rotate.
 
 - Run `cd frontend && npm ci && npm run test:galaxy && npm run lint && npm run build`. These include authored axial-yaw and planet-root revolution checks, orbit geometry matching `orbitPosition()`, pause/reduced mode, root/anchor tracking, and quality budgets.
 - View `/galaxy` in normal motion with OS `prefers-reduced-motion` disabled. In overview watch the actual planets change position over ~8 seconds while each of the four cool-grey tracks remains stationary. Tracks show where planets *travel*, not a decorative line that should spin.
