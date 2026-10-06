@@ -81,7 +81,7 @@ try {
       const focus = async () => {
         await page.getByRole('button', { name: 'Black Hole', exact: true }).click()
         await page.locator('.GalaxyPortalEnter').waitFor({ state: 'visible' })
-        assert.equal(page.url(), origin + '/galaxy', 'mere focus must not navigate')
+        assert.equal(page.url(), origin + '/galaxy/black-hole', 'mere focus may update G3A world URL but must not commit the portal destination')
         assert.equal(await page.locator('.GalaxyPortalVeil').getAttribute('data-portal-phase'), 'idle')
       }
       await focus()

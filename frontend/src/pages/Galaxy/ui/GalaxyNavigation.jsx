@@ -2,7 +2,9 @@ import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { CORE } from '../data/core.js'
 import { IDENTITY } from '../data/identity.js'
 import { SKILLS, skillById } from '../data/skills.js'
+import { PROJECTS, projectById } from '../data/projects.js'
 import SkillsContent from './SkillsContent.jsx'
+import ProjectsContent from './ProjectsContent.jsx'
 import IdentityContent from './IdentityContent.jsx'
 import CoreIdentity from './CoreIdentity.jsx'
 import { SYSTEM_MAP } from '../data/solarSystem.js'
@@ -25,12 +27,14 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
   const identityHovered = !selected && hovered?.id === IDENTITY.id
   const skillsSelected = state.selectedBodyId === SKILLS.id
   const skillSignal = skillsSelected && skillById(state.hoveredSkillId || state.selectedSkillId)
+  const projectsSelected = state.selectedBodyId === PROJECTS.id
+  const projectSignal = projectsSelected && projectById(state.hoveredProjectId || state.selectedProjectId)
   const returning = state.mode === 'returning_overview'
 
   function goBack() {
     if (portalState.mode === 'committed') return
     const id = state.selectedBodyId
-    const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent'))
+    const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
     if (portalActive) portal?.cancel()
     navigation.goBack()
     if (restore) buttons.current.get(id)?.focus()
@@ -39,7 +43,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
     function escape(event) {
       if (event.key !== 'Escape' || !navigation.getSnapshot().selectedBodyId || portal?.getSnapshot().mode === 'committed') return
       const id = navigation.getSnapshot().selectedBodyId
-      const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent'))
+      const restore = document.activeElement === backButton.current || Boolean(document.activeElement?.closest('.CoreIdentity, .IdentityContent, .SkillsContent, .ProjectsContent'))
       if (portal && portal.getSnapshot().mode !== 'idle') portal.cancel()
       navigation.goBack()
       if (restore) buttons.current.get(id)?.focus()
@@ -53,20 +57,21 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
 
   const status = selected ? (state.mode === 'focusing_body' ? 'Navigating' : staticView ? 'Static selection' : 'Signal locked') : returning ? 'Returning to system' : 'Overview'
   return <>
-    <div className={`GalaxyStage${coreSelected || identitySelected || skillsSelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : ''}`}>
+    <div className={`GalaxyStage${coreSelected || identitySelected || skillsSelected || projectsSelected ? ' has-body-content' : ''}${coreSelected ? ' is-core' : identitySelected ? ' is-identity' : skillsSelected ? ' is-skills' : projectsSelected ? ' is-projects' : ''}`}>
       {children(state.selectedBodyId, state)}
       {coreSelected && <CoreIdentity revealed={coreRevealed} />}
       {identitySelected && <IdentityContent revealed={state.mode === 'body_focused'} onReturn={goBack} />}
       {skillsSelected && <SkillsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
+      {projectsSelected && <ProjectsContent revealed={state.mode === 'body_focused'} state={state} navigation={navigation} onReturn={goBack} />}
       <div className="GalaxyTarget">
         {selected && <button ref={backButton} className="GalaxyBack" type="button" onClick={goBack}>← System<span>Esc</span></button>}
         <div className="GalaxyTargetLabel" role="status" aria-live="polite" aria-atomic="true">
           {(selected || hovered || returning) && <>
             <p className="GalaxyEyebrow">{selected ? status : returning ? status : coreHovered ? CORE.signal : 'Signal detected'}</p>
-            {!coreRevealed && <p>{skillSignal ? skillSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
+            {!coreRevealed && <p>{skillSignal ? skillSignal.label : projectSignal ? projectSignal.label : coreHovered ? CORE.name : selected?.label || hovered?.label}</p>}
             {!selected && hovered?.id === SKILLS.id && <small>{SKILLS.hover}</small>}
             {identityHovered && <small>{IDENTITY.hover}</small>}
-            {selected && !coreSelected && <small>{skillSignal ? `${SKILLS.label} / ${skillSignal.category}` : selected.id === 'lab' ? 'Unknown signal · Content locked' : selected.id === 'black-hole' ? (portalActive ? 'Entering horizon · Esc to cancel' : portal ? 'Event horizon · Portal ready' : 'Event horizon · Portal inactive') : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
+            {selected && !coreSelected && <small>{skillSignal ? `${SKILLS.label} / ${skillSignal.category}` : projectSignal ? `${PROJECTS.label} / ${projectSignal.category}` : selected.id === 'lab' ? 'Unknown signal · Content locked' : selected.id === 'black-hole' ? (portalActive ? 'Entering horizon · Esc to cancel' : portal ? 'Event horizon · Portal ready' : 'Event horizon · Portal inactive') : `Planet ${String(SYSTEM_MAP.indexOf(selected)).padStart(2, '0')}`}</small>}
           </>}
         </div>
       </div>

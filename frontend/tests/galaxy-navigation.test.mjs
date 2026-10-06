@@ -245,6 +245,41 @@ test('fallback satellite clicks share Skills selection with the native technolog
 })
 
 
+test('Projects exposes six accessible project signals without starting another camera flight', async () => {
+  await render(false)
+  await click(button('Projects'))
+  const content = () => container.querySelector('.ProjectsContent')
+  assert.equal(content().hasAttribute('inert'), true)
+
+  await act(async () => navigation.selectProject('statescout'))
+  assert.equal(navigation.getSnapshot().selectedProjectId, null)
+
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.equal(content().hasAttribute('inert'), false)
+
+  const projects = content().querySelectorAll('.ProjectsDirectory button')
+  assert.equal(projects.length, 6)
+  const transition = navigation.getSnapshot().transitionId
+
+  for (const project of projects) {
+    await act(async () => project.focus())
+    assert.ok(navigation.getSnapshot().hoveredProjectId)
+    await click(project)
+    assert.equal(project.getAttribute('aria-pressed'), 'true')
+    assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
+    assert.equal(content().querySelector('.ProjectSignalDetail h3').textContent, project.querySelector('strong').textContent)
+    assert.equal(content().querySelectorAll('.ProjectSignalDetail li').length, 4)
+    assert.equal(navigation.getSnapshot().transitionId, transition)
+  }
+
+  assert.match(content().querySelector('.ProjectSignalDetail a').href, /github\.com\/SanamRai001\//)
+  await escape()
+  assert.equal(content(), null)
+  assert.equal(document.activeElement, button('Projects'))
+  assert.equal(navigation.getSnapshot().selectedProjectId, null)
+})
+
+
 test('black-hole static focus is labelled, keyboard accessible and has no portal navigation yet', async () => {
   await render()
   await click(button('Black Hole'))

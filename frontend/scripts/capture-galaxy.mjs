@@ -172,7 +172,10 @@ try {
       await selectBody(page, 'Identity')
       await page.screenshot({ path: `${output}/${view.name}-identity-reduced.png`, fullPage: true })
       await selectBody(page, 'Projects')
+      await page.locator('.ProjectsContent.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-projects.png`, fullPage: true })
+      await page.locator('.ProjectsDirectory').getByRole('button', { name: /StateScout/ }).click()
+      await page.screenshot({ path: `${output}/${view.name}-projects-statescout.png`, fullPage: true })
       // Mercury also needs direct reduced-motion focus proof; previous visual
       // captures only recorded its normal-motion pass through rotatingBodies.
       await selectBody(page, 'Skills')

@@ -4,7 +4,7 @@ import { createPortalCameraMotion } from './PortalCameraMotion.js'
 import { createSolarSystem } from './SolarSystem.js'
 import { createStarField } from './StarField.js'
 import { createRenderLoop, shouldRunSceneLoop } from '../utils/renderLoop.js'
-import { skillInteraction } from '../navigation/SkillInteraction.js'
+import { galaxyInteraction } from '../navigation/GalaxyInteraction.js'
 import { attachPointerInteractions } from '../navigation/InteractionController.js'
 import { disposeScene } from '../utils/disposeScene.js'
 
@@ -109,7 +109,7 @@ export function createGalaxyScene(mount, profile, { onReady, onError, navigation
     const raycaster = new Raycaster(), pointer = new Vector2()
     raycaster.layers.set(1)
     interaction = attachPointerInteractions(mount, {
-      navigation: skillInteraction(navigation), invalidate: () => loop.invalidate(),
+      navigation: galaxyInteraction(navigation), invalidate: () => loop.invalidate(),
       pick(x, y) {
         const rect = mount.getBoundingClientRect()
         if (!rect.width || !rect.height || isPortalActive()) return null
