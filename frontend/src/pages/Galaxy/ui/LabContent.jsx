@@ -55,6 +55,7 @@ export default function LabContent({ revealed, state, navigation, onReturn, onOp
             Inspect repository <span aria-hidden="true">↗</span>
           </a>
           {selected.projectId && <ProjectDeepLink
+            className="LabCaseStudyLink"
             projectId={selected.projectId}
             onOpenProject={onOpenProject}
           >
