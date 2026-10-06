@@ -315,34 +315,69 @@ try {
         )
       }
 
-      // Unimplemented nested project-detail routes fail closed to the system
-      // overview until a future phase explicitly defines that URL contract.
+      // G4A defines project-detail URLs as first-class semantic routes.
       await page.goto(`${origin}/galaxy/projects/statescout`, { waitUntil: 'networkidle' })
-      await page.waitForURL(`${origin}/galaxy`)
-      assert.equal(await page.locator('.GalaxyBack').count(), 0)
+      await page.locator('.ProjectCaseStudy').waitFor()
+      assert.equal(new URL(page.url()).pathname, '/galaxy/projects/statescout')
+      assert.equal(
+        await page.locator('#project-case-title').textContent(),
+        'StateScout',
+      )
+      await page.screenshot({
+        path: `${output}/desktop-project-detail-direct-statescout.png`,
+        fullPage: true,
+      })
 
-      // Real browser history must retain the G3A rule: retargeting worlds
-      // replaces the focused entry instead of creating a long back stack.
+      // Real browser history retains compact world retargeting, while project
+      // detail adds exactly one nested level: Back returns to Mars, Forward
+      // restores the case study, and Escape/System returns to overview.
       await openGalaxy(page)
       await selectBody(page, 'Skills')
       await selectBody(page, 'Projects')
       assert.equal(new URL(page.url()).pathname, '/galaxy/projects')
+      const projectHistoryLength = await page.evaluate(() => history.length)
+
+      await page.locator('.ProjectsDirectory').getByRole('button', { name: /StateScout/ }).click()
+      await page.waitForURL(`${origin}/galaxy/projects/statescout`)
+      await page.locator('.ProjectCaseStudy').waitFor()
+      assert.equal(
+        await page.evaluate(() => history.length),
+        projectHistoryLength + 1,
+        'project detail adds one nested browser-history entry',
+      )
+
+      await page.locator('.ProjectsDirectory').getByRole('button', { name: /Reality Archive/ }).click()
+      await page.waitForURL(`${origin}/galaxy/projects/reality-archive`)
+      assert.equal(
+        await page.evaluate(() => history.length),
+        projectHistoryLength + 1,
+        'switching projects must replace the detail entry',
+      )
+
       await page.goBack()
-      await page.waitForURL(`${origin}/galaxy`)
-      await page.goForward()
       await page.waitForURL(`${origin}/galaxy/projects`)
       await page.locator('.ProjectsContent.is-revealed').waitFor()
+      assert.equal(await page.locator('.ProjectCaseStudy').count(), 0)
+
+      await page.goForward()
+      await page.waitForURL(`${origin}/galaxy/projects/reality-archive`)
+      await page.locator('.ProjectCaseStudy').waitFor()
+
+      await page.keyboard.press('Escape')
+      await page.waitForURL(`${origin}/galaxy`)
+      assert.equal(await page.locator('.GalaxyBack').count(), 0)
 
       if (errors.length) throw new Error('Browser errors: ' + errors.join('; '))
       results.push({
-        view: 'G3 direct world routes + browser history',
+        view: 'G4 direct project routes + nested browser history',
         routes: routes.map(([id]) => `/galaxy/${id}`),
-        invalidNestedRoute: '/galaxy/projects/statescout -> /galaxy',
-        retargetHistory: '/galaxy -> /galaxy/projects -> Back /galaxy -> Forward /galaxy/projects',
+        projectRoute: '/galaxy/projects/statescout',
+        projectRetarget: 'StateScout -> Reality Archive replaces detail history',
+        nestedHistory: 'detail Back -> /galaxy/projects; Forward -> detail; Escape -> /galaxy',
         errors,
       })
     } catch (error) {
-      results.push({ view: 'G3 direct world routes + browser history', errors: [...errors, error.message] })
+      results.push({ view: 'G4 direct project routes + nested browser history', errors: [...errors, error.message] })
     } finally {
       await context.close()
     }

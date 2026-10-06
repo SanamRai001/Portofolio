@@ -53,6 +53,11 @@ export function createNavigationController() {
       if (state.selectedBodyId !== PROJECTS.id || state.mode !== 'body_focused' || !projectById(id)) return
       publish({ selectedProjectId: id })
     },
+    clearProjectSelection() {
+      if (state.selectedBodyId !== PROJECTS.id || !state.selectedProjectId) return
+      projectHover.pointer = projectHover.keyboard = null
+      publish({ selectedProjectId: null, hoveredProjectId: null })
+    },
     selectJourney(id) {
       if (state.selectedBodyId !== JOURNEY.id || state.mode !== 'body_focused' || !journeyById(id)) return
       publish({ selectedJourneyId: id })

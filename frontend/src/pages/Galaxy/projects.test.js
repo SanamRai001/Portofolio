@@ -45,6 +45,11 @@ test('Projects world contains only curated personal project signals', () => {
   assert.equal(projectById('statescout').label, 'StateScout')
   assert.equal(projectById('missing'), undefined)
   assert.ok(PROJECT_NODES.every(project => project.href.startsWith('https://github.com/SanamRai001/')))
+  assert.ok(PROJECT_NODES.every(project => project.caseStudy.architecture.length === 3))
+  assert.ok(PROJECT_NODES.every(project => project.caseStudy.question.length > 40))
+  assert.match(projectById('reality-archive').caseStudy.current, /COLMAP/)
+  assert.match(projectById('statescout').caseStudy.current, /Phase 0/)
+  assert.match(projectById('reposcout').caseStudy.current, /Semantic retrieval/)
 })
 
 test('project selection stays local and never starts a camera transition', () => {
@@ -71,6 +76,17 @@ test('project selection stays local and never starts a camera transition', () =>
   input.focusBody('project:statescout')
   assert.equal(navigation.getSnapshot().selectedProjectId, 'statescout')
   assert.equal(navigation.getSnapshot().transitionId, transitionId)
+
+  navigation.clearProjectSelection()
+  assert.equal(navigation.getSnapshot().selectedProjectId, null)
+  assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
+  assert.equal(navigation.getSnapshot().mode, 'body_focused')
+  assert.equal(navigation.getSnapshot().hoveredProjectId, null)
+  assert.equal(navigation.getSnapshot().transitionId, transitionId,
+    'closing a case study must not restart the Mars camera')
+
+  navigation.selectProject('reality-archive')
+  assert.equal(navigation.getSnapshot().selectedProjectId, 'reality-archive')
 
   navigation.focusBody('journey')
   assert.equal(navigation.getSnapshot().selectedProjectId, null)
