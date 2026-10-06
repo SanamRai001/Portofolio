@@ -11,13 +11,18 @@ function normalizePath(pathname = '/') {
   return pathname.replace(/\/+$/, '') || '/'
 }
 
-function historyState(history, managed, depth = 'world') {
+function historyState(history, managed, depth = 'world', parentManaged = null) {
   const current = history.state
-  return {
+  const state = {
     ...(current && typeof current === 'object' ? current : {}),
     __galaxyManaged: managed,
     __galaxyDepth: depth,
   }
+
+  if (parentManaged !== null) state.__galaxyParentManaged = parentManaged
+  else if (depth !== 'project') delete state.__galaxyParentManaged
+
+  return state
 }
 
 function locationTarget(win, pathname) {
@@ -195,13 +200,23 @@ export function bindGalaxyHistory({ navigation, win = window }) {
       const currentRoute = parseGalaxyPath(win.location.pathname)
 
       if (prior.bodyId === 'projects' && !prior.projectId && currentRoute?.kind === 'body') {
+        const parentManaged = Boolean(win.history.state?.__galaxyManaged)
         win.history.pushState(
-          historyState(win.history, true, 'project'),
+          historyState(win.history, true, 'project', parentManaged),
           '',
           locationTarget(win, target),
         )
       } else {
-        replace(target, Boolean(win.history.state?.__galaxyManaged), 'project')
+        const currentState = win.history.state
+        const parentManaged = currentState?.__galaxyDepth === 'project'
+          ? Boolean(currentState.__galaxyParentManaged)
+          : Boolean(currentState?.__galaxyManaged)
+
+        win.history.replaceState(
+          historyState(win.history, Boolean(currentState?.__galaxyManaged), 'project', parentManaged),
+          '',
+          locationTarget(win, target),
+        )
       }
       return
     }
@@ -243,7 +258,21 @@ export function bindGalaxyHistory({ navigation, win = window }) {
 
     if (!prior.bodyId) return
 
-    if (win.history.state?.__galaxyManaged) {
+    const historyMeta = win.history.state
+    if (
+      prior.projectId
+      && historyMeta?.__galaxyManaged
+      && historyMeta?.__galaxyDepth === 'project'
+    ) {
+      if (historyMeta.__galaxyParentManaged && typeof win.history.go === 'function') {
+        win.history.go(-2)
+      } else {
+        replace(GALAXY_ROOT, false, 'world')
+      }
+      return
+    }
+
+    if (historyMeta?.__galaxyManaged) {
       win.history.back()
     } else {
       replace(GALAXY_ROOT, false, 'world')
