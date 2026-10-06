@@ -92,6 +92,8 @@ const render = async (staticView = true, portal = null) => act(async () => {
       hoveredProjectId: state.hoveredProjectId,
       selectedJourneyId: state.selectedJourneyId,
       hoveredJourneyId: state.hoveredJourneyId,
+      selectedLabId: state.selectedLabId,
+      hoveredLabId: state.hoveredLabId,
       onBodySelect: navigation.focusBody,
       onBodyHover: navigation.setHover,
       onSkillSelect: navigation.selectSkill,
@@ -115,7 +117,10 @@ test('visible system-map buttons are removed while direct world selection remain
     assert.equal(navigation.getSnapshot().mode, 'body_focused')
     assert.equal(navigation.getSnapshot().selectedBodyId, id)
     assert.equal(body(id).getAttribute('opacity'), '1')
-    if (id === 'lab') assert.match(container.textContent, /Content locked/)
+    if (id === 'lab') {
+      assert.match(container.textContent, /Questions before products/)
+      assert.doesNotMatch(container.textContent, /Content locked/)
+    }
     assert.match(container.querySelector('[role="status"]').textContent, /Static selection/)
   }
 
@@ -507,6 +512,72 @@ test('fallback Journey waypoint clicks share selection with the semantic path', 
 
   await selectBody('identity')
   assert.equal(container.querySelectorAll('[data-journey]').length, 0)
+})
+
+
+test('Lab exposes four research questions without becoming another camera transition', async () => {
+  await render(false)
+  await selectBody('lab')
+  const content = () => container.querySelector('.LabContent')
+
+  assert.equal(content().hasAttribute('inert'), true)
+  await act(async () => navigation.selectLab('state-space'))
+  assert.equal(navigation.getSnapshot().selectedLabId, null)
+
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.equal(content().hasAttribute('inert'), false)
+
+  const experiments = content().querySelectorAll('.LabConsole button')
+  assert.equal(experiments.length, 4)
+  assert.deepEqual(
+    [...experiments].map(button => button.querySelector('strong').textContent),
+    ['Interface State Exploration', 'Reality Reconstruction', 'Vector Reconstruction', 'Expressive Small Models'],
+  )
+
+  const transition = navigation.getSnapshot().transitionId
+  for (const experiment of experiments) {
+    await act(async () => experiment.focus())
+    assert.ok(navigation.getSnapshot().hoveredLabId)
+    await click(experiment)
+    assert.equal(experiment.getAttribute('aria-pressed'), 'true')
+    assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
+    assert.equal(
+      content().querySelector('.LabDetail h3').textContent,
+      experiment.querySelector('strong').textContent,
+    )
+    assert.equal(content().querySelectorAll('.LabDetail li').length, 3)
+    assert.match(content().querySelector('.LabDetail a').href, /github\.com\/SanamRai001\//)
+    assert.equal(navigation.getSnapshot().transitionId, transition)
+  }
+
+  assert.match(content().textContent, /Current evidence/)
+  assert.doesNotMatch(content().textContent, /Content locked/)
+
+  await escape()
+  assert.equal(content(), null)
+  assert.equal(document.activeElement, stage())
+  assert.equal(navigation.getSnapshot().selectedLabId, null)
+})
+
+test('static Lab mirrors selected research signal in its scanner ring', async () => {
+  await render()
+  await selectBody('lab')
+
+  const first = container.querySelector('.LabConsole button')
+  await click(first)
+
+  assert.equal(navigation.getSnapshot().selectedLabId, 'state-space')
+  assert.match(
+    container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
+    /Lab: four research questions, selected Interface State Exploration/,
+  )
+
+  const ring = body('lab').querySelector('ellipse')
+  assert.equal(ring.getAttribute('stroke'), '#89a5c9')
+
+  await selectBody('identity')
+  assert.equal(container.querySelector('.LabContent'), null)
+  assert.equal(navigation.getSnapshot().selectedLabId, null)
 })
 
 test('black-hole static focus remains inspectable when no portal host is configured', async () => {
