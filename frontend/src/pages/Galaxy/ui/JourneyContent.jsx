@@ -1,4 +1,5 @@
 import { JOURNEY, JOURNEY_WAYPOINTS, journeyById } from '../data/journey.js'
+import { projectById } from '../data/projects.js'
 
 export default function JourneyContent({ revealed, state, navigation, onReturn }) {
   const selected = journeyById(state.selectedJourneyId)
@@ -46,6 +47,17 @@ export default function JourneyContent({ revealed, state, navigation, onReturn }
         <ul aria-label={`${selected.label} focus areas`}>
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
+        {selected.relatedProjectIds?.length > 0 && <div className="JourneyConnections" aria-label="Related project case studies">
+          <p className="GalaxyEyebrow">Related systems</p>
+          <div>
+            {selected.relatedProjectIds.map(projectId => {
+              const project = projectById(projectId)
+              return project ? <a key={project.id} className="GalaxySemanticLink" href={`/galaxy/projects/${project.id}`}>
+                {project.label} <span aria-hidden="true">→</span>
+              </a> : null
+            })}
+          </div>
+        </div>}
       </> : <>
         <p className="GalaxyEyebrow">Follow the path</p>
         <p>{JOURNEY.prompt}</p>
