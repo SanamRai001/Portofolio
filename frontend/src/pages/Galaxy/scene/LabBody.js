@@ -11,6 +11,7 @@ export function createLabBody(body) {
   let targetOpacity = LAB_APPEARANCE.ringOpacity
   let targetStrength = LAB_APPEARANCE.shellStrength
   let phase = 0
+  let active = false
 
   function applyInstant() {
     ring.material.color.copy(target)
@@ -23,6 +24,7 @@ export function createLabBody(body) {
     group,
     setSelection(state, instant = false) {
       const focused = state.selectedBodyId === body.id && state.mode === 'body_focused'
+      active = focused
       const experiment = focused
         ? labExperimentById(state.hoveredLabId || state.selectedLabId)
         : null
@@ -53,8 +55,8 @@ export function createLabBody(body) {
       ring.material.opacity += (targetOpacity - ring.material.opacity) * blend
       shell.material.uniforms.strength.value += (targetStrength - shell.material.uniforms.strength.value) * blend
 
-      if (animate) phase = (phase + dt) % 10000
-      const pulse = 1 + Math.sin(phase * 1.7) * .045
+      if (animate && active) phase = (phase + dt) % 10000
+      const pulse = active ? 1 + Math.sin(phase * 1.7) * .045 : 1
       ring.scale.setScalar(pulse)
     },
   }
