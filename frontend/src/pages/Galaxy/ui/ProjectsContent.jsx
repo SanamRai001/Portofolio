@@ -51,7 +51,7 @@ export default function ProjectsContent({ revealed, state, navigation, onReturn 
 
   return <section
     className={`ProjectsContent${revealed ? ' is-revealed' : ''}${selected ? ' has-case-study' : ''}`}
-    aria-labelledby="projects-title"
+    aria-labelledby={selected ? "project-case-title" : "projects-title"}
     aria-hidden={!revealed}
     inert={!revealed}
   >
