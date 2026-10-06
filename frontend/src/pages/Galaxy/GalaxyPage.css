@@ -259,6 +259,10 @@
 .JourneyDetail > p:not(.GalaxyEyebrow):not(.JourneyPeriod) { margin-top:12px; color:#c0b8b6; font-size:15px; line-height:1.8; }
 .JourneyDetail ul { display:flex; flex-wrap:wrap; gap:8px 18px; list-style:none; padding:0; margin:17px 0 0; color:#baa99f; font-size:12px; }
 .JourneyDetail li { padding-left:10px; border-left:1px solid #8a7164; }
+.JourneyRelatedProjects { margin-top:18px; padding-top:14px; border-top:1px solid #443d40; }
+.JourneyRelatedProjects > div { display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:7px; }
+.JourneyRelatedProjects a { display:inline-flex; align-items:center; gap:8px; min-height:40px; border-bottom:1px solid #7d6b61; color:#d8c4b7; font-size:12px; }
+.JourneyRelatedProjects a:hover, .JourneyRelatedProjects a:focus-visible { color:#fff2e8; border-bottom-color:#c89f86; }
 @media(max-width:760px) {
  .JourneyContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
  .JourneyContent h2 { font-size:36px; }
@@ -289,6 +293,10 @@
 .LabDetail li { padding-left:10px; border-left:1px solid #7d6b8d; }
 .LabDetail a { display:inline-flex; align-items:center; gap:10px; min-height:44px; margin-top:18px; border-bottom:1px solid #756681; color:#cabbd4; font-size:12px; }
 .LabDetail a:hover { color:#fff4ff; border-bottom-color:#b894c5; }
+.LabEvidenceLinks { display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:18px; }
+.LabEvidenceLinks a { margin-top:0; }
+.LabEvidenceLinks .GalaxyContextLink { color:#e1d1b9; border-bottom-color:#9f846a; }
+.LabEvidenceLinks .GalaxyContextLink:hover, .LabEvidenceLinks .GalaxyContextLink:focus-visible { color:#fff2dd; border-bottom-color:#d1aa7f; }
 @media(max-width:760px) {
  .LabContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
  .LabContent h2 { font-size:36px; }

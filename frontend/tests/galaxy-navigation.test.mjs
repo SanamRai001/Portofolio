@@ -500,6 +500,11 @@ test('Journey exposes five real progression waypoints without starting another c
 
   assert.match(content().textContent, /MIH Group/)
   assert.match(content().textContent, /StateScout|Reality Archive/)
+  const related = [...content().querySelectorAll('.JourneyRelatedProjects a')]
+  assert.deepEqual(
+    related.map(link => new URL(link.href).pathname),
+    ['/galaxy/projects/statescout', '/galaxy/projects/reality-archive'],
+  )
 
   await escape()
   assert.equal(content(), null)
@@ -556,9 +561,24 @@ test('Lab exposes four research questions without becoming another camera transi
       experiment.querySelector('strong').textContent,
     )
     assert.equal(content().querySelectorAll('.LabDetail li').length, 3)
-    assert.match(content().querySelector('.LabDetail a').href, /github\.com\/SanamRai001\//)
+    assert.match(content().querySelector('.LabDetail a[target="_blank"]').href, /github\.com\/SanamRai001\//)
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
+
+  await click(experiments[0])
+  const stateSpaceBridge = content().querySelector('.GalaxyContextLink')
+  assert.ok(stateSpaceBridge)
+  assert.equal(new URL(stateSpaceBridge.href).pathname, '/galaxy/projects/statescout')
+
+  await click(experiments[1])
+  assert.equal(
+    new URL(content().querySelector('.GalaxyContextLink').href).pathname,
+    '/galaxy/projects/reality-archive',
+  )
+
+  await click(experiments[2])
+  assert.equal(content().querySelector('.GalaxyContextLink'), null,
+    'research without a curated G4A case study stays repository-only')
 
   assert.match(content().textContent, /Current evidence/)
   assert.doesNotMatch(content().textContent, /Content locked/)

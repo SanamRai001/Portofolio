@@ -9,6 +9,8 @@ import {
   labExperimentById,
 } from './data/lab.js'
 import { LAB } from './data/solarSystem.js'
+import { projectById } from './data/projects.js'
+import { galaxyPathForProject } from './navigation/GalaxyHistory.js'
 import { createNavigationController } from './navigation/NavigationController.js'
 import { createLabBody } from './scene/LabBody.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
@@ -39,6 +41,16 @@ test('G3F Lab is question-driven research, not a duplicate Projects list', () =>
   assert.ok(LAB_EXPERIMENTS.every(experiment =>
     experiment.href.startsWith('https://github.com/SanamRai001/')))
   assert.equal(labExperimentById('missing'), undefined)
+
+  const bridged = LAB_EXPERIMENTS.filter(experiment => experiment.projectId)
+  assert.deepEqual(bridged.map(experiment => experiment.projectId), ['statescout', 'reality-archive'])
+  for (const experiment of bridged) {
+    assert.ok(projectById(experiment.projectId), `${experiment.id} must reference a curated project`)
+    assert.equal(
+      galaxyPathForProject(experiment.projectId),
+      `/galaxy/projects/${experiment.projectId}`,
+    )
+  }
 })
 
 test('Lab experiment selection stays local and clears when leaving Lab', () => {

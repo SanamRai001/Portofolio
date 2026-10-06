@@ -367,13 +367,44 @@ try {
       await page.waitForURL(`${origin}/galaxy`)
       assert.equal(await page.locator('.GalaxyBack').count(), 0)
 
+      // G4B: context bridges are normal canonical links. They may cross worlds
+      // without inventing another local state model, and browser Back returns
+      // to the originating semantic world.
+      await page.goto(`${origin}/galaxy/journey`, { waitUntil: 'networkidle' })
+      await page.locator('.JourneyContent.is-revealed').waitFor()
+      await page.locator('.JourneyPath').getByRole('button', { name: /Research & Exploration/ }).click()
+      const journeyBridge = page.locator('.JourneyRelatedProjects').getByRole('link', { name: /StateScout/ })
+      assert.equal(await journeyBridge.getAttribute('href'), '/galaxy/projects/statescout')
+      await journeyBridge.click()
+      await page.waitForURL(`${origin}/galaxy/projects/statescout`)
+      await page.locator('.ProjectCaseStudy').waitFor()
+      await page.goBack()
+      await page.waitForURL(`${origin}/galaxy/journey`)
+      await page.locator('.JourneyContent.is-revealed').waitFor()
+
+      await page.goto(`${origin}/galaxy/lab`, { waitUntil: 'networkidle' })
+      await page.locator('.LabContent.is-revealed').waitFor()
+      await page.locator('.LabConsole').getByRole('button', { name: /Interface State Exploration/ }).click()
+      const labBridge = page.locator('.GalaxyContextLink')
+      assert.equal(await labBridge.getAttribute('href'), '/galaxy/projects/statescout')
+      await labBridge.click()
+      await page.waitForURL(`${origin}/galaxy/projects/statescout`)
+      await page.locator('.ProjectCaseStudy').waitFor()
+      await page.goBack()
+      await page.waitForURL(`${origin}/galaxy/lab`)
+      await page.locator('.LabContent.is-revealed').waitFor()
+
       if (errors.length) throw new Error('Browser errors: ' + errors.join('; '))
       results.push({
-        view: 'G4 direct project routes + nested browser history',
+        view: 'G4 direct project routes + nested browser history + context bridges',
         routes: routes.map(([id]) => `/galaxy/${id}`),
         projectRoute: '/galaxy/projects/statescout',
         projectRetarget: 'StateScout -> Reality Archive replaces detail history',
         nestedHistory: 'detail Back -> /galaxy/projects; Forward -> detail; Escape -> /galaxy',
+        contextBridges: [
+          'Journey research -> StateScout -> Back to /galaxy/journey',
+          'Lab state-space -> StateScout -> Back to /galaxy/lab',
+        ],
         errors,
       })
     } catch (error) {

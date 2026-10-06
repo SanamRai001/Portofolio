@@ -1,18 +1,23 @@
 # PROJECT_STATE
 
-## Active — G4A shareable project deep dives (2026-10-06)
+## Active — G4B contextual case-study bridges (2026-10-06)
 
-- **Baseline:** G3 is closed and release-documented on `master` at `9365e895ad98c9e24288cabb434c9fff2d54eee0`; the complete G3 runtime is already production-verified from the G3F/integration release chain.
-- **Branch:** `feat/galaxy-g4a-project-deep-links`.
-- **G4 boundary:** G4 does not add another planet, renderer, moon system or camera model. G4A deepens the existing Mars/Projects information architecture by making project selections readable, URL-addressable engineering case studies.
-- **Routes:** the six existing curated personal projects now have canonical `/galaxy/projects/<project>` paths. Unknown project IDs and deeper unsupported nesting still fail closed to `/galaxy`.
-- **History contract:** entering a case study from `/galaxy/projects` adds exactly one nested browser-history entry; switching case studies replaces that entry; browser Back returns to Mars/Projects; Forward restores the case study. Escape/System still returns all the way to Galaxy overview. Direct shared project URLs manufacture no fake prior history.
-- **Controller contract:** `NavigationController.clearProjectSelection()` clears only the local project detail/hover state and keeps Mars in `body_focused`; no camera transition or project-orbit reset is introduced.
-- **Case-study content:** all six G3B projects now expose concise engineering narratives grounded in their current repositories: problem/question, three architecture/approach points, one engineering lesson, current state, focus tags and repository evidence. The content intentionally distinguishes implemented work from explicit research/prototype gates.
-- **Readable UI:** selecting a Mars project condenses the six-project directory and opens one semantic case-study article in the existing right-side content layer. Mars and its constellation remain the spatial context; long-form copy remains DOM, not WebGL.
-- **Deterministic verification:** final runtime candidate `c91a4c838a2ebbaf2c39ad091e88e5c580ab1f47` passed push run `37432496869` and PR run `37432498212`, covering nested-route/history, abandoned-deep-link cleanup, project-local state, focus restoration, DOM accessibility, homepage isolation, lint and production build. Vercel preview was rejected only by the external project `build-rate-limit` quota, not by application build failure.
-- **Browser verification:** Galaxy Visual Capture run `37432496672` passed end-to-end; artifact `11397507451` contains desktop/laptop/phone case-study states, direct StateScout deep-link proof, normal-motion evidence and portal regression. The release-gate JSON reports zero errors and proves `/galaxy/projects/statescout` direct refresh, StateScout → Reality Archive history replacement, detail Back → `/galaxy/projects`, Forward → detail, and Escape → `/galaxy`. `desktop-project-detail-direct-statescout.png` and `phone-projects-statescout.png` were visually inspected: Mars remains the spatial anchor, case-study copy is readable, phone stacks without horizontal overflow, and all focus/repository actions remain reachable. Desktop/phone/phone-reduced Black Hole portal scenarios all passed. The temporary visual-workflow branch trigger was restored before merge.
+- **Baseline:** G4A shareable project deep dives merged as PR #34 into `master` at `a391c231b6053365d4031295d90f5a22d1a047a5`. Exact post-merge Frontend Auth Runtime Tests run `37433221315` passed. The matching Vercel status is currently blocked by the external `build-rate-limit` quota, not an application build failure.
+- **Branch:** `feat/galaxy-g4b-context-bridges`.
+- **Product goal:** connect existing semantic worlds instead of duplicating content. Journey and Lab can now hand off into the canonical G4A project case studies when a personal project genuinely explains that stage/question.
+- **Journey bridges:** QA Lens → StateScout; Backend Direction → RepoScout + Dear Future; Research & Exploration → StateScout + Reality Archive. BIT Foundation and MIH Production Systems intentionally have no personal-project bridge.
+- **Lab bridges:** Interface State Exploration → StateScout and Reality Reconstruction → Reality Archive. Vector Reconstruction / Expressive Small Models remain repository-evidence only because they do not have curated G4A case-study routes.
+- **Navigation boundary:** bridges use the canonical `/galaxy/projects/<project>` URLs rather than creating another local state machine. The link remains valid/accessibile without JS and browser Back returns to the originating Journey/Lab world.
+- **No new 3D scope:** no objects, camera model, renderer, local picker, orbit, motion, or audio behavior changes.
+- **Verification:** runtime/capture code head `0f0e806073a9062a26cefe86c88e8dbf3ea0c83b` passed Frontend Auth Runtime Tests run `37444942354`; PR-head frontend run `37445079113` also passed. Galaxy Visual Capture run `37444949150` passed end-to-end; artifact `11403157302` reports zero errors, proves Journey Research → StateScout → browser Back to `/galaxy/journey`, proves Lab State Exploration → StateScout → Back to `/galaxy/lab`, and retains all world/motion/portal gates. `desktop-lab-state-space.png` and `phone-lab-state-space.png` were visually inspected: the internal case-study handoff and external repository evidence remain distinct and fit cleanly without horizontal overflow. The temporary visual-workflow branch trigger was restored before merge.
 
+## Code/browser verified — G4A shareable project deep dives (2026-10-06)
+
+- **Merged:** PR #34 into `master` at `a391c231b6053365d4031295d90f5a22d1a047a5`.
+- **Deterministic verification:** runtime candidate `c91a4c838a2ebbaf2c39ad091e88e5c580ab1f47` passed push run `37432496869` and PR run `37432498212`; exact post-merge master run `37433221315` also passed.
+- **Browser proof:** Galaxy Visual Capture `37432496672` / artifact `11397507451` passed direct project refresh, compact nested history, desktop/laptop/phone case-study states and all portal modes.
+- **Routing result:** six curated projects have canonical `/galaxy/projects/<project>` routes; Back/Forward and Escape semantics are verified.
+- **Hosting note:** Vercel currently reports `build-rate-limit` for the exact merge commit. Treat this as external deployment quota debt, not code verification failure.
 ## Production verified — G3 final integration & release (2026-10-06)
 
 - **Merged:** PR #32 into `master` at `03143e59f8e30e676829d283bc7e3b092f6e25f1`.

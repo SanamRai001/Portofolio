@@ -8,6 +8,8 @@ import { createJourneyPlanet } from './scene/JourneyPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { disposeScene } from './utils/disposeScene.js'
 import { createNavigationController } from './navigation/NavigationController.js'
+import { projectById } from './data/projects.js'
+import { galaxyPathForProject } from './navigation/GalaxyHistory.js'
 import { galaxyInteraction } from './navigation/GalaxyInteraction.js'
 
 const journey = PLANETS.find(body => body.id === 'journey')
@@ -27,6 +29,17 @@ test('G3D Journey waypoints preserve real progression and stay local to Saturn',
   assert.match(journeyById('mih').period, /MIH Group/)
   assert.match(journeyById('research').focus.join(' '), /StateScout/)
   assert.equal(journeyById('missing'), undefined)
+
+  assert.deepEqual(journeyById('qa').projectIds, ['statescout'])
+  assert.deepEqual(journeyById('backend').projectIds, ['reposcout', 'dear-future'])
+  assert.deepEqual(journeyById('research').projectIds, ['statescout', 'reality-archive'])
+
+  for (const waypoint of JOURNEY_WAYPOINTS) {
+    for (const projectId of waypoint.projectIds || []) {
+      assert.ok(projectById(projectId), `${waypoint.id} must reference a curated project`)
+      assert.equal(galaxyPathForProject(projectId), `/galaxy/projects/${projectId}`)
+    }
+  }
 
   const navigation = createNavigationController()
   const input = galaxyInteraction(navigation)
