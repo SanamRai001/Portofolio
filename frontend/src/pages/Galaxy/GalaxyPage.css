@@ -88,19 +88,20 @@
  .CoreIdentity.is-revealed { animation:none; }
 }
 
-/* Identity keeps its world in view; the personal signal uses normal document flow. */
-.IdentityContent { position:relative; z-index:2; width:44%; max-width:520px; margin:0 1% 0 auto; padding:72px 0 42px; visibility:hidden; opacity:0; }
+/* G3E: Identity is a quiet working model, not a second biography page. */
+.IdentityContent { position:relative; z-index:2; width:46%; max-width:560px; margin:0 1% 0 auto; padding:64px 0 42px; visibility:hidden; opacity:0; }
 .IdentityContent.is-revealed { visibility:visible; opacity:1; animation:core-reveal 380ms ease-out both; }
-.IdentityHeading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:14px 0 28px; }
-.IdentityHeading > div:first-child { min-width:0; }
-.IdentityContent h2 { margin:0 0 10px; font-size:clamp(32px,3.4vw,48px); font-weight:450; letter-spacing:-.045em; line-height:1.1; }
-.IdentityMetadata { list-style:none; padding:0; margin:0; color:#a8b8b8; font-size:12px; }
-.IdentityPortrait { flex:0 0 88px; width:88px; height:88px; border:1px solid #405756; border-radius:50%; display:flex; flex-direction:column; justify-content:center; text-align:center; font:8px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; color:#adbfbd; }
-.IdentityPortrait small { color:var(--galaxy-muted); font-size:8px; }
+.IdentityContent h2 { max-width:13ch; margin:14px 0 18px; font-size:clamp(32px,3.5vw,50px); font-weight:450; letter-spacing:-.045em; line-height:1.12; }
+.IdentityLead { max-width:48ch; color:#d8e1df !important; font-size:17px !important; line-height:1.72 !important; }
 .IdentityContent h3 { margin:0 0 9px; color:#b7cfca; font:11px/1.6 ui-monospace,monospace; letter-spacing:.12em; text-transform:uppercase; }
 .IdentityContent p:not(.GalaxyEyebrow) { max-width:49ch; color:#b8bdc4; font-size:14px; line-height:1.8; }
-.IdentityContent .IdentityThought p { font-size:18px; color:#e0e6e5; line-height:1.65; }
-.IdentityLearning, .IdentityCuriosity { margin-top:26px; }
+.IdentityPrinciples { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin:28px 0 0; }
+.IdentityPrinciples article { min-width:0; padding:16px 0 0; border-top:1px solid #3a4f4e; }
+.IdentityPrinciples article > span { display:block; color:#7fa49f; font:9px/1.5 ui-monospace,monospace; }
+.IdentityPrinciples article h3 { margin:7px 0 8px; color:#d5e4e0; font-size:10px; letter-spacing:.08em; }
+.IdentityPrinciples article p { color:#9faeae !important; font-size:11px !important; line-height:1.72 !important; }
+.IdentityLearning, .IdentityDirections { margin-top:28px; }
+.IdentityLearning > p { color:#b8c3c2; }
 .IdentityLoop { position:relative; margin:12px 0 6px; }
 .IdentityLoop svg { position:absolute; width:100%; height:100%; fill:none; stroke:#465f5e; stroke-width:1; }
 .IdentityLoopArrows { stroke:#9bbdb6; }
@@ -111,15 +112,19 @@
 .IdentityLoop li:nth-child(6) { grid-column:1; grid-row:2; }
 .IdentityLoop li span { color:#8ca7a3; font:9px/1.6 ui-monospace,monospace; }
 .IdentityLoop li strong { font-size:12px; font-weight:400; }
-.IdentityTraits { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; padding-top:20px; margin:24px 0 8px; border-top:1px solid #2b3738; }
-.IdentityTraits dt { color:#b7cfca; font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; }
-.IdentityTraits dd { margin:8px 0 0; color:#a1aab2; font-size:12px; line-height:1.75; }
+.IdentityDirections { padding-top:20px; border-top:1px solid #2b3738; }
+.IdentityDirections dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:0; }
+.IdentityDirections dt { color:#c1d7d2; font:10px/1.6 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; }
+.IdentityDirections dd { margin:8px 0 0; color:#9da9af; font-size:12px; line-height:1.72; }
 .IdentityReturn { min-height:44px; margin-top:16px; padding:0; border:0; border-bottom:1px solid #435755; background:none; color:#b7cfca; font:12px/1.6 ui-monospace,monospace; cursor:pointer; }
 @media(max-width:760px) {
  .IdentityContent { width:100%; max-width:none; margin:0; padding:12px 0 34px; }
- .IdentityHeading { gap:12px; }
  .IdentityContent h2 { font-size:36px; }
- .IdentityTraits { gap:12px; }
+ .IdentityPrinciples { grid-template-columns:1fr; gap:10px; }
+ .IdentityPrinciples article { display:grid; grid-template-columns:24px 1fr; column-gap:10px; }
+ .IdentityPrinciples article > span { grid-row:1 / span 2; }
+ .IdentityPrinciples article h3 { margin-top:0; }
+ .IdentityDirections dl { grid-template-columns:1fr; gap:14px; }
 }
 @media(prefers-reduced-motion:reduce) {
  .IdentityContent.is-revealed { animation:none; }
