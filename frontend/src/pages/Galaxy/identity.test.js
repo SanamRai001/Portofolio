@@ -4,7 +4,7 @@ import { Scene } from 'three'
 import { createIdentityPlanet } from './scene/IdentityPlanet.js'
 import { createSolarSystem } from './scene/SolarSystem.js'
 import { PLANETS } from './data/solarSystem.js'
-import { IDENTITY_APPEARANCE as style } from './data/identity.js'
+import { IDENTITY, IDENTITY_APPEARANCE as style } from './data/identity.js'
 import { createIdentitySurfaceMaps, identityTerrain } from './utils/identitySurface.js'
 import { disposeScene } from './utils/disposeScene.js'
 const identity = PLANETS.find(body => body.id === 'identity')
@@ -12,6 +12,17 @@ function release(group) {
   const scene = new Scene(); scene.add(group)
   disposeScene(scene, { dispose() {}, forceContextLoss() {}, domElement: { remove() {} } })
 }
+
+
+test('G3E Identity keeps one concise personal compass and no unfinished portrait contract', () => {
+  assert.deepEqual(IDENTITY.metadata, ['BIT Graduate', 'Nepal'])
+  assert.deepEqual(IDENTITY.compass.path, ['Logic', 'Systems', 'Exploration'])
+  assert.equal(IDENTITY.traits.length, 3)
+  assert.equal('portrait' in IDENTITY, false)
+  assert.match(IDENTITY.intro, /logic, architecture, data/)
+  assert.match(IDENTITY.learning, /building something real/)
+  assert.match(IDENTITY.curiosity, /Backend engineering is home base/)
+})
 
 test('Identity terrain is deterministic, continuous, finite and has both land and ocean regions', () => {
   const samples = []
