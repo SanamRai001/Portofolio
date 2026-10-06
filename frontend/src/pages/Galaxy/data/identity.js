@@ -41,7 +41,7 @@ export const IDENTITY = Object.freeze({
 
 export const IDENTITY_COMPOSITION = Object.freeze({
   breakpoint: 760,
-  desktop: Object.freeze({ x: -.46, y: .04, heightFraction: .47 }),
+  desktop: Object.freeze({ x: -.46, y: .08, heightFraction: .45 }),
   mobile: Object.freeze({ x: 0, y: -.22, heightFraction: .54, fov: 30 }),
 })
 
