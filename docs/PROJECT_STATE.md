@@ -1,5 +1,15 @@
 # PROJECT_STATE
 
+## Active — G3C Skills capability system (2026-10-06)
+
+- **Production baseline:** G3B.2 adaptive cinematic soundscape is production-verified on `master`; this branch starts from the release-documentation baseline `acd357cb7eb9773e358880ce724a9ca45ab492c4`.
+- **Branch:** `feat/galaxy-g3c-skill-groups`.
+- **Design decision:** preserve the proven Mercury renderer, 10 technology satellites, three local orbits, one scene clock, picking, fallback, and camera behavior. G3C changes the information architecture rather than adding more objects.
+- **Capability model:** the existing three rings now mean `Runtime & APIs` (Node.js, TypeScript, Express), `Data & Persistence` (MySQL, PostgreSQL, MongoDB), and `System Delivery` (React, Architecture, Git/GitHub, Testing). Each satellite carries its capability-group identity and group color.
+- **Readable UI:** Skills is no longer presented as one flat 10-tool directory. The semantic panel groups technologies under the same three capability headings, explains what each ring represents, and keeps the existing per-technology focus details and native controls.
+- **3D/fallback parity:** WebGL and SVG fallback use the same three capability colors. The existing local-ring opacity stays exactly `.20`; G3C does not overwrite the G2R.16 focused-orbit readability contract.
+- **Scope boundary:** no new AI/LLM, infrastructure, cloud, language or framework claims are introduced just to fill a category. The grouping is derived only from skills already represented in the portfolio.
+- **Verification state:** branch CI and browser visual capture pending. Acceptance requires all existing Skills selection/camera/fallback tests plus grouped semantics at desktop/laptop/phone and no layout/overflow regression.
 ## Production verified — G3B.2 adaptive cinematic soundscape (2026-10-06)
 
 - **Merged:** PR #25 into `master` at `2c0e108ee1b563465c67765aee299b08de417a39`.
