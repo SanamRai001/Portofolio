@@ -104,25 +104,25 @@ try {
       await page.waitForURL(origin + '/galaxy/journey')
       await page.locator('.JourneyContent.is-revealed').waitFor()
 
-      // Lab internal evidence keeps the repository link but prefers a readable
-      // in-Galaxy case study when G4A has one.
+      // Keep the long-standing external evidence action first; add the readable
+      // in-Galaxy case study as the second action when G4A has one.
       await openRoute(page, '/galaxy/lab', '.LabContent.is-revealed')
       await page.locator('.LabConsole').getByRole('button', { name: /Interface State Exploration/ }).click()
 
       const labActions = page.locator('.LabEvidenceActions a')
       assert.equal(await labActions.count(), 2)
+      assert.match(await labActions.nth(0).getAttribute('href'), /github\.com\/SanamRai001\/StateScout/)
       assert.equal(
-        new URL(await labActions.nth(0).getAttribute('href'), origin).pathname,
+        new URL(await labActions.nth(1).getAttribute('href'), origin).pathname,
         '/galaxy/projects/statescout',
       )
-      assert.match(await labActions.nth(1).getAttribute('href'), /github\.com\/SanamRai001\/StateScout/)
 
       await page.screenshot({
         path: `${output}/${view.name}-lab-project-crosslink.png`,
         fullPage: true,
       })
 
-      await labActions.nth(0).click()
+      await labActions.nth(1).click()
       await page.waitForURL(origin + '/galaxy/projects/statescout')
       await page.locator('.ProjectCaseStudy').waitFor()
 
