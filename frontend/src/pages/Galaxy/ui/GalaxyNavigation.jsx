@@ -13,7 +13,7 @@ const IDLE_PORTAL = Object.freeze({ mode: 'idle', transitionId: 0 })
 const emptyPortalSnapshot = () => IDLE_PORTAL
 const subscribeEmptyPortal = () => () => {}
 
-export default function GalaxyNavigation({ navigation, portal, staticView, reducedMotion = false, children }) {
+export default function GalaxyNavigation({ navigation, portal, staticView, reducedMotion = false, onInteract = () => {}, children }) {
   const state = useSyncExternalStore(navigation.subscribe, navigation.getSnapshot)
   const portalState = useSyncExternalStore(
     portal?.subscribe || subscribeEmptyPortal,
@@ -67,6 +67,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
       navigation.focusBody(target)
     } else return
 
+    onInteract()
     event.preventDefault()
   }
 
@@ -133,6 +134,7 @@ export default function GalaxyNavigation({ navigation, portal, staticView, reduc
     aria-label="Interactive solar system. Use arrow keys to choose a world and Enter to explore."
     aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End Enter Escape"
     onKeyDown={onStageKeyDown}
+    onPointerDownCapture={onInteract}
     onFocus={event => {
       if (event.target === event.currentTarget && !state.selectedBodyId && !state.hoveredBodyId) {
         navigation.setHover(CORE.id, 'keyboard')
