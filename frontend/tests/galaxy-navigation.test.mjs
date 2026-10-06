@@ -90,12 +90,16 @@ const render = async (staticView = true, portal = null) => act(async () => {
       hoveredSkillId: state.hoveredSkillId,
       selectedProjectId: state.selectedProjectId,
       hoveredProjectId: state.hoveredProjectId,
+      selectedJourneyId: state.selectedJourneyId,
+      hoveredJourneyId: state.hoveredJourneyId,
       onBodySelect: navigation.focusBody,
       onBodyHover: navigation.setHover,
       onSkillSelect: navigation.selectSkill,
       onSkillHover: navigation.setSkillHover,
       onProjectSelect: navigation.selectProject,
       onProjectHover: navigation.setProjectHover,
+      onJourneySelect: navigation.selectJourney,
+      onJourneyHover: navigation.setJourneyHover,
     }),
   ))
 })
@@ -436,6 +440,67 @@ test('Projects exposes six accessible project signals without starting another c
   assert.equal(content(), null)
   assert.equal(document.activeElement, stage())
   assert.equal(navigation.getSnapshot().selectedProjectId, null)
+})
+
+
+test('Journey exposes five real progression waypoints without starting another camera flight', async () => {
+  await render(false)
+  await selectBody('journey')
+  const content = () => container.querySelector('.JourneyContent')
+
+  assert.equal(content().hasAttribute('inert'), true)
+  await act(async () => navigation.selectJourney('mih'))
+  assert.equal(navigation.getSnapshot().selectedJourneyId, null)
+
+  await act(async () => navigation.complete(navigation.getSnapshot().transitionId))
+  assert.equal(content().hasAttribute('inert'), false)
+
+  const waypoints = content().querySelectorAll('.JourneyPath button')
+  assert.equal(waypoints.length, 5)
+  assert.deepEqual(
+    [...waypoints].map(button => button.querySelector('strong').textContent),
+    ['BIT Foundation', 'QA Lens', 'Backend Direction', 'Production Systems', 'Research & Exploration'],
+  )
+
+  const transition = navigation.getSnapshot().transitionId
+  for (const waypoint of waypoints) {
+    await act(async () => waypoint.focus())
+    assert.ok(navigation.getSnapshot().hoveredJourneyId)
+    await click(waypoint)
+    assert.equal(waypoint.getAttribute('aria-pressed'), 'true')
+    assert.equal(content().querySelectorAll('[aria-pressed="true"]').length, 1)
+    assert.equal(
+      content().querySelector('.JourneyDetail h3').textContent,
+      waypoint.querySelector('strong').textContent,
+    )
+    assert.equal(content().querySelectorAll('.JourneyDetail li').length, 3)
+    assert.equal(navigation.getSnapshot().transitionId, transition)
+  }
+
+  assert.match(content().textContent, /MIH Group/)
+  assert.match(content().textContent, /StateScout|Reality Archive/)
+
+  await escape()
+  assert.equal(content(), null)
+  assert.equal(document.activeElement, stage())
+  assert.equal(navigation.getSnapshot().selectedJourneyId, null)
+})
+
+test('fallback Journey waypoint clicks share selection with the semantic path', async () => {
+  await render()
+  await selectBody('journey')
+
+  assert.equal(container.querySelectorAll('[data-journey]').length, 5)
+  await click(container.querySelector('[data-journey="mih"] circle'))
+  assert.equal(navigation.getSnapshot().selectedJourneyId, 'mih')
+  assert.equal(container.querySelector('.JourneyDetail h3').textContent, 'Production Systems')
+  assert.match(
+    container.querySelector('.GalaxySolarDiagram').getAttribute('aria-label'),
+    /Journey: five progression waypoints, selected Production Systems/,
+  )
+
+  await selectBody('identity')
+  assert.equal(container.querySelectorAll('[data-journey]').length, 0)
 })
 
 test('black-hole static focus remains inspectable when no portal host is configured', async () => {
