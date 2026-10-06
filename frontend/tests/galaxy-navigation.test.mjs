@@ -561,7 +561,7 @@ test('Lab exposes four research questions without becoming another camera transi
       experiment.querySelector('strong').textContent,
     )
     assert.equal(content().querySelectorAll('.LabDetail li').length, 3)
-    assert.match(content().querySelector('.LabDetail a').href, /github\.com\/SanamRai001\//)
+    assert.match(content().querySelector('.LabDetail a[target="_blank"]').href, /github\.com\/SanamRai001\//)
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
 
