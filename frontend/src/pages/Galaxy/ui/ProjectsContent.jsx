@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { PROJECTS, PROJECT_NODES, projectById } from '../data/projects.js'
 
 function ProjectCaseStudy({ project, onClose }) {
@@ -48,6 +49,19 @@ function ProjectCaseStudy({ project, onClose }) {
 
 export default function ProjectsContent({ revealed, state, navigation, onReturn }) {
   const selected = projectById(state.selectedProjectId)
+  const projectButtons = useRef(new Map())
+  const restoreProjectId = useRef(null)
+
+  useEffect(() => {
+    if (selected || !restoreProjectId.current) return
+    projectButtons.current.get(restoreProjectId.current)?.focus()
+    restoreProjectId.current = null
+  }, [selected])
+
+  function closeCaseStudy() {
+    restoreProjectId.current = selected?.id || null
+    navigation.clearProjectSelection()
+  }
 
   return <section
     className={`ProjectsContent${revealed ? ' is-revealed' : ''}${selected ? ' has-case-study' : ''}`}
@@ -65,8 +79,12 @@ export default function ProjectsContent({ revealed, state, navigation, onReturn 
       {PROJECT_NODES.map((project, index) => <button
         key={project.id}
         type="button"
+        ref={node => {
+          if (node) projectButtons.current.set(project.id, node)
+          else projectButtons.current.delete(project.id)
+        }}
         aria-pressed={state.selectedProjectId === project.id}
-        aria-controls={state.selectedProjectId === project.id ? 'project-case-title' : 'project-detail'}
+        aria-controls={selected ? 'project-case-title' : 'project-detail'}
         onClick={() => navigation.selectProject(project.id)}
         onFocus={() => navigation.setProjectHover(project.id, 'keyboard')}
         onBlur={() => navigation.setProjectHover(null, 'keyboard')}
@@ -85,7 +103,7 @@ export default function ProjectsContent({ revealed, state, navigation, onReturn 
 
     {selected ? <ProjectCaseStudy
       project={selected}
-      onClose={() => navigation.clearProjectSelection()}
+      onClose={closeCaseStudy}
     /> : <div className="ProjectSignalDetail" id="project-detail" aria-live="polite" aria-atomic="true">
       <p className="GalaxyEyebrow">Explore the work</p>
       <p>{PROJECTS.prompt}</p>
