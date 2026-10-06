@@ -1,7 +1,10 @@
 import { JOURNEY, JOURNEY_WAYPOINTS, journeyById } from '../data/journey.js'
+import { projectById } from '../data/projects.js'
+import { galaxyPathForProject } from '../navigation/GalaxyHistory.js'
 
 export default function JourneyContent({ revealed, state, navigation, onReturn }) {
   const selected = journeyById(state.selectedJourneyId)
+  const relatedProjects = (selected?.projectIds || []).map(projectById).filter(Boolean)
 
   return <section
     className={`JourneyContent${revealed ? ' is-revealed' : ''}`}
@@ -46,6 +49,14 @@ export default function JourneyContent({ revealed, state, navigation, onReturn }
         <ul aria-label={`${selected.label} focus areas`}>
           {selected.focus.map(item => <li key={item}>{item}</li>)}
         </ul>
+        {relatedProjects.length > 0 && <nav className="JourneyRelatedProjects" aria-label={`Related projects for ${selected.label}`}>
+          <p className="GalaxyEyebrow">Related systems</p>
+          <div>
+            {relatedProjects.map(project => <a key={project.id} href={galaxyPathForProject(project.id)}>
+              {project.label}<span aria-hidden="true">→</span>
+            </a>)}
+          </div>
+        </nav>}
       </> : <>
         <p className="GalaxyEyebrow">Follow the path</p>
         <p>{JOURNEY.prompt}</p>
