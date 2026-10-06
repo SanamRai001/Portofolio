@@ -10,6 +10,7 @@ import { createGalaxySoundscape } from './audio/Soundscape.js'
 import { CORE } from './data/core.js'
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
+import './GalaxyCrossLinks.css'
 
 export default function GalaxyPage() {
   const reducedMotion = useReducedMotion()
