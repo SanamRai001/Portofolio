@@ -257,10 +257,20 @@ try {
       await page.screenshot({ path: `${output}/${view.name}-journey-reduced.png`, fullPage: true })
       await page.locator('.JourneyPath').getByRole('button', { name: /Production Systems/ }).click()
       await page.screenshot({ path: `${output}/${view.name}-journey-production-systems.png`, fullPage: true })
+      await page.locator('.JourneyPath').getByRole('button', { name: /Research & Exploration/ }).click()
+      assert.deepEqual(
+        await page.locator('.JourneyConnections a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))),
+        ['/galaxy/projects/statescout', '/galaxy/projects/reality-archive'],
+      )
+      await page.screenshot({ path: `${output}/${view.name}-journey-research-links.png`, fullPage: true })
       await selectBody(page, 'The Lab')
       await page.locator('.LabContent.is-revealed').waitFor()
       await page.screenshot({ path: `${output}/${view.name}-lab-reduced.png`, fullPage: true })
       await page.locator('.LabConsole').getByRole('button', { name: /Interface State Exploration/ }).click()
+      assert.equal(
+        await page.locator('.LabDetail .GalaxySemanticLink').getAttribute('href'),
+        '/galaxy/projects/statescout',
+      )
       await page.screenshot({ path: `${output}/${view.name}-lab-state-space.png`, fullPage: true })
 
       const layout = await page.evaluate(() => ({
@@ -322,6 +332,11 @@ try {
       assert.equal(
         await page.locator('#project-case-title').textContent(),
         'StateScout',
+      )
+      assert.equal(await page.title(), 'StateScout | Galaxy | Sanam Rai')
+      assert.match(
+        await page.locator('meta[name="description"]').getAttribute('content'),
+        /semantic state-graph explorer/,
       )
       await page.screenshot({
         path: `${output}/desktop-project-detail-direct-statescout.png`,
