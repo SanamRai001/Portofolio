@@ -3,7 +3,7 @@ import useReducedMotion from '../../motion/useReducedMotion.js'
 import GalaxyScene from './scene/GalaxyScene.jsx'
 import GalaxyFallback from './ui/GalaxyFallback.jsx'
 import { createNavigationController } from './navigation/NavigationController.js'
-import { bindGalaxyHistory } from './navigation/GalaxyHistory.js'
+import { bindGalaxyHistory, openGalaxyProject } from './navigation/GalaxyHistory.js'
 import { createPortalController } from './navigation/PortalController.js'
 import GalaxyPortalOverlay from './ui/GalaxyPortalOverlay.jsx'
 import { createGalaxySoundscape } from './audio/Soundscape.js'
@@ -90,6 +90,8 @@ export default function GalaxyPage() {
     if (!enabled) setSoundUnavailable(true)
   }, [fallback, soundEnabled, soundUnavailable, soundscape])
 
+  const openProject = useCallback(projectId => openGalaxyProject(projectId), [])
+
   useEffect(() => {
     const previousTitle = document.title
     document.title = `Galaxy | ${CORE.name}`
@@ -116,7 +118,7 @@ export default function GalaxyPage() {
         </div>
       </header>
 
-      <GalaxyNavigation navigation={navigation} portal={portal} staticView={fallback} reducedMotion={reducedMotion} onInteract={enableSoundFromInteraction}>
+      <GalaxyNavigation navigation={navigation} portal={portal} staticView={fallback} reducedMotion={reducedMotion} onInteract={enableSoundFromInteraction} onOpenProject={openProject}>
         {(selectedBodyId, state) => <>
           {fallback ? <GalaxyFallback selectedBodyId={selectedBodyId} selectedSkillId={state.selectedSkillId} hoveredSkillId={state.hoveredSkillId} selectedProjectId={state.selectedProjectId} hoveredProjectId={state.hoveredProjectId} selectedJourneyId={state.selectedJourneyId} hoveredJourneyId={state.hoveredJourneyId} selectedLabId={state.selectedLabId} hoveredLabId={state.hoveredLabId} navigation={navigation} /> : <GalaxyScene navigation={navigation} portal={portal} paused={false} reducedMotion={reducedMotion} onReady={onReady} onError={onError} />}
           {!fallback && !ready && <p className="GalaxyLoading" role="status">Opening the solar system…</p>}
