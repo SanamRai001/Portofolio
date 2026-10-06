@@ -1,5 +1,15 @@
 # PROJECT_STATE
 
+## Current handoff — G4C merged; G4D share-preview cards next (2026-10-06)
+
+- **Current master:** PR #37 merged at `f5e5162e4f122a63c89b59c604730c1496c05bf7`. Exact post-merge Frontend Auth Runtime Tests run `37447737594` passed. Vercel currently reports only the external project `build-rate-limit` quota, so do not mislabel that as a code/test failure.
+- **G4C result:** six canonical project routes now have project-specific title, description, canonical URL, OG/Twitter title+description, and CreativeWork JSON-LD in raw prerendered HTML plus synchronized runtime metadata. Browser run `37446786063` / artifact `11403827088` passed.
+- **Stale PR cleanup:** PR #35 (`feat/galaxy-g4b-semantic-links`) was closed unmerged as superseded by merged PR #36 and #37. Its branch was 33 commits behind master and overlapped contextual links/metadata; do not merge it later by accident.
+- **Motion/orbit status:** rotation, revolution and orbit-path visibility are already fixed and regression-protected. Overview revolution runs at 100%, hover at 82%, selected at 65%; the focus camera tracks the selected moving root, so world-space revolution may look subtle in a close-up. Planet surfaces spin independently. Four overview orbit `LineLoop` tracks are generated from the same `orbitPosition()` as actual planet roots and use `#9cacbf` / opacity .48. Focused desktop/phone deliberately fade WORLD-scale tracks to protect content. See `docs/GALAXY_MOTION_AUDIT.md` and `docs/GALAXY_NEXT_PHASES.md`.
+- **Remaining motion verification debt:** real laptop integrated-GPU frame pacing/thermals, real-phone FPS/touch feel, and the optional ~140-second Mars full-turn seam sweep. These are manual/hardware checks, not missing motion logic.
+- **Next implementation (G4D):** create six project-specific 1200×630 PNG social preview cards and map them through `projectMetadata()` so raw prerender HTML and runtime OG/Twitter metadata use the matching project image. Keep the assets static/local, data-driven and independent of WebGL.
+- **After G4D:** review whether any project genuinely benefits from deeper readable evidence. Do not add 3D objects or reopen completed G2R/G3 phases merely to extend scope.
+
 ## Active — G4C project metadata & static entry pages (2026-10-06)
 
 - **Baseline:** G4B contextual bridges merged as PR #36 into `master` at `83b6bf2e38341b469f38a998b38ccb98aed922d1`. Exact post-merge Frontend Auth Runtime Tests run `37445919315` passed. Vercel remains externally blocked by the project `build-rate-limit` quota.
