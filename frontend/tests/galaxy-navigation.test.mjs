@@ -447,12 +447,14 @@ test('Projects exposes six shareable engineering case studies without another ca
     assert.equal(navigation.getSnapshot().transitionId, transition)
   }
 
+  const selectedButton = content().querySelector('[aria-pressed="true"]')
   const close = content().querySelector('.ProjectCaseHeader button')
   await click(close)
   assert.equal(navigation.getSnapshot().selectedProjectId, null)
   assert.equal(navigation.getSnapshot().selectedBodyId, 'projects')
   assert.equal(content().querySelector('.ProjectCaseStudy'), null)
   assert.match(content().querySelector('.ProjectSignalDetail').textContent, /Select a project signal/)
+  assert.equal(document.activeElement, selectedButton)
   assert.equal(navigation.getSnapshot().transitionId, transition)
 
   await escape()
