@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, createElement } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import './entry.css'
 
@@ -8,17 +8,17 @@ const pathname = window.location.pathname.replace(/\/+$/, '') || '/'
 // Keep homepage and Galaxy code split. The published homepage carries real
 // React-generated HTML and must hydrate, not replace, that content.
 if (pathname === '/' && container.hasChildNodes()) {
-  import('./App.jsx').then(({ default: App }) => {
+  import('./App.jsx').then((module) => {
     hydrateRoot(container,
-      <StrictMode><App /></StrictMode>,
+      createElement(StrictMode, null, createElement(module.default)),
     )
   })
 } else {
   // Dev mode still starts with an empty root. Galaxy retains its lazy route
   // controller and its own HTML shell instead of loading homepage markup.
-  import('./PortfolioRoutes.jsx').then(({ default: PortfolioRoutes }) => {
+  import('./PortfolioRoutes.jsx').then((module) => {
     createRoot(container).render(
-      <StrictMode><PortfolioRoutes /></StrictMode>,
+      createElement(StrictMode, null, createElement(module.default)),
     )
   })
 }
