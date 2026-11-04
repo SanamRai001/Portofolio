@@ -6,6 +6,7 @@ import { build } from 'vite'
 import react from '@vitejs/plugin-react'
 import { JSDOM } from 'jsdom'
 import React, { act } from 'react'
+import { renderToString } from 'react-dom/server'
 import axios from 'axios'
 import { observeSectionReveals } from '../src/motion/sectionReveals.js'
 
@@ -261,5 +262,57 @@ test('static biography needs no React runtime and uses the homepage identity', a
     assert.ok(config.rewrites.some((rule) => rule.source === '/about' && rule.destination === '/about/index.html'))
   } finally {
     aboutDom.window.close()
+  }
+})
+
+
+test('homepage server render exposes person, projects and backend lab without browser globals', () => {
+  const previousWindow = globalThis.window
+  const previousDocument = globalThis.document
+  const previousStorage = globalThis.localStorage
+  try {
+    delete globalThis.window
+    delete globalThis.document
+    delete globalThis.localStorage
+    const html = renderToString(React.createElement(components.App))
+    assert.match(html, /id="hero-title"/)
+    assert.match(html, /Sanam Rai/)
+    assert.match(html, /Krishi Bazar/)
+    assert.match(html, /Backend Feature Control Panel/)
+    assert.match(html, /href="\/about"/)
+    assert.match(html, /href="\/galaxy"/)
+  } finally {
+    globalThis.window = previousWindow
+    globalThis.document = previousDocument
+    globalThis.localStorage = previousStorage
+  }
+})
+
+test('prerendered homepage hydrates without discarding identity and keeps live controls', async () => {
+  await act(async () => root.unmount())
+  container.innerHTML = renderToString(React.createElement(components.App))
+  const hero = container.querySelector('#hero-title')
+  const originalError = console.error
+  const hydrationErrors = []
+  console.error = (...args) => {
+    if (/hydration|did not match|server rendered/i.test(args.map(String).join(' '))) {
+      hydrationErrors.push(args)
+    } else {
+      originalError(...args)
+    }
+  }
+
+  try {
+    const { hydrateRoot } = await import('react-dom/client')
+    await act(async () => {
+      root = hydrateRoot(container, React.createElement(components.App))
+    })
+    assert.strictEqual(container.querySelector('#hero-title'), hero,
+      'Hydration should preserve server-rendered identity DOM')
+    await click(container.querySelector('.BackendPingButton'))
+    assert.match(container.querySelector('.BackendPingStatus').textContent, /Backend online/)
+    assert.deepEqual(hydrationErrors, [], 'No hydration mismatch should be logged')
+  } finally {
+    console.error = originalError
   }
 })

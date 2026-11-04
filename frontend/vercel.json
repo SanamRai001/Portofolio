@@ -30,11 +30,11 @@
     },
     {
       "source": "/galaxy",
-      "destination": "/index.html"
+      "destination": "/galaxy/index.html"
     },
     {
       "source": "/galaxy/:path*",
-      "destination": "/index.html"
+      "destination": "/galaxy/index.html"
     }
   ],
   "redirects": [

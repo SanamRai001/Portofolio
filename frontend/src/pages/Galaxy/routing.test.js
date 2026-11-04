@@ -297,6 +297,6 @@ test('invalid Galaxy subpaths fail closed to the system overview', () => {
 
 test('Vercel serves Galaxy project deep links through the SPA entry', async () => {
   const config = JSON.parse(await readFile(new URL('../../../vercel.json', import.meta.url), 'utf8'))
-  assert.ok(config.rewrites.some(rule => rule.source === '/galaxy' && rule.destination === '/index.html'))
-  assert.ok(config.rewrites.some(rule => rule.source === '/galaxy/:path*' && rule.destination === '/index.html'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/galaxy' && rule.destination === '/galaxy/index.html'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/galaxy/:path*' && rule.destination === '/galaxy/index.html'))
 })
