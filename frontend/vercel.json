@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/about",
+      "destination": "/about/index.html"
+    },
+    {
       "source": "/galaxy/projects/reality-archive",
       "destination": "/galaxy/projects/reality-archive/index.html"
     },
@@ -31,6 +35,13 @@
     {
       "source": "/galaxy/:path*",
       "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/about/",
+      "destination": "/about",
+      "permanent": true
     }
   ]
 }
