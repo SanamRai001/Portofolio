@@ -30,6 +30,7 @@ const InfoSection = () => {
           </div>
           <p>
             My strongest interest is backend work, but I treat product quality as an end-to-end responsibility: architecture, APIs, databases, security, interface clarity, and deployment behavior.
+            {' '}<a href="/about" className="IdentityBioLink">Read more about Sanam Rai →</a>
           </p>
         </div>
 
