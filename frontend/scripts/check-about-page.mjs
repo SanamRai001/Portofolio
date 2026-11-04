@@ -18,7 +18,7 @@ assert.match(html, /<link rel="canonical" href="https:\/\/sanam-rai\.com\.np\/ab
 assert.match(html, /<meta name="robots" content="index, follow/)
 assert.match(html, /href="\/about\/style\.css"/)
 assert.ok(!html.includes('id="root"'), 'Biography must be readable without React')
-assert.ok(stylesheet.includes('.focus'), 'Static stylesheet was not copied')
+assert.ok(stylesheet.includes('.cards'), 'Static stylesheet was not copied')
 assert.ok(sitemap.includes('<loc>https://sanam-rai.com.np/about</loc>'))
 
 const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)
