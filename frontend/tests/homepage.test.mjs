@@ -200,7 +200,7 @@ test('initial HTML identifies the same person and publicly linked profiles witho
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8')
   const sitemap = await readFile(new URL('../public/sitemap.xml', import.meta.url), 'utf8')
   const robots = await readFile(new URL('../public/robots.txt', import.meta.url), 'utf8')
-  const personScript = html.match(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/)
+  const personScript = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)
   assert.ok(personScript, 'Person JSON-LD must appear in raw HTML')
   const person = JSON.parse(personScript[1])
   assert.equal(person['@type'], 'Person')
@@ -214,8 +214,8 @@ test('initial HTML identifies the same person and publicly linked profiles witho
     'https://www.linkedin.com/in/sanam-rai-6b2149212/',
   ])
   assert.equal(Object.hasOwn(person, 'image'), false, 'A project screenshot is not a portrait of Sanam Rai')
-  assert.match(html, /<title>Sanam Rai \\| Backend & Full-Stack Developer in Nepal<\\/title>/)
-  assert.match(html, /<link rel="canonical" href="https:\\/\\/sanam-rai\\.com\\.np\\/" \\/>/)
+  assert.match(html, /<title>Sanam Rai \| Backend & Full-Stack Developer in Nepal<\/title>/)
+  assert.match(html, /<link rel="canonical" href="https:\/\/sanam-rai\.com\.np\/" \/>/)
   for (const profileUrl of person.sameAs) {
     assert.ok(html.includes(`<link rel="me" href="${profileUrl}" />`))
   }
