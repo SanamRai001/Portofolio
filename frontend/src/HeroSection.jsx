@@ -36,6 +36,15 @@ const HeroSection = () => {
             <a href="#selected-work" className="Button ButtonSecondary">View Projects <ArrowUpRight size={17} aria-hidden="true" /></a>
             <a href="/Sanam_Rai_resume.pdf" target="_blank" rel="noreferrer" className="Button ButtonGhost">Resume <Download size={16} aria-hidden="true" /></a>
           </div>
+          <nav className="HeroProfiles" aria-label="Sanam Rai on the web">
+            <span className="HeroProfilesLabel">Find me online</span>
+            <a href="https://github.com/SanamRai001" target="_blank" rel="me noopener noreferrer" aria-label="Sanam Rai on GitHub">
+              GitHub <ArrowUpRight size={15} aria-hidden="true" />
+            </a>
+            <a href="https://www.linkedin.com/in/sanam-rai-6b2149212/" target="_blank" rel="me noopener noreferrer" aria-label="Sanam Rai on LinkedIn">
+              LinkedIn <ArrowUpRight size={15} aria-hidden="true" />
+            </a>
+          </nav>
           <div className="HeroSystemRow" aria-label="Engineering focus">
             <span>API contracts</span><span>Authentication</span><span>Data integrity</span><span>Architecture</span>
           </div>

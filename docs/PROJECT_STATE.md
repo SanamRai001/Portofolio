@@ -1,5 +1,14 @@
 # PROJECT_STATE
 
+## Personal search discoverability — in review (2026-11-04)
+
+- **Branch:** `feat/personal-search-discoverability-20261104`, based on `master` at `8d9134ba51b1`. Do not merge or deploy without reviewing checks.
+- **Scope:** make the existing GitHub and LinkedIn identity links discoverable beside the homepage hero; explicitly connect those verified profiles to the homepage's Person JSON-LD and HTML `rel="me"`; remove the portfolio interface screenshot incorrectly marked as the person's photo. Preserve existing UI flow, routes, Galaxy behavior and site identity.
+- **SEO baseline:** title, meta description, Person JSON-LD, robots.txt, sitemap and canonical already existed. These changes improve clarity, not guaranteed search ranking or Google Knowledge Panel eligibility.
+- **Verification:** source-level invariants checked before commit; homepage tests expanded for the initial HTML metadata and rendered links. CI/local build and real browser validation remain pending until run.
+- **External follow-up:** verify both apex and www domain DNS/redirect responses, then align canonical, OG, sitemap and project route URLs with the preferred resolving host; validate the domain in Google Search Console and submit the sitemap. Only GitHub and LinkedIn were verified; add other social accounts after owner confirms their exact URLs.
+
+
 ## Current handoff — G4C merged; G4D share-preview cards next (2026-10-06)
 
 - **Current master:** PR #37 merged at `f5e5162e4f122a63c89b59c604730c1496c05bf7`. Exact post-merge Frontend Auth Runtime Tests run `37447737594` passed. Vercel currently reports only the external project `build-rate-limit` quota, so do not mislabel that as a code/test failure.

@@ -345,6 +345,42 @@ img {
   background: transparent;
 }
 
+.HeroProfiles {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.HeroProfilesLabel {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-right: 2px;
+}
+
+.HeroProfiles a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 6px;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 650;
+  text-underline-offset: 4px;
+}
+
+.HeroProfiles a:hover {
+  color: var(--cyan);
+}
+
+.HeroProfiles a:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .HeroSystemRow {
   margin-top: 26px;
   display: flex;

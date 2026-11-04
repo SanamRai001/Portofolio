@@ -1,6 +1,6 @@
 import test, { before, after, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -70,6 +70,13 @@ test('homepage keeps real navigation and API projects without any canvas or masc
   assert.equal(container.querySelectorAll('canvas, .LivingForge, .SystemCore, .HeroIsland').length, 0)
   assert.equal(container.querySelectorAll('[role="switch"]').length, 6)
   assert.ok(container.querySelector('a[href="/galaxy"]'))
+  assert.deepEqual(
+    [...container.querySelectorAll('nav[aria-label="Sanam Rai on the web"] a')].map((link) => link.href),
+    [
+      'https://github.com/SanamRai001',
+      'https://www.linkedin.com/in/sanam-rai-6b2149212/',
+    ],
+  )
   assert.ok(container.querySelector('#architecture-story .RequestPipeline'))
   assert.ok(container.textContent.includes('API project'))
   assert.equal(projectRequests().length, 1)
@@ -187,4 +194,31 @@ test('reduced motion and hidden tabs never leave hidden or animating content', (
   assert.equal(h.observers[0].targets.size, 0)
   assert.equal(container.querySelectorAll('.SectionRevealEntering').length, 0)
   cleanup()
+})
+
+test('initial HTML identifies the same person and publicly linked profiles without a fake portrait', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8')
+  const sitemap = await readFile(new URL('../public/sitemap.xml', import.meta.url), 'utf8')
+  const robots = await readFile(new URL('../public/robots.txt', import.meta.url), 'utf8')
+  const personScript = html.match(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/)
+  assert.ok(personScript, 'Person JSON-LD must appear in raw HTML')
+  const person = JSON.parse(personScript[1])
+  assert.equal(person['@type'], 'Person')
+  assert.equal(person['@id'], 'https://sanam-rai.com.np/#person')
+  assert.equal(person.name, 'Sanam Rai')
+  assert.equal(person.alternateName, 'SanamRai001')
+  assert.equal(person.mainEntityOfPage, 'https://sanam-rai.com.np/')
+  assert.equal(person.url, 'https://sanam-rai.com.np/')
+  assert.deepEqual(person.sameAs, [
+    'https://github.com/SanamRai001',
+    'https://www.linkedin.com/in/sanam-rai-6b2149212/',
+  ])
+  assert.equal(Object.hasOwn(person, 'image'), false, 'A project screenshot is not a portrait of Sanam Rai')
+  assert.match(html, /<title>Sanam Rai \\| Backend & Full-Stack Developer in Nepal<\\/title>/)
+  assert.match(html, /<link rel="canonical" href="https:\\/\\/sanam-rai\\.com\\.np\\/" \\/>/)
+  for (const profileUrl of person.sameAs) {
+    assert.ok(html.includes(`<link rel="me" href="${profileUrl}" />`))
+  }
+  assert.ok(sitemap.includes('<loc>https://sanam-rai.com.np/</loc>'))
+  assert.ok(robots.includes('Sitemap: https://sanam-rai.com.np/sitemap.xml'))
 })
