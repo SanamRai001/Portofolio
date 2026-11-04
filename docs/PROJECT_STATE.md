@@ -1,5 +1,16 @@
 # PROJECT_STATE
 
+## Homepage static rendering — implementation in review (2026-11-04)
+
+- **Branch:** `feat/homepage-prerender-seo-20261104`, based on merged `master` at `f4117abd`; do not merge or deploy without green checks and review.
+- **Goal:** deliver the actual portfolio homepage as semantic HTML in the first HTTP response, while retaining live backend interactions, keeping Galaxy separate, and avoiding a new framework.
+- **Implementation:** `src/prerenderHomepage.jsx` renders the real App using React server rendering; `scripts/prerender-homepage.mjs` runs after the existing Galaxy build checks, injects HTML and critical linked CSS into `dist/index.html`; `main.jsx` hydrates it on the homepage. The unrendered Galaxy shell is emitted as `dist/galaxy/index.html` with Galaxy metadata and used by existing Galaxy wildcard routes; project-specific generated pages are unchanged.
+- **Invariants:** only homepage receives React SSR markup; same component tree hydrates it; no browser globals required during server render; Galaxy never imports backend-lab UI as part of the initial experience; no change to backend API contracts, auth rules, 3D scene, or existing project data.
+- **Checks:** new `scripts/check-homepage-prerender.mjs` verifies static headings, links, controls, CSS and isolated Galaxy shell; homepage unit tests cover SSR without browser globals and live hydration. CI and deployed/browser behavior **pending verification**.
+- **SEO:** apex `https://sanam-rai.com.np/` remains canonical in HTML/JSON-LD/sitemap. Owner has connected apex to Vercel Production and verified Google Search Console domain/sitemap; www → apex permanent redirect is a separate live Vercel step, not modified by this GitHub branch.
+- **Follow-up:** after CI, browser/HTTP checks and review, release with user approval; then document honest, evidence-backed engineering case studies separately (do not invent metrics, employer affiliations or project performance).
+
+
 ## Static About page — P1 personal search clarity (2026-11-04)
 
 - **Goal:** provide one standalone, readable `/about` biography without splitting the domain or changing the existing homepage, Backend Lab, or Galaxy behavior.
