@@ -1,6 +1,16 @@
 # PROJECT_STATE
 
-## Personal search discoverability — in review (2026-11-04)
+## Static About page — P1 personal search clarity (2026-11-04)
+
+- **Goal:** provide one standalone, readable `/about` biography without splitting the domain or changing the existing homepage, Backend Lab, or Galaxy behavior.
+- **Implementation branch:** `feat/static-about-person-seo-20261104`, based on `master` at `568446dda18e`. Scope: `public/about/index.html` + scoped stylesheet, natural homepage/footer links, canonical sitemap, clean Vercel route, build verification and homepage DOM test.
+- **Identity contract:** reuse `https://sanam-rai.com.np/#person`, with only the existing verified GitHub (`SanamRai001`) and LinkedIn profile; do not invent other accounts, awards or person photographs.
+- **Acceptance:** `npm run test:homepage`, `npm run lint`, and `npm run build` pass; built `dist/about/index.html` contains biography, canonical, metadata, and Person + AboutPage JSON-LD without running React; `/about` resolves to static HTML with working CSS and links. CI/build and deployed HTTP response require separate verification.
+- **Limits:** this improves discovery, not guaranteed name-only rankings or AI answers. Owner must confirm Google Search Console indexing; apex/www redirect and canonical correctness remain unverified externally.
+- **Release:** no merge/deploy under this branch without review.
+
+
+## Personal search discoverability — merged to master (2026-11-04)
 
 - **Branch:** `feat/personal-search-discoverability-20261104`, based on `master` at `8d9134ba51b1`. Do not merge or deploy without reviewing checks.
 - **Scope:** make the existing GitHub and LinkedIn identity links discoverable beside the homepage hero; explicitly connect those verified profiles to the homepage's Person JSON-LD and HTML `rel="me"`; remove the portfolio interface screenshot incorrectly marked as the person's photo. Preserve existing UI flow, routes, Galaxy behavior and site identity.
