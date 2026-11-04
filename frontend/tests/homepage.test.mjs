@@ -222,3 +222,44 @@ test('initial HTML identifies the same person and publicly linked profiles witho
   assert.ok(sitemap.includes('<loc>https://sanam-rai.com.np/</loc>'))
   assert.ok(robots.includes('Sitemap: https://sanam-rai.com.np/sitemap.xml'))
 })
+
+test('static biography needs no React runtime and uses the homepage identity', async () => {
+  await render(components.App)
+  assert.ok(container.querySelector('a[href="/about"]'), 'Homepage should link to the biography')
+
+  const [html, sitemap, routing] = await Promise.all([
+    readFile(new URL('../public/about/index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../public/sitemap.xml', import.meta.url), 'utf8'),
+    readFile(new URL('../vercel.json', import.meta.url), 'utf8'),
+  ])
+  const aboutDom = new JSDOM(html, { url: 'https://sanam-rai.com.np/about' })
+  try {
+    const doc = aboutDom.window.document
+    assert.match(doc.title, /^About Sanam Rai/)
+    assert.equal(doc.querySelector('h1')?.textContent, 'Sanam Rai.')
+    assert.ok(doc.querySelector('main')?.textContent.includes('BIT graduate'))
+    assert.equal(doc.querySelector('link[rel="canonical"]')?.href, 'https://sanam-rai.com.np/about')
+    assert.equal(doc.querySelector('meta[name="robots"]')?.content, 'index, follow, max-image-preview:large')
+    assert.equal(doc.querySelector('script[src]'), null)
+    assert.equal(doc.querySelector('link[rel="stylesheet"]')?.href, 'https://sanam-rai.com.np/about/style.css')
+
+    const graph = JSON.parse(doc.querySelector('script[type="application/ld+json"]').textContent)['@graph']
+    const person = graph.find((entry) => entry['@type'] === 'Person')
+    const page = graph.find((entry) => entry['@type'] === 'AboutPage')
+    assert.equal(person['@id'], 'https://sanam-rai.com.np/#person')
+    assert.equal(person.name, 'Sanam Rai')
+    assert.equal(page.mainEntity['@id'], person['@id'])
+    assert.deepEqual(person.sameAs, [
+      'https://github.com/SanamRai001',
+      'https://www.linkedin.com/in/sanam-rai-6b2149212/',
+    ])
+    for (const profile of person.sameAs) {
+      assert.ok([...doc.querySelectorAll('a')].some((link) => link.href === profile), profile)
+    }
+    assert.ok(sitemap.includes('<loc>https://sanam-rai.com.np/about</loc>'))
+    const config = JSON.parse(routing)
+    assert.ok(config.rewrites.some((rule) => rule.source === '/about' && rule.destination === '/about/index.html'))
+  } finally {
+    aboutDom.window.close()
+  }
+})
