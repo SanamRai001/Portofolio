@@ -5,7 +5,7 @@
 - **Branch:** `feat/personal-search-discoverability-20261104`, based on `master` at `8d9134ba51b1`. Do not merge or deploy without reviewing checks.
 - **Scope:** make the existing GitHub and LinkedIn identity links discoverable beside the homepage hero; explicitly connect those verified profiles to the homepage's Person JSON-LD and HTML `rel="me"`; remove the portfolio interface screenshot incorrectly marked as the person's photo. Preserve existing UI flow, routes, Galaxy behavior and site identity.
 - **SEO baseline:** title, meta description, Person JSON-LD, robots.txt, sitemap and canonical already existed. These changes improve clarity, not guaranteed search ranking or Google Knowledge Panel eligibility.
-- **Verification:** source-level invariants checked before commit; homepage tests expanded for the initial HTML metadata and rendered links. CI/local build and real browser validation remain pending until run.
+- **Verification (2026-11-04):** source-level checks passed. GitHub Actions Frontend Auth Runtime Tests run `41810377716` completed successfully on branch commit `8dea0a5` (auth runtime, Galaxy, homepage, lint and frontend production build). Vercel preview status succeeded; production deployment, real-browser visual review and Google indexing/ranking remain unverified.
 - **External follow-up:** verify both apex and www domain DNS/redirect responses, then align canonical, OG, sitemap and project route URLs with the preferred resolving host; validate the domain in Google Search Console and submit the sitemap. Only GitHub and LinkedIn were verified; add other social accounts after owner confirms their exact URLs.
 
 
