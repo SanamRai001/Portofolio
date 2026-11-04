@@ -475,6 +475,15 @@ img {
   background: linear-gradient(180deg, rgba(10, 17, 25, 0.42), rgba(5, 8, 13, 0));
 }
 
+.IdentityBioLink {
+  display: inline;
+  color: var(--cyan);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+
 .IdentityGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
