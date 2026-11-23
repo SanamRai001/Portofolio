@@ -91,7 +91,7 @@ export default function CubePortal() {
     overlay.style.clipPath = start
     const animation = overlay.animate([{ clipPath: start }, { clipPath: end }], {
       duration, delay: opening ? 100 : 0,
-      easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'forwards',
+      easing: 'cubic-bezier(0.45,0,0.25,1)', fill: 'forwards',
     })
     animationRef.current = animation
     animation.finished.then(() => {

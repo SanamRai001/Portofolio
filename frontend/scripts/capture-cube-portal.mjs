@@ -78,14 +78,21 @@ try {
         openingProbe = await page.evaluate(() => {
           const overlay = document.querySelector('.CubePortalReveal')
           const glimpse = document.querySelector('.CubePortalGlimpse')
+          const clipPath = getComputedStyle(overlay).clipPath
+          const radius = Number(/circle\(([\d.]+)px/.exec(clipPath)?.[1] || NaN)
+          const x = Number.parseFloat(overlay.style.getPropertyValue('--portal-x'))
+          const y = Number.parseFloat(overlay.style.getPropertyValue('--portal-y'))
+          const maxRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 48
           return {
             phase: document.querySelector('.CubePortal')?.dataset.phase,
-            clipPath: getComputedStyle(overlay).clipPath,
+            clipPath, radius, coverRatio: radius / maxRadius,
             glimpseOpacity: Number(getComputedStyle(glimpse).opacity),
           }
         })
         assert.equal(openingProbe.phase, 'opening', 'Opening phase was skipped')
         assert.ok(openingProbe.clipPath.startsWith('circle('), 'Opening mask is not circular')
+        assert.ok(openingProbe.coverRatio > 0.03 && openingProbe.coverRatio < 0.68,
+          'Opening mask overshoots cube too early: ' + openingProbe.coverRatio)
         await page.screenshot({ path: output + '/' + view.name + '-opening.png' })
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
