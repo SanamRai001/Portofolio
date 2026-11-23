@@ -5,7 +5,6 @@ export default function CubeScene({ phase, theme, reducedMotion }) {
   const mountRef = useRef(null)
   const controllerRef = useRef(null)
   const latestStateRef = useRef({ phase, theme, reducedMotion })
-  latestStateRef.current = { phase, theme, reducedMotion }
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -28,7 +27,8 @@ export default function CubeScene({ phase, theme, reducedMotion }) {
   }, []) // renderer lifecycle is isolated from React layout state
 
   useEffect(() => {
-    controllerRef.current?.setState({ phase, theme, reducedMotion })
+    latestStateRef.current = { phase, theme, reducedMotion }
+    controllerRef.current?.setState(latestStateRef.current)
   }, [phase, theme, reducedMotion])
 
   return (

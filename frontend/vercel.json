@@ -47,5 +47,16 @@
       "destination": "/about",
       "permanent": true
     }
+  ],
+  "headers": [
+    {
+      "source": "/cube-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
   ]
 }

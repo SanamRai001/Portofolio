@@ -58,8 +58,9 @@ export function createCubeScene(mount, { onReady, onError }) {
     camera.updateProjectionMatrix()
     queueFrame()
   }
-  const observer = new ResizeObserver(resize)
-  observer.observe(mount)
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null
+  observer?.observe(mount)
+  window.addEventListener('resize', resize)
 
   const draw = (now) => {
     raf = 0
@@ -143,7 +144,8 @@ export function createCubeScene(mount, { onReady, onError }) {
       if (disposed) return
       disposed = true
       cancelAnimationFrame(raf)
-      observer.disconnect()
+      observer?.disconnect()
+      window.removeEventListener('resize', resize)
       if (gltfRoot) disposeScene(gltfRoot)
       renderer.dispose()
       renderer.domElement.remove()

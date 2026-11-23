@@ -29,6 +29,7 @@ test('preview route does not replace the established homepage or Galaxy', () => 
   assert.deepEqual(vercel.rewrites.find(x => x.source === '/cube-preview'), {source:'/cube-preview',destination:'/index.html'})
   assert.ok(vercel.rewrites.find(x => x.source === '/about'))
   assert.ok(vercel.rewrites.find(x => x.source === '/galaxy'))
+  assert.deepEqual(vercel.headers.find(x => x.source === '/cube-preview').headers[0], {key:'X-Robots-Tag',value:'noindex, nofollow'})
 })
 
 test('real GLB model is reused rather than copied into frontend', () => {
