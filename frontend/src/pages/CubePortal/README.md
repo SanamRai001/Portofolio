@@ -37,3 +37,13 @@ Open Firefox Developer Tools Console and verify no WebGL, GLB loading, CSP, or 4
 - `CubePortal.css` — isolated light/dark visual system and mobile/reduced-motion adaptations.
 
 The cube is not yet a production-ready replacement for the homepage. This route is the integration and visual acceptance gate.
+
+## Gray-patch regression evidence (2026-11-24)
+
+The original GLB had its six flat backing plates intersecting displaced stone surfaces, producing gray patches when rendered. The model source now enforces backing-plate clearance, and `tests/cube-model-clearance.test.mjs` checks all six faces against the exported GLB.
+
+![Original vs corrected cube](../../../../prototypes/unfolding-cube-portal/verification/gray-patch-before-after.png)
+
+The image is a **controlled off-screen VTK GLB render** at the same camera position for the old and corrected models. The corrected GLB is the exact Git blob used by this PR (`1dc67ff8d6478549e3b3d3881e8e2e109483f5aa`). Independent rendered evidence confirms the large flat gray regions disappear. The per-face backing clearances range from 0.020 to 0.024 model units.
+
+**Still pending:** screenshot/video of the **React Three.js renderer in Firefox** with WebGL2 on the owner’s GPU; the off-screen result is not a replacement for that test. Vercel’s PR preview requires authentication for automated browser inspection. Do not merge the homepage cutover on the strength of off-screen evidence alone.
