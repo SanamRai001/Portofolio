@@ -70,7 +70,17 @@ try {
       await page.screenshot({ path: output + '/' + view.name + '-dark.png' })
 
       await page.locator('.CubeDestinationWork').click()
+      if (view.reducedMotion !== 'reduce') {
+        // Verify the portal itself; a settled Work screenshot alone can hide a broken opening.
+        await page.waitForTimeout(320)
+        await page.screenshot({ path: output + '/' + view.name + '-opening.png' })
+      }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
+      // Phase changes before the CSS reveal finishes. Do not capture a half-transparent page.
+      await page.waitForFunction(() => {
+        const panel = document.querySelector('.CubeWork')
+        return panel && Number(getComputedStyle(panel).opacity) >= 0.98
+      })
       assert.equal(await page.locator('.CubeProject').count(), 3, 'Work project index not shown')
       assert.equal(await page.locator('#cube-work-title').isVisible(), true, 'Work heading not visible')
       await page.screenshot({ path: output + '/' + view.name + '-work.png' })
