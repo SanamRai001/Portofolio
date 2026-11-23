@@ -86,6 +86,8 @@ export default function CubePortal() {
     }
     const start = circle(opening ? 0 : maxDistance)
     const end = circle(opening ? maxDistance : 0)
+    overlay.style.setProperty('--portal-x', origin.x + 'px')
+    overlay.style.setProperty('--portal-y', origin.y + 'px')
     overlay.style.clipPath = start
     const animation = overlay.animate([{ clipPath: start }, { clipPath: end }], {
       duration, delay: opening ? 100 : 0,
@@ -156,6 +158,10 @@ export default function CubePortal() {
         <footer className="CubeHomeFooter">BUILD <span>/</span> EXPLORE <span>/</span> ITERATE</footer>
       </main>
       <div className="CubePortalReveal" ref={stageRef} aria-hidden={!isWork} inert={!isWork}>
+        <div className="CubePortalGlimpse" aria-hidden="true">
+          <span>01 / SELECTED WORK</span>
+          <strong>Built with intention.</strong>
+        </div>
         <section className="CubeWork" aria-labelledby="cube-work-title">
           <button type="button" className="CubeWorkBack" onClick={() => navigate('home')}>
             <ArrowLeft size={16} aria-hidden="true" /> Return to cube
