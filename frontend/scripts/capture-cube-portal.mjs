@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, rename } from 'node:fs/promises'
 import { chromium } from 'playwright'
 
 const origin = 'http://127.0.0.1:4187'
@@ -29,10 +29,12 @@ try {
       viewport: view.viewport, deviceScaleFactor: 1,
       isMobile: view.isMobile, hasTouch: view.isMobile,
       reducedMotion: view.reducedMotion,
+      recordVideo: view.reducedMotion === 'reduce' ? undefined : { dir: output, size: view.viewport },
     })
     const page = await context.newPage()
     const errors = []
     const assetResponses = []
+    let openingProbe = null
 
     page.on('pageerror', error => errors.push(error.message))
     page.on('console', message => {
@@ -73,6 +75,17 @@ try {
       if (view.reducedMotion !== 'reduce') {
         // Verify the portal itself; a settled Work screenshot alone can hide a broken opening.
         await page.waitForTimeout(320)
+        openingProbe = await page.evaluate(() => {
+          const overlay = document.querySelector('.CubePortalReveal')
+          const glimpse = document.querySelector('.CubePortalGlimpse')
+          return {
+            phase: document.querySelector('.CubePortal')?.dataset.phase,
+            clipPath: getComputedStyle(overlay).clipPath,
+            glimpseOpacity: Number(getComputedStyle(glimpse).opacity),
+          }
+        })
+        assert.equal(openingProbe.phase, 'opening', 'Opening phase was skipped')
+        assert.ok(openingProbe.clipPath.startsWith('circle('), 'Opening mask is not circular')
         await page.screenshot({ path: output + '/' + view.name + '-opening.png' })
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
@@ -100,11 +113,13 @@ try {
       assert.ok(layout.documentWidth <= layout.viewportWidth + 1,
         'Horizontal overflow: ' + layout.documentWidth + ' > ' + layout.viewportWidth)
       assert.deepEqual(errors, [], 'Browser console/page errors')
-      results.push({ view: view.name, status: 'pass', model, layout, assetResponses, errors })
+      results.push({ view: view.name, status: 'pass', model, layout, assetResponses, openingProbe, errors })
     } catch (error) {
       results.push({ view: view.name, status: 'fail', reason: error.message, errors, assetResponses })
     } finally {
+      const video = page.video()
       await context.close()
+      if (video) await rename(await video.path(), output + '/' + view.name + '-motion.webm')
     }
   }
 } finally {
