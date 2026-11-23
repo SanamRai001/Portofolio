@@ -47,3 +47,10 @@ The original GLB had its six flat backing plates intersecting displaced stone su
 The image is a **controlled off-screen VTK GLB render** at the same camera position for the old and corrected models. The corrected GLB is the exact Git blob used by this PR (`1dc67ff8d6478549e3b3d3881e8e2e109483f5aa`). Independent rendered evidence confirms the large flat gray regions disappear. The per-face backing clearances range from 0.020 to 0.024 model units.
 
 **Still pending:** screenshot/video of the **React Three.js renderer in Firefox** with WebGL2 on the owner’s GPU; the off-screen result is not a replacement for that test. Vercel’s PR preview requires authentication for automated browser inspection. Do not merge the homepage cutover on the strength of off-screen evidence alone.
+
+## Browser and motion evidence (2026-11-24)
+
+- **Passed**: GitHub Actions `Cube Portal WebGL Visual Capture` run `45242427451`, on source commit `519d7397`, in headless Chromium on Ubuntu 24.04. The test confirmed WebGL2, GLB HTTP 200, no image fallback, real light/dark rendering, desktop and mobile Work opening, Escape/Back, no horizontal overflow or browser errors, and reduced-motion navigation.
+- **Motion refinement**: the page mask originally covered ~85% of the viewport radius just ~320 ms into opening. The current slower-start easing leaves the cube scene visible longer; the browser probe measured ~0.4% desktop and ~10.9% mobile in the sampled early frame. The recorded videos and screenshots are stored in the run’s `cube-portal-webgl-visual` artifact (seven-day retention). This is an animation timing proof, not an FPS or physical-GPU benchmark.
+- **Remaining**: Firefox on the owner’s Windows GPU, thermal/performance testing on a real machine, touch behavior on a physical phone, and final visual sign-off before any homepage cutover.
+

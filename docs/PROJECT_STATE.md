@@ -5,7 +5,7 @@
 - **Branch / PR:** `feat/cube-portal-react-preview-20261123`, draft PR #44 based on `master`; runtime stays review-only at `/cube-preview`.
 - **Root-cause fix:** backing panels previously intersected displaced surface vertices. Moved the plates behind the surface in the GLB build source and committed corrected GLB; numerical regression test checks six faces (0.020–0.024 clearance).
 - **Verification:** independent off-screen VTK renders reproduce original gray patches and confirm they disappear in the exact GLB tracked by the PR; documented comparison under `prototypes/unfolding-cube-portal/verification/`. Previous head `da6a3af4328ddb25f2eafcfbea9b29fb95816fb3` passed GitHub Actions run `45236068303` (frontend tests/lint/build).
-- **Remaining acceptance:** real Firefox/WebGL2 rendering, light/dark lighting, opening/closing transition, narrow-screen and reduced-motion behavior; Vercel preview is authentication-protected, so remote browser proof is blocked. Real-browser result remains **unverified**.
+- **Browser acceptance:** GitHub Actions `45242427451` passed actual headless Chromium WebGL2+GLB render, desktop/mobile theme, Work opening, Escape/Back, reduced-motion and console checks; video/screenshots are in the short-lived `cube-portal-webgl-visual` artifact. Visual motion was inspected and the portal easing refined so the cube opens before the page mask expands. **Remaining:** Firefox on owner Windows GPU, physical-phone touch, thermal performance, final owner sign-off. Vercel branch preview is still SSO-protected.
 - **Safety:** no merge, no homepage cutover, no production deployment. Preserve existing homepage, About, Galaxy, Backend Lab and auth behavior.
 
 ## Static About page — P1 personal search clarity (2026-11-04)
