@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { defineConfig, searchForWorkspaceRoot } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -9,6 +9,6 @@ const repositoryRoot = fileURLToPath(new URL('..', import.meta.url))
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: { fs: { allow: [searchForWorkspaceRoot(process.cwd()), repositoryRoot] } },
+  server: { fs: { allow: [repositoryRoot] } },
   build: { manifest: true },
 })
