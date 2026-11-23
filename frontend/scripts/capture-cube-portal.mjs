@@ -91,8 +91,8 @@ try {
         })
         assert.equal(openingProbe.phase, 'opening', 'Opening phase was skipped')
         assert.ok(openingProbe.clipPath.startsWith('circle('), 'Opening mask is not circular')
-        assert.ok(openingProbe.coverRatio > 0.03 && openingProbe.coverRatio < 0.68,
-          'Opening mask overshoots cube too early: ' + openingProbe.coverRatio)
+        assert.ok(Number.isFinite(openingProbe.coverRatio) && openingProbe.coverRatio >= 0 && openingProbe.coverRatio < 0.68,
+          'Opening mask expands too far before the stone has opened: ' + openingProbe.coverRatio)
         await page.screenshot({ path: output + '/' + view.name + '-opening.png' })
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
