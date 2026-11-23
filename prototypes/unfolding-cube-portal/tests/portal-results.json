@@ -1,0 +1,83 @@
+[
+  {
+    "layout": "desktop",
+    "midway": {
+      "phase": "opening",
+      "cubeTransform": "none",
+      "clip": "circle(149.062px at 905px 480px)",
+      "visible": "visible"
+    },
+    "done": {
+      "phase": "work",
+      "view": "work",
+      "clip": "none",
+      "inert": false,
+      "active": "workTitle",
+      "bodyOverflow": "hidden",
+      "canvasStatus": {
+        "ready": false,
+        "faces": 0,
+        "triangles": 0,
+        "webgl": false,
+        "error": "WebGL2 unavailable \u2014 showing accessible static fallback.",
+        "frames": 0,
+        "unfold": 0
+      },
+      "scrollWidth": 1440
+    },
+    "back": {
+      "phase": "home",
+      "view": "home",
+      "inert": true,
+      "homeFocusable": true
+    },
+    "errors": [],
+    "overflow": false
+  },
+  {
+    "layout": "mobile",
+    "midway": {
+      "phase": "opening",
+      "cubeTransform": "none",
+      "clip": "circle(97.6306px at 195px 479px)",
+      "visible": "visible"
+    },
+    "done": {
+      "phase": "work",
+      "view": "work",
+      "clip": "none",
+      "inert": false,
+      "active": "workTitle",
+      "bodyOverflow": "hidden",
+      "canvasStatus": {
+        "ready": false,
+        "faces": 0,
+        "triangles": 0,
+        "webgl": false,
+        "error": "WebGL2 unavailable \u2014 showing accessible static fallback.",
+        "frames": 0,
+        "unfold": 0
+      },
+      "scrollWidth": 390
+    },
+    "back": {
+      "phase": "home",
+      "view": "home",
+      "inert": true,
+      "homeFocusable": true
+    },
+    "errors": [],
+    "overflow": false
+  },
+  {
+    "layout": "reduced",
+    "phase": "work",
+    "clip": "none"
+  },
+  {
+    "layout": "interrupted",
+    "phase": "home",
+    "location": "",
+    "visible": "hidden"
+  }
+]
