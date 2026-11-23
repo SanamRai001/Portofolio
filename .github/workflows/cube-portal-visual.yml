@@ -1,0 +1,53 @@
+name: Cube Portal WebGL Visual Capture
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/src/pages/CubePortal/**'
+      - 'frontend/scripts/capture-cube-portal.mjs'
+      - 'frontend/vercel.json'
+      - 'frontend/vite.config.js'
+      - 'prototypes/unfolding-cube-portal/assets/stone-cube.glb'
+      - '.github/workflows/cube-portal-visual.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cube-portal-visual
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Install Playwright headless Chromium
+        timeout-minutes: 7
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.1
+          npx playwright install chromium --only-shell
+      - run: npm run build
+      - name: Capture Cube Portal WebGL and navigation
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4187 --strictPort &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node scripts/capture-cube-portal.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cube-portal-webgl-visual
+          path: frontend/artifacts/cube-portal-visual/
+          if-no-files-found: warn
+          retention-days: 7
