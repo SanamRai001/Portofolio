@@ -2,6 +2,8 @@ import { Component, lazy, Suspense } from 'react'
 
 const Portfolio = lazy(() => import('./App.jsx'))
 const Galaxy = lazy(() => import('./pages/Galaxy/GalaxyPage.jsx'))
+// Review route only: production homepage stays unchanged until GPU/browser acceptance.
+const CubePortalPreview = lazy(() => import('./pages/CubePortal/CubePortal.jsx'))
 
 class RouteBoundary extends Component {
   state = { failed: false }
@@ -25,20 +27,21 @@ class RouteBoundary extends Component {
   }
 }
 
-// Native document navigation preserves normal links, back/forward and homepage
-// hash navigation. Only the selected experience (including its CSS) is imported.
+// Native document navigation preserves normal links and browser back/forward.
+// The 3D preview and Galaxy are each lazy-loaded, keeping home bundle isolated.
 export default function PortfolioRoutes() {
   const pathname = window.location.pathname.replace(/\/+$/, '') || '/'
   const galaxy = pathname === '/galaxy' || pathname.startsWith('/galaxy/')
+  const cubePreview = pathname === '/cube-preview'
   return (
     <RouteBoundary>
       <Suspense fallback={
         <main className="EntryState">
-          <p role="status">{galaxy ? 'Entering deep space…' : 'Loading portfolio…'}</p>
+          <p role="status">{galaxy ? 'Entering deep space…' : cubePreview ? 'Opening cube preview…' : 'Loading portfolio…'}</p>
           <a href="/">Return to portfolio</a>
         </main>
       }>
-        {galaxy ? <Galaxy /> : <Portfolio />}
+        {galaxy ? <Galaxy /> : cubePreview ? <CubePortalPreview /> : <Portfolio />}
       </Suspense>
     </RouteBoundary>
   )

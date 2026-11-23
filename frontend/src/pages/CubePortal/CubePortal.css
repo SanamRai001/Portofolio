@@ -1,0 +1,145 @@
+/* Cube Portal preview — fully scoped to keep the existing homepage/Galaxy untouched. */
+.CubePortal {
+  --cp-bg:#f6f3ec; --cp-ink:#1b201e; --cp-soft:#616965; --cp-muted:#939991;
+  --cp-border:rgba(44,49,44,.2); --cp-card:rgba(255,255,255,.64);
+  --cp-accent:#88be83; --cp-gold:#f6c17f; --cp-land:#acada6;
+  min-height:100svh; position:relative; overflow:hidden; isolation:isolate;
+  background:var(--cp-bg); color:var(--cp-ink); font:400 16px/1.5 Inter,ui-sans-serif,system-ui,sans-serif;
+  transition:background-color .55s ease,color .55s ease;
+}
+.CubePortal[data-theme="dark"] {
+  --cp-bg:#0a1119; --cp-ink:#f3eee7; --cp-soft:#d1d0cf; --cp-muted:#9aabb5;
+  --cp-border:rgba(234,232,228,.26); --cp-card:rgba(18,28,36,.79);
+  --cp-accent:#a7dc91; --cp-gold:#ffdaae; --cp-land:#566677;
+}
+.CubePortal *, .CubePortal *::before, .CubePortal *::after { box-sizing:border-box }
+.CubePortal button { font:inherit; cursor:pointer }
+.CubePortal a { color:inherit; text-decoration:none }
+.CubePortal :is(a,button):focus-visible { outline:2px solid var(--cp-accent);outline-offset:5px }
+.CubeSrOnly { position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap }
+.CubeSkip { position:fixed;top:10px;left:10px;z-index:110;transform:translateY(-150%);padding:12px 16px;background:var(--cp-ink);color:var(--cp-bg)!important }
+.CubeSkip:focus { transform:translateY(0) }
+.CubeHeader { position:relative;z-index:80;display:flex;align-items:center;justify-content:space-between;gap:20px;width:min(1450px,calc(100% - 112px));margin:0 auto;padding:30px 0 }
+.CubeIdentity { display:flex;align-items:center;gap:21px;white-space:nowrap;font-size:12px;font-weight:600;letter-spacing:.27em }
+.CubeIdentity strong {font:400 31px/.9 Georgia,serif;letter-spacing:-.09em}
+.CubeIdentity>span:nth-child(2) {font-size:20px;font-weight:300;color:var(--cp-muted)}
+.CubeHeaderActions {display:flex;align-items:center;gap:22px}
+.CubeLocation {font-size:13px;color:var(--cp-soft)}
+.CubeThemeButton {display:grid;place-items:center;width:43px;height:43px;border-radius:50%;border:1px solid var(--cp-border);background:transparent;color:var(--cp-ink);transition:background .2s ease,transform .2s ease}
+.CubeThemeButton:hover {transform:translateY(-2px);background:var(--cp-card)}
+.CubeContact {display:flex;gap:10px;align-items:center;border-radius:25px;background:var(--cp-ink);color:var(--cp-bg)!important;padding:11px 19px;font-size:13px;transition:transform .2s ease}
+.CubeContact:hover {transform:translateY(-2px)}
+.CubeHome {position:relative;min-height:min(780px,calc(100svh - 95px));width:min(1450px,calc(100% - 112px));margin:0 auto}
+.CubeHome::after {content:"";position:absolute;z-index:0;pointer-events:none;left:-6vw;right:-6vw;bottom:-12px;height:200px;opacity:.37;background:linear-gradient(0deg,var(--cp-land),transparent 80%);clip-path:polygon(0 78%,7% 68%,13% 83%,22% 49%,31% 84%,42% 97%,57% 89%,68% 94%,76% 75%,83% 81%,91% 51%,100% 66%,100% 100%,0 100%);mask-image:linear-gradient(0deg,#000,transparent)}
+.CubeIntro {position:relative;z-index:5;top:137px;max-width:410px;width:40%}
+.CubeEyebrow {font-size:12px;letter-spacing:.32em;font-weight:600;color:var(--cp-soft);margin:0 0 28px}
+.CubeIntro h1 {font:400 clamp(58px,6.1vw,96px)/.99 Georgia,'Times New Roman',serif;letter-spacing:-.068em;margin:0 0 28px}
+.CubeIntro h1 em {color:var(--cp-soft);font-weight:400}
+.CubeIntro>p:not(.CubeEyebrow) {font-size:17px;line-height:1.74;color:var(--cp-soft);max-width:340px}
+.CubeAccent {height:2px;width:46px;margin-top:27px;background:var(--cp-accent)}
+.CubeUniverse {position:absolute;right:0;top:30px;width:66%;height:600px;z-index:4}
+.CubeOrbit {position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.CubeOrbit ellipse {fill:none;stroke:var(--cp-muted);stroke-width:.8;opacity:.65}
+.CubeOrbit circle {fill:var(--cp-ink);transition:fill .45s ease}
+.CubePortal[data-theme="dark"] .CubeOrbit circle {fill:var(--cp-gold);filter:drop-shadow(0 0 5px var(--cp-gold))}
+.CubePortalModel {position:absolute;inset:9% 15% 11% 17%;pointer-events:none;z-index:2}
+.CubePortalCanvas,.CubePortalFallback {position:absolute;inset:0}
+.CubePortalCanvas canvas {display:block;width:100%;height:100%}
+.CubePortalFallback img {position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 24px 18px rgba(22,23,24,.15));transition:filter .5s ease,transform .75s cubic-bezier(.22,1,.36,1),opacity .65s ease;will-change:transform}
+.CubePortal[data-theme="dark"] .CubePortalFallback img {filter:drop-shadow(0 0 18px rgba(255,202,128,.12))}
+.CubeFallbackTop {clip-path:polygon(0 0,100% 0,100% 54%,49% 58%,0 49%)}
+.CubeFallbackLeft {clip-path:polygon(0 48%,51% 58%,52% 100%,0 100%)}
+.CubeFallbackRight {clip-path:polygon(50% 58%,100% 53%,100% 100%,51% 100%)}
+.CubePortal[data-phase="opening"] .CubeFallbackTop,.CubePortal[data-phase="work"] .CubeFallbackTop {transform:translateY(-16%) rotate(-7deg)}
+.CubePortal[data-phase="opening"] .CubeFallbackLeft,.CubePortal[data-phase="work"] .CubeFallbackLeft {transform:translate(-15%,8%) rotate(-7deg)}
+.CubePortal[data-phase="opening"] .CubeFallbackRight,.CubePortal[data-phase="work"] .CubeFallbackRight {transform:translate(17%,8%) rotate(7deg)}
+.CubePortalGroundShadow {position:absolute;bottom:5%;left:28%;width:42%;height:16px;border-radius:50%;background:rgba(14,19,20,.2);filter:blur(13px);pointer-events:none}
+.CubeDestinations {position:absolute;inset:0;pointer-events:none;z-index:8}
+.CubeDestination {position:absolute;min-width:118px;min-height:95px;padding:12px 15px;display:flex;flex-direction:column;justify-content:center;gap:3px;pointer-events:auto;transform:rotate(var(--twist,0deg));border-radius:14px;border:1px solid var(--cp-border);background:var(--cp-card);backdrop-filter:blur(13px);transition:background .25s ease,box-shadow .25s ease,transform .25s ease}
+.CubeDestination>span {font:24px/1 ui-monospace,monospace;margin-bottom:2px}
+.CubeDestination>strong {font-weight:500;font-size:21px;letter-spacing:-.04em;line-height:1.15}
+.CubeDestination>small {font-size:11px;color:var(--cp-soft);letter-spacing:.01em}
+.CubeDestination:hover,.CubeDestination:focus-visible {transform:rotate(var(--twist)) translateY(-5px);box-shadow:0 12px 25px rgba(25,23,21,.07)}
+.CubePortal[data-theme="dark"] .CubeDestination:hover {box-shadow:0 0 19px rgba(255,204,144,.15);border-color:var(--cp-gold)}
+.CubeDestinationWork {--twist:-7deg;left:16%;top:13%;border-color:rgba(130,184,123,.38)}
+.CubePortal[data-theme="dark"] .CubeDestinationWork {box-shadow:0 0 13px rgba(145,211,128,.12)}
+.CubeDestinationLab {--twist:5deg;right:9%;top:11%}
+.CubeDestinationGalaxy {--twist:6deg;right:0;top:64%}
+.CubeDestinationAbout {--twist:-6deg;left:11%;top:77%}
+.CubeHomeFooter {position:absolute;z-index:5;right:0;bottom:42px;font-size:11px;letter-spacing:.23em;color:var(--cp-soft)}
+.CubeHomeFooter span {padding:0 9px;color:var(--cp-muted)}
+/* Overlay expands from the cube center; never translates the cube to a corner. */
+.CubePortalReveal {position:fixed;inset:0;z-index:60;overflow-y:auto;background:var(--cp-bg);color:var(--cp-ink);visibility:hidden;pointer-events:none;clip-path:circle(0 at 66% 44%)}
+.CubePortal[data-phase="opening"] .CubePortalReveal,.CubePortal[data-phase="work"] .CubePortalReveal,.CubePortal[data-phase="closing"] .CubePortalReveal {visibility:visible}
+.CubePortal[data-phase="work"] .CubePortalReveal {clip-path:none;pointer-events:auto}
+.CubeWork {max-width:1120px;margin:0 auto;padding:135px 48px 80px;opacity:0;transform:translateY(24px);transition:opacity .27s ease,transform .34s ease}
+.CubePortal[data-phase="work"] .CubeWork {opacity:1;transform:none}
+.CubeWorkBack {border:0;background:transparent;padding:11px 2px;display:flex;align-items:center;gap:8px;color:var(--cp-soft);font-size:13px;margin-bottom:54px}
+.CubeWorkBack:hover {color:var(--cp-ink)}
+.CubeWorkEyebrow {font-size:12px;font-weight:600;letter-spacing:.2em;color:var(--cp-accent);margin:0 0 17px}
+.CubeWork h1 {font:400 clamp(48px,6.5vw,88px)/1.05 Georgia,serif;letter-spacing:-.057em;margin:0}
+.CubeWorkLead {font-size:17px;color:var(--cp-soft);line-height:1.7;max-width:540px;margin:20px 0 50px}
+.CubeProjects {border-top:1px solid var(--cp-border)}
+.CubeProject {display:grid;grid-template-columns:65px minmax(0,1fr) 25px;align-items:start;gap:20px;padding:25px 0;border-bottom:1px solid var(--cp-border);transition:padding-left .2s ease}
+.CubeProject:hover {padding-left:10px}
+.CubeProjectNumber {color:var(--cp-muted);font-size:12px}
+.CubeProjectMain {display:grid;gap:5px}
+.CubeProjectMain strong {font:400 clamp(25px,3vw,40px)/1.15 Georgia,serif}
+.CubeProjectMain small {font-size:12px;color:var(--cp-soft);text-transform:uppercase;letter-spacing:.06em}
+.CubeProjectMain>span {font-size:14px;color:var(--cp-soft);margin-top:6px;max-width:620px}
+.CubeWorkFootnote {color:var(--cp-muted);font-size:11px;margin-top:55px}
+.CubePortal[data-phase="opening"] .CubeIntro,.CubePortal[data-phase="opening"] .CubeDestinations {pointer-events:none}
+@media(max-width:900px) {
+  .CubeHeader,.CubeHome {width:calc(100% - 50px)}
+  .CubeIntro {width:43%;top:105px}
+  .CubeIntro h1 {font-size:clamp(50px,7.5vw,79px)}
+  .CubeUniverse {width:69%;height:570px;top:36px}
+  .CubeDestinationWork {left:9%}
+  .CubeDestinationLab {right:2%}
+  .CubeDestinationGalaxy {right:1%}
+  .CubeDestinationAbout {left:7%}
+}
+@media(max-width:700px) {
+  .CubePortal {min-height:100svh}
+  .CubeHeader,.CubeHome {width:calc(100% - 38px)}
+  .CubeHeader {padding:22px 0}
+  .CubeIdentity {gap:9px;letter-spacing:.13em;font-size:10px}
+  .CubeIdentity strong {font-size:25px}
+  .CubeLocation {display:none}
+  .CubeHeaderActions {gap:9px}
+  .CubeThemeButton {width:42px;height:42px}
+  .CubeContact {padding:10px 13px;font-size:12px}
+  .CubeHome {min-height:880px}
+  .CubeIntro {top:24px;width:100%;max-width:440px}
+  .CubeEyebrow {font-size:10px;margin:0 0 18px}
+  .CubeIntro h1 {font-size:clamp(57px,12.5vw,77px);max-width:360px}
+  .CubeIntro>p:not(.CubeEyebrow) {font-size:15px;max-width:320px}
+  .CubeAccent {margin-top:17px}
+  .CubeUniverse {top:278px;left:-6%;right:auto;width:112%;height:465px}
+  .CubePortalModel {inset:13% 18% 15% 17%}
+  .CubeDestination {min-width:95px;min-height:77px;padding:8px 11px;border-radius:12px}
+  .CubeDestination>span {font-size:19px}
+  .CubeDestination>strong {font-size:17px}
+  .CubeDestination>small {font-size:9px}
+  .CubeDestinationWork {left:6%;top:7%}
+  .CubeDestinationLab {right:2%;top:8%}
+  .CubeDestinationGalaxy {right:1%;top:77%}
+  .CubeDestinationAbout {left:5%;top:82%}
+  .CubeHomeFooter {bottom:34px;left:0;right:auto;letter-spacing:.18em}
+  .CubeHome::after {height:150px}
+  .CubeWork {padding:116px 25px 70px}
+  .CubeWorkBack {margin-bottom:40px}
+  .CubeWorkLead {font-size:15px}
+  .CubeProject {grid-template-columns:30px minmax(0,1fr) 22px;gap:12px;padding:22px 0}
+  .CubeProjectMain>span {font-size:13px}
+}
+@media(max-width:380px) {
+  .CubeHeader,.CubeHome {width:calc(100% - 28px)}
+  .CubeIdentity {letter-spacing:.04em}
+  .CubeIdentity>span:nth-child(2) {display:none}
+  .CubeUniverse {top:280px;height:430px}
+  .CubeDestinationAbout {top:81%}
+}
+@media(prefers-reduced-motion:reduce) {
+  .CubePortal *, .CubePortal *::before, .CubePortal *::after {transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}

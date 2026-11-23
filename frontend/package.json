@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test:auth-runtime": "node --test src/authRuntime.test.js",
     "test:galaxy": "node --test src/pages/Galaxy/*.test.js && node --test tests/galaxy-navigation.test.mjs",
-    "test:homepage": "node --test tests/homepage.test.mjs"
+    "test:homepage": "node --test tests/homepage.test.mjs",
+    "test:cube-preview": "node --test tests/cube-preview.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

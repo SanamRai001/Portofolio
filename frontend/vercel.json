@@ -5,6 +5,10 @@
       "destination": "/about/index.html"
     },
     {
+      "source": "/cube-preview",
+      "destination": "/index.html"
+    },
+    {
       "source": "/galaxy/projects/reality-archive",
       "destination": "/galaxy/projects/reality-archive/index.html"
     },

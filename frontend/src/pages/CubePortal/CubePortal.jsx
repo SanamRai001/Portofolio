@@ -1,0 +1,181 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ArrowUpRight, Moon, Sun, ArrowLeft } from 'lucide-react'
+import useReducedMotion from '../../motion/useReducedMotion.js'
+import CubeScene from './CubeScene.jsx'
+import { cubeUrl, portalDuration, readCubeView } from './cubePortalNavigation.js'
+import './CubePortal.css'
+
+const PROJECTS = [
+  { name: 'RepoScout', type: 'Repository intelligence', detail: 'A repository discovery platform grounded in useful signals, search and explainable ranking.', href: 'https://github.com/SanamRai001/reposcout' },
+  { name: 'Krishi Bazar', type: 'Agricultural marketplace', detail: 'A digital marketplace connecting Nepali farmers and buyers.', href: 'https://github.com/SanamRai001/KrishiBazar' },
+  { name: 'YakTalk', type: 'Realtime messaging', detail: 'Private chat with authenticated real-time connections and presence.', href: 'https://github.com/SanamRai001/YakTalk-chatapp' },
+]
+
+function readTheme() {
+  try { return localStorage.getItem('sanam-cube-theme') === 'dark' ? 'dark' : 'light' }
+  catch { return 'light' }
+}
+
+export default function CubePortal() {
+  const reducedMotion = useReducedMotion()
+  const [theme, setTheme] = useState(readTheme)
+  const [phase, setPhase] = useState(() => readCubeView(window.location.hash))
+  const stageRef = useRef(null)
+  const cubeRef = useRef(null)
+  const workLinkRef = useRef(null)
+  const workHeadingRef = useRef(null)
+  const epochRef = useRef(0)
+  const animationRef = useRef(null)
+  const goalRef = useRef(readCubeView(window.location.hash))
+  const phaseRef = useRef(phase)
+  const priorOrigin = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    // A temporary review route should not enter search indexes as a second homepage.
+    const originalTitle = document.title
+    const robots = document.querySelector('meta[name="robots"]')
+    const oldRobots = robots?.getAttribute('content')
+    document.title = 'Cube Portal Preview | Sanam Rai'
+    robots?.setAttribute('content', 'noindex, nofollow')
+    return () => {
+      document.title = originalTitle
+      if (robots && oldRobots !== null) robots.setAttribute('content', oldRobots)
+    }
+  }, [])
+
+  useEffect(() => {
+    try { localStorage.setItem('sanam-cube-theme', theme) } catch { /* storage unavailable */ }
+  }, [theme])
+
+  const navigate = useCallback((next, { push = true, focus = true } = {}) => {
+    const view = next === 'work' ? 'work' : 'home'
+    if (goalRef.current === view && phaseRef.current === view) return
+    if (push) window.history.pushState({ cubeView: view }, '', cubeUrl(view))
+    goalRef.current = view
+    const epoch = ++epochRef.current
+    animationRef.current?.cancel()
+    animationRef.current = null
+    const overlay = stageRef.current
+    const element = cubeRef.current
+    const rect = element?.getBoundingClientRect()
+    const origin = rect ? { x: rect.left + rect.width * 0.52, y: rect.top + rect.height * 0.5 }
+      : priorOrigin.current
+    priorOrigin.current = origin
+    const maxDistance = Math.ceil(Math.hypot(
+      Math.max(origin.x, window.innerWidth - origin.x),
+      Math.max(origin.y, window.innerHeight - origin.y),
+    )) + 48
+    const circle = radius => `circle(${radius}px at ${origin.x}px ${origin.y}px)`
+    const duration = portalDuration(view, reducedMotion)
+
+    const finish = () => {
+      if (epoch !== epochRef.current) return
+      phaseRef.current = view
+      setPhase(view)
+      if (overlay) overlay.style.clipPath = view === 'work' ? 'none' : circle(0)
+      if (focus) window.requestAnimationFrame(() => {
+        if (epoch === epochRef.current) (view === 'work' ? workHeadingRef : workLinkRef).current?.focus({ preventScroll: true })
+      })
+    }
+
+    const opening = view === 'work'
+    phaseRef.current = opening ? 'opening' : 'closing'
+    setPhase(phaseRef.current)
+    if (!overlay || duration === 0 || typeof overlay.animate !== 'function') {
+      finish(); return
+    }
+    const start = circle(opening ? 0 : maxDistance)
+    const end = circle(opening ? maxDistance : 0)
+    overlay.style.clipPath = start
+    const animation = overlay.animate([{ clipPath: start }, { clipPath: end }], {
+      duration, delay: opening ? 100 : 0,
+      easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'forwards',
+    })
+    animationRef.current = animation
+    animation.finished.then(() => {
+      if (epoch !== epochRef.current) return
+      animation.cancel()
+      animationRef.current = null
+      finish()
+    }).catch(() => { /* interrupted by a newer navigation */ })
+  }, [reducedMotion])
+
+  useEffect(() => {
+    const onPop = () => navigate(readCubeView(window.location.hash), { push: false, focus: true })
+    const onKey = event => { if (event.key === 'Escape' && goalRef.current === 'work') navigate('home') }
+    window.addEventListener('popstate', onPop)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('popstate', onPop)
+      window.removeEventListener('keydown', onKey)
+      epochRef.current += 1
+      animationRef.current?.cancel()
+    }
+  }, [navigate])
+
+  const isWork = phase === 'work'
+  const isTransitioning = phase === 'opening' || phase === 'closing'
+  return (
+    <div className="CubePortal" data-theme={theme} data-phase={phase}>
+      <a className="CubeSkip" href="#cube-main">Skip to content</a>
+      <header className="CubeHeader">
+        <a href="#home" className="CubeIdentity" onClick={event => { event.preventDefault(); navigate('home') }} aria-label="Sanam Rai — return to cube home">
+          <strong>SR</strong><span aria-hidden="true">/</span><span>SANAM RAI</span>
+        </a>
+        <div className="CubeHeaderActions">
+          <span className="CubeLocation">Software engineer · Nepal</span>
+          <button type="button" className="CubeThemeButton" onClick={() => setTheme(current => current === 'light' ? 'dark' : 'light')}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'} aria-pressed={theme === 'dark'}>
+            {theme === 'light' ? <Moon size={18} aria-hidden="true" /> : <Sun size={18} aria-hidden="true" />}
+          </button>
+          <a className="CubeContact" href="mailto:sanamr571@outlook.com">Contact <ArrowUpRight size={15} aria-hidden="true" /></a>
+        </div>
+      </header>
+      <main className="CubeHome" id="cube-main" aria-hidden={isWork} inert={isWork}>
+        <section className="CubeIntro" aria-labelledby="cube-title">
+          <p className="CubeEyebrow">SOFTWARE ENGINEER</p>
+          <h1 id="cube-title">Ideas into <em>systems.</em></h1>
+          <p>I design and build reliable software that solves real problems.</p>
+          <div className="CubeAccent" aria-hidden="true" />
+        </section>
+        <div className="CubeUniverse" ref={cubeRef}>
+          <svg className="CubeOrbit" viewBox="0 0 700 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <ellipse cx="350" cy="278" rx="320" ry="169" transform="rotate(-17 350 278)" />
+            <circle cx="100" cy="416" r="3" /><circle cx="522" cy="124" r="3" /><circle cx="625" cy="317" r="3" />
+          </svg>
+          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} />
+          <nav className="CubeDestinations" aria-label="Explore the portfolio">
+            <a className="CubeDestination CubeDestinationWork" ref={workLinkRef} href="#work" onClick={event => { event.preventDefault(); navigate('work') }}>
+              <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>
+            </a>
+            <a className="CubeDestination CubeDestinationLab" href="/#system-controls"><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
+            <a className="CubeDestination CubeDestinationGalaxy" href="/galaxy"><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
+            <a className="CubeDestination CubeDestinationAbout" href="/about"><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
+          </nav>
+        </div>
+        <footer className="CubeHomeFooter">BUILD <span>/</span> EXPLORE <span>/</span> ITERATE</footer>
+      </main>
+      <div className="CubePortalReveal" ref={stageRef} aria-hidden={!isWork} inert={!isWork}>
+        <section className="CubeWork" aria-labelledby="cube-work-title">
+          <button type="button" className="CubeWorkBack" onClick={() => navigate('home')}>
+            <ArrowLeft size={16} aria-hidden="true" /> Return to cube
+          </button>
+          <p className="CubeWorkEyebrow">01 / SELECTED ENGINEERING WORK</p>
+          <h1 id="cube-work-title" ref={workHeadingRef} tabIndex="-1">Built with intention.</h1>
+          <p className="CubeWorkLead">Software systems, developer tools and experiments, each driven by a real problem.</p>
+          <div className="CubeProjects">
+            {PROJECTS.map((project, index) => (
+              <a href={project.href} key={project.name} className="CubeProject" target="_blank" rel="noopener noreferrer">
+                <span className="CubeProjectNumber">0{index + 1}</span>
+                <span className="CubeProjectMain"><strong>{project.name}</strong><small>{project.type}</small><span>{project.detail}</span></span>
+                <ArrowUpRight size={20} aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+          <p className="CubeWorkFootnote">Interactive design preview · Existing portfolio and Lab remain unchanged.</p>
+        </section>
+      </div>
+      {isTransitioning && <span className="CubeSrOnly" role="status">{phase === 'opening' ? 'Opening selected work' : 'Returning to portfolio home'}</span>}
+    </div>
+  )
+}
