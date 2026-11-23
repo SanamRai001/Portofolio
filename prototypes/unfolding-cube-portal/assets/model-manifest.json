@@ -1,0 +1,22 @@
+{
+  "format": "glTF 2.0 / GLB",
+  "units": "meters arbitrary scale",
+  "nodes": [
+    "stone_front",
+    "stone_right",
+    "stone_top",
+    "stone_back",
+    "stone_left",
+    "stone_bottom",
+    "shell_front",
+    "shell_right",
+    "shell_top",
+    "shell_back",
+    "shell_left",
+    "shell_bottom",
+    "inner_core",
+    "gold_heart"
+  ],
+  "texture_source": "Original generated cube render; visible faces projection-mapped",
+  "unfold": "Animated external panel transforms in JS; real geometry, no morphing bitmap"
+}
