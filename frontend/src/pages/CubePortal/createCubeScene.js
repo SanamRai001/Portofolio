@@ -29,10 +29,10 @@ export function createCubeScene(mount, { onReady, onError }) {
   renderer.domElement.setAttribute('aria-hidden', 'true')
   mount.appendChild(renderer.domElement)
 
-  const ambient = new THREE.HemisphereLight(0xffffff, 0x4a4d53, 2.05)
-  const key = new THREE.DirectionalLight(0xffffff, 3.5)
+  const ambient = new THREE.HemisphereLight(0xffffff, 0x32363b, 1.1)
+  const key = new THREE.DirectionalLight(0xffffff, 2.15)
   key.position.set(4, 7, 6)
-  const rim = new THREE.DirectionalLight(0xffd9a4, 2.2)
+  const rim = new THREE.DirectionalLight(0xffd9a4, 1.35)
   rim.position.set(-4, 1, -4)
   scene.add(ambient, key, rim)
 
@@ -80,9 +80,9 @@ export function createCubeScene(mount, { onReady, onError }) {
     }
     geometryRoot.rotation.y = -0.07 + v * 0.07
     const dark = state.theme === 'dark'
-    ambient.intensity = dark ? 1.2 : 2.05
-    key.intensity = dark ? 2.8 : 3.5
-    rim.intensity = dark ? 3.9 : 2.2
+    ambient.intensity = dark ? 0.72 : 1.1
+    key.intensity = dark ? 1.75 : 2.15
+    rim.intensity = dark ? 2.15 : 1.35
     renderer.render(scene, camera)
     if (Math.abs(progress - goal) > 0.001) queueFrame()
   }

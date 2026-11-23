@@ -75,7 +75,13 @@ for side in ROTATIONS:
     T=ROTATIONS[side].copy(); T[:3,3]=POSITIONS[side]
     scene.add_geometry(mesh,node_name='stone_'+side,geom_name='stone_'+side,transform=T)
     # dark supporting thickness behind each textured face, underneath its visible surface
-    plate=trimesh.creation.box(extents=[1.964,1.964,.068]);plate.apply_translation([0,0,.014])
+    # IMPORTANT: previous +0.014 backing offset put the plate front at +0.048,
+    # ABOVE 46-70% of the displaced surface vertices and caused flat gray "puddles".
+    # The plate must stay behind the entire displacement field by >=0.015 units.
+    plate=trimesh.creation.box(extents=[1.964,1.964,.068]);plate.apply_translation([0,0,-.026])
+    minimum_stone_z = min(vertex[2] for vertex in vertices)
+    plate_front_z = max(plate.vertices[:,2])
+    assert minimum_stone_z - plate_front_z >= .015, (side, minimum_stone_z, plate_front_z)
     plate.visual=TextureVisuals(material=PBRMaterial(name='side_slate',baseColorFactor=[36,38,39,255],metallicFactor=0,roughnessFactor=.91))
     scene.add_geometry(plate,node_name='shell_'+side,geom_name='shell_'+side,transform=T)
 # Inner stable core reveals a warm geometric heart when the surfaces separate
