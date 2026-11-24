@@ -22,7 +22,10 @@ download("https://api.polyhaven.com/files/dark_rock",maps/"metadata.json")
 metadata=json.loads((maps/"metadata.json").read_text())
 sources={}
 for key in ("diff","nor_gl","rough","disp"):
-    options=metadata[key]["1k"]
+    aliases={"diff":("diffuse","diff","albedo"),"nor_gl":("nor_gl","normal"),"rough":("rough","roughness"),"disp":("disp","displacement")}
+    available=next((name for name in aliases[key] if name in metadata),None)
+    if available is None: raise RuntimeError(f"Missing {key}: available metadata keys {list(metadata)}")
+    options=metadata[available]["1k"]
     fmt=next(f for f in ("jpg","png","exr") if f in options)
     url=options[fmt]["url"]
     dest=maps/(key+"."+fmt);download(url,dest)
