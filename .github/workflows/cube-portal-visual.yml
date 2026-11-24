@@ -1,4 +1,4 @@
-name: Cube Portal WebGL Visual Capture
+name: Cube Portal Artwork Visual Capture
 
 on:
   pull_request:
@@ -9,7 +9,8 @@ on:
       - 'frontend/vite.config.js'
       - 'prototypes/unfolding-cube-portal/assets/stone-cube.glb'
       - 'prototypes/unfolding-cube-portal/assets/stone-cube-canonical.glb'
-      - 'prototypes/unfolding-cube-portal/assets/stone-cube-canonical-fallback.webp'
+      - 'prototypes/unfolding-cube-portal/source/reference-cube.png'
+      - 'frontend/tests/cube-preview.test.mjs'
       - '.github/workflows/cube-portal-visual.yml'
 
 permissions:
@@ -44,7 +45,7 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.55.1
           npx playwright install chromium --only-shell
       - run: npm run build
-      - name: Capture Cube Portal WebGL and navigation
+      - name: Capture Cube Portal artwork and navigation
         timeout-minutes: 3
         env:
           CUBE_VIEW: ${{ matrix.view }}
@@ -56,7 +57,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cube-portal-webgl-visual-${{ matrix.view }}
+          name: cube-portal-artwork-visual-${{ matrix.view }}
           path: frontend/artifacts/cube-portal-visual/
           if-no-files-found: warn
           retention-days: 7

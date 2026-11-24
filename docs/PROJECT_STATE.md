@@ -2,11 +2,10 @@
 
 ## Current work — Cube Portal React preview (2026-11-24)
 
-- **Branch / PR:** `feat/cube-portal-react-preview-20261123`, draft PR #44; latest app-changing commit `3c5860570beee3348d3677223dc10ed27ec0f465`; master remains `680d83089c833a9f9680ca7391578a62dc7827a9`. Review-only `/cube-preview`.
-- **Decision:** one canonical cube; no visible image-to-WebGL swap. Keep corrected backing clearance, original artwork-derived UV/material detail, matching error-only fallback, destination seam highlight and single moving lid. No additional model variants during acceptance.
-- **Verified:** frontend checks and build on canonical commit (run `45331847092`), Vercel preview success. Earlier geometry/hover browser passes apply to earlier assets only.
-- **Acceptance:** canonical browser run `45331847044` was interrupted twice; replacement matrix run `45336295108` on `452f9e49` passed mobile (390px) and reduced-motion (1280px) with actual canonical GLB HTTP 200, WebGL2, no fallback, no horizontal overflow, and no console errors. Desktop remained in progress when checked. Mobile opening capture exposed overlapping temporary/real Work titles; corrected the CSS handoff and added a frame-sampled overlap regression. The intentionally delayed GLB test now releases its route before screenshot capture and has a watchdog. Latest retest and owner Firefox/Windows sign-off remain pending. No new cube variants or Work content in this phase.
-- **Safety:** no merge, no homepage cutover, no production deployment. Preserve existing homepage, About, Galaxy, Backend Lab and auth behavior.
+- **Branch / PR:** `feat/cube-portal-react-preview-20261123`, draft PR #44; master remains `680d83089c833a9f9680ca7391578a62dc7827a9`. Isolated `/cube-preview`.
+- **Decision:** owner screenshot of canonical WebGL confirmed unresolved visual fidelity. Approved fixed-view 2.5D prototype: exact original transparent artwork, original gold seam, no image-to-GLB swap, clipped lid opens while body stays still, restrained highlight. Previous canonical GLB implementation remains recoverable at `f1bdb2df369e996a1667d30c61f584f4712bf34e`.
+- **Verification:** earlier frontend CI passed; latest canonical visual run was cancelled. The new artwork prototype requires fresh source/build tests, browser matrix (idle, direct hover invariance, destination glow, lid open/close, no GLB request, theme, Back/Escape, mobile, reduced motion), screenshot review and owner Firefox approval. Do not count earlier GLB results as artwork acceptance.
+- **Scope:** no Work content expansion, no Lab/Galaxy/About changes, no homepage cutover, no production merge or deployment.
 
 ## Static About page — P1 personal search clarity (2026-11-04)
 

@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src/pages/CubePortal/cubePortalNavigation.js'
 
@@ -32,19 +33,17 @@ test('preview route does not replace the established homepage or Galaxy', () => 
   assert.deepEqual(vercel.headers.find(x => x.source === '/cube-preview').headers[0], {key:'X-Robots-Tag',value:'noindex, nofollow'})
 })
 
-test('real GLB model is reused rather than copied into frontend', () => {
-  const bytes = readFileSync(at('../../prototypes/unfolding-cube-portal/assets/stone-cube-canonical.glb'))
-  assert.equal(bytes.toString('ascii', 0, 4), 'glTF')
-  assert.equal(bytes.readUInt32LE(4), 2)
-  assert.equal(bytes.readUInt32LE(8), bytes.length)
-  const imagePath = at('../../prototypes/unfolding-cube-portal/assets/stone-cube-canonical-fallback.webp')
-  assert.equal(existsSync(imagePath), true)
-  const scene = text('../src/pages/CubePortal/createCubeScene.js')
-  assert.match(scene, /stone-cube-canonical\.glb\?url/)
-  assert.match(scene, /new GLTFLoader\(/)
-  assert.match(scene, /dispose\(\)/)
-  const vite = text('../vite.config.js')
-  assert.match(vite, /repositoryRoot/)
+test('layered preview reuses the exact approved artwork and does not load WebGL', () => {
+  const bytes = readFileSync(at('../../prototypes/unfolding-cube-portal/source/reference-cube.png'))
+  const gitBlob = createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex')
+  assert.equal(gitBlob, '33c6c4a293b3f23550e5a1315d6928d344f56569')
+  const scene = text('../src/pages/CubePortal/CubeScene.jsx')
+  assert.match(scene, /reference-cube\.png\?url/)
+  assert.match(scene, /viewBox="0 0 1254 1254"/)
+  assert.match(scene, /clipPath=\{split \?/)
+  assert.match(scene, /data-renderer="layered-artwork"/)
+  assert.doesNotMatch(scene, /createCubeScene|GLTFLoader|WebGLRenderer|<canvas/)
+  assert.match(text('../vite.config.js'), /repositoryRoot/)
 })
 
 test('portal retains keyboard navigation, focus and explicit non-indexable preview status', () => {
@@ -54,16 +53,11 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /aria-hidden=\{!isWork\}/)
   assert.match(jsx, /inert=\{!isWork\}/)
   const cubeScene = text('../src/pages/CubePortal/CubeScene.jsx')
-  assert.match(cubeScene, /MODEL_REVISION = 'canonical-stone-v1'/)
-  assert.match(cubeScene, /data-renderer=\{renderer\}/)
-  assert.match(cubeScene, /renderer === 'fallback'/)
-  assert.match(cubeScene, /useState\('loading'\)/)
-  assert.match(jsx, /highlightedDestination/)
+  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-v1'/)
+  assert.match(cubeScene, /data-lid-open=\{open\}/)
+  assert.match(cubeScene, /data-split=\{split\}/)
   assert.match(cubeScene, /cubeDebug/)
-  assert.match(cubeScene, /cubeMode/)
-  assert.match(cubeScene, /data-cube-mode/)
-  assert.match(text('../src/pages/CubePortal/createCubeScene.js'), /object.visible = false/)
-  assert.match(text('../src/pages/CubePortal/createCubeScene.js'), /hiddenShellCount/)
+  assert.match(jsx, /highlightedDestination/)
   assert.match(jsx, /CubePortalGlimpse/)
   assert.match(jsx, /--portal-x/)
   assert.match(text('../src/pages/CubePortal/CubePortal.css'), /cubePortalChapterEnter/)

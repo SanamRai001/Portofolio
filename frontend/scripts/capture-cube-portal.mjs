@@ -11,241 +11,120 @@ const allViews = [
 ]
 const views = process.env.CUBE_VIEW ? allViews.filter(view => view.name === process.env.CUBE_VIEW) : allViews
 assert.ok(views.length, 'Unknown CUBE_VIEW')
-const checkpoint = (view, stage) => console.log(`[cube:${view.name}] ${stage}`)
-
 await mkdir(output, { recursive: true })
 let ready = false
 for (let attempt = 0; attempt < 50; attempt++) {
   try {
     if ((await fetch(origin + '/cube-preview')).ok) { ready = true; break }
-  } catch { /* preview server starting */ }
+  } catch { /* server starting */ }
   await new Promise(resolve => setTimeout(resolve, 250))
 }
-if (!ready) throw new Error('Vite preview server did not start within 12.5 seconds')
-
-const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
+assert.ok(ready, 'Preview server did not start')
+const browser = await chromium.launch()
 const results = []
-
 try {
   for (const view of views) {
     const context = await browser.newContext({
-      viewport: view.viewport, deviceScaleFactor: 1,
-      isMobile: view.isMobile, hasTouch: view.isMobile,
+      viewport: view.viewport, deviceScaleFactor: 1, isMobile: view.isMobile, hasTouch: view.isMobile,
       reducedMotion: view.reducedMotion,
-      recordVideo: view.reducedMotion === 'reduce' ? undefined : { dir: output, size: view.viewport },
+      recordVideo: view.reducedMotion === 'reduce' ? undefined : {dir: output, size: view.viewport},
     })
     context.setDefaultTimeout(10000)
     context.setDefaultNavigationTimeout(15000)
     const page = await context.newPage()
-    const errors = []
-    const assetResponses = []
-    let openingProbe = null
-
+    const errors = [], modelRequests = [], artworkResponses = []
     page.on('pageerror', error => errors.push(error.message))
-    page.on('console', message => {
-      if (message.type() === 'error') errors.push(message.text())
-    })
+    page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+    page.on('request', request => { if (/\.glb(?:\?|$)/i.test(request.url())) modelRequests.push(request.url()) })
     page.on('response', response => {
-      if (/stone-cube[^/]*\.glb$/i.test(new URL(response.url()).pathname)) {
-        assetResponses.push({ status: response.status(), url: response.url() })
-      }
+      if (/reference-cube[^/]*\.png$/i.test(new URL(response.url()).pathname))
+        artworkResponses.push({status: response.status(), url: response.url()})
     })
-
+    let evidence = {}
     try {
-      checkpoint(view, 'load canonical model')
-      await page.goto(origin + '/cube-preview', { waitUntil: 'networkidle' })
-      await page.locator('.CubePortalCanvas canvas').waitFor({ state: 'visible', timeout: 15000 })
-      await page.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'webgl', null, { timeout: 15000 })
-      await page.waitForTimeout(350)
-
-      const model = await page.evaluate(() => {
-        const canvas = document.querySelector('.CubePortalCanvas canvas')
-        return {
-          width: canvas?.width, height: canvas?.height,
-          webgl2: !!canvas?.getContext('webgl2'),
-          fallback: !!document.querySelector('.CubePortalFallback'),
-          theme: document.querySelector('.CubePortal')?.dataset.theme,
-        }
-      })
-      assert.ok(model.width > 0 && model.height > 0, '3D canvas has zero size')
-      assert.equal(model.webgl2, true, 'No real WebGL2 context; fallback is not sufficient')
-      assert.equal(model.fallback, false, 'GLB not ready: fallback still displayed')
-      assert.ok(assetResponses.some(entry => entry.status === 200), 'No successful GLB request')
-      await page.screenshot({ path: output + '/' + view.name + '-home.png' })
-      // Compare the SAME GLB with and without its backing shells (diagnostic only).
-      // If screenshots match, backing shells are not visible and cannot explain the defect.
-      const normalCubePng = await page.locator('.CubePortalCanvas canvas')
-        .screenshot({ path: output + '/' + view.name + '-full-shells.png' })
-      checkpoint(view, 'compare shell visibility')
-      // No second video encoder on the software-WebGL runner.
-      const comparisonContext = await browser.newContext({
-        viewport: view.viewport, deviceScaleFactor: 1,
-        isMobile: view.isMobile, hasTouch: view.isMobile, reducedMotion: view.reducedMotion,
-      })
-      comparisonContext.setDefaultTimeout(10000)
-      comparisonContext.setDefaultNavigationTimeout(15000)
-      const comparison = await comparisonContext.newPage()
-      let stoneOnlyMatches = null
-      try {
-        await comparison.goto(origin + '/cube-preview?cubeDebug=1&cubeMode=stone-only', { waitUntil: 'networkidle' })
-        await comparison.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'webgl', null, { timeout: 15000 })
-        await comparison.waitForTimeout(350)
-        await comparison.waitForFunction(() => document.querySelector('.CubePortalCanvas')?.dataset.hiddenShellCount === '6')
-        assert.equal(await comparison.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
-        assert.equal(await comparison.locator('.CubePortalModel').getAttribute('data-cube-mode'), 'stone-only')
-        const stoneOnlyPng = await comparison.locator('.CubePortalCanvas canvas')
-          .screenshot({ path: output + '/' + view.name + '-stone-only.png' })
-        stoneOnlyMatches = normalCubePng.equals(stoneOnlyPng)
-        await comparison.screenshot({ path: output + '/' + view.name + '-stone-only-page.png' })
-      } finally {
-        await comparisonContext.close()
-      }
-      checkpoint(view, 'hover invariance')
-      // Reproduce the owner's exact action: move the pointer over the rendered cube.
-      // There is no hover material handler; the loaded GLB should not change its pixels.
-      const canvas = page.locator('.CubePortalCanvas canvas')
-      const bounds = await canvas.boundingBox()
-      assert.ok(bounds && bounds.width > 0 && bounds.height > 0, 'Cube missing from page')
-      await page.mouse.move(3, 3)
-      await page.waitForTimeout(100)
-      const beforeHover = await canvas.screenshot({ path: output + '/' + view.name + '-cube-before-hover.png' })
-      await page.mouse.move(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
-      await page.waitForTimeout(180)
-      const afterHover = await canvas.screenshot({ path: output + '/' + view.name + '-cube-after-hover.png' })
-      assert.deepEqual(afterHover, beforeHover, '3D cube pixels changed when hovering over cube')
-      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-model-revision'), 'canonical-stone-v1')
-      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
-      assert.equal(await page.locator('.CubePortalCanvas').getAttribute('data-moving-panel-count'), '3')
+      console.log('[cube:' + view.name + '] load original artwork')
+      await page.goto(origin + '/cube-preview', {waitUntil: 'networkidle'})
+      const cube = page.locator('.CubePortalModel')
+      const artwork = page.locator('.CubeArtwork')
+      await artwork.waitFor({state: 'visible'})
+      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-v1')
+      assert.equal(await cube.getAttribute('data-renderer'), 'layered-artwork')
+      assert.equal(await cube.getAttribute('data-split'), 'false')
+      assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
+      assert.equal(await page.locator('.CubePortalModel canvas').count(), 0)
+      assert.ok(artworkResponses.some(r => r.status === 200), 'Original image was not loaded')
+      assert.deepEqual(modelRequests, [], 'GLB request unexpectedly made')
+      assert.equal(await page.locator('.CubeArtworkBody').getAttribute('href'),
+        await page.locator('.CubeArtworkLid image').getAttribute('href'))
+      await page.screenshot({path: output + '/' + view.name + '-home.png'})
+      const before = await artwork.screenshot({path: output + '/' + view.name + '-idle.png'})
+      const box = await artwork.boundingBox()
+      await page.mouse.move(box.x + box.width/2, box.y + box.height/2)
+      await page.waitForTimeout(250)
+      assert.deepEqual(await artwork.screenshot(), before, 'Direct cube hover changed the original artwork')
       if (view.name === 'desktop') {
         await page.locator('.CubeDestinationWork').hover()
         await page.waitForFunction(() => document.querySelector('.CubeUniverse')?.dataset.highlight === 'work')
-        await page.waitForTimeout(220)
-        const lit = await canvas.screenshot({ path: output + '/desktop-destination-hover.png' })
-        assert.notDeepEqual(lit, beforeHover, 'Destination hover should illuminate the same cube')
+        await page.waitForTimeout(260)
+        assert.notDeepEqual(await artwork.screenshot({path: output + '/desktop-destination-hover.png'}), before)
         await page.mouse.move(3, 3)
-        await page.waitForFunction(() => document.querySelector('.CubeUniverse')?.dataset.highlight === '')
-        await page.waitForTimeout(120)
-        assert.deepEqual(await canvas.screenshot(), beforeHover, 'Cube must return to identical idle appearance')
-        checkpoint(view, 'slow load and forced fallback')
-        const fallbackContext = await browser.newContext({ viewport: view.viewport, deviceScaleFactor: 1 })
-        fallbackContext.setDefaultTimeout(10000)
-        fallbackContext.setDefaultNavigationTimeout(15000)
-        const fallbackPage = await fallbackContext.newPage()
-        let release
-        const gate = new Promise(resolve => { release = resolve })
-        // Never leave an intercepted model request pending indefinitely.
-        const watchdog = setTimeout(() => release(), 12000)
-        try {
-          await fallbackPage.route(/stone-cube[^/]*\.glb$/, async route => { await gate; await route.abort() })
-          await fallbackPage.goto(origin + '/cube-preview', { waitUntil: 'domcontentloaded' })
-          await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'loading')
-          assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 0)
-          // Capture the loading DOM assertion before releasing the network gate.
-          // Avoid screenshot/compositor waits while a model request is intentionally held.
-          checkpoint(view, 'loading state verified without fallback')
-          release()
-          await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'fallback')
-          assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 1)
-          await fallbackPage.waitForTimeout(350)
-          await fallbackPage.screenshot({path: output + '/desktop-fallback.png'})
-        } finally { clearTimeout(watchdog); release(); await fallbackContext.close() }
+        await page.waitForTimeout(260)
+        assert.deepEqual(await artwork.screenshot(), before, 'Destination hover did not restore the idle cube')
       }
-
-      checkpoint(view, 'theme and Work reveal')
+      console.log('[cube:' + view.name + '] theme and Work reveal')
       await page.locator('.CubeThemeButton').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.theme === 'dark')
-      await page.waitForTimeout(400)
-      await page.screenshot({ path: output + '/' + view.name + '-dark.png' })
-
-      if (view.reducedMotion !== 'reduce') {
-        await page.evaluate(() => {
-          const portal = document.querySelector('.CubePortal')
-          const glimpse = document.querySelector('.CubePortalGlimpse')
-          const chapter = document.querySelector('.CubeWork')
-          const evidence = { samples: 0, maxOverlap: 0 }
-          window.__cubeTitleOverlap = evidence
-          const started = performance.now()
-          const record = () => {
-            if (portal.dataset.phase === 'opening') {
-              evidence.samples++
-              evidence.maxOverlap = Math.max(evidence.maxOverlap,
-                Math.min(Number(getComputedStyle(glimpse).opacity), Number(getComputedStyle(chapter).opacity)))
-            }
-            if (portal.dataset.phase !== 'work' && performance.now() - started < 5000) requestAnimationFrame(record)
-          }
-          requestAnimationFrame(record)
-        })
-      }
+      await page.waitForTimeout(600)
+      await page.screenshot({path: output + '/' + view.name + '-dark.png'})
       await page.locator('.CubeDestinationWork').click()
       if (view.reducedMotion !== 'reduce') {
-        // Verify the portal itself; a settled Work screenshot alone can hide a broken opening.
-        await page.waitForTimeout(320)
-        openingProbe = await page.evaluate(() => {
-          const overlay = document.querySelector('.CubePortalReveal')
-          const glimpse = document.querySelector('.CubePortalGlimpse')
-          const clipPath = getComputedStyle(overlay).clipPath
-          const radius = Number(/circle\(([\d.]+)px/.exec(clipPath)?.[1] || NaN)
-          const x = Number.parseFloat(overlay.style.getPropertyValue('--portal-x'))
-          const y = Number.parseFloat(overlay.style.getPropertyValue('--portal-y'))
-          const maxRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 48
-          return {
-            phase: document.querySelector('.CubePortal')?.dataset.phase,
-            clipPath, radius, coverRatio: radius / maxRadius,
-            glimpseOpacity: Number(getComputedStyle(glimpse).opacity),
-          }
-        })
-        assert.equal(openingProbe.phase, 'opening', 'Opening phase was skipped')
-        assert.ok(openingProbe.clipPath.startsWith('circle('), 'Opening mask is not circular')
-        assert.ok(Number.isFinite(openingProbe.coverRatio) && openingProbe.coverRatio >= 0 && openingProbe.coverRatio < 0.68,
-          'Opening mask expands too far before the stone has opened: ' + openingProbe.coverRatio)
-        await page.screenshot({ path: output + '/' + view.name + '-opening.png' })
+        await page.waitForTimeout(260)
+        evidence = await page.evaluate(() => ({
+          phase: document.querySelector('.CubePortal')?.dataset.phase,
+          lidOpen: document.querySelector('.CubePortalModel')?.dataset.lidOpen,
+          lidTransform: getComputedStyle(document.querySelector('.CubeArtworkLid')).transform,
+          bodyTransform: getComputedStyle(document.querySelector('.CubeArtworkBody')).transform,
+          split: document.querySelector('.CubePortalModel')?.dataset.split,
+          clipPath: getComputedStyle(document.querySelector('.CubePortalReveal')).clipPath,
+        }))
+        assert.equal(evidence.phase, 'opening')
+        assert.equal(evidence.lidOpen, 'true')
+        assert.equal(evidence.split, 'true')
+        assert.notEqual(evidence.lidTransform, 'none')
+        assert.notEqual(evidence.lidTransform, 'matrix(1, 0, 0, 1, 0, 0)')
+        assert.equal(evidence.bodyTransform, 'none', 'Body must stay in place')
+        assert.ok(evidence.clipPath.startsWith('circle('))
+        await page.screenshot({path: output + '/' + view.name + '-opening.png'})
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
-      // Phase changes before the CSS reveal finishes. Do not capture a half-transparent page.
-      await page.waitForFunction(() => {
-        const panel = document.querySelector('.CubeWork')
-        return panel && Number(getComputedStyle(panel).opacity) >= 0.98
-      })
-      if (view.reducedMotion !== 'reduce') {
-        const titleOverlap = await page.evaluate(() => window.__cubeTitleOverlap)
-        assert.ok(titleOverlap?.samples > 0, 'No opening frames sampled')
-        assert.ok(titleOverlap.maxOverlap < .03, 'Temporary and real chapter titles visibly overlap: ' + titleOverlap.maxOverlap)
-      }
-      assert.equal(await page.locator('.CubeProject').count(), 3, 'Work project index not shown')
-      assert.equal(await page.locator('#cube-work-title').isVisible(), true, 'Work heading not visible')
-      await page.screenshot({ path: output + '/' + view.name + '-work.png' })
-
-      checkpoint(view, 'Escape and browser Back')
+      await page.waitForFunction(() => Number(getComputedStyle(document.querySelector('.CubeWork')).opacity) >= .98)
+      assert.equal(await page.locator('.CubeProject').count(), 3)
+      assert.equal(await page.locator('#cube-work-title').isVisible(), true)
+      await page.screenshot({path: output + '/' + view.name + '-work.png'})
       await page.keyboard.press('Escape')
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
+      assert.equal(await cube.getAttribute('data-lid-open'), 'false')
+      assert.equal(await cube.getAttribute('data-split'), 'false')
+      assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
       await page.locator('.CubeDestinationWork').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
-      await page.goBack({ waitUntil: 'domcontentloaded' })
+      await page.goBack({waitUntil: 'domcontentloaded'})
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
-
-      const layout = await page.evaluate(() => ({
-        viewportWidth: window.innerWidth,
-        documentWidth: document.documentElement.scrollWidth,
-        phase: document.querySelector('.CubePortal')?.dataset.phase,
-      }))
-      assert.ok(layout.documentWidth <= layout.viewportWidth + 1,
-        'Horizontal overflow: ' + layout.documentWidth + ' > ' + layout.viewportWidth)
-      assert.deepEqual(errors, [], 'Browser console/page errors')
-      results.push({ view: view.name, status: 'pass', model, layout, assetResponses, openingProbe, stoneOnlyMatches, errors })
+      assert.equal(await cube.getAttribute('data-split'), 'false')
+      const layout = await page.evaluate(() => ({viewport: innerWidth, document: document.documentElement.scrollWidth}))
+      assert.ok(layout.document <= layout.viewport + 1, 'Horizontal overflow')
+      assert.deepEqual(modelRequests, [], 'GLB requests are not permitted in artwork mode')
+      assert.deepEqual(errors, [], 'Browser errors')
+      results.push({view: view.name, status: 'pass', artworkResponses, evidence, layout, errors})
     } catch (error) {
-      results.push({ view: view.name, status: 'fail', reason: error.message, errors, assetResponses })
+      results.push({view: view.name, status: 'fail', reason: error.message, artworkResponses, evidence, errors})
     } finally {
-      // Save result before video finalization; cancellation must not erase completed assertions.
       await writeFile(output + '/results.json', JSON.stringify(results, null, 2) + '\n')
-      checkpoint(view, results.at(-1)?.status || 'incomplete')
+      console.log(JSON.stringify(results.at(-1)))
       const video = page.video()
       await context.close()
       if (video) await rename(await video.path(), output + '/' + view.name + '-motion.webm')
     }
   }
-} finally {
-  await browser.close()
-}
-await writeFile(output + '/results.json', JSON.stringify(results, null, 2) + '\n')
-console.log(JSON.stringify(results, null, 2))
+} finally { await browser.close() }
 if (results.some(result => result.status !== 'pass')) process.exitCode = 1
