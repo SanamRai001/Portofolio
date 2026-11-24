@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src/pages/CubePortal/cubePortalNavigation.js'
 
+import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
 import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
 
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
@@ -27,7 +28,7 @@ test('preview route does not replace the established homepage or Galaxy', () => 
   assert.match(routes, /const Portfolio = lazy\(/)
   assert.match(routes, /const Galaxy = lazy\(/)
   assert.match(routes, /const CubePortalPreview = lazy\(/)
-  assert.match(routes, /cubePreview \? <CubePortalPreview \/> : <Portfolio \/>/)
+  assert.match(routes, /cubePreview \? <CubePortalPreview journey=\{journey\} \/> : <Portfolio \/>/)
   const vercel = JSON.parse(text('../vercel.json'))
   assert.deepEqual(vercel.rewrites.find(x => x.source === '/cube-preview'), {source:'/cube-preview',destination:'/index.html'})
   assert.ok(vercel.rewrites.find(x => x.source === '/about'))
@@ -102,4 +103,23 @@ test('selected work contains public, evidence-linked projects without speculativ
   assert.match(jsx, /<details className="WorkDetails">/)
   assert.match(jsx, /<summary>/)
   assert.match(text('../src/pages/CubePortal/CubePortal.jsx'), /<CubeWorkProjects \/>/)
+})
+
+test('shared passage has bounded geometry and respects native link modifiers', () => {
+  assert.equal(routeFamily('/cube-preview/'), 'cube')
+  assert.equal(routeFamily('/galaxy/projects'), 'space')
+  assert.equal(routeFamily('/about'), 'portfolio')
+  assert.equal(READY_LIMIT_MS, 3000)
+  const origin = journeyOrigin({left: 200, top: 300, width: 100, height: 100}, 1000, 700)
+  assert.equal(origin.x, 250)
+  assert.equal(origin.y, 350)
+  assert.ok(origin.radius >= Math.hypot(750,350))
+  assert.deepEqual(journeyOrigin(null, 1000, 600).x, 500)
+  const event = {button:0, currentTarget:{target:'',hasAttribute:()=>false}}
+  assert.equal(canAnimateLink(event),true)
+  for (const key of ['metaKey','ctrlKey','shiftKey','altKey','defaultPrevented']) assert.equal(canAnimateLink({...event,[key]:true}),false)
+  assert.equal(canAnimateLink({...event,button:1}),false)
+  assert.equal(canAnimateLink({...event,currentTarget:{...event.currentTarget,target:'_blank'}}),false)
+  assert.match(text('../src/pages/Galaxy/GalaxyPage.jsx'), /if \(ready \|\| fallback\) journeyReady\?\.\('space'\)/)
+  assert.match(text('../src/pages/CubePortal/CubePortal.css'), /data-split="true"\] \.CubeArtworkTilt \{transform:none;transition:none\}/)
 })

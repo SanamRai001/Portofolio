@@ -6,10 +6,22 @@ const MAX_TILT = 7
 
 // One artwork, one coordinate system. The idle cube uses the unmodified source.
 // Only during a transition do two clipped views of that same image separate.
-export default function CubeScene({ phase, highlighted, reducedMotion }) {
+export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady }) {
   const id = useId()
   const modelRef = useRef(null)
   const tiltRef = useRef(null)
+
+  useEffect(() => {
+    if (!onJourneyReady) return
+    let cancelled = false
+    const image = new Image()
+    image.src = artwork
+    const done = () => { if (!cancelled) onJourneyReady('cube') }
+    if (typeof image.decode === 'function') image.decode().then(done, done)
+    else if (image.complete) done()
+    else { image.onload = done; image.onerror = done }
+    return () => { cancelled = true; image.onload = null; image.onerror = null }
+  }, [onJourneyReady])
 
   useEffect(() => {
     const model = modelRef.current

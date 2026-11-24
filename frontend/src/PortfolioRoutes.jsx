@@ -1,4 +1,6 @@
 import { Component, lazy, Suspense } from 'react'
+import { routeFamily, useJourneyTransition } from './motion/useJourneyTransition.js'
+import JourneyVeil from './motion/JourneyVeil.jsx'
 
 const Portfolio = lazy(() => import('./App.jsx'))
 const Galaxy = lazy(() => import('./pages/Galaxy/GalaxyPage.jsx'))
@@ -27,22 +29,27 @@ class RouteBoundary extends Component {
   }
 }
 
-// Native document navigation preserves normal links and browser back/forward.
-// The 3D preview and Galaxy are each lazy-loaded, keeping home bundle isolated.
+// Only the cube/space journey is coordinated here; all other links stay native.
 export default function PortfolioRoutes() {
-  const pathname = window.location.pathname.replace(/\/+$/, '') || '/'
-  const galaxy = pathname === '/galaxy' || pathname.startsWith('/galaxy/')
-  const cubePreview = pathname === '/cube-preview'
+  const journey = useJourneyTransition()
+  const family = routeFamily(journey.location.path)
+  const galaxy = family === 'space'
+  const cubePreview = family === 'cube'
   return (
-    <RouteBoundary>
+    <>
+    <div inert={Boolean(journey.motion)}>
+    <RouteBoundary key={family}>
       <Suspense fallback={
         <main className="EntryState">
           <p role="status">{galaxy ? 'Entering deep space…' : cubePreview ? 'Opening cube preview…' : 'Loading portfolio…'}</p>
           <a href="/">Return to portfolio</a>
         </main>
       }>
-        {galaxy ? <Galaxy /> : cubePreview ? <CubePortalPreview /> : <Portfolio />}
+        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <CubePortalPreview journey={journey} /> : <Portfolio />}
       </Suspense>
     </RouteBoundary>
+    </div>
+    <JourneyVeil motion={journey.motion} />
+    </>
   )
 }

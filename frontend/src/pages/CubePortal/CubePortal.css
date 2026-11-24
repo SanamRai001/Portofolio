@@ -49,7 +49,7 @@
 @media(hover:hover) and (pointer:fine) {
   .CubePortal[data-phase="home"] .CubePortalModel {pointer-events:auto}
 }
-.CubePortalModel[data-split="true"] .CubeArtworkTilt {transform:none}
+.CubePortalModel[data-split="true"] .CubeArtworkTilt {transform:none;transition:none}
 @media(prefers-reduced-motion:reduce) {
   .CubeArtworkTilt {transform:none!important;transition:none!important}
 }

@@ -11,7 +11,7 @@ function readTheme() {
   catch { return 'light' }
 }
 
-export default function CubePortal() {
+export default function CubePortal({ journey }) {
   const reducedMotion = useReducedMotion()
   const [theme, setTheme] = useState(readTheme)
   const [hoveredDestination, setHoveredDestination] = useState('')
@@ -135,7 +135,7 @@ export default function CubePortal() {
       <main className="CubeHome" id="cube-main" aria-hidden={isWork} inert={isWork}>
         <section className="CubeIntro" aria-labelledby="cube-title">
           <p className="CubeEyebrow">SOFTWARE ENGINEER</p>
-          <h1 id="cube-title">Ideas into <em>systems.</em></h1>
+          <h1 id="cube-title" tabIndex="-1">Ideas into <em>systems.</em></h1>
           <p>I design and build reliable software that solves real problems.</p>
           <div className="CubeAccent" aria-hidden="true" />
         </section>
@@ -145,13 +145,13 @@ export default function CubePortal() {
             <ellipse className="CubeOrbitHighlight" cx="350" cy="278" rx="320" ry="169" pathLength="100" transform="rotate(-17 350 278)" />
             <circle cx="100" cy="416" r="3" /><circle cx="522" cy="124" r="3" /><circle cx="625" cy="317" r="3" />
           </svg>
-          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} />
+          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} onJourneyReady={journey?.ready} />
           <nav className="CubeDestinations" aria-label="Explore the portfolio">
             <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { event.preventDefault(); navigate('work') }}>
               <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>
             </a>
             <a className="CubeDestination CubeDestinationLab" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('lab') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('lab')} onBlur={() => setFocusedDestination('')} href="/#system-controls"><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
-            <a className="CubeDestination CubeDestinationGalaxy" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('galaxy') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('galaxy')} onBlur={() => setFocusedDestination('')} href="/galaxy"><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
+            <a className="CubeDestination CubeDestinationGalaxy" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('galaxy') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('galaxy')} onBlur={() => setFocusedDestination('')} href="/galaxy" onClick={event => journey?.navigate(event, '/galaxy', cubeRef.current?.querySelector('.CubePortalModel'))}><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
             <a className="CubeDestination CubeDestinationAbout" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('about') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('about')} onBlur={() => setFocusedDestination('')} href="/about"><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
           </nav>
         </div>

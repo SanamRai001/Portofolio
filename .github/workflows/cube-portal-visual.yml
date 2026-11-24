@@ -4,6 +4,11 @@ on:
   pull_request:
     paths:
       - 'frontend/src/pages/CubePortal/**'
+      - 'frontend/src/motion/useJourneyTransition.js'
+      - 'frontend/src/motion/JourneyVeil.jsx'
+      - 'frontend/src/motion/journeyTransition.css'
+      - 'frontend/src/PortfolioRoutes.jsx'
+      - 'frontend/src/pages/Galaxy/GalaxyPage.jsx'
       - 'frontend/scripts/capture-cube-portal.mjs'
       - 'frontend/vercel.json'
       - 'frontend/vite.config.js'
