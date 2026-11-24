@@ -81,7 +81,7 @@
 .CubePortalGlimpse strong {font:400 clamp(22px,2.5vw,34px)/1.06 Georgia,serif;letter-spacing:-.045em}
 .CubePortalGlimpse::after {content:"";display:block;width:36px;height:2px;background:var(--cp-gold)}
 .CubePortal[data-phase="opening"] .CubePortalGlimpse {animation:cubePortalPreview .82s cubic-bezier(.22,1,.36,1) both}
-@keyframes cubePortalPreview {0%,10%{opacity:0;transform:translate(-50%,-50%) scale(.91)}26%,58%{opacity:1;transform:translate(-50%,-50%) scale(1)}92%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.03)}}
+@keyframes cubePortalPreview {0%,10%{opacity:0;transform:translate(-50%,-50%) scale(.91)}26%,36%{opacity:1;transform:translate(-50%,-50%) scale(1)}54%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.03)}}
 @keyframes cubePortalChapterEnter {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .CubePortal[data-phase="opening"] .CubeWork {animation:cubePortalChapterEnter .42s .46s ease both}
 .CubeWork {max-width:1120px;margin:0 auto;padding:135px 48px 80px;opacity:0;transform:translateY(24px);transition:opacity .27s ease,transform .34s ease}

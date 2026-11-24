@@ -133,18 +133,22 @@ try {
         const fallbackPage = await fallbackContext.newPage()
         let release
         const gate = new Promise(resolve => { release = resolve })
+        // Never leave an intercepted model request pending indefinitely.
+        const watchdog = setTimeout(() => release(), 12000)
         try {
           await fallbackPage.route(/stone-cube[^/]*\.glb$/, async route => { await gate; await route.abort() })
           await fallbackPage.goto(origin + '/cube-preview', { waitUntil: 'domcontentloaded' })
           await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'loading')
           assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 0)
-          await fallbackPage.screenshot({path: output + '/desktop-loading.png', timeout: 5000})
+          // Capture the loading DOM assertion before releasing the network gate.
+          // Avoid screenshot/compositor waits while a model request is intentionally held.
+          checkpoint(view, 'loading state verified without fallback')
           release()
           await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'fallback')
           assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 1)
           await fallbackPage.waitForTimeout(350)
           await fallbackPage.screenshot({path: output + '/desktop-fallback.png'})
-        } finally { release(); await fallbackContext.close() }
+        } finally { clearTimeout(watchdog); release(); await fallbackContext.close() }
       }
 
       checkpoint(view, 'theme and Work reveal')
@@ -153,6 +157,25 @@ try {
       await page.waitForTimeout(400)
       await page.screenshot({ path: output + '/' + view.name + '-dark.png' })
 
+      if (view.reducedMotion !== 'reduce') {
+        await page.evaluate(() => {
+          const portal = document.querySelector('.CubePortal')
+          const glimpse = document.querySelector('.CubePortalGlimpse')
+          const chapter = document.querySelector('.CubeWork')
+          const evidence = { samples: 0, maxOverlap: 0 }
+          window.__cubeTitleOverlap = evidence
+          const started = performance.now()
+          const record = () => {
+            if (portal.dataset.phase === 'opening') {
+              evidence.samples++
+              evidence.maxOverlap = Math.max(evidence.maxOverlap,
+                Math.min(Number(getComputedStyle(glimpse).opacity), Number(getComputedStyle(chapter).opacity)))
+            }
+            if (portal.dataset.phase !== 'work' && performance.now() - started < 5000) requestAnimationFrame(record)
+          }
+          requestAnimationFrame(record)
+        })
+      }
       await page.locator('.CubeDestinationWork').click()
       if (view.reducedMotion !== 'reduce') {
         // Verify the portal itself; a settled Work screenshot alone can hide a broken opening.
@@ -183,6 +206,11 @@ try {
         const panel = document.querySelector('.CubeWork')
         return panel && Number(getComputedStyle(panel).opacity) >= 0.98
       })
+      if (view.reducedMotion !== 'reduce') {
+        const titleOverlap = await page.evaluate(() => window.__cubeTitleOverlap)
+        assert.ok(titleOverlap?.samples > 0, 'No opening frames sampled')
+        assert.ok(titleOverlap.maxOverlap < .03, 'Temporary and real chapter titles visibly overlap: ' + titleOverlap.maxOverlap)
+      }
       assert.equal(await page.locator('.CubeProject').count(), 3, 'Work project index not shown')
       assert.equal(await page.locator('#cube-work-title').isVisible(), true, 'Work heading not visible')
       await page.screenshot({ path: output + '/' + view.name + '-work.png' })
