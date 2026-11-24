@@ -3,9 +3,9 @@
 ## Current work — Cube Portal React preview (2026-11-24)
 
 - **Branch / PR:** `feat/cube-portal-react-preview-20261123`, draft PR #44; master remains `680d83089c833a9f9680ca7391578a62dc7827a9`. Isolated `/cube-preview`.
-- **Decision:** owner screenshot of canonical WebGL confirmed unresolved visual fidelity. Approved fixed-view 2.5D prototype: exact original transparent artwork, original gold seam, no image-to-GLB swap, clipped lid opens while body stays still, restrained highlight. Previous canonical GLB implementation remains recoverable at `f1bdb2df369e996a1667d30c61f584f4712bf34e`.
-- **Verification:** earlier frontend CI passed; latest canonical visual run was cancelled. The new artwork prototype requires fresh source/build tests, browser matrix (idle, direct hover invariance, destination glow, lid open/close, no GLB request, theme, Back/Escape, mobile, reduced motion), screenshot review and owner Firefox approval. Do not count earlier GLB results as artwork acceptance.
-- **Scope:** no Work content expansion, no Lab/Galaxy/About changes, no homepage cutover, no production merge or deployment.
+- **Decision:** owner chose lightweight 2.5D artwork over further Blender development. Preserve exact source PNG and lid animation. Final refinement: bounded 7-degree desktop pointer tilt, reset on leave/blur/phase change, no tilt on touch or reduced motion, existing destination glow. Native Blender experiment remains separate at `experiment/native-blender-stone-20261124`; no runtime integration.
+- **Verified baseline:** artwork commit `bc21750fb38a869bc39f36b4dd26eeffcff1c459` passed desktop/mobile/reduced-motion matrix run `45424922351`. Latest tilt revision requires fresh browser tests and owner visual approval. No claim of final acceptance before those checks.
+- **Scope:** freeze cube after acceptance; no Work content expansion, no Lab/Galaxy/About changes, no homepage cutover, no production merge or deployment.
 
 ## Static About page — P1 personal search clarity (2026-11-04)
 

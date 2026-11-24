@@ -47,7 +47,7 @@ try {
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
-      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-v1')
+      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-tilt-v2')
       assert.equal(await cube.getAttribute('data-renderer'), 'layered-artwork')
       assert.equal(await cube.getAttribute('data-split'), 'false')
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
@@ -57,18 +57,38 @@ try {
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('href'),
         await page.locator('.CubeArtworkLid image').getAttribute('href'))
       await page.screenshot({path: output + '/' + view.name + '-home.png'})
+      await page.mouse.move(3, 3)
+      await page.waitForTimeout(300)
       const before = await artwork.screenshot({path: output + '/' + view.name + '-idle.png'})
-      const box = await artwork.boundingBox()
-      await page.mouse.move(box.x + box.width/2, box.y + box.height/2)
-      await page.waitForTimeout(250)
-      assert.deepEqual(await artwork.screenshot(), before, 'Direct cube hover changed the original artwork')
+      const box = await cube.boundingBox()
+      const tilt = page.locator('.CubeArtworkTilt')
+      const idleTransform = await tilt.evaluate(el => getComputedStyle(el).transform)
+      const assetHref = await page.locator('.CubeArtworkBody').getAttribute('href')
+      await page.mouse.move(box.x + box.width * .7, box.y + box.height * .35)
+      await page.waitForTimeout(300)
+      if (view.name === 'desktop') {
+        assert.notEqual(await tilt.evaluate(el => getComputedStyle(el).transform), idleTransform, 'Pointer tilt did not activate')
+        const angles = await tilt.evaluate(el => [
+          parseFloat(el.style.getPropertyValue('--cube-tilt-x')),
+          parseFloat(el.style.getPropertyValue('--cube-tilt-y')),
+        ])
+        assert.ok(angles.every(a => Number.isFinite(a) && Math.abs(a) <= 7), 'Tilt exceeded range')
+        await page.screenshot({path: output + '/desktop-pointer-tilt.png'})
+      } else {
+        assert.equal(await tilt.evaluate(el => getComputedStyle(el).transform), idleTransform, 'Tilt activated on mobile or reduced motion')
+      }
+      assert.equal(await page.locator('.CubeArtworkBody').getAttribute('href'), assetHref)
+      await page.mouse.move(3, 3)
+      await page.waitForTimeout(320)
+      assert.equal(await tilt.evaluate(el => getComputedStyle(el).transform), idleTransform)
+      assert.deepEqual(await artwork.screenshot(), before, 'Cube did not restore original resting appearance')
       if (view.name === 'desktop') {
         await page.locator('.CubeDestinationWork').hover()
         await page.waitForFunction(() => document.querySelector('.CubeUniverse')?.dataset.highlight === 'work')
         await page.waitForTimeout(260)
         assert.notDeepEqual(await artwork.screenshot({path: output + '/desktop-destination-hover.png'}), before)
         await page.mouse.move(3, 3)
-        await page.waitForTimeout(260)
+        await page.waitForTimeout(320)
         assert.deepEqual(await artwork.screenshot(), before, 'Destination hover did not restore the idle cube')
       }
       console.log('[cube:' + view.name + '] theme and Work reveal')
@@ -85,6 +105,7 @@ try {
           lidTransform: getComputedStyle(document.querySelector('.CubeArtworkLid')).transform,
           bodyTransform: getComputedStyle(document.querySelector('.CubeArtworkBody')).transform,
           split: document.querySelector('.CubePortalModel')?.dataset.split,
+          tiltTransform: getComputedStyle(document.querySelector('.CubeArtworkTilt')).transform,
           clipPath: getComputedStyle(document.querySelector('.CubePortalReveal')).clipPath,
         }))
         assert.equal(evidence.phase, 'opening')
@@ -93,6 +114,7 @@ try {
         assert.notEqual(evidence.lidTransform, 'none')
         assert.notEqual(evidence.lidTransform, 'matrix(1, 0, 0, 1, 0, 0)')
         assert.equal(evidence.bodyTransform, 'none', 'Body must stay in place')
+        assert.equal(evidence.tiltTransform, 'none', 'Tilt must reset during opening')
         assert.ok(evidence.clipPath.startsWith('circle('))
         await page.screenshot({path: output + '/' + view.name + '-opening.png'})
       }

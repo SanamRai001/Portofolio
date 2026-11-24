@@ -1,20 +1,71 @@
-import { useId } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import artwork from '../../../../prototypes/unfolding-cube-portal/source/reference-cube.png?url'
 
-const MODEL_REVISION = 'original-artwork-v1'
+const MODEL_REVISION = 'original-artwork-tilt-v2'
+const MAX_TILT = 7
 
 // One artwork, one coordinate system. The idle cube uses the unmodified source.
 // Only during a transition do two clipped views of that same image separate.
-export default function CubeScene({ phase, highlighted }) {
+export default function CubeScene({ phase, highlighted, reducedMotion }) {
   const id = useId()
+  const modelRef = useRef(null)
+  const tiltRef = useRef(null)
+
+  useEffect(() => {
+    const model = modelRef.current
+    const tilt = tiltRef.current
+    if (!model || !tilt) return
+    const reset = () => {
+      tilt.style.removeProperty('--cube-tilt-x')
+      tilt.style.removeProperty('--cube-tilt-y')
+    }
+    reset()
+    if (phase !== 'home' || reducedMotion) return
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)')
+    let frame = 0
+    let x = 0, y = 0
+    const cancel = () => {
+      if (frame) cancelAnimationFrame(frame)
+      frame = 0
+      reset()
+    }
+    const move = event => {
+      if (!finePointer.matches || event.pointerType !== 'mouse') return
+      const rect = model.getBoundingClientRect()
+      if (!rect.width || !rect.height) return
+      const nx = Math.max(-1, Math.min(1, (event.clientX - rect.left) / rect.width * 2 - 1))
+      const ny = Math.max(-1, Math.min(1, (event.clientY - rect.top) / rect.height * 2 - 1))
+      x = -ny * MAX_TILT
+      y = nx * MAX_TILT
+      if (!frame) frame = requestAnimationFrame(() => {
+        frame = 0
+        tilt.style.setProperty('--cube-tilt-x', x.toFixed(3) + 'deg')
+        tilt.style.setProperty('--cube-tilt-y', y.toFixed(3) + 'deg')
+      })
+    }
+    model.addEventListener('pointermove', move)
+    model.addEventListener('pointerleave', cancel)
+    model.addEventListener('pointercancel', cancel)
+    window.addEventListener('blur', cancel)
+    finePointer.addEventListener('change', cancel)
+    return () => {
+      cancel()
+      model.removeEventListener('pointermove', move)
+      model.removeEventListener('pointerleave', cancel)
+      model.removeEventListener('pointercancel', cancel)
+      window.removeEventListener('blur', cancel)
+      finePointer.removeEventListener('change', cancel)
+    }
+  }, [phase, reducedMotion])
   const open = phase === 'opening' || phase === 'work'
   const split = phase !== 'home'
   const diagnostic = new URLSearchParams(window.location.search).has('cubeDebug')
 
   return (
     <>
-      <div className="CubePortalModel" aria-hidden="true" data-model-revision={MODEL_REVISION}
+      <div ref={modelRef} className="CubePortalModel" aria-hidden="true" data-model-revision={MODEL_REVISION}
         data-renderer="layered-artwork" data-lid-open={open} data-split={split} data-highlighted={highlighted}>
+        <div className="CubeArtworkTilt" ref={tiltRef}>
         <svg className="CubeArtwork" viewBox="0 0 1254 1254" aria-hidden="true">
           <defs>
             <clipPath id={id + '-lid'} clipPathUnits="userSpaceOnUse">
@@ -45,6 +96,7 @@ export default function CubeScene({ phase, highlighted }) {
           </g>
           <circle className="CubeArtworkGlow" cx="627" cy="637" r="126" fill={'url(#' + id + '-glow)'} />
         </svg>
+        </div>
         <div className="CubePortalGroundShadow" />
       </div>
       {diagnostic && <output className="CubePortalDebug" aria-label="Cube preview diagnostic">
