@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-import modelUrl from '../../../../prototypes/unfolding-cube-portal/assets/stone-cube.glb?url'
+import modelUrl from '../../../../prototypes/unfolding-cube-portal/assets/stone-cube-pbr-v3.glb?url'
 
 const PANEL_DIRECTION = Object.freeze({
   front: [0, -0.05, 0.85], right: [0.85, 0, 0], top: [0, 0.85, 0],
@@ -34,11 +34,14 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
   key.position.set(4, 7, 6)
   const rim = new THREE.DirectionalLight(0xffd9a4, 1.35)
   rim.position.set(-4, 1, -4)
-  scene.add(ambient, key, rim)
+  const goldAccent = new THREE.PointLight(0xffc78c, 0.3, 2.6, 2)
+  goldAccent.position.set(.90, .96, .90)
+  scene.add(ambient, key, rim, goldAccent)
 
   const geometryRoot = new THREE.Group()
   scene.add(geometryRoot)
   const panels = []
+  const seamMaterials = []
   let gltfRoot = null
   let disposed = false
   let raf = 0
@@ -83,6 +86,8 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
     ambient.intensity = dark ? 0.72 : 1.1
     key.intensity = dark ? 1.75 : 2.15
     rim.intensity = dark ? 2.15 : 1.35
+    goldAccent.intensity = dark ? 0.85 : 0.25
+    for (const material of seamMaterials) material.emissiveIntensity = dark ? 2.4 : 0.95
     renderer.render(scene, camera)
     if (Math.abs(progress - goal) > 0.001) queueFrame()
   }
@@ -101,10 +106,14 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
         if (mode === 'stone-only') object.visible = false
       }
       object.frustumCulled = false
-      const match = /^(?:stone|shell)_(front|right|top|left|back|bottom)$/.exec(object.name)
+      const match = /^(?:stone|shell|seam)_(front|right|top|left|back|bottom)$/.exec(object.name)
       if (match) {
         panels.push({ mesh: object, side: match[1], position: object.position.clone(),
           rotation: object.rotation.clone(), direction: new THREE.Vector3(...PANEL_DIRECTION[match[1]]) })
+      }
+      if (object.name.startsWith('seam_') && object.material) {
+        const materials = Array.isArray(object.material) ? object.material : [object.material]
+        seamMaterials.push(...materials)
       }
       if (object.name === 'gold_heart' && object.material) {
         object.material.emissive = new THREE.Color(0xffbb69)

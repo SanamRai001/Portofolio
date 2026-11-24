@@ -96,7 +96,7 @@ try {
       await page.waitForTimeout(180)
       const afterHover = await canvas.screenshot({ path: output + '/' + view.name + '-cube-after-hover.png' })
       assert.deepEqual(afterHover, beforeHover, '3D cube pixels changed when hovering over cube')
-      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-model-revision'), 'backing-clearance-v2')
+      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-model-revision'), 'pbr-stone-v3')
       assert.equal(await page.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
 
       await page.locator('.CubeThemeButton').click()

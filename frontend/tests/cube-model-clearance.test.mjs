@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-const MODEL = fileURLToPath(new URL('../../prototypes/unfolding-cube-portal/assets/stone-cube.glb', import.meta.url))
+const MODEL = fileURLToPath(new URL('../../prototypes/unfolding-cube-portal/assets/stone-cube-pbr-v3.glb', import.meta.url))
 const SIDES = ['front', 'right', 'top', 'left', 'back', 'bottom']
 
 function decodeGlb(bytes) {
@@ -48,4 +48,14 @@ test('six backing panels sit safely behind displaced stone, preventing gray geom
     assert.ok(clearance >= 0.015,
       `${side}: backing intersects stone (clearance ${clearance.toFixed(5)}); this creates flat gray patches`)
   }
+})
+
+// A distinct real emissive seam must travel with the top face during unfolding.
+test('new stone model has a top seam and independent normal-mapped material', () => {
+  const { document } = decodeGlb(readFileSync(MODEL))
+  const seam = document.nodes.find(node => node.name === 'seam_top')
+  assert.ok(seam, 'top golden seam is missing')
+  const material = document.materials.find(mat => mat.name === 'charcoal_slate_top')
+  assert.ok(material, 'stone PBR material missing')
+  assert.ok(material.normalTexture, 'normal mapped surface detail missing')
 })

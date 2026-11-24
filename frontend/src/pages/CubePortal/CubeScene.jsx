@@ -37,7 +37,7 @@ export default function CubeScene({ phase, theme, reducedMotion }) {
   const diagnostic = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('cubeDebug')
   return (
     <>
-    <div className="CubePortalModel" aria-hidden="true" data-model-revision="backing-clearance-v2" data-cube-mode={stoneOnly ? 'stone-only' : 'full'} data-renderer={ready ? 'webgl' : 'fallback'}>
+    <div className="CubePortalModel" aria-hidden="true" data-model-revision="pbr-stone-v3" data-cube-mode={stoneOnly ? 'stone-only' : 'full'} data-renderer={ready ? 'webgl' : 'fallback'}>
       <div ref={mountRef} className="CubePortalCanvas" />
       {!ready && (
         <div className="CubePortalFallback">
@@ -49,7 +49,7 @@ export default function CubeScene({ phase, theme, reducedMotion }) {
       <div className="CubePortalGroundShadow" />
     </div>
     {diagnostic && <output className="CubePortalDebug" aria-label="Cube preview diagnostic">
-      Model: backing-clearance-v2 · Renderer: {ready ? 'WebGL GLB' : 'fallback/loading'} · Mode: {stoneOnly ? 'stone-only' : 'full'}
+      Model: pbr-stone-v3 · Renderer: {ready ? 'WebGL GLB' : 'fallback/loading'} · Mode: {stoneOnly ? 'stone-only' : 'full'}
     </output>}
     </>
   )
