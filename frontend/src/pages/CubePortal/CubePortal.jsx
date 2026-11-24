@@ -13,6 +13,17 @@ function readTheme() {
 
 export default function CubePortal({ journey }) {
   const reducedMotion = useReducedMotion()
+  useEffect(() => {
+    // Standalone About owns a native document navigation; use the same
+    // lightweight passage module on each end without replacing its HTML.
+    let disposed = false
+    let cleanup
+    const moduleUrl = new URL('/about/passage.js', window.location.origin).href
+    import(/* @vite-ignore */ moduleUrl).then(({ installAboutPassage }) => {
+      if (!disposed) cleanup = installAboutPassage()
+    }).catch(() => { /* native anchors remain functional */ })
+    return () => { disposed = true; cleanup?.() }
+  }, [])
   const [theme, setTheme] = useState(readTheme)
   const [hoveredDestination, setHoveredDestination] = useState('')
   const [focusedDestination, setFocusedDestination] = useState('')
@@ -152,7 +163,7 @@ export default function CubePortal({ journey }) {
             </a>
             <a className="CubeDestination CubeDestinationLab" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('lab') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('lab')} onBlur={() => setFocusedDestination('')} href="/#system-controls"><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
             <a className="CubeDestination CubeDestinationGalaxy" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('galaxy') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('galaxy')} onBlur={() => setFocusedDestination('')} href="/galaxy" onClick={event => journey?.navigate(event, '/galaxy', cubeRef.current?.querySelector('.CubePortalModel'))}><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
-            <a className="CubeDestination CubeDestinationAbout" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('about') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('about')} onBlur={() => setFocusedDestination('')} href="/about"><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
+            <a className="CubeDestination CubeDestinationAbout" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('about') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('about')} onBlur={() => setFocusedDestination('')} href="/about?from=cube" data-about-passage><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
           </nav>
         </div>
         <footer className="CubeHomeFooter">BUILD <span>/</span> EXPLORE <span>/</span> ITERATE</footer>

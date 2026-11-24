@@ -67,7 +67,7 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /noindex, nofollow/)
   assert.match(jsx, /\/\#system-controls/)
   assert.match(jsx, /href="\/galaxy"/)
-  assert.match(jsx, /href="\/about"/)
+  assert.match(jsx, /href="\/about\?from=cube" data-about-passage/)
 })
 
 test('pointer tilt is bounded, mouse-only, reset on leave and disabled during motion reduction', () => {
@@ -134,4 +134,19 @@ test('work chapter shares orbital motifs and uses the existing visible-by-defaul
   assert.match(project, /className="WorkOrbitSignal" aria-hidden="true"/)
   assert.match(css, /prefers-reduced-motion:reduce/)
   assert.match(css, /focus-within/)
+})
+
+test('About remains standalone with optional native-page passage and shared theme', () => {
+  const html = text('../public/about/index.html')
+  const page = text('../public/about/about-page.js')
+  const passage = text('../public/about/passage.js')
+  assert.match(html, /<h1 id="name">Sanam Rai/)
+  assert.doesNotMatch(html, /id="root"/)
+  assert.match(html, /class="intro-orbit".*aria-hidden="true"/)
+  assert.match(page, /sanam-cube-theme/)
+  assert.match(page, /\/cube-preview\?from=about/)
+  assert.match(passage, /prefers-reduced-motion/)
+  assert.match(passage, /event\.metaKey/)
+  assert.match(passage, /window\.location\.assign/)
+  assert.match(passage, /pageshow/)
 })

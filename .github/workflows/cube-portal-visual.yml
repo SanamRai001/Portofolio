@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'frontend/src/pages/CubePortal/**'
+      - 'frontend/public/about/**'
+      - 'frontend/scripts/check-about-page.mjs'
       - 'frontend/src/motion/useJourneyTransition.js'
       - 'frontend/src/motion/JourneyVeil.jsx'
       - 'frontend/src/motion/journeyTransition.css'
