@@ -105,14 +105,6 @@
 .CubeWorkEyebrow {font-size:12px;font-weight:600;letter-spacing:.2em;color:var(--cp-accent);margin:0 0 17px}
 .CubeWork h1 {font:400 clamp(48px,6.5vw,88px)/1.05 Georgia,serif;letter-spacing:-.057em;margin:0}
 .CubeWorkLead {font-size:17px;color:var(--cp-soft);line-height:1.7;max-width:540px;margin:20px 0 50px}
-.CubeProjects {border-top:1px solid var(--cp-border)}
-.CubeProject {display:grid;grid-template-columns:65px minmax(0,1fr) 25px;align-items:start;gap:20px;padding:25px 0;border-bottom:1px solid var(--cp-border);transition:padding-left .2s ease}
-.CubeProject:hover {padding-left:10px}
-.CubeProjectNumber {color:var(--cp-muted);font-size:12px}
-.CubeProjectMain {display:grid;gap:5px}
-.CubeProjectMain strong {font:400 clamp(25px,3vw,40px)/1.15 Georgia,serif}
-.CubeProjectMain small {font-size:12px;color:var(--cp-soft);text-transform:uppercase;letter-spacing:.06em}
-.CubeProjectMain>span {font-size:14px;color:var(--cp-soft);margin-top:6px;max-width:620px}
 .CubeWorkFootnote {color:var(--cp-muted);font-size:11px;margin-top:55px}
 .CubePortal[data-phase="opening"] .CubeIntro,.CubePortal[data-phase="opening"] .CubeDestinations {pointer-events:none}
 @media(max-width:900px) {
@@ -156,8 +148,6 @@
   .CubeWork {padding:116px 25px 70px}
   .CubeWorkBack {margin-bottom:40px}
   .CubeWorkLead {font-size:15px}
-  .CubeProject {grid-template-columns:30px minmax(0,1fr) 22px;gap:12px;padding:22px 0}
-  .CubeProjectMain>span {font-size:13px}
 }
 @media(max-width:380px) {
   .CubeHeader,.CubeHome {width:calc(100% - 28px)}
@@ -173,3 +163,5 @@
 /* Visible only with ?cubeDebug=1; identifies stale preview assets without affecting the public UI. */
 .CubePortalDebug {position:fixed;left:12px;bottom:12px;z-index:120;max-width:calc(100vw - 24px);padding:7px 11px;border-radius:7px;border:1px solid var(--cp-border);background:var(--cp-bg);color:var(--cp-ink);font:500 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;box-shadow:0 3px 12px rgba(0,0,0,.07);pointer-events:none}
 
+
+.CubeWorkBack.WorkReturnBottom {margin:26px 0 0;min-height:44px}

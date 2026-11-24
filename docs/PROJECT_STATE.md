@@ -1,11 +1,13 @@
 # PROJECT_STATE
 
-## Current work — Cube Portal React preview (2026-11-24)
+## Current work — Cube Portal / selected work (2026-11-24)
 
 - **Branch / PR:** `feat/cube-portal-react-preview-20261123`, draft PR #44; master remains `680d83089c833a9f9680ca7391578a62dc7827a9`. Isolated `/cube-preview`.
-- **Decision:** owner chose lightweight 2.5D artwork over further Blender development. Preserve exact source PNG and lid animation. Final refinement: bounded 7-degree desktop pointer tilt, reset on leave/blur/phase change, no tilt on touch or reduced motion, existing destination glow. Native Blender experiment remains separate at `experiment/native-blender-stone-20261124`; no runtime integration.
-- **Verified baseline:** artwork commit `bc21750fb38a869bc39f36b4dd26eeffcff1c459` passed desktop/mobile/reduced-motion matrix run `45424922351`. Latest tilt revision requires fresh browser tests and owner visual approval. No claim of final acceptance before those checks.
-- **Scope:** freeze cube after acceptance; no Work content expansion, no Lab/Galaxy/About changes, no homepage cutover, no production merge or deployment.
+- **Cube decision:** preserve original 2.5D artwork and restrained pointer tilt. Commit `2b466c9d5e269cc1dcf8a85f5c3179adc8b3c9b8` passed frontend CI `45436401074`, artwork browser matrix `45436401515` and Vercel preview. No further cube design changes. Native Blender experiment remains separate.
+- **Work scope:** five public-source case studies; StateScout, RepoScout and Backend Lab featured, Krishi Bazar and YakTalk supporting. StateScout current research status and exact 16-pair controlled-corpus result audited from pinned public results; RepoScout ranking contract, Backend Lab request controller, Krishi order controller and YakTalk socket server inspected. Explicit limits; no unverified live usage or performance claims. Private projects omitted pending publication permission. Use existing local screenshots and labelled conceptual diagrams; no fake product imagery.
+- **Implementation:** separate curated preview data and scoped editorial component; native expandable case studies, pinned evidence links, existing Lab link, responsive layouts. Existing homepage/Galaxy catalogs and backend behavior unchanged; those catalogs can be reconciled later under explicit scope. No dependency changes.
+- **Verification:** fresh content contract, frontend CI, browser navigation, case-study keyboard disclosure and Work overflow checks pending for this commit. Owner visual approval still required before production merge.
+- **Safety:** no About/Lab/Galaxy changes, homepage cutover, production merge or deployment.
 
 ## Static About page — P1 personal search clarity (2026-11-04)
 

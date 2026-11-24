@@ -2,14 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Moon, Sun, ArrowLeft } from 'lucide-react'
 import useReducedMotion from '../../motion/useReducedMotion.js'
 import CubeScene from './CubeScene.jsx'
+import CubeWorkProjects from './CubeWorkProjects.jsx'
 import { cubeUrl, portalDuration, readCubeView } from './cubePortalNavigation.js'
 import './CubePortal.css'
-
-const PROJECTS = [
-  { name: 'RepoScout', type: 'Repository intelligence', detail: 'A repository discovery platform grounded in useful signals, search and explainable ranking.', href: 'https://github.com/SanamRai001/reposcout' },
-  { name: 'Krishi Bazar', type: 'Agricultural marketplace', detail: 'A digital marketplace connecting Nepali farmers and buyers.', href: 'https://github.com/SanamRai001/KrishiBazar' },
-  { name: 'YakTalk', type: 'Realtime messaging', detail: 'Private chat with authenticated real-time connections and presence.', href: 'https://github.com/SanamRai001/YakTalk-chatapp' },
-]
 
 function readTheme() {
   try { return localStorage.getItem('sanam-cube-theme') === 'dark' ? 'dark' : 'light' }
@@ -81,6 +76,7 @@ export default function CubePortal() {
     }
 
     const opening = view === 'work'
+    if (opening && overlay) overlay.scrollTop = 0
     phaseRef.current = opening ? 'opening' : 'closing'
     setPhase(phaseRef.current)
     if (!overlay || duration === 0 || typeof overlay.animate !== 'function') {
@@ -173,15 +169,10 @@ export default function CubePortal() {
           <p className="CubeWorkEyebrow">01 / SELECTED ENGINEERING WORK</p>
           <h1 id="cube-work-title" ref={workHeadingRef} tabIndex="-1">Built with intention.</h1>
           <p className="CubeWorkLead">Software systems, developer tools and experiments, each driven by a real problem.</p>
-          <div className="CubeProjects">
-            {PROJECTS.map((project, index) => (
-              <a href={project.href} key={project.name} className="CubeProject" target="_blank" rel="noopener noreferrer">
-                <span className="CubeProjectNumber">0{index + 1}</span>
-                <span className="CubeProjectMain"><strong>{project.name}</strong><small>{project.type}</small><span>{project.detail}</span></span>
-                <ArrowUpRight size={20} aria-hidden="true" />
-              </a>
-            ))}
-          </div>
+          <CubeWorkProjects />
+          <button type="button" className="CubeWorkBack WorkReturnBottom" onClick={() => navigate('home')}>
+            <ArrowLeft size={16} aria-hidden="true" /> Return to cube
+          </button>
           <p className="CubeWorkFootnote">Interactive design preview · Existing portfolio and Lab remain unchanged.</p>
         </section>
       </div>

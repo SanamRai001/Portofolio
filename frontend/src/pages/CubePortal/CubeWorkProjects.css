@@ -1,0 +1,61 @@
+/* Scope: the selected-work chapter, not the homepage or Galaxy. */
+.CubeWorkProjects {display:grid;gap:0}
+.CubeCaseStudy {padding:30px 0 26px;border-top:1px solid var(--cp-border)}
+.CubeCaseStudy:last-child {border-bottom:1px solid var(--cp-border)}
+.WorkStudyMeta {display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--cp-soft);margin-bottom:22px}
+.WorkStudyMeta span:last-child {letter-spacing:0;text-transform:none}
+.WorkStudyMain {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.86fr);gap:36px;align-items:center}
+.WorkStudyCopy {min-width:0}
+.WorkStudyCopy h2 {font:400 clamp(34px,4.5vw,63px)/1.02 Georgia,serif;letter-spacing:-.058em;margin:0 0 10px;color:var(--cp-ink)}
+.WorkHeadline {font-size:clamp(17px,2vw,23px);line-height:1.35;letter-spacing:-.035em;margin:0 0 12px;color:var(--cp-ink)}
+.WorkSummary {font-size:14px;line-height:1.7;color:var(--cp-soft);max-width:48ch;margin:0 0 18px}
+.WorkTech {list-style:none;padding:0;margin:0 0 17px;display:flex;gap:6px;flex-wrap:wrap}
+.WorkTech li {font-size:11px;color:var(--cp-soft);border:1px solid var(--cp-border);border-radius:20px;padding:4px 9px}
+.WorkLinks {display:flex;flex-wrap:wrap;gap:8px 21px}
+.WorkLinks a,.WorkEvidenceLink {display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;min-height:44px;color:var(--cp-ink)}
+.WorkLinks a:hover,.WorkEvidenceLink:hover {text-decoration:underline;text-underline-offset:4px}
+.WorkResearchEvidence,.WorkSystemFlow,.WorkImage {margin:0;min-width:0}
+.WorkResearchEvidence,.WorkSystemFlow {border:1px solid var(--cp-border);padding:20px;border-radius:4px;background:var(--cp-card)}
+.WorkResearchEvidence figcaption,.WorkSystemFlow figcaption {font-size:13px;font-weight:600;display:grid;gap:4px;margin-bottom:22px}
+.WorkResearchEvidence figcaption span,.WorkSystemFlow figcaption span {font-weight:400;font-size:11px;color:var(--cp-soft)}
+.WorkMetricRow {margin:0 0 17px}
+.WorkMetricRow>div:first-child {display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:12px;color:var(--cp-soft);margin-bottom:6px}
+.WorkMetricRow strong {font:400 22px/1 Georgia,serif;color:var(--cp-ink);font-variant-numeric:tabular-nums}
+.WorkMetricTrack {height:6px;border-radius:6px;background:var(--cp-border);overflow:hidden}
+.WorkMetricTrack span {display:block;height:100%;background:var(--cp-soft);border-radius:inherit}
+.WorkMetricRow:last-of-type .WorkMetricTrack span {background:var(--cp-accent)}
+.WorkResearchEvidence p {font-size:11px;color:var(--cp-soft);margin:16px 0 0}
+.WorkSystemFlow ol {display:grid;gap:9px;list-style:none;padding:0;margin:0}
+.WorkSystemFlow li {display:grid;grid-template-columns:24px minmax(0,1fr) 16px;gap:8px;align-items:center;border:1px solid var(--cp-border);padding:9px 10px;border-radius:3px;font-size:12px;color:var(--cp-ink)}
+.WorkSystemFlow li svg {transform:rotate(90deg);color:var(--cp-soft)}
+.WorkFlowIndex {font:11px ui-monospace,monospace;color:var(--cp-soft)}
+.WorkImage img {width:100%;height:auto;max-height:285px;object-fit:contain;display:block;border:1px solid var(--cp-border);border-radius:4px;background:var(--cp-card)}
+.WorkImage figcaption {color:var(--cp-soft);font-size:11px;margin:6px 0 0}
+.WorkDetails {margin-top:20px;border-top:1px solid var(--cp-border)}
+.WorkDetails summary {display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:48px;cursor:pointer;list-style:none;color:var(--cp-ink);font-size:13px;font-weight:600}
+.WorkDetails summary::-webkit-details-marker {display:none}
+.WorkDetails summary:focus-visible {outline:2px solid var(--cp-ink);outline-offset:4px}
+.WorkDetails summary svg {transition:transform .2s ease}
+.WorkDetails[open] summary svg {transform:rotate(45deg)}
+.WorkDetailBody {padding:10px 0 6px;max-width:100%;display:grid;gap:18px}
+.WorkDetailBody dl {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 30px;margin:0}
+.WorkDetailBody dt {font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--cp-soft);font-weight:600;margin-bottom:5px}
+.WorkDetailBody dd {font-size:14px;line-height:1.65;color:var(--cp-ink);margin:0;overflow-wrap:anywhere}
+.WorkDetailBody .WorkSystemFlow {max-width:430px}
+.WorkEvidenceLink {justify-self:start}
+.WorkArchiveHeading {border-top:1px solid var(--cp-border);padding:40px 0 18px}
+.WorkArchiveHeading span {font:400 30px/1.2 Georgia,serif;letter-spacing:-.035em}
+.WorkArchiveHeading p {color:var(--cp-soft);font-size:13px;margin:8px 0 0}
+.CubeCaseStudy:not(.WorkFeatured) .WorkStudyCopy h2 {font-size:clamp(30px,3vw,44px)}
+.CubeCaseStudy:not(.WorkFeatured) .WorkImage {max-width:300px;justify-self:end;width:100%}
+.CubeCaseStudy:not(.WorkFeatured) .WorkImage img {max-height:180px}
+@media(max-width:700px) {
+  .CubeCaseStudy {padding:22px 0 14px}
+  .WorkStudyMeta {gap:5px 10px;margin-bottom:14px;font-size:10px}
+  .WorkStudyMain {grid-template-columns:minmax(0,1fr);gap:18px}
+  .WorkStudyCopy h2 {font-size:40px}
+  .WorkTech {margin-bottom:8px}
+  .WorkDetailBody dl {grid-template-columns:minmax(0,1fr);gap:16px}
+  .WorkResearchEvidence,.WorkSystemFlow {padding:15px}
+  .CubeCaseStudy:not(.WorkFeatured) .WorkImage {max-width:100%;justify-self:start}
+}

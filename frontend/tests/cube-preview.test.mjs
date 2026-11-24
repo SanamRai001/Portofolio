@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src/pages/CubePortal/cubePortalNavigation.js'
 
+import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
+
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
 const text = relative => readFileSync(at(relative), 'utf8')
 
@@ -78,4 +80,26 @@ test('pointer tilt is bounded, mouse-only, reset on leave and disabled during mo
   const css = text('../src/pages/CubePortal/CubePortal.css')
   assert.match(css, /perspective\(900px\)/)
   assert.match(css, /prefers-reduced-motion:reduce/)
+})
+
+test('selected work contains public, evidence-linked projects without speculative claims', () => {
+  assert.equal(WORK_PROJECTS.length, 5)
+  assert.equal(new Set(WORK_PROJECTS.map(p => p.id)).size, 5)
+  assert.deepEqual(WORK_PROJECTS.filter(p => p.featured).map(p => p.id), ['statescout', 'reposcout', 'backend-lab'])
+  for (const p of WORK_PROJECTS) {
+    assert.ok(p.repository.startsWith('https://github.com/SanamRai001/'))
+    assert.ok(p.evidence.startsWith(p.repository + '/blob/'))
+    assert.match(p.evidence, /\/blob\/[0-9a-f]{40}\//)
+    assert.ok(p.problem && p.decision && p.outcome && p.limitation)
+    assert.equal(p.architecture.length, 4)
+    if (p.image) assert.ok(readFileSync(at('../public' + p.image)).length > 0)
+  }
+  assert.deepEqual(WORK_PROJECTS[0].metric.rows.map(r => r.value), [5, 14])
+  assert.equal(WORK_PROJECTS[0].metric.denominator, 16)
+  assert.match(WORK_PROJECTS.find(p => p.id === 'yaktalk').limitation, /not persisted/)
+  assert.match(WORK_PROJECTS.find(p => p.id === 'backend-lab').limitation, /not mounted/)
+  const jsx = text('../src/pages/CubePortal/CubeWorkProjects.jsx')
+  assert.match(jsx, /<details className="WorkDetails">/)
+  assert.match(jsx, /<summary>/)
+  assert.match(text('../src/pages/CubePortal/CubePortal.jsx'), /<CubeWorkProjects \/>/)
 })
