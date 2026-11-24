@@ -19,6 +19,8 @@ function readTheme() {
 export default function CubePortal() {
   const reducedMotion = useReducedMotion()
   const [theme, setTheme] = useState(readTheme)
+  const [hoveredDestination, setHoveredDestination] = useState('')
+  const [focusedDestination, setFocusedDestination] = useState('')
   const [phase, setPhase] = useState(() => readCubeView(window.location.hash))
   const stageRef = useRef(null)
   const cubeRef = useRef(null)
@@ -115,6 +117,7 @@ export default function CubePortal() {
     }
   }, [navigate])
 
+  const highlightedDestination = phase === 'home' ? (hoveredDestination || focusedDestination) : ''
   const isWork = phase === 'work'
   const isTransitioning = phase === 'opening' || phase === 'closing'
   return (
@@ -140,19 +143,20 @@ export default function CubePortal() {
           <p>I design and build reliable software that solves real problems.</p>
           <div className="CubeAccent" aria-hidden="true" />
         </section>
-        <div className="CubeUniverse" ref={cubeRef}>
+        <div className="CubeUniverse" ref={cubeRef} data-highlight={highlightedDestination}>
           <svg className="CubeOrbit" viewBox="0 0 700 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <ellipse cx="350" cy="278" rx="320" ry="169" transform="rotate(-17 350 278)" />
+            <ellipse className="CubeOrbitHighlight" cx="350" cy="278" rx="320" ry="169" pathLength="100" transform="rotate(-17 350 278)" />
             <circle cx="100" cy="416" r="3" /><circle cx="522" cy="124" r="3" /><circle cx="625" cy="317" r="3" />
           </svg>
-          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} />
+          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} />
           <nav className="CubeDestinations" aria-label="Explore the portfolio">
-            <a className="CubeDestination CubeDestinationWork" ref={workLinkRef} href="#work" onClick={event => { event.preventDefault(); navigate('work') }}>
+            <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { event.preventDefault(); navigate('work') }}>
               <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>
             </a>
-            <a className="CubeDestination CubeDestinationLab" href="/#system-controls"><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
-            <a className="CubeDestination CubeDestinationGalaxy" href="/galaxy"><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
-            <a className="CubeDestination CubeDestinationAbout" href="/about"><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
+            <a className="CubeDestination CubeDestinationLab" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('lab') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('lab')} onBlur={() => setFocusedDestination('')} href="/#system-controls"><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
+            <a className="CubeDestination CubeDestinationGalaxy" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('galaxy') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('galaxy')} onBlur={() => setFocusedDestination('')} href="/galaxy"><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
+            <a className="CubeDestination CubeDestinationAbout" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('about') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('about')} onBlur={() => setFocusedDestination('')} href="/about"><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
           </nav>
         </div>
         <footer className="CubeHomeFooter">BUILD <span>/</span> EXPLORE <span>/</span> ITERATE</footer>

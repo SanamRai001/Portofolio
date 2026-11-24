@@ -1,56 +1,52 @@
 import { useEffect, useRef, useState } from 'react'
-import stoneFallback from '../../../../prototypes/unfolding-cube-portal/assets/stone-cube-fallback.webp?url'
+import stoneFallback from '../../../../prototypes/unfolding-cube-portal/assets/stone-cube-canonical-fallback.webp?url'
 
-export default function CubeScene({ phase, theme, reducedMotion }) {
+const MODEL_REVISION = 'canonical-stone-v1'
+
+export default function CubeScene({ phase, theme, reducedMotion, highlighted }) {
   const mountRef = useRef(null)
   const controllerRef = useRef(null)
-  const latestStateRef = useRef({ phase, theme, reducedMotion })
-  const [ready, setReady] = useState(false)
-  // Preview-only diagnostic: deliberately remove backing shells from the same GLB.
-  const stoneOnly = new URLSearchParams(window.location.search).get('cubeMode') === 'stone-only'
+  const latestStateRef = useRef({ phase, theme, reducedMotion, highlighted })
+  const [renderer, setRenderer] = useState('loading')
+  const [stoneOnly] = useState(() => new URLSearchParams(window.location.search).get('cubeMode') === 'stone-only')
+  const diagnostic = new URLSearchParams(window.location.search).has('cubeDebug')
 
   useEffect(() => {
     let disposed = false
     const mount = mountRef.current
-    // The GLB renderer loads only for this preview route; failures keep the image fallback.
     import('./createCubeScene.js').then(({ createCubeScene: makeScene }) => {
       if (disposed || !mount) return
       controllerRef.current = makeScene(mount, {
         mode: stoneOnly ? 'stone-only' : 'full',
-        onReady: () => { if (!disposed) setReady(true) },
-        onError: () => { if (!disposed) setReady(false) },
+        onReady: () => { if (!disposed) setRenderer('webgl') },
+        onError: () => { if (!disposed) setRenderer('fallback') },
       })
       controllerRef.current.setState(latestStateRef.current)
-    }).catch(() => { if (!disposed) setReady(false) })
+    }).catch(() => { if (!disposed) setRenderer('fallback') })
     return () => {
       disposed = true
       controllerRef.current?.dispose()
       controllerRef.current = null
     }
-  }, [stoneOnly]) // renderer lifecycle changes only when the diagnostic mode changes
+  }, [stoneOnly])
 
   useEffect(() => {
-    latestStateRef.current = { phase, theme, reducedMotion }
+    latestStateRef.current = { phase, theme, reducedMotion, highlighted }
     controllerRef.current?.setState(latestStateRef.current)
-  }, [phase, theme, reducedMotion])
+  }, [phase, theme, reducedMotion, highlighted])
 
-  const diagnostic = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('cubeDebug')
   return (
     <>
-    <div className="CubePortalModel" aria-hidden="true" data-model-revision="pbr-stone-v3" data-cube-mode={stoneOnly ? 'stone-only' : 'full'} data-renderer={ready ? 'webgl' : 'fallback'}>
-      <div ref={mountRef} className="CubePortalCanvas" />
-      {!ready && (
-        <div className="CubePortalFallback">
-          <img className="CubeFallbackTop" src={stoneFallback} alt="" draggable="false" />
-          <img className="CubeFallbackLeft" src={stoneFallback} alt="" draggable="false" />
-          <img className="CubeFallbackRight" src={stoneFallback} alt="" draggable="false" />
-        </div>
-      )}
-      <div className="CubePortalGroundShadow" />
-    </div>
-    {diagnostic && <output className="CubePortalDebug" aria-label="Cube preview diagnostic">
-      Model: pbr-stone-v3 · Renderer: {ready ? 'WebGL GLB' : 'fallback/loading'} · Mode: {stoneOnly ? 'stone-only' : 'full'}
-    </output>}
+      <div className="CubePortalModel" aria-hidden="true" data-model-revision={MODEL_REVISION} data-cube-mode={stoneOnly ? 'stone-only' : 'full'} data-renderer={renderer}>
+        <div ref={mountRef} className="CubePortalCanvas" />
+        {renderer === 'fallback' && (
+          <img className="CubePortalFallback" src={stoneFallback} alt="" draggable="false" />
+        )}
+        <div className="CubePortalGroundShadow" />
+      </div>
+      {diagnostic && <output className="CubePortalDebug" aria-label="Cube preview diagnostic">
+        Model: {MODEL_REVISION} · Renderer: {renderer === 'webgl' ? 'WebGL GLB' : renderer} · Mode: {stoneOnly ? 'stone-only' : 'full'}
+      </output>}
     </>
   )
 }

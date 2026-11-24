@@ -8,6 +8,8 @@ on:
       - 'frontend/vercel.json'
       - 'frontend/vite.config.js'
       - 'prototypes/unfolding-cube-portal/assets/stone-cube.glb'
+      - 'prototypes/unfolding-cube-portal/assets/stone-cube-canonical.glb'
+      - 'prototypes/unfolding-cube-portal/assets/stone-cube-canonical-fallback.webp'
       - '.github/workflows/cube-portal-visual.yml'
 
 permissions:

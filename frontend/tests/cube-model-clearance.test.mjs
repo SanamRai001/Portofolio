@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-const MODEL = fileURLToPath(new URL('../../prototypes/unfolding-cube-portal/assets/stone-cube-pbr-v3.glb', import.meta.url))
+const MODEL = fileURLToPath(new URL('../../prototypes/unfolding-cube-portal/assets/stone-cube-canonical.glb', import.meta.url))
 const SIDES = ['front', 'right', 'top', 'left', 'back', 'bottom']
 
 function decodeGlb(bytes) {

@@ -49,7 +49,8 @@ try {
     try {
       await page.goto(origin + '/cube-preview', { waitUntil: 'networkidle' })
       await page.locator('.CubePortalCanvas canvas').waitFor({ state: 'visible', timeout: 15000 })
-      await page.locator('.CubePortalFallback').waitFor({ state: 'detached', timeout: 15000 })
+      await page.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'webgl', null, { timeout: 15000 })
+      await page.waitForTimeout(350)
 
       const model = await page.evaluate(() => {
         const canvas = document.querySelector('.CubePortalCanvas canvas')
@@ -73,7 +74,8 @@ try {
       let stoneOnlyMatches = null
       try {
         await comparison.goto(origin + '/cube-preview?cubeDebug=1&cubeMode=stone-only', { waitUntil: 'networkidle' })
-        await comparison.locator('.CubePortalFallback').waitFor({ state: 'detached', timeout: 15000 })
+        await comparison.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'webgl', null, { timeout: 15000 })
+        await comparison.waitForTimeout(350)
         await comparison.waitForFunction(() => document.querySelector('.CubePortalCanvas')?.dataset.hiddenShellCount === '6')
         assert.equal(await comparison.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
         assert.equal(await comparison.locator('.CubePortalModel').getAttribute('data-cube-mode'), 'stone-only')
@@ -96,8 +98,35 @@ try {
       await page.waitForTimeout(180)
       const afterHover = await canvas.screenshot({ path: output + '/' + view.name + '-cube-after-hover.png' })
       assert.deepEqual(afterHover, beforeHover, '3D cube pixels changed when hovering over cube')
-      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-model-revision'), 'pbr-stone-v3')
+      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-model-revision'), 'canonical-stone-v1')
       assert.equal(await page.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
+      assert.equal(await page.locator('.CubePortalCanvas').getAttribute('data-moving-panel-count'), '3')
+      if (view.name === 'desktop') {
+        await page.locator('.CubeDestinationWork').hover()
+        await page.waitForFunction(() => document.querySelector('.CubeUniverse')?.dataset.highlight === 'work')
+        await page.waitForTimeout(220)
+        const lit = await canvas.screenshot({ path: output + '/desktop-destination-hover.png' })
+        assert.notDeepEqual(lit, beforeHover, 'Destination hover should illuminate the same cube')
+        await page.mouse.move(3, 3)
+        await page.waitForFunction(() => document.querySelector('.CubeUniverse')?.dataset.highlight === '')
+        await page.waitForTimeout(120)
+        assert.deepEqual(await canvas.screenshot(), beforeHover, 'Cube must return to identical idle appearance')
+        const fallbackPage = await context.newPage()
+        let release
+        const gate = new Promise(resolve => { release = resolve })
+        try {
+          await fallbackPage.route(/stone-cube[^/]*\.glb$/, async route => { await gate; await route.abort() })
+          await fallbackPage.goto(origin + '/cube-preview', { waitUntil: 'domcontentloaded' })
+          await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'loading')
+          assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 0)
+          await fallbackPage.screenshot({path: output + '/desktop-loading.png'})
+          release()
+          await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'fallback')
+          assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 1)
+          await fallbackPage.waitForTimeout(350)
+          await fallbackPage.screenshot({path: output + '/desktop-fallback.png'})
+        } finally { release(); await fallbackPage.close() }
+      }
 
       await page.locator('.CubeThemeButton').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.theme === 'dark')

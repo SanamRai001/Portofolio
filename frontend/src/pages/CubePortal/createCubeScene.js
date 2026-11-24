@@ -1,11 +1,9 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-import modelUrl from '../../../../prototypes/unfolding-cube-portal/assets/stone-cube-pbr-v3.glb?url'
+import modelUrl from '../../../../prototypes/unfolding-cube-portal/assets/stone-cube-canonical.glb?url'
 
-const PANEL_DIRECTION = Object.freeze({
-  front: [0, -0.05, 0.85], right: [0.85, 0, 0], top: [0, 0.85, 0],
-  left: [-0.25, 0, 0], back: [0, 0, -0.25], bottom: [0, -0.25, 0],
-})
+// Only the lid moves; the five walls remain a single solid form.
+const LID_TRAVEL = Object.freeze([0, 0.78, -0.20])
 
 function ease(t) { const a = Math.max(0, Math.min(t, 1)); return a * a * (3 - 2 * a) }
 
@@ -67,7 +65,8 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
   let goal = 0
   let begin = 0
   let from = 0
-  let state = { phase: 'home', theme: 'light', reducedMotion: false }
+  let state = { phase: 'home', theme: 'light', reducedMotion: false, highlighted: false }
+  let firstFrame = false
 
   const resize = () => {
     if (disposed) return
@@ -95,19 +94,22 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
     for (const item of panels) {
       item.mesh.position.copy(item.position).addScaledVector(item.direction, v)
       item.mesh.rotation.copy(item.rotation)
-      if (item.side === 'front') item.mesh.rotation.y += v * 0.11
-      if (item.side === 'right') item.mesh.rotation.y -= v * 0.18
-      if (item.side === 'top') item.mesh.rotation.x -= v * 0.15
+      item.mesh.rotation.x -= v * 0.28
     }
-    geometryRoot.rotation.y = -0.07 + v * 0.07
+    geometryRoot.rotation.y = -0.07
     const dark = state.theme === 'dark'
     ambient.intensity = dark ? 0.72 : 1.1
     key.intensity = dark ? 1.75 : 2.15
     rim.intensity = dark ? 1.35 : 1.1
-    goldAccent.intensity = dark ? 0.22 : 0.06
-    glintMaterial.opacity = dark ? 0.85 : 0.24
-    for (const material of seamMaterials) material.emissiveIntensity = dark ? 1.45 : 0.75
+    const active = state.highlighted && state.phase === 'home'
+    goldAccent.intensity = (dark ? 0.18 : 0.07) + (active ? 0.16 : 0) + v * 0.24
+    glintMaterial.opacity = (dark ? 0.70 : 0.22) * (1 - v) + (active ? 0.22 : 0)
+    for (const material of seamMaterials) material.emissiveIntensity = (dark ? 1.35 : 0.90) + (active ? 0.65 : 0) + v * 0.45
     renderer.render(scene, camera)
+    if (gltfRoot && !firstFrame) {
+      firstFrame = true
+      onReady?.()
+    }
     if (Math.abs(progress - goal) > 0.001) queueFrame()
   }
   function queueFrame() { if (!disposed && !raf) raf = requestAnimationFrame(draw) }
@@ -126,9 +128,9 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
       }
       object.frustumCulled = false
       const match = /^(?:stone|shell|seam)_(front|right|top|left|back|bottom)$/.exec(object.name)
-      if (match) {
-        panels.push({ mesh: object, side: match[1], position: object.position.clone(),
-          rotation: object.rotation.clone(), direction: new THREE.Vector3(...PANEL_DIRECTION[match[1]]) })
+      if (match?.[1] === 'top') {
+        panels.push({ mesh: object, position: object.position.clone(),
+          rotation: object.rotation.clone(), direction: new THREE.Vector3(...LID_TRAVEL) })
       }
       if (object.name.startsWith('seam_') && object.material) {
         const materials = Array.isArray(object.material) ? object.material : [object.material]
@@ -146,8 +148,8 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
     })
     mount.dataset.shellCount = String(shellCount)
     mount.dataset.hiddenShellCount = String(mode === 'stone-only' ? shellCount : 0)
+    mount.dataset.movingPanelCount = String(panels.length)
     resize()
-    onReady?.()
   }, undefined, (error) => { if (!disposed) onError?.(error) })
 
   function disposeScene(root) {
@@ -191,6 +193,7 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
       glintTexture.dispose()
       delete mount.dataset.shellCount
       delete mount.dataset.hiddenShellCount
+      delete mount.dataset.movingPanelCount
       renderer.dispose()
       renderer.domElement.remove()
     },
