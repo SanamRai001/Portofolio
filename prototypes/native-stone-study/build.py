@@ -19,7 +19,7 @@ def download(url,path):
     if len(data)>30_000_000: raise ValueError("Map exceeds size limit")
     path.write_bytes(data)
 download("https://api.polyhaven.com/files/dark_rock",maps/"metadata.json")
-metadata=json.loads((maps/"metadata.json").read_text())
+metadata={key.casefold(): value for key,value in json.loads((maps/"metadata.json").read_text()).items()}
 sources={}
 for key in ("diff","nor_gl","rough","disp"):
     aliases={"diff":("diffuse","diff","albedo"),"nor_gl":("nor_gl","normal"),"rough":("rough","roughness"),"disp":("disp","displacement")}
