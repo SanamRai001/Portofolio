@@ -1,0 +1,59 @@
+/* Isolated Lab preview: reuse the existing live components and contracts. */
+.LabChapter {
+  --bg:#f6f3ec;--bg-soft:#f1ede4;--surface:#fcfaf5;--surface-raised:#fffdf8;--surface-muted:#ece7dc;
+  --text:#1b201e;--text-soft:#4b544e;--muted:#616965;--cyan:#94662c;--cyan-strong:#94662c;
+  --line:rgba(44,49,44,.20);--line-strong:rgba(148,102,44,.38);--amber:#80571d;--teal:#397645;
+  --lab-gold:#94662c;--lab-switch-off:#777c75;
+  min-height:100svh;background:var(--bg);color:var(--text);color-scheme:light;
+}
+.LabChapter[data-theme="dark"] {
+  --bg:#0a1119;--bg-soft:#111922;--surface:#141e27;--surface-raised:#1c2731;--surface-muted:#202b34;
+  --text:#f3eee7;--text-soft:#d1d0cf;--muted:#b7c0c7;--cyan:#e8bc83;--cyan-strong:#b88e54;
+  --line:rgba(234,232,228,.26);--line-strong:rgba(232,188,131,.44);--amber:#e8bc83;--teal:#a7dc91;
+  --lab-gold:#e8bc83;--lab-switch-off:#53616c;color-scheme:dark;
+}
+.LabChapterHeader {border-bottom:1px solid var(--line);background:var(--bg)}
+.LabChapterHeader nav {min-height:80px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.LabChapterBrand,.LabChapterActions,.LabReturn {display:flex;align-items:center;gap:12px}
+.LabChapterBrand strong {font:400 30px/1 Georgia,serif;letter-spacing:-.08em}
+.LabChapterBrand span {font-size:11px;letter-spacing:.18em}
+.LabChapterActions {font-size:13px}
+.LabChapterActions a {min-height:44px;display:inline-flex;align-items:center}
+.LabThemeButton {display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line);border-radius:50%;cursor:pointer}
+.LabReturn {border:1px solid var(--line);border-radius:24px;padding:0 13px}
+.LabChapterIntro {position:relative;isolation:isolate;padding:64px 0 50px;border-bottom:1px solid var(--line)}
+.LabChapterIntro h1 {position:relative;font:400 clamp(42px,6.5vw,82px)/1.05 Georgia,serif;letter-spacing:-.055em;max-width:780px;margin:0 0 16px}
+.LabChapterIntro h1 em {color:var(--text-soft);font-weight:400}
+.LabChapterIntro>p:not(.SectionKicker) {max-width:58ch;color:var(--muted);line-height:1.7;position:relative}
+.LabChapterOrbit {position:absolute;right:0;top:35px;width:40%;z-index:-1;pointer-events:none;opacity:.38;overflow:visible}
+.LabChapterOrbit path {fill:none;stroke:var(--lab-gold);stroke-width:1}
+.LabChapterOrbit circle {fill:var(--lab-gold)}
+.LabChapterRule {width:54px;height:2px;background:var(--lab-gold);margin-top:24px}
+.LabChapter .SystemControl,.LabChapter .LogsSection,.LabChapter .MainProject {background:transparent}
+.LabChapter .SystemControl,.LabChapter .MainProject {padding:48px 0}
+.LabChapter .LabHeader h2,.LabChapter .ProjectHead h2 {font-family:Georgia,serif;font-weight:400}
+.LabChapter .Toggle,.LabChapter .ControlInfo,.LabChapter .RuntimeCard,.LabChapter .LogConsole,.LabChapter .ArchitecturePath,.LabChapter .AuthCard,.LabChapter .ProjectCard,.LabChapter .ProjectVisual {background:var(--surface);border-color:var(--line);color:var(--text)}
+.LabChapter .Toggle:hover,.LabChapter .Toggle:focus-within,.LabChapter .Toggle.is-active,.LabChapter .BackendLabMappedState.is-enabled {border-color:var(--line-strong);background:var(--surface-raised)}
+.LabChapter .ToggleIcon {background:var(--surface-muted);color:var(--lab-gold)}
+.LabChapter .headName,.LabChapter .RuntimeCard small,.LabChapter .InspectorState strong,.LabChapter .ArchitecturePath i,.LabChapter .DemoCredentials code {color:var(--text-soft)}
+.LabChapter .InspectorState strong.is-enabled {color:var(--cyan)}
+.LabChapter .ToggleButton {background:var(--lab-switch-off)}
+.LabChapter .ToggleButton.active {background:var(--cyan-strong)}
+.LabChapter .Field input {background:var(--bg);color:var(--text)}
+.LabChapter .ButtonPrimary {background:var(--text);border-color:var(--text);color:var(--bg)}
+.LabChapter .AuthOverlay {background:color-mix(in srgb,var(--bg) 90%,transparent);align-content:center;gap:12px}
+.LabChapter .AuthError,.LabChapter .LogError {color:#a52d45}
+.LabChapter[data-theme="dark"] :is(.AuthError,.LogError) {color:#f39aa9}
+.LabChapter .ProjectTags li,.LabChapter .ProjectActions a {color:var(--text-soft)}
+.LabChapter .ProjectBody h3,.LabChapter .LogConsoleBody p {color:var(--text)}
+.LabAuthExit,.LabChapterFooter a {display:inline-flex;align-items:center;min-height:44px;color:var(--text)}
+.LabChapterFooter {padding:28px 0;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px}
+@media(max-width:720px) {
+ .LabChapterHeader nav {min-height:68px}
+ .LabChapterBrand {gap:6px}
+ .LabChapterBrand span {font-size:9px;letter-spacing:.08em}
+ .LabChapterActions {gap:8px}
+ .LabChapterIntro {padding:38px 0 32px}
+ .LabChapterOrbit {opacity:.2;width:55%}
+ .LabChapter .SystemControl,.LabChapter .MainProject {padding:32px 0}
+}

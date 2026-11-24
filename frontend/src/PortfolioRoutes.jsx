@@ -45,7 +45,7 @@ export default function PortfolioRoutes() {
           <a href="/">Return to portfolio</a>
         </main>
       }>
-        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <CubePortalPreview journey={journey} /> : <Portfolio />}
+        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <CubePortalPreview journey={journey} /> : <Portfolio labPreview={journey.location.path.replace(/\/+$/, '') === '/lab-preview'} />}
       </Suspense>
     </RouteBoundary>
     </div>

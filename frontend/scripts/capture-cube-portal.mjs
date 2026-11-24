@@ -217,6 +217,40 @@ try {
       await page.locator('.CubePortalModel').waitFor({state:'visible'})
       await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
       assert.equal(await page.locator('.CubePortal').getAttribute('data-theme'),'light')
+      console.log('[cube:' + view.name + '] Lab chapter (isolated API fixture)')
+      // Never mutate the shared deployed configuration during visual checks.
+      let flags = {auth:false,db:true,cache:false,logging:false,pagination:false,rateLimit:false}
+      const fixtureRequests = []
+      await page.route(/\/api\/(system|controls|projects|logs)(?:\?|$)/,async route => {
+        const request = route.request()
+        const key = new URL(request.url()).pathname.split('/').at(-1)
+        fixtureRequests.push({method:request.method(),key})
+        const headers = {'access-control-allow-origin':'*','access-control-allow-methods':'GET, POST, OPTIONS','access-control-allow-headers':'content-type, authorization'}
+        if(request.method() === 'OPTIONS') return route.fulfill({status:204,headers})
+        if(request.method() === 'POST' && key === 'system') flags = {...flags,...request.postDataJSON()}
+        return route.fulfill({status:200,headers,json:{success:true,data:key === 'system' ? flags : []}})
+      })
+      await page.locator('.CubeDestinationLab').click()
+      await page.waitForURL('**/lab-preview?from=cube')
+      await page.locator('.LabChapter').waitFor({state:'visible'})
+      await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
+      await page.waitForFunction(() => document.querySelector('.RuntimeCard')?.textContent.includes('Backend synced'))
+      assert.equal(await page.locator('[role="switch"]').count(),6)
+      assert.equal(await page.locator('.LabChapter').getAttribute('data-theme'),'light')
+      await page.screenshot({path:output+'/'+view.name+'-lab-light.png'})
+      await page.locator('[aria-label="Toggle cache"]').click()
+      await page.waitForFunction(() => document.querySelector('[aria-label="Toggle cache"]')?.getAttribute('aria-checked') === 'true' && document.querySelector('.RuntimeCard')?.textContent.includes('Backend synced'))
+      assert.ok(fixtureRequests.some(r => r.key === 'system' && r.method === 'POST'))
+      await page.locator('.LabThemeButton').click()
+      assert.equal(await page.locator('.LabChapter').getAttribute('data-theme'),'dark')
+      await page.screenshot({path:output+'/'+view.name+'-lab-dark.png'})
+      const labLayout = await page.evaluate(() => ({width:innerWidth,content:document.documentElement.scrollWidth}))
+      assert.ok(labLayout.content <= labLayout.width + 1,'Lab horizontal overflow')
+      await page.locator('.LabReturn').click()
+      await page.waitForURL('**/cube-preview?from=lab')
+      await page.locator('.CubePortalModel').waitFor({state:'visible'})
+      await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
+      assert.equal(await page.locator('.CubePortal').getAttribute('data-theme'),'dark')
       assert.deepEqual(navigationErrors, [], 'Uncaught journey errors')
       results.push({view: view.name, status: 'pass', artworkResponses, evidence, layout, errors})
     } catch (error) {

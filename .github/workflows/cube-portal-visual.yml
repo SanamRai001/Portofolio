@@ -5,6 +5,9 @@ on:
     paths:
       - 'frontend/src/pages/CubePortal/**'
       - 'frontend/public/about/**'
+      - 'frontend/src/App.jsx'
+      - 'frontend/src/LabChapter*'
+      - 'frontend/tests/homepage.test.mjs'
       - 'frontend/scripts/check-about-page.mjs'
       - 'frontend/src/motion/useJourneyTransition.js'
       - 'frontend/src/motion/JourneyVeil.jsx'

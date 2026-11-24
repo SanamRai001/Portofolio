@@ -40,7 +40,7 @@ function ProjectLinks({ project }) {
   return (
     <div className="WorkLinks">
       <a href={project.repository} target="_blank" rel="noopener noreferrer">Source code <ArrowUpRight size={15} aria-hidden="true" /></a>
-      {project.demo && <a href={project.demo}>{project.demoLabel} <ArrowUpRight size={15} aria-hidden="true" /></a>}
+      {project.demo && <a href={project.demo} data-about-passage={project.id === 'backend-lab' ? '' : undefined}>{project.demoLabel} <ArrowUpRight size={15} aria-hidden="true" /></a>}
     </div>
   )
 }

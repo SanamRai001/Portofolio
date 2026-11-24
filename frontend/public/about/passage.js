@@ -6,7 +6,7 @@ const from = () => new URLSearchParams(window.location.search).get('from')
 
 function makeVeil() {
   const dark = document.documentElement.dataset.theme === 'dark' ||
-    document.querySelector('.CubePortal')?.dataset.theme === 'dark'
+    document.querySelector('.CubePortal, .LabChapter')?.dataset.theme === 'dark'
   const veil = document.createElement('div')
   veil.className = 'AboutPassageVeil'
   veil.setAttribute('aria-hidden', 'true')
@@ -46,8 +46,8 @@ export function installAboutPassage() {
   }
   const arrive = () => {
     if (arrivalPlayed || preference.matches || typeof Element.prototype.animate !== 'function') return
-    if (!((route() === '/about' && from() === 'cube') ||
-          (route() === '/cube-preview' && from() === 'about'))) return
+    if (!((['/about', '/lab-preview'].includes(route()) && from() === 'cube') ||
+          (route() === '/cube-preview' && ['about', 'lab'].includes(from())))) return
     arrivalPlayed = true
     veil = makeVeil()
     veil.dataset.phase = 'arrival'
@@ -73,8 +73,9 @@ export function installAboutPassage() {
       (link.target && link.target !== '_self')) return
     const url = new URL(link.href, location.href)
     if (url.origin !== location.origin ||
-      !((route() === '/cube-preview' && url.pathname === '/about' && url.searchParams.get('from') === 'cube') ||
-        (route() === '/about' && url.pathname === '/cube-preview' && url.searchParams.get('from') === 'about'))) return
+      !((route() === '/cube-preview' && ['/about', '/lab-preview'].includes(url.pathname) && url.searchParams.get('from') === 'cube') ||
+        (route() === '/about' && url.pathname === '/cube-preview' && url.searchParams.get('from') === 'about') ||
+        (route() === '/lab-preview' && url.pathname === '/cube-preview' && url.searchParams.get('from') === 'lab'))) return
     if (preference.matches || typeof Element.prototype.animate !== 'function') return
     event.preventDefault()
     if (pending) return

@@ -240,7 +240,9 @@ test('static biography needs no React runtime and uses the homepage identity', a
     assert.ok(doc.querySelector('main')?.textContent.includes('BIT graduate'))
     assert.equal(doc.querySelector('link[rel="canonical"]')?.href, 'https://sanam-rai.com.np/about')
     assert.equal(doc.querySelector('meta[name="robots"]')?.content, 'index, follow, max-image-preview:large')
-    assert.equal(doc.querySelector('script[src]'), null)
+    assert.equal(doc.querySelector('#root'), null)
+    assert.deepEqual([...doc.querySelectorAll('script[src]')].map(script => script.getAttribute('src')), ['/about/about-page.js'])
+    assert.equal(doc.querySelector('script[src]').type, 'module')
     assert.equal(doc.querySelector('link[rel="stylesheet"]')?.href, 'https://sanam-rai.com.np/about/style.css')
 
     const graph = JSON.parse(doc.querySelector('script[type="application/ld+json"]').textContent)['@graph']
@@ -262,4 +264,19 @@ test('static biography needs no React runtime and uses the homepage identity', a
   } finally {
     aboutDom.window.close()
   }
+})
+
+test('Lab chapter reuses six live switches, project API and protected auth behavior', async () => {
+  await render(components.App, { labPreview: true })
+  assert.ok(container.querySelector('.LabChapter'))
+  assert.equal(container.querySelectorAll('[role="switch"]').length, 6)
+  assert.equal(container.querySelectorAll('.HeroSection, #architecture-story').length, 0)
+  assert.ok(container.querySelector('.LabChapterHeader a[href="/cube-preview?from=lab"]'))
+  assert.equal(projectRequests().length, 1)
+  await click(toggle('cache'))
+  assert.equal(toggle('cache').getAttribute('aria-checked'), 'true')
+  assert.deepEqual(calls.find(call => call.method === 'post').change, { cache: true })
+  await click(toggle('auth'))
+  assert.ok(container.querySelector('.AuthOverlay .LabAuthExit'))
+  assert.ok(container.querySelector('.AppBackground').hasAttribute('inert'))
 })

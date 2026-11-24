@@ -47,7 +47,7 @@ export const WORK_PROJECTS = [
     repository: github + 'Portofolio',
     evidence: github + 'Portofolio/blob/2b466c9d5e269cc1dcf8a85f5c3179adc8b3c9b8/backend/controllers/projectController.js',
     evidenceLabel: 'Project API implementation',
-    demo: '/#system-controls', demoLabel: 'Explore the Backend Lab',
+    demo: '/lab-preview?from=cube', demoLabel: 'Explore the Backend Lab',
     image: '/projects/portfolio-system.png', imageAlt: 'Existing Backend-Controlled Portfolio interface capture',
   },
   {
