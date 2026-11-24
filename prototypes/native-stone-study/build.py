@@ -12,7 +12,7 @@ out.mkdir(parents=True,exist_ok=True)
 maps=out/"maps";maps.mkdir(exist_ok=True)
 def download(url,path):
     p=urlparse(url)
-    if p.scheme!="https" or not (p.hostname=="polyhaven.com" or p.hostname.endswith(".polyhaven.com")):
+    if p.scheme!="https" or p.hostname not in {"api.polyhaven.com", "dl.polyhaven.org", "dl.polyhaven.com"}:
         raise ValueError("Unexpected material host: "+url)
     req=urllib.request.Request(url,headers={"User-Agent":"PortfolioStoneStudy/1.0"})
     with urllib.request.urlopen(req,timeout=45) as response: data=response.read(30_000_001)
