@@ -16,13 +16,17 @@ permissions:
   contents: read
 
 concurrency:
-  group: cube-portal-visual
+  group: cube-portal-visual-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   capture:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        view: [desktop, mobile, reduced]
     defaults:
       run:
         working-directory: frontend
@@ -41,6 +45,9 @@ jobs:
           npx playwright install chromium --only-shell
       - run: npm run build
       - name: Capture Cube Portal WebGL and navigation
+        timeout-minutes: 3
+        env:
+          CUBE_VIEW: ${{ matrix.view }}
         run: |
           npm run preview -- --host 127.0.0.1 --port 4187 --strictPort &
           server_pid=$!
@@ -49,7 +56,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cube-portal-webgl-visual
+          name: cube-portal-webgl-visual-${{ matrix.view }}
           path: frontend/artifacts/cube-portal-visual/
           if-no-files-found: warn
           retention-days: 7

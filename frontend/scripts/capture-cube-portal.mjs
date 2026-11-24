@@ -4,11 +4,14 @@ import { chromium } from 'playwright'
 
 const origin = 'http://127.0.0.1:4187'
 const output = 'artifacts/cube-portal-visual'
-const views = [
+const allViews = [
   { name: 'desktop', viewport: { width: 1440, height: 900 }, isMobile: false, reducedMotion: 'no-preference' },
   { name: 'mobile', viewport: { width: 390, height: 844 }, isMobile: true, reducedMotion: 'no-preference' },
   { name: 'reduced', viewport: { width: 1280, height: 800 }, isMobile: false, reducedMotion: 'reduce' },
 ]
+const views = process.env.CUBE_VIEW ? allViews.filter(view => view.name === process.env.CUBE_VIEW) : allViews
+assert.ok(views.length, 'Unknown CUBE_VIEW')
+const checkpoint = (view, stage) => console.log(`[cube:${view.name}] ${stage}`)
 
 await mkdir(output, { recursive: true })
 let ready = false
@@ -31,6 +34,8 @@ try {
       reducedMotion: view.reducedMotion,
       recordVideo: view.reducedMotion === 'reduce' ? undefined : { dir: output, size: view.viewport },
     })
+    context.setDefaultTimeout(10000)
+    context.setDefaultNavigationTimeout(15000)
     const page = await context.newPage()
     const errors = []
     const assetResponses = []
@@ -47,6 +52,7 @@ try {
     })
 
     try {
+      checkpoint(view, 'load canonical model')
       await page.goto(origin + '/cube-preview', { waitUntil: 'networkidle' })
       await page.locator('.CubePortalCanvas canvas').waitFor({ state: 'visible', timeout: 15000 })
       await page.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'webgl', null, { timeout: 15000 })
@@ -70,7 +76,15 @@ try {
       // If screenshots match, backing shells are not visible and cannot explain the defect.
       const normalCubePng = await page.locator('.CubePortalCanvas canvas')
         .screenshot({ path: output + '/' + view.name + '-full-shells.png' })
-      const comparison = await context.newPage()
+      checkpoint(view, 'compare shell visibility')
+      // No second video encoder on the software-WebGL runner.
+      const comparisonContext = await browser.newContext({
+        viewport: view.viewport, deviceScaleFactor: 1,
+        isMobile: view.isMobile, hasTouch: view.isMobile, reducedMotion: view.reducedMotion,
+      })
+      comparisonContext.setDefaultTimeout(10000)
+      comparisonContext.setDefaultNavigationTimeout(15000)
+      const comparison = await comparisonContext.newPage()
       let stoneOnlyMatches = null
       try {
         await comparison.goto(origin + '/cube-preview?cubeDebug=1&cubeMode=stone-only', { waitUntil: 'networkidle' })
@@ -84,8 +98,9 @@ try {
         stoneOnlyMatches = normalCubePng.equals(stoneOnlyPng)
         await comparison.screenshot({ path: output + '/' + view.name + '-stone-only-page.png' })
       } finally {
-        await comparison.close()
+        await comparisonContext.close()
       }
+      checkpoint(view, 'hover invariance')
       // Reproduce the owner's exact action: move the pointer over the rendered cube.
       // There is no hover material handler; the loaded GLB should not change its pixels.
       const canvas = page.locator('.CubePortalCanvas canvas')
@@ -111,7 +126,11 @@ try {
         await page.waitForFunction(() => document.querySelector('.CubeUniverse')?.dataset.highlight === '')
         await page.waitForTimeout(120)
         assert.deepEqual(await canvas.screenshot(), beforeHover, 'Cube must return to identical idle appearance')
-        const fallbackPage = await context.newPage()
+        checkpoint(view, 'slow load and forced fallback')
+        const fallbackContext = await browser.newContext({ viewport: view.viewport, deviceScaleFactor: 1 })
+        fallbackContext.setDefaultTimeout(10000)
+        fallbackContext.setDefaultNavigationTimeout(15000)
+        const fallbackPage = await fallbackContext.newPage()
         let release
         const gate = new Promise(resolve => { release = resolve })
         try {
@@ -119,15 +138,16 @@ try {
           await fallbackPage.goto(origin + '/cube-preview', { waitUntil: 'domcontentloaded' })
           await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'loading')
           assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 0)
-          await fallbackPage.screenshot({path: output + '/desktop-loading.png'})
+          await fallbackPage.screenshot({path: output + '/desktop-loading.png', timeout: 5000})
           release()
           await fallbackPage.waitForFunction(() => document.querySelector('.CubePortalModel')?.dataset.renderer === 'fallback')
           assert.equal(await fallbackPage.locator('.CubePortalFallback').count(), 1)
           await fallbackPage.waitForTimeout(350)
           await fallbackPage.screenshot({path: output + '/desktop-fallback.png'})
-        } finally { release(); await fallbackPage.close() }
+        } finally { release(); await fallbackContext.close() }
       }
 
+      checkpoint(view, 'theme and Work reveal')
       await page.locator('.CubeThemeButton').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.theme === 'dark')
       await page.waitForTimeout(400)
@@ -167,6 +187,7 @@ try {
       assert.equal(await page.locator('#cube-work-title').isVisible(), true, 'Work heading not visible')
       await page.screenshot({ path: output + '/' + view.name + '-work.png' })
 
+      checkpoint(view, 'Escape and browser Back')
       await page.keyboard.press('Escape')
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
       await page.locator('.CubeDestinationWork').click()
@@ -186,6 +207,9 @@ try {
     } catch (error) {
       results.push({ view: view.name, status: 'fail', reason: error.message, errors, assetResponses })
     } finally {
+      // Save result before video finalization; cancellation must not erase completed assertions.
+      await writeFile(output + '/results.json', JSON.stringify(results, null, 2) + '\n')
+      checkpoint(view, results.at(-1)?.status || 'incomplete')
       const video = page.video()
       await context.close()
       if (video) await rename(await video.path(), output + '/' + view.name + '-motion.webm')
