@@ -65,6 +65,20 @@ try {
       assert.equal(model.fallback, false, 'GLB not ready: fallback still displayed')
       assert.ok(assetResponses.some(entry => entry.status === 200), 'No successful GLB request')
       await page.screenshot({ path: output + '/' + view.name + '-home.png' })
+      // Reproduce the owner's exact action: move the pointer over the rendered cube.
+      // There is no hover material handler; the loaded GLB should not change its pixels.
+      const canvas = page.locator('.CubePortalCanvas canvas')
+      const bounds = await canvas.boundingBox()
+      assert.ok(bounds && bounds.width > 0 && bounds.height > 0, 'Cube missing from page')
+      await page.mouse.move(3, 3)
+      await page.waitForTimeout(100)
+      const beforeHover = await canvas.screenshot({ path: output + '/' + view.name + '-cube-before-hover.png' })
+      await page.mouse.move(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.5)
+      await page.waitForTimeout(180)
+      const afterHover = await canvas.screenshot({ path: output + '/' + view.name + '-cube-after-hover.png' })
+      assert.deepEqual(afterHover, beforeHover, '3D cube pixels changed when hovering over cube')
+      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-model-revision'), 'backing-clearance-v2')
+      assert.equal(await page.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
 
       await page.locator('.CubeThemeButton').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.theme === 'dark')
