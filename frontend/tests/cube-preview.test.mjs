@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src/pages/CubePortal/cubePortalNavigation.js'
 
 import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
+import { passageKind, passageGeometry, PASSAGE_TIMING } from '../public/about/passage.js'
 import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
 
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
@@ -158,4 +159,21 @@ test('Lab preview has its own non-indexable entry and retains shared live compon
   const app = text('../src/App.jsx')
   for (const component of ['SystemControl', 'Logs', 'Projects', 'Form']) assert.match(app, new RegExp('<' + component + ' '))
   assert.match(app, /labPreview = false/)
+})
+
+test('editorial and technical passages are explicit, bounded and do not intercept Galaxy', () => {
+  for (const [route,kind] of [['/about','about'],['/lab-preview','lab']]) {
+    assert.equal(passageKind('/cube-preview',route,'cube'),kind)
+    assert.equal(passageKind(route,'/cube-preview',kind),kind)
+    assert.equal(passageKind(route,'/cube-preview','cube'),null)
+    assert.ok(PASSAGE_TIMING[kind].departure + PASSAGE_TIMING[kind].arrival <= 1100)
+  }
+  assert.equal(passageKind('/cube-preview','/galaxy','cube'),null)
+  assert.equal(passageKind('/cube-preview','/about',null),null)
+  assert.equal(passageKind('/lab-preview','/about','cube'),null)
+  for (const [width,height] of [[390,844],[1440,900]]) {
+    const {x,y,radius} = passageGeometry({left:width-80,top:height-200,width:100,height:100},width,height)
+    for (const cx of [0,width]) for (const cy of [0,height]) assert.ok(radius > Math.hypot(cx-x,cy-y))
+  }
+  assert.deepEqual(passageGeometry(null,100,100),{x:50,y:50,radius:103})
 })
