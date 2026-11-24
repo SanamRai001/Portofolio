@@ -32,11 +32,29 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
   const ambient = new THREE.HemisphereLight(0xffffff, 0x32363b, 1.1)
   const key = new THREE.DirectionalLight(0xffffff, 2.15)
   key.position.set(4, 7, 6)
-  const rim = new THREE.DirectionalLight(0xffd9a4, 1.35)
+  const rim = new THREE.DirectionalLight(0xe7eff7, 1.1)
   rim.position.set(-4, 1, -4)
-  const goldAccent = new THREE.PointLight(0xffc78c, 0.3, 2.6, 2)
-  goldAccent.position.set(.90, .96, .90)
-  scene.add(ambient, key, rim, goldAccent)
+  const goldAccent = new THREE.PointLight(0xffb767, 0.1, 1.1, 2)
+  goldAccent.position.set(.96, .97, .96)
+  // A tiny, localized glow at the seam's tip: no full-face amber wash.
+  const glintCanvas = document.createElement('canvas')
+  glintCanvas.width = glintCanvas.height = 64
+  const ctx = glintCanvas.getContext('2d')
+  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32)
+  gradient.addColorStop(0, 'rgba(255,248,217,0.9)')
+  gradient.addColorStop(.12, 'rgba(255,203,120,0.7)')
+  gradient.addColorStop(.45, 'rgba(255,168,68,0.2)')
+  gradient.addColorStop(1, 'rgba(255,168,68,0)')
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, 64, 64)
+  const glintTexture = new THREE.CanvasTexture(glintCanvas)
+  const glintMaterial = new THREE.SpriteMaterial({
+    map: glintTexture, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  })
+  const glint = new THREE.Sprite(glintMaterial)
+  glint.position.set(.985, .986, .985)
+  glint.scale.set(.23, .23, 1)
+  scene.add(ambient, key, rim, goldAccent, glint)
 
   const geometryRoot = new THREE.Group()
   scene.add(geometryRoot)
@@ -85,9 +103,10 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
     const dark = state.theme === 'dark'
     ambient.intensity = dark ? 0.72 : 1.1
     key.intensity = dark ? 1.75 : 2.15
-    rim.intensity = dark ? 2.15 : 1.35
-    goldAccent.intensity = dark ? 0.85 : 0.25
-    for (const material of seamMaterials) material.emissiveIntensity = dark ? 2.4 : 0.95
+    rim.intensity = dark ? 1.35 : 1.1
+    goldAccent.intensity = dark ? 0.22 : 0.06
+    glintMaterial.opacity = dark ? 0.85 : 0.24
+    for (const material of seamMaterials) material.emissiveIntensity = dark ? 1.45 : 0.75
     renderer.render(scene, camera)
     if (Math.abs(progress - goal) > 0.001) queueFrame()
   }
@@ -113,6 +132,11 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
       }
       if (object.name.startsWith('seam_') && object.material) {
         const materials = Array.isArray(object.material) ? object.material : [object.material]
+        for (const material of materials) {
+          material.emissive = new THREE.Color(0xd78d45)
+          material.color = new THREE.Color(0x9a6236)
+          material.needsUpdate = true
+        }
         seamMaterials.push(...materials)
       }
       if (object.name === 'gold_heart' && object.material) {
@@ -163,6 +187,8 @@ export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
       observer?.disconnect()
       window.removeEventListener('resize', resize)
       if (gltfRoot) disposeScene(gltfRoot)
+      glintMaterial.dispose()
+      glintTexture.dispose()
       delete mount.dataset.shellCount
       delete mount.dataset.hiddenShellCount
       renderer.dispose()
