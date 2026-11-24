@@ -165,3 +165,29 @@
 
 
 .CubeWorkBack.WorkReturnBottom {margin:26px 0 0;min-height:44px}
+
+/* Chapter continuity: preserve the cube's orbit language without a second hero object. */
+.CubeWork {--work-gold:#94662c}
+.CubePortal[data-theme="dark"] .CubeWork {--work-gold:#e8bc83}
+.CubeWorkIntro {position:relative;isolation:isolate;margin-bottom:48px}
+.WorkIntroCopy {position:relative;z-index:1;max-width:660px}
+.WorkIntroCopy h1 em {font-weight:400;color:var(--cp-soft)}
+.CubeWorkIntro .CubeWorkLead {margin-bottom:24px}
+.CubeWorkEyebrow {color:var(--work-gold)}
+.WorkChapterOrbit {position:absolute;right:-25px;top:-32px;width:min(47%,460px);height:auto;z-index:0;pointer-events:none;overflow:visible}
+.WorkChapterOrbit ellipse {fill:none;stroke:var(--work-gold);stroke-width:.8;opacity:.4}
+.WorkChapterOrbit .WorkOrbitInner {opacity:.16;stroke-dasharray:2 5}
+.WorkChapterOrbit .WorkOrbitArc {stroke-width:1.8;stroke-dasharray:15 85;stroke-dashoffset:-27;stroke-linecap:round;opacity:.9}
+.WorkOrbitNode {fill:var(--work-gold)}
+.WorkChapterRule {height:1px;width:min(100%,420px);background:var(--cp-border);position:relative}
+.WorkChapterRule span {display:block;width:54px;height:2px;background:var(--work-gold)}
+.CubePortal[data-phase="opening"] .WorkOrbitArc {animation:workChapterOrbitDraw .75s .15s ease both}
+.CubePortal[data-phase="opening"] .WorkChapterRule span {transform-origin:left;animation:workChapterRuleDraw .48s .35s ease both}
+@keyframes workChapterOrbitDraw {from{stroke-dashoffset:0;opacity:0}to{stroke-dashoffset:-27;opacity:.9}}
+@keyframes workChapterRuleDraw {from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:700px) {
+  .CubeWorkIntro {margin-bottom:32px}
+  .WorkChapterOrbit {right:0;top:0;width:56%;opacity:.35}
+  .WorkIntroCopy {max-width:100%}
+  .CubeWorkIntro .CubeWorkLead {margin-bottom:20px}
+}

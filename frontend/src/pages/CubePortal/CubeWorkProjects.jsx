@@ -1,4 +1,6 @@
+import { useRef } from 'react'
 import { ArrowRight, ArrowUpRight, Plus } from 'lucide-react'
+import useSectionReveals from '../../motion/useSectionReveals.js'
 import { WORK_PROJECTS } from './workProjects.js'
 import './CubeWorkProjects.css'
 
@@ -45,7 +47,8 @@ function ProjectLinks({ project }) {
 
 function ProjectStudy({ project, index }) {
   return (
-    <article className={'CubeCaseStudy' + (project.featured ? ' WorkFeatured' : '')} aria-labelledby={'work-' + project.id}>
+    <article className={'CubeCaseStudy' + (project.featured ? ' WorkFeatured' : '')} aria-labelledby={'work-' + project.id} data-reveal>
+      <span className="WorkOrbitSignal" aria-hidden="true"><span /></span>
       <div className="WorkStudyMeta"><span>{String(index + 1).padStart(2, '0')} / {project.category}</span><span>{project.status}</span></div>
       <div className="WorkStudyMain">
         <div className="WorkStudyCopy">
@@ -55,12 +58,14 @@ function ProjectStudy({ project, index }) {
           <ul className="WorkTech" aria-label={project.name + ' technologies'}>{project.tech.map(item => <li key={item}>{item}</li>)}</ul>
           <ProjectLinks project={project} />
         </div>
-        {project.metric ? <ResearchEvidence metric={project.metric} /> : project.image ? (
-          <figure className="WorkImage">
-            <img src={project.image} alt={project.imageAlt} loading="lazy" decoding="async" />
-            <figcaption>Existing project capture</figcaption>
-          </figure>
-        ) : <SystemFlow project={project} />}
+        <div className="WorkExhibit">
+          {project.metric ? <ResearchEvidence metric={project.metric} /> : project.image ? (
+            <figure className="WorkImage">
+              <img src={project.image} alt={project.imageAlt} loading="lazy" decoding="async" />
+              <figcaption>Existing project capture</figcaption>
+            </figure>
+          ) : <SystemFlow project={project} />}
+        </div>
       </div>
       <details className="WorkDetails">
         <summary>Engineering case study <Plus size={19} aria-hidden="true" /></summary>
@@ -79,9 +84,11 @@ function ProjectStudy({ project, index }) {
   )
 }
 
-export default function CubeWorkProjects() {
+export default function CubeWorkProjects({ active }) {
+  const rootRef = useRef(null)
+  useSectionReveals(rootRef, !active)
   return (
-    <div className="CubeWorkProjects">
+    <div className="CubeWorkProjects" ref={rootRef}>
       {WORK_PROJECTS.filter(project => project.featured).map((project, i) => <ProjectStudy key={project.id} project={project} index={i} />)}
       <div className="WorkArchiveHeading">
         <span>Additional work</span>

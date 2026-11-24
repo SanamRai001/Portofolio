@@ -124,6 +124,9 @@ try {
       assert.equal(await page.locator('.WorkFeatured').count(), 3)
       assert.equal(await page.locator('#work-statescout').textContent(), 'StateScout')
       assert.equal(await page.locator('.WorkDetails[open]').count(), 0)
+      assert.equal(await page.locator('.WorkOrbitSignal').count(), 5)
+      assert.equal(await page.locator('.WorkChapterOrbit').getAttribute('aria-hidden'), 'true')
+      if (view.reducedMotion === 'reduce') assert.equal(await page.locator('.CubeCaseStudy.SectionRevealEntering').count(), 0)
       assert.equal(await page.locator('#cube-work-title').isVisible(), true)
       await page.screenshot({path: output + '/' + view.name + '-work.png'})
       const detail = page.locator('.CubeCaseStudy').first().locator('details')
@@ -134,6 +137,13 @@ try {
       await page.screenshot({path: output + '/' + view.name + '-work-detail.png'})
       await page.keyboard.press('Enter')
       assert.equal(await detail.getAttribute('open'), null)
+      await page.locator('.CubeCaseStudy').nth(2).scrollIntoViewIfNeeded()
+      if (view.reducedMotion !== 'reduce') {
+        await page.waitForFunction(() => document.querySelectorAll('.CubeCaseStudy')[2]?.dataset.revealed === 'true')
+      }
+      await page.waitForTimeout(550)
+      assert.equal(await page.locator('.CubeCaseStudy').nth(2).locator('.WorkStudyCopy').evaluate(el => getComputedStyle(el).opacity), '1')
+      await page.screenshot({path: output + '/' + view.name + '-work-exhibit.png'})
       const workLayout = await page.locator('.CubePortalReveal').evaluate(el => ({ width: el.clientWidth, content: el.scrollWidth }))
       assert.ok(workLayout.content <= workLayout.width + 1, 'Work chapter horizontal overflow')
       await page.keyboard.press('Escape')

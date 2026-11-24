@@ -166,10 +166,23 @@ export default function CubePortal({ journey }) {
           <button type="button" className="CubeWorkBack" onClick={() => navigate('home')}>
             <ArrowLeft size={16} aria-hidden="true" /> Return to cube
           </button>
-          <p className="CubeWorkEyebrow">01 / SELECTED ENGINEERING WORK</p>
-          <h1 id="cube-work-title" ref={workHeadingRef} tabIndex="-1">Built with intention.</h1>
-          <p className="CubeWorkLead">Software systems, developer tools and experiments, each driven by a real problem.</p>
-          <CubeWorkProjects />
+          <div className="CubeWorkIntro">
+            <svg className="WorkChapterOrbit" viewBox="0 0 520 280" aria-hidden="true" focusable="false">
+              <ellipse className="WorkOrbitBase" cx="260" cy="140" rx="234" ry="84" transform="rotate(-17 260 140)" />
+              <ellipse className="WorkOrbitArc" cx="260" cy="140" rx="234" ry="84" transform="rotate(-17 260 140)" pathLength="100" />
+              <ellipse className="WorkOrbitInner" cx="260" cy="140" rx="103" ry="52" transform="rotate(-17 260 140)" />
+              <circle className="WorkOrbitNode" cx="260" cy="140" r="4" />
+              <circle className="WorkOrbitNode" cx="474" cy="68" r="3" />
+              <circle className="WorkOrbitNode" cx="65" cy="211" r="2" />
+            </svg>
+            <div className="WorkIntroCopy">
+              <p className="CubeWorkEyebrow">01 / SELECTED ENGINEERING WORK</p>
+              <h1 id="cube-work-title" ref={workHeadingRef} tabIndex="-1">Built with <em>intention.</em></h1>
+              <p className="CubeWorkLead">Software systems, developer tools and experiments, each driven by a real problem.</p>
+              <div className="WorkChapterRule" aria-hidden="true"><span /></div>
+            </div>
+          </div>
+          <CubeWorkProjects active={isWork} />
           <button type="button" className="CubeWorkBack WorkReturnBottom" onClick={() => navigate('home')}>
             <ArrowLeft size={16} aria-hidden="true" /> Return to cube
           </button>

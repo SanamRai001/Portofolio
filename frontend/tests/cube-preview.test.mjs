@@ -102,7 +102,7 @@ test('selected work contains public, evidence-linked projects without speculativ
   const jsx = text('../src/pages/CubePortal/CubeWorkProjects.jsx')
   assert.match(jsx, /<details className="WorkDetails">/)
   assert.match(jsx, /<summary>/)
-  assert.match(text('../src/pages/CubePortal/CubePortal.jsx'), /<CubeWorkProjects \/>/)
+  assert.match(text('../src/pages/CubePortal/CubePortal.jsx'), /<CubeWorkProjects active=\{isWork\} \/>/)
 })
 
 test('shared passage has bounded geometry and respects native link modifiers', () => {
@@ -122,4 +122,16 @@ test('shared passage has bounded geometry and respects native link modifiers', (
   assert.equal(canAnimateLink({...event,currentTarget:{...event.currentTarget,target:'_blank'}}),false)
   assert.match(text('../src/pages/Galaxy/GalaxyPage.jsx'), /if \(ready \|\| fallback\) journeyReady\?\.\('space'\)/)
   assert.match(text('../src/pages/CubePortal/CubePortal.css'), /data-split="true"\] \.CubeArtworkTilt \{transform:none;transition:none\}/)
+})
+
+test('work chapter shares orbital motifs and uses the existing visible-by-default reveal system', () => {
+  const portal = text('../src/pages/CubePortal/CubePortal.jsx')
+  const project = text('../src/pages/CubePortal/CubeWorkProjects.jsx')
+  const css = text('../src/pages/CubePortal/CubeWorkProjects.css')
+  assert.match(portal, /className="WorkChapterOrbit".*aria-hidden="true"/)
+  assert.match(project, /useSectionReveals\(rootRef, !active\)/)
+  assert.match(project, /data-reveal/)
+  assert.match(project, /className="WorkOrbitSignal" aria-hidden="true"/)
+  assert.match(css, /prefers-reduced-motion:reduce/)
+  assert.match(css, /focus-within/)
 })
