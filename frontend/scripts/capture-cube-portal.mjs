@@ -241,6 +241,8 @@ try {
       await page.locator('[aria-label="Toggle cache"]').click()
       await page.waitForFunction(() => document.querySelector('[aria-label="Toggle cache"]')?.getAttribute('aria-checked') === 'true' && document.querySelector('.RuntimeCard')?.textContent.includes('Backend synced'))
       assert.ok(fixtureRequests.some(r => r.key === 'system' && r.method === 'POST'))
+      assert.match(await page.locator('.RuntimeCard').textContent(), /2\/6 config flags enabled/)
+      assert.match(await page.locator('.FeatureControlsHeader').textContent(), /shared demo backend/)
       await page.locator('.LabThemeButton').click()
       assert.equal(await page.locator('.LabChapter').getAttribute('data-theme'),'dark')
       await page.screenshot({path:output+'/'+view.name+'-lab-dark.png'})

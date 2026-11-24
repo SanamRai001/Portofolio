@@ -6,6 +6,7 @@ on:
       - 'frontend/src/pages/CubePortal/**'
       - 'frontend/public/about/**'
       - 'frontend/src/App.jsx'
+      - 'frontend/src/SystemControl.jsx'
       - 'frontend/src/LabChapter*'
       - 'frontend/tests/homepage.test.mjs'
       - 'frontend/scripts/check-about-page.mjs'

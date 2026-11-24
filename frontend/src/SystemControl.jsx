@@ -14,6 +14,16 @@ const toggleList = [
   { key: "pagination", head: "Pagination", sub: "Return project data through paginated responses", icon: Gauge }
 ];
 
+// Mongoose responses can include document metadata; only six flags belong to the UI.
+function readFlags(response) {
+  const data = response?.data?.data
+  if (response?.data?.success !== true || !data ||
+      !toggleList.every(({ key }) => typeof data[key] === 'boolean')) {
+    throw new Error('Invalid system configuration response')
+  }
+  return Object.fromEntries(toggleList.map(({ key }) => [key, data[key]]))
+}
+
 const SystemControl = ({ handleToggle: notifyToggle }) => {
   const [toggle, setToggle] = useState({
     auth: false,
@@ -27,6 +37,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
   const [controls, setControls] = useState([]);
   const [syncState, setSyncState] = useState("Connecting...");
   const [syncing, setSyncing] = useState(false);
+  const [configReady, setConfigReady] = useState(false);
   const syncInFlightRef = useRef(false);
 
   const selectedFromApi = controls.find((control) => control.key === activeControl);
@@ -40,7 +51,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
   const enabledCount = useMemo(() => Object.values(toggle).filter(Boolean).length, [toggle]);
 
   const handleToggle = async (key, value) => {
-    if (syncInFlightRef.current) return;
+    if (!configReady || syncInFlightRef.current) return;
 
     syncInFlightRef.current = true;
     setSyncing(true);
@@ -54,8 +65,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
 
     try {
       const res = await axios.post(API + "/api/system", { [key]: value });
-      const synced = res.data?.data || {};
-      const merged = { ...next, ...synced };
+      const merged = readFlags(res);
       setToggle(merged);
       notifyToggle(merged);
       setSyncState("Backend synced ✓");
@@ -63,7 +73,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
       console.error("System config sync failed:", error.message);
       setToggle(previous);
       notifyToggle(previous);
-      setSyncState("Sync failed — change reverted");
+      setSyncState("Sync failed — change reverted. Reload to confirm server state.");
     } finally {
       syncInFlightRef.current = false;
       setSyncing(false);
@@ -71,26 +81,29 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
   }
 
   useEffect(() => {
+    let active = true;
     const getData = async () => {
       try {
         const res = await axios.get(API + "/api/system");
-        const next = res.data.data || {};
-        setToggle((previous) => {
-          const merged = { ...previous, ...next };
-          notifyToggle(merged);
-          return merged;
-        });
+        if (!active) return;
+        const next = readFlags(res);
+        setToggle(next);
+        notifyToggle(next);
+        setConfigReady(true);
         setSyncState("Backend synced ✓");
       } catch (error) {
+        if (!active) return;
         console.log("Error", error);
-        setSyncState("Backend unavailable");
+        setConfigReady(false);
+        setSyncState("Backend unavailable — reload to reconnect");
       }
     }
 
     const getControls = async () => {
       try {
         const res = await axios.get(API + "/api/controls");
-        if (res.data.success) {
+        if (!active) return;
+        if (res.data.success && Array.isArray(res.data.data)) {
           setControls(res.data.data);
         } else {
           console.log("No controls data fetched");
@@ -102,6 +115,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
 
     getData();
     getControls();
+    return () => { active = false };
   }, [notifyToggle]);
 
   const selectedFallback = toggleList.find((item) => item.key === activeControl);
@@ -120,7 +134,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
 
           <div className="RuntimeCard" aria-live="polite">
             <span>runtime state</span>
-            <strong>{enabledCount}/6 config flags enabled</strong>
+            <strong>{configReady ? enabledCount + '/6 config flags enabled' : 'Configuration not yet confirmed'}</strong>
             <small>{syncState}</small>
           </div>
         </div>
@@ -130,7 +144,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
             <p className="InspectorLabel">Feature switches</p>
             <h3>Control the running backend.</h3>
           </div>
-          <p>Switch a capability on or off first, then use the visualization below to see how that state maps into the system.</p>
+          <p>Changes affect the shared demo backend, including other visitors. This is not a private sandbox. Switch a capability on or off to inspect how it maps into the system.</p>
         </div>
 
         <div className="Toggles">
@@ -148,7 +162,7 @@ const SystemControl = ({ handleToggle: notifyToggle }) => {
                   onHover={() => setActiveControl(item.key)}
                   onFocus={() => setActiveControl(item.key)}
                   icon={<Icon size={18} aria-hidden="true" />}
-                  disabled={syncing}
+                  disabled={syncing || !configReady}
                 />
               )
             })}

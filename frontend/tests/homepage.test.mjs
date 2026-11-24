@@ -280,3 +280,24 @@ test('Lab chapter reuses six live switches, project API and protected auth behav
   assert.ok(container.querySelector('.AuthOverlay .LabAuthExit'))
   assert.ok(container.querySelector('.AppBackground').hasAttribute('inert'))
 })
+
+test('runtime count excludes Mongoose metadata and rejects invalid acknowledgements', async (t) => {
+  t.mock.method(console, 'error', () => {})
+  currentConfig = {...config, _id: 'fixture', updatedAt: '2026-11-24', __v: 0}
+  await render(components.SystemControl, {handleToggle: () => {}})
+  assert.match(container.querySelector('.RuntimeCard').textContent, /1\/6 config flags enabled/)
+  saveConfig = async () => ({data:{success:false,data:{...config, cache:true}}})
+  await click(toggle('cache'))
+  assert.equal(toggle('cache').getAttribute('aria-checked'),'false')
+  assert.match(container.querySelector('.RuntimeCard').textContent,/Sync failed/)
+})
+
+test('configuration switches are disabled until the backend confirms all six booleans', async (t) => {
+  t.mock.method(console, 'log', () => {})
+  currentConfig = {db:true}
+  await render(components.SystemControl, {handleToggle: () => {}})
+  assert.ok([...container.querySelectorAll('[role="switch"]')].every(button => button.disabled))
+  assert.match(container.querySelector('.RuntimeCard').textContent,/Configuration not yet confirmed/)
+  await click(toggle('cache'))
+  assert.equal(calls.filter(call=>call.method==='post').length,0)
+})

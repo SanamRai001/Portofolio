@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Moon, Sun, ArrowLeft } from 'lucide-react'
 import useReducedMotion from '../../motion/useReducedMotion.js'
+import { canAnimateLink } from '../../motion/useJourneyTransition.js'
 import CubeScene from './CubeScene.jsx'
 import CubeWorkProjects from './CubeWorkProjects.jsx'
 import { cubeUrl, portalDuration, readCubeView } from './cubePortalNavigation.js'
@@ -113,7 +114,7 @@ export default function CubePortal({ journey }) {
 
   useEffect(() => {
     const onPop = () => navigate(readCubeView(window.location.hash), { push: false, focus: true })
-    const onKey = event => { if (event.key === 'Escape' && goalRef.current === 'work') navigate('home') }
+    const onKey = event => { if (event.key === 'Escape' && !document.querySelector('.AboutPassageVeil') && goalRef.current === 'work') navigate('home') }
     window.addEventListener('popstate', onPop)
     window.addEventListener('keydown', onKey)
     return () => {
@@ -129,9 +130,13 @@ export default function CubePortal({ journey }) {
   const isTransitioning = phase === 'opening' || phase === 'closing'
   return (
     <div className="CubePortal" data-theme={theme} data-phase={phase}>
-      <a className="CubeSkip" href="#cube-main">Skip to content</a>
+      <a className="CubeSkip" href={isWork ? '#cube-work-title' : '#cube-title'} onClick={event => {
+        if (!canAnimateLink(event)) return
+        event.preventDefault()
+        document.getElementById(isWork ? 'cube-work-title' : 'cube-title')?.focus()
+      }}>Skip to content</a>
       <header className="CubeHeader">
-        <a href="#home" className="CubeIdentity" onClick={event => { event.preventDefault(); navigate('home') }} aria-label="Sanam Rai — return to cube home">
+        <a href="#home" className="CubeIdentity" onClick={event => { if (canAnimateLink(event)) { event.preventDefault(); navigate('home') } }} aria-label="Sanam Rai — return to cube home">
           <strong>SR</strong><span aria-hidden="true">/</span><span>SANAM RAI</span>
         </a>
         <div className="CubeHeaderActions">
@@ -158,7 +163,7 @@ export default function CubePortal({ journey }) {
           </svg>
           <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} onJourneyReady={journey?.ready} />
           <nav className="CubeDestinations" aria-label="Explore the portfolio">
-            <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { event.preventDefault(); navigate('work') }}>
+            <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { if (canAnimateLink(event)) { event.preventDefault(); navigate('work') } }}>
               <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>
             </a>
             <a className="CubeDestination CubeDestinationLab" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('lab') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('lab')} onBlur={() => setFocusedDestination('')} href="/lab-preview?from=cube" data-about-passage><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
@@ -168,7 +173,7 @@ export default function CubePortal({ journey }) {
         </div>
         <footer className="CubeHomeFooter">BUILD <span>/</span> EXPLORE <span>/</span> ITERATE</footer>
       </main>
-      <div className="CubePortalReveal" ref={stageRef} aria-hidden={!isWork} inert={!isWork}>
+      <main className="CubePortalReveal" ref={stageRef} aria-hidden={!isWork} inert={!isWork}>
         <div className="CubePortalGlimpse" aria-hidden="true">
           <span>01 / SELECTED WORK</span>
           <strong>Built with intention.</strong>
@@ -199,7 +204,7 @@ export default function CubePortal({ journey }) {
           </button>
           <p className="CubeWorkFootnote">Interactive design preview · Existing portfolio and Lab remain unchanged.</p>
         </section>
-      </div>
+      </main>
       {isTransitioning && <span className="CubeSrOnly" role="status">{phase === 'opening' ? 'Opening selected work' : 'Returning to portfolio home'}</span>}
     </div>
   )

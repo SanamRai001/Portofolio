@@ -32,11 +32,21 @@ export function installAboutPassage() {
   let timer = null
   let pending = null
   let trigger = null
+  let inertNodes = []
+  let committed = false
+  const blockPage = () => {
+    inertNodes = [...document.body.children].filter(node =>
+      node !== veil && !node.inert && !['SCRIPT','STYLE','LINK'].includes(node.tagName))
+    inertNodes.forEach(node => { node.inert = true })
+  }
   const preference = media()
   const clear = (restore = false) => {
     clearTimeout(timer)
     timer = null
     pending = null
+    committed = false
+    inertNodes.forEach(node => { node.inert = false })
+    inertNodes = []
     animation?.cancel()
     animation = null
     veil?.remove()
@@ -51,6 +61,7 @@ export function installAboutPassage() {
     arrivalPlayed = true
     veil = makeVeil()
     veil.dataset.phase = 'arrival'
+    blockPage()
     animation = veil.animate([
       {opacity:1, clipPath:'inset(0 0 0 0)'},
       {opacity:0, clipPath:'inset(0 0 0 0)'},
@@ -64,7 +75,10 @@ export function installAboutPassage() {
     pending = null
     clearTimeout(timer)
     timer = null
-    window.location.assign(destination)
+    committed = true
+    // A blocked or unusually slow navigation must not leave the old page unusable.
+    timer = setTimeout(clear, 1800)
+    try { window.location.assign(destination) } catch { clear(true) }
   }
   const click = event => {
     const link = event.target.closest?.('a[data-about-passage]')
@@ -78,12 +92,13 @@ export function installAboutPassage() {
         (route() === '/lab-preview' && url.pathname === '/cube-preview' && url.searchParams.get('from') === 'lab'))) return
     if (preference.matches || typeof Element.prototype.animate !== 'function') return
     event.preventDefault()
-    if (pending) return
+    if (pending || committed) return
     clear()
     trigger = link
     pending = url.href
     veil = makeVeil()
     veil.dataset.phase = 'departure'
+    blockPage()
     animation = veil.animate([
       {clipPath:'inset(50% 0 50% 0)',opacity:.8},
       {clipPath:'inset(0 0 0 0)',opacity:1},
@@ -92,7 +107,7 @@ export function installAboutPassage() {
     timer = setTimeout(commit, DURATION + 100)
   }
   const key = event => {
-    if (event.key === 'Escape' && veil) {event.preventDefault();clear(true)}
+    if (event.key === 'Escape' && veil && !committed) {event.preventDefault();clear(true)}
   }
   const onShow = event => { if (event.persisted) clear() }
   const onPreference = () => { if (preference.matches) { if (pending) commit(); else clear() } }
