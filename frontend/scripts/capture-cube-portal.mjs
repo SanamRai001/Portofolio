@@ -65,6 +65,25 @@ try {
       assert.equal(model.fallback, false, 'GLB not ready: fallback still displayed')
       assert.ok(assetResponses.some(entry => entry.status === 200), 'No successful GLB request')
       await page.screenshot({ path: output + '/' + view.name + '-home.png' })
+      // Compare the SAME GLB with and without its backing shells (diagnostic only).
+      // If screenshots match, backing shells are not visible and cannot explain the defect.
+      const normalCubePng = await page.locator('.CubePortalCanvas canvas')
+        .screenshot({ path: output + '/' + view.name + '-full-shells.png' })
+      const comparison = await context.newPage()
+      let stoneOnlyMatches = null
+      try {
+        await comparison.goto(origin + '/cube-preview?cubeDebug=1&cubeMode=stone-only', { waitUntil: 'networkidle' })
+        await comparison.locator('.CubePortalFallback').waitFor({ state: 'detached', timeout: 15000 })
+        await comparison.waitForFunction(() => document.querySelector('.CubePortalCanvas')?.dataset.hiddenShellCount === '6')
+        assert.equal(await comparison.locator('.CubePortalModel').getAttribute('data-renderer'), 'webgl')
+        assert.equal(await comparison.locator('.CubePortalModel').getAttribute('data-cube-mode'), 'stone-only')
+        const stoneOnlyPng = await comparison.locator('.CubePortalCanvas canvas')
+          .screenshot({ path: output + '/' + view.name + '-stone-only.png' })
+        stoneOnlyMatches = normalCubePng.equals(stoneOnlyPng)
+        await comparison.screenshot({ path: output + '/' + view.name + '-stone-only-page.png' })
+      } finally {
+        await comparison.close()
+      }
       // Reproduce the owner's exact action: move the pointer over the rendered cube.
       // There is no hover material handler; the loaded GLB should not change its pixels.
       const canvas = page.locator('.CubePortalCanvas canvas')
@@ -134,7 +153,7 @@ try {
       assert.ok(layout.documentWidth <= layout.viewportWidth + 1,
         'Horizontal overflow: ' + layout.documentWidth + ' > ' + layout.viewportWidth)
       assert.deepEqual(errors, [], 'Browser console/page errors')
-      results.push({ view: view.name, status: 'pass', model, layout, assetResponses, openingProbe, errors })
+      results.push({ view: view.name, status: 'pass', model, layout, assetResponses, openingProbe, stoneOnlyMatches, errors })
     } catch (error) {
       results.push({ view: view.name, status: 'fail', reason: error.message, errors, assetResponses })
     } finally {

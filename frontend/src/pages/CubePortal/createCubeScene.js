@@ -10,7 +10,7 @@ const PANEL_DIRECTION = Object.freeze({
 function ease(t) { const a = Math.max(0, Math.min(t, 1)); return a * a * (3 - 2 * a) }
 
 /** Owns every WebGL resource and event; no global listeners survive unmount. */
-export function createCubeScene(mount, { onReady, onError }) {
+export function createCubeScene(mount, { onReady, onError, mode = 'full' }) {
   let renderer
   try {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' })
@@ -93,8 +93,13 @@ export function createCubeScene(mount, { onReady, onError }) {
     if (disposed) { disposeScene(gltf.scene); return }
     gltfRoot = gltf.scene
     geometryRoot.add(gltfRoot)
+    let shellCount = 0
     gltf.scene.traverse((object) => {
       if (!object.isMesh) return
+      if (/^shell_(?:front|right|top|left|back|bottom)$/.test(object.name)) {
+        shellCount += 1
+        if (mode === 'stone-only') object.visible = false
+      }
       object.frustumCulled = false
       const match = /^(?:stone|shell)_(front|right|top|left|back|bottom)$/.exec(object.name)
       if (match) {
@@ -106,6 +111,8 @@ export function createCubeScene(mount, { onReady, onError }) {
         object.material.emissiveIntensity = 1.6
       }
     })
+    mount.dataset.shellCount = String(shellCount)
+    mount.dataset.hiddenShellCount = String(mode === 'stone-only' ? shellCount : 0)
     resize()
     onReady?.()
   }, undefined, (error) => { if (!disposed) onError?.(error) })
@@ -147,6 +154,8 @@ export function createCubeScene(mount, { onReady, onError }) {
       observer?.disconnect()
       window.removeEventListener('resize', resize)
       if (gltfRoot) disposeScene(gltfRoot)
+      delete mount.dataset.shellCount
+      delete mount.dataset.hiddenShellCount
       renderer.dispose()
       renderer.domElement.remove()
     },
