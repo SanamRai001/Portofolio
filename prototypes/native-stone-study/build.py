@@ -176,7 +176,8 @@ manifest={"texture":"https://polyhaven.com/a/dark_rock","license":"CC0","maps":s
           "pivot":"lid_pivot","rendered":[]}
 def save_manifest():(out/"manifest.json").write_text(json.dumps(manifest,indent=2))
 save_manifest()
-scene.render.engine="CYCLES";scene.cycles.samples=24;scene.cycles.use_denoising=True
+scene.render.engine="CYCLES";scene.cycles.samples=96;scene.cycles.use_denoising=False
+# Ubuntu 24.04 Blender package lacks OpenImageDenoiser. Use more samples instead.
 scene.render.resolution_x=640;scene.render.resolution_y=640;scene.render.resolution_percentage=100
 scene.render.image_settings.file_format="PNG";scene.render.film_transparent=True
 scene.world=bpy.data.worlds.new("Studio world");scene.world.use_nodes=True
