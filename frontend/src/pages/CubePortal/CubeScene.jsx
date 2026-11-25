@@ -3,7 +3,7 @@ import artwork from '../../../../prototypes/unfolding-cube-portal/source/referen
 
 import { selectFracture, FRACTURE_SEAMS, FRACTURE_PARTICLES } from './cubeFragments.js'
 
-const MODEL_REVISION = 'original-artwork-fracture-v4'
+const MODEL_REVISION = 'original-artwork-fracture-v5'
 const MAX_TILT = 7
 
 // One artwork, one coordinate system. The idle cube uses the unmodified source.
@@ -11,7 +11,7 @@ const MAX_TILT = 7
 export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady }) {
   const id = useId()
   const [fragments] = useState(() => selectFracture(window.location.search))
-  const detailed = fragments.length === 20
+  const detailed = fragments.length !== 7
   const modelRef = useRef(null)
   const tiltRef = useRef(null)
 

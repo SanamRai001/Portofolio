@@ -7,7 +7,7 @@ import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src
 
 import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
 import { passageKind, passageGeometry, PASSAGE_TIMING } from '../public/about/passage.js'
-import { CUBE_FRAGMENTS, LEGACY_CUBE_FRAGMENTS, FRACTURE_PARTICLES, fractureCells, selectFracture } from '../src/pages/CubePortal/cubeFragments.js'
+import { CUBE_FRAGMENTS, LEGACY_CUBE_FRAGMENTS, FRACTURE_PARTICLES, FRACTURE_LIMITS, polygonArea, polygonSpan, fractureCells, selectFracture } from '../src/pages/CubePortal/cubeFragments.js'
 import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
 
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
@@ -46,8 +46,8 @@ test('layered preview reuses the exact approved artwork and does not load WebGL'
   assert.match(scene, /reference-cube\.png\?url/)
   assert.match(scene, /viewBox="0 0 1254 1254"/)
   assert.match(scene, /fragments\.map/)
-  assert.equal(CUBE_FRAGMENTS.length,20)
-  assert.equal(new Set(CUBE_FRAGMENTS.map(piece => piece.id)).size,20)
+  assert.ok(CUBE_FRAGMENTS.length>20)
+  assert.equal(new Set(CUBE_FRAGMENTS.map(piece => piece.id)).size,CUBE_FRAGMENTS.length)
   assert.match(scene, /data-renderer="layered-artwork"/)
   assert.doesNotMatch(scene, /createCubeScene|GLTFLoader|WebGLRenderer|<canvas/)
   assert.match(text('../vite.config.js'), /repositoryRoot/)
@@ -60,7 +60,7 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /aria-hidden=\{!isWork\}/)
   assert.match(jsx, /inert=\{!isWork\}/)
   const cubeScene = text('../src/pages/CubePortal/CubeScene.jsx')
-  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v4'/)
+  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v5'/)
   assert.match(cubeScene, /data-fractured=\{open\}/)
   assert.match(cubeScene, /data-split=\{split\}/)
   assert.match(cubeScene, /cubeDebug/)
@@ -182,7 +182,7 @@ test('editorial and technical passages are explicit, bounded and do not intercep
 })
 
 test('fracture has independent outward vectors and reversible keyframes', () => {
-  assert.equal(new Set(CUBE_FRAGMENTS.map(p=>p.dx+','+p.dy)).size,20)
+  assert.equal(new Set(CUBE_FRAGMENTS.map(p=>p.dx+','+p.dy)).size,CUBE_FRAGMENTS.length)
   for(const piece of CUBE_FRAGMENTS) {
     assert.ok(Math.hypot(piece.dx,piece.dy)>50)
     assert.ok(piece.d.startsWith('M') && piece.d.endsWith('Z'))
@@ -205,7 +205,7 @@ test('detailed fracture partitions the exact source square and preserves a seven
     const q=polygon[(i+1)%polygon.length]
     return sum+p[0]*q[1]-q[0]*p[1]
   },0))/2
-  assert.equal(cells.length,20)
+  assert.equal(cells.length,CUBE_FRAGMENTS.length)
   for(const cell of cells) {
     assert.ok(cell.length>=3)
     assert.ok(area(cell)>0)
@@ -213,10 +213,26 @@ test('detailed fracture partitions the exact source square and preserves a seven
   }
   assert.ok(Math.abs(cells.reduce((sum,p)=>sum+area(p),0)-1254**2)<3)
   assert.ok(CUBE_FRAGMENTS.some(p=>p.heavy) && CUBE_FRAGMENTS.some(p=>!p.heavy))
-  assert.ok(Math.max(...CUBE_FRAGMENTS.filter(p=>!p.heavy).map(p=>p.delay)) < Math.min(...CUBE_FRAGMENTS.filter(p=>p.heavy).map(p=>p.delay)))
-  assert.ok(Math.max(...CUBE_FRAGMENTS.filter(p=>p.heavy).map(p=>p.returnDelay)) < Math.min(...CUBE_FRAGMENTS.filter(p=>!p.heavy).map(p=>p.returnDelay)))
+  assert.ok(Math.max(...CUBE_FRAGMENTS.filter(p=>!p.heavy).map(p=>p.delay)) <= Math.min(...CUBE_FRAGMENTS.filter(p=>p.heavy).map(p=>p.delay)))
+  assert.ok(Math.max(...CUBE_FRAGMENTS.filter(p=>p.heavy).map(p=>p.returnDelay)) <= Math.min(...CUBE_FRAGMENTS.filter(p=>!p.heavy).map(p=>p.returnDelay)))
   assert.equal(FRACTURE_PARTICLES.length,8)
   assert.equal(LEGACY_CUBE_FRAGMENTS.length,7)
   assert.equal(selectFracture('?fracture=7'),LEGACY_CUBE_FRAGMENTS)
   assert.equal(selectFracture(''),CUBE_FRAGMENTS)
+})
+
+test('irregular fracture is governed by size, not a target count', () => {
+  const counts=new Set()
+  for(const seed of [48,71,123,193,724,20261125]) {
+    const cells=fractureCells(seed)
+    const areas=cells.map(polygonArea)
+    counts.add(cells.length)
+    assert.ok(Math.abs(areas.reduce((a,b)=>a+b,0)-1254**2)<3)
+    assert.ok(Math.max(...areas)<=FRACTURE_LIMITS.maxArea+.5)
+    assert.ok(Math.max(...cells.map(polygonSpan))<=FRACTURE_LIMITS.maxSpan+.005)
+    assert.ok(Math.max(...areas)/Math.min(...areas)>5,'Pieces need substantial area variation')
+    assert.ok(new Set(cells.map(p=>p.length)).size>=3,'Different polygon shapes')
+    assert.deepEqual(fractureCells(seed),cells,'A seed must reconstruct consistently')
+  }
+  assert.ok(counts.size>1,'No fixed fragment count')
 })

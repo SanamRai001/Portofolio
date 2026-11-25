@@ -10,58 +10,85 @@ export const LEGACY_CUBE_FRAGMENTS = Object.freeze([
   {id:'east-lower',d:'M660 815L840 820 1015 760 1254 730V1254H640L627 960Z',dx:130,dy:180,angle:-8},
 ])
 
-// Uneven seed spacing creates a mix of heavy plates and smaller chips.
-// Each cell is clipped by perpendicular bisectors in source-image coordinates.
+// Unequal, seeded angular cuts, rather than an evenly spaced Voronoi grid.
+// A piece is finished only when BOTH size bounds are satisfied.
 const SIZE = 1254
-const SEEDS = [
-  [348,290],[480,215],[620,175],[778,245],[922,306],
-  [261,435],[404,414],[540,383],[654,346],[790,427],[993,445],
-  [313,600],[459,570],[615,580],[751,568],[924,612],
-  [344,825],[536,771],[713,829],[899,811],
-]
-function clipHalfPlane(polygon, nx, ny, limit) {
-  const result = []
-  for(let i=0;i<polygon.length;i++) {
-    const a=polygon[i], b=polygon[(i+1)%polygon.length]
-    const da=a[0]*nx+a[1]*ny-limit, db=b[0]*nx+b[1]*ny-limit
-    if(da<=0) result.push(a)
-    if((da<=0)!==(db<=0)) {
+export const FRACTURE_LIMITS = Object.freeze({maxArea:65000,maxSpan:390})
+export const DEFAULT_FRACTURE_SEED = 123
+
+export function polygonArea(polygon) {
+  return Math.abs(polygon.reduce((sum,p,i)=>{
+    const q=polygon[(i+1)%polygon.length]
+    return sum+p[0]*q[1]-q[0]*p[1]
+  },0))/2
+}
+function farthestPair(polygon) {
+  let pair=[polygon[0],polygon[1]], distance=0
+  for(const a of polygon) for(const b of polygon) {
+    const d=Math.hypot(a[0]-b[0],a[1]-b[1])
+    if(d>distance) {pair=[a,b];distance=d}
+  }
+  return {pair,distance}
+}
+export const polygonSpan=polygon=>farthestPair(polygon).distance
+
+function seededRandom(seed) {
+  let state=seed>>>0
+  return ()=>{
+    state=(Math.imul(state,1664525)+1013904223)>>>0
+    return state/4294967296
+  }
+}
+function cut(polygon,nx,ny,limit) {
+  const sides=[[],[]]
+  for(let i=0;i<polygon.length;i++){
+    const a=polygon[i],b=polygon[(i+1)%polygon.length]
+    const da=a[0]*nx+a[1]*ny-limit,db=b[0]*nx+b[1]*ny-limit
+    sides[da<=0?0:1].push(a)
+    if((da<=0)!==(db<=0)){
       const t=da/(da-db)
-      result.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])
+      const shared=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]
+      sides[0].push(shared);sides[1].push(shared)
     }
   }
-  return result
+  return sides
 }
-const rounded = n => Math.round(n*1000)/1000
-export function fractureCells() {
-  return SEEDS.map(([x,y],i) => {
-    let polygon=[[0,0],[SIZE,0],[SIZE,SIZE],[0,SIZE]]
-    SEEDS.forEach(([sx,sy],j)=>{
-      if(i!==j) polygon=clipHalfPlane(polygon,sx-x,sy-y,(sx*sx+sy*sy-x*x-y*y)/2)
-    })
-    return polygon.map(p=>p.map(rounded))
-  })
+const rounded=n=>Math.round(n*1000)/1000
+export function fractureCells(seed=DEFAULT_FRACTURE_SEED) {
+  const random=seededRandom(seed)
+  const split=polygon=>{
+    const {pair,distance}=farthestPair(polygon)
+    if(polygonArea(polygon)<=FRACTURE_LIMITS.maxArea && distance<=FRACTURE_LIMITS.maxSpan)return [polygon]
+    const [a,b]=pair
+    // Vary angle and position so the split produces both chips and slabs.
+    const angle=Math.atan2(b[1]-a[1],b[0]-a[0])+(random()-.5)*1.3
+    const nx=Math.cos(angle),ny=Math.sin(angle)
+    const projection=polygon.map(p=>p[0]*nx+p[1]*ny)
+    const lo=Math.min(...projection),hi=Math.max(...projection)
+    const limit=lo+(hi-lo)*(.28+.44*random())
+    return cut(polygon,nx,ny,limit).flatMap(split)
+  }
+  return split([[0,0],[SIZE,0],[SIZE,SIZE],[0,SIZE]]).map(p=>p.map(v=>v.map(rounded)))
 }
 const cells=fractureCells()
-const area = polygon => Math.abs(polygon.reduce((sum,p,i)=>{
-  const q=polygon[(i+1)%polygon.length]
-  return sum+p[0]*q[1]-q[0]*p[1]
-},0))/2
+const motionRandom=seededRandom(DEFAULT_FRACTURE_SEED+17)
 export const CUBE_FRAGMENTS=Object.freeze(cells.map((polygon,i)=>{
-  const [x,y]=SEEDS[i]
-  const mass=area(polygon)
-  const heavy=mass>80000
+  const [x,y]=polygon.reduce(([sx,sy],p)=>[sx+p[0]/polygon.length,sy+p[1]/polygon.length],[0,0])
+  const mass=polygonArea(polygon)
+  const weight=Math.min(1,mass/FRACTURE_LIMITS.maxArea)
+  const heavy=weight>.57
   const vx=x-627,vy=y-565
-  const norm=Math.max(60,Math.hypot(vx,vy))
-  const distance=heavy?155+(i%3)*20:215+(i%4)*17
+  const direction=Math.atan2(vy,vx)+(motionRandom()-.5)*.36
+  const distance=155+(1-weight)*100+motionRandom()*35
   return Object.freeze({
     id:'stone-'+i,
     d:'M'+polygon.map(p=>p.join(' ')).join('L')+'Z',
-    dx:Math.round(vx/norm*distance),dy:Math.round(vy/norm*distance),
-    angle:(i%2?1:-1)*(heavy?5+i%5:10+i%8),
-    x,y,heavy,
-    delay:heavy?120+(i%3)*24:35+(i%4)*18,
-    returnDelay:heavy?0:85+(i%3)*25,
+    dx:Math.round(Math.cos(direction)*distance),dy:Math.round(Math.sin(direction)*distance),
+    angle:(motionRandom()>.5?1:-1)*(4+Math.round((1-weight)*15+motionRandom()*5)),
+    x:rounded(x),y:rounded(y),heavy,
+    area:mass,span:polygonSpan(polygon),
+    delay:Math.round(20+weight*155),
+    returnDelay:Math.round((1-weight)*125),
   })
 }))
 // Only internal cell boundaries are illuminated; the alpha mask hides

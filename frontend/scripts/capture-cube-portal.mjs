@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdir, writeFile, rename } from 'node:fs/promises'
 import { chromium } from 'playwright'
+import { CUBE_FRAGMENTS } from '../src/pages/CubePortal/cubeFragments.js'
 
 const origin = 'http://127.0.0.1:4187'
 const output = 'artifacts/cube-portal-visual'
@@ -47,9 +48,9 @@ try {
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
-      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v4')
-      assert.equal(await cube.getAttribute('data-fragment-count'),'20')
-      assert.equal(await page.locator('.CubeFragment').count(),20)
+      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v5')
+      assert.equal(await cube.getAttribute('data-fragment-count'),String(CUBE_FRAGMENTS.length))
+      assert.equal(await page.locator('.CubeFragment').count(),CUBE_FRAGMENTS.length)
       assert.equal(await page.locator('.CubeFractureParticle').count(),view.reducedMotion==='reduce'?0:8)
       assert.equal(await cube.getAttribute('data-renderer'), 'layered-artwork')
       assert.equal(await cube.getAttribute('data-split'), 'false')
@@ -115,7 +116,7 @@ try {
         assert.equal(evidence.phase, 'opening')
         assert.equal(evidence.fractured, 'true')
         assert.equal(evidence.split, 'true')
-        assert.equal(evidence.fragmentTransforms.length,20)
+        assert.equal(evidence.fragmentTransforms.length,CUBE_FRAGMENTS.length)
         assert.ok(new Set(evidence.fragmentTransforms).size>=10,'Stone fragments must move independently')
         assert.equal(evidence.bodyOpacity,'0')
         assert.equal(evidence.tiltTransform, 'none', 'Tilt must reset during opening')
