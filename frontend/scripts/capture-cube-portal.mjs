@@ -48,7 +48,7 @@ try {
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
-      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v5')
+      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v6')
       assert.equal(await cube.getAttribute('data-fragment-count'),String(CUBE_FRAGMENTS.length))
       assert.equal(await page.locator('.CubeFragment').count(),CUBE_FRAGMENTS.length)
       assert.equal(await page.locator('.CubeFractureParticle').count(),view.reducedMotion==='reduce'?0:8)
@@ -103,7 +103,38 @@ try {
       await page.screenshot({path: output + '/' + view.name + '-dark.png'})
       await page.locator('.CubeDestinationWork').click()
       if (view.reducedMotion !== 'reduce') {
-        await page.waitForTimeout(290)
+        // Capture the pressure and rupture directly from the animation clock,
+        // rather than assuming screenshots have a fixed capture latency.
+        const samples=await page.evaluate(async()=>{
+          const artwork=document.querySelector('.CubeArtwork')
+          const body=document.querySelector('.CubeArtworkBody')
+          const core=document.querySelector('.CubeCoreRadiance')
+          const overlay=document.querySelector('.CubePortalReveal')
+          const clock=()=>artwork.getAnimations().find(a=>a.animationName==='stonePressure')
+          const read=()=>({
+            time:clock()?.currentTime??null,body:getComputedStyle(body).opacity,
+            clip:getComputedStyle(overlay).clipPath,core:getComputedStyle(core).opacity,
+            crackBands:document.querySelectorAll('.CubeCrackBand').length,
+            transforms:[...document.querySelectorAll('.CubeFragment')].map(el=>getComputedStyle(el).transform)
+          })
+          let pressure=null,rupture=null
+          const start=performance.now()
+          while(performance.now()-start<1800){
+            const t=clock()?.currentTime
+            if(t>=90&&t<300&&!pressure)pressure=read()
+            if(t>=560&&t<725){rupture=read();break}
+            await new Promise(resolve=>requestAnimationFrame(resolve))
+          }
+          return {pressure,rupture}
+        })
+        assert.ok(samples.pressure,'Pressure phase must be observable')
+        assert.equal(samples.pressure.body,'1')
+        assert.ok(samples.rupture,'Rupture must be observable before the Work overlay')
+        assert.equal(samples.rupture.body,'0')
+        assert.ok(parseFloat(samples.rupture.core)>.65)
+        assert.equal(samples.rupture.crackBands,3)
+        assert.ok(samples.rupture.clip.startsWith('circle(0px'),'Work must not cover the rupture early')
+        assert.ok(new Set(samples.rupture.transforms).size>=10)
         evidence = await page.evaluate(() => ({
           phase: document.querySelector('.CubePortal')?.dataset.phase,
           fractured: document.querySelector('.CubePortalModel')?.dataset.fractured,
@@ -113,6 +144,7 @@ try {
           tiltTransform: getComputedStyle(document.querySelector('.CubeArtworkTilt')).transform,
           clipPath: getComputedStyle(document.querySelector('.CubePortalReveal')).clipPath,
         }))
+        evidence.samples=samples
         assert.equal(evidence.phase, 'opening')
         assert.equal(evidence.fractured, 'true')
         assert.equal(evidence.split, 'true')
@@ -163,6 +195,14 @@ try {
       assert.equal(await page.locator('.CubeFragments').evaluate(el=>getComputedStyle(el).opacity),'0')
       assert.equal(await cube.getAttribute('data-split'), 'false')
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
+      if (view.reducedMotion !== 'reduce') {
+        await page.locator('.CubeDestinationWork').click()
+        await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'opening')
+        await page.keyboard.press('Escape')
+        await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
+        assert.equal(await cube.getAttribute('data-split'),'false')
+        assert.equal(await page.locator('.CubeHome').evaluate(el=>el.inert),false)
+      }
       await page.locator('.CubeDestinationWork').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
       await page.goBack({waitUntil: 'domcontentloaded'})

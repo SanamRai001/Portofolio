@@ -10,7 +10,9 @@ export function cubeUrl(view) {
   return `${CUBE_PREVIEW_PATH}#${view === 'work' ? 'work' : 'home'}`
 }
 
+// One clock for stone motion and the radial chapter handoff.
+export const WORK_MOTION=Object.freeze({open:1320,close:1120,revealAt:730,collapseBy:440})
 export function portalDuration(view, reducedMotion) {
   if (reducedMotion) return 0
-  return view === 'work' ? 700 : 980
+  return view === 'work' ? WORK_MOTION.open : WORK_MOTION.close
 }

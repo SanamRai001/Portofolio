@@ -3,11 +3,11 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
-import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src/pages/CubePortal/cubePortalNavigation.js'
+import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration, WORK_MOTION } from '../src/pages/CubePortal/cubePortalNavigation.js'
 
 import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
 import { passageKind, passageGeometry, PASSAGE_TIMING } from '../public/about/passage.js'
-import { CUBE_FRAGMENTS, LEGACY_CUBE_FRAGMENTS, FRACTURE_PARTICLES, FRACTURE_LIMITS, polygonArea, polygonSpan, fractureCells, selectFracture } from '../src/pages/CubePortal/cubeFragments.js'
+import { CUBE_FRAGMENTS, LEGACY_CUBE_FRAGMENTS, FRACTURE_PARTICLES, FRACTURE_CRACKS, FRACTURE_LIMITS, polygonArea, polygonSpan, fractureCells, selectFracture } from '../src/pages/CubePortal/cubeFragments.js'
 import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
 
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
@@ -21,8 +21,8 @@ test('cube preview hash route and reduced motion are deterministic', () => {
   assert.equal(cubeUrl('work'), '/cube-preview#work')
   assert.equal(cubeUrl('home'), '/cube-preview#home')
   assert.equal(portalDuration('work', true), 0)
-  assert.equal(portalDuration('work', false), 700)
-  assert.equal(portalDuration('home', false), 980)
+  assert.equal(portalDuration('work', false), 1320)
+  assert.equal(portalDuration('home', false), 1120)
 })
 
 test('preview route does not replace the established homepage or Galaxy', () => {
@@ -60,7 +60,7 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /aria-hidden=\{!isWork\}/)
   assert.match(jsx, /inert=\{!isWork\}/)
   const cubeScene = text('../src/pages/CubePortal/CubeScene.jsx')
-  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v5'/)
+  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v6'/)
   assert.match(cubeScene, /data-fractured=\{open\}/)
   assert.match(cubeScene, /data-split=\{split\}/)
   assert.match(cubeScene, /cubeDebug/)
@@ -235,4 +235,17 @@ test('irregular fracture is governed by size, not a target count', () => {
     assert.deepEqual(fractureCells(seed),cells,'A seed must reconstruct consistently')
   }
   assert.ok(counts.size>1,'No fixed fragment count')
+})
+
+test('cinematic fracture reserves a distinct pressure, rupture and reveal interval', () => {
+  assert.ok(WORK_MOTION.revealAt>Math.max(...CUBE_FRAGMENTS.map(p=>p.delay))+170)
+  assert.ok(WORK_MOTION.revealAt<WORK_MOTION.open)
+  assert.ok(WORK_MOTION.collapseBy<WORK_MOTION.close*.5)
+  assert.ok(Math.max(...CUBE_FRAGMENTS.map(p=>p.returnDelay))<WORK_MOTION.close*.5)
+  assert.ok(CUBE_FRAGMENTS.some(p=>p.scale>1.2))
+  assert.ok(CUBE_FRAGMENTS.some(p=>p.scale<.85))
+  assert.equal(FRACTURE_CRACKS.length,3)
+  assert.ok(FRACTURE_CRACKS.every(p=>p.startsWith('M')))
+  const css=text('../src/pages/CubePortal/CubePortal.css')
+  for(const name of ['stonePressure','crackPropagate','coreBreach','stoneReconstruct','coreSeal','stoneIntactIn'])assert.ok(css.includes('@keyframes '+name))
 })

@@ -4,7 +4,7 @@ import useReducedMotion from '../../motion/useReducedMotion.js'
 import { canAnimateLink } from '../../motion/useJourneyTransition.js'
 import CubeScene from './CubeScene.jsx'
 import CubeWorkProjects from './CubeWorkProjects.jsx'
-import { cubeUrl, portalDuration, readCubeView } from './cubePortalNavigation.js'
+import { cubeUrl, portalDuration, readCubeView, WORK_MOTION } from './cubePortalNavigation.js'
 import './CubePortal.css'
 
 function readTheme() {
@@ -58,7 +58,8 @@ export default function CubePortal({ journey }) {
 
   const navigate = useCallback((next, { push = true, focus = true } = {}) => {
     const view = next === 'work' ? 'work' : 'home'
-    if (goalRef.current === view && phaseRef.current === view) return
+    if (goalRef.current === view && (phaseRef.current === view || !reducedMotion)) return
+    const interrupted = phaseRef.current === 'opening' || phaseRef.current === 'closing'
     if (push) window.history.pushState({ cubeView: view }, '', cubeUrl(view))
     goalRef.current = view
     const epoch = ++epochRef.current
@@ -91,7 +92,7 @@ export default function CubePortal({ journey }) {
     if (opening && overlay) overlay.scrollTop = 0
     phaseRef.current = opening ? 'opening' : 'closing'
     setPhase(phaseRef.current)
-    if (!overlay || duration === 0 || typeof overlay.animate !== 'function') {
+    if (interrupted || !overlay || duration === 0 || typeof overlay.animate !== 'function') {
       finish(); return
     }
     const start = circle(opening ? 0 : maxDistance)
@@ -99,10 +100,11 @@ export default function CubePortal({ journey }) {
     overlay.style.setProperty('--portal-x', origin.x + 'px')
     overlay.style.setProperty('--portal-y', origin.y + 'px')
     overlay.style.clipPath = start
-    const animation = overlay.animate([{ clipPath: start }, { clipPath: end }], {
-      duration, delay: opening ? 340 : 0,
-      easing: 'cubic-bezier(0.45,0,0.25,1)', fill: 'forwards',
-    })
+    const ease = 'cubic-bezier(0.45,0,0.25,1)'
+    const frames = opening
+      ? [{clipPath:start,offset:0},{clipPath:start,offset:WORK_MOTION.revealAt/duration,easing:ease},{clipPath:end,offset:1}]
+      : [{clipPath:start,offset:0,easing:ease},{clipPath:end,offset:WORK_MOTION.collapseBy/duration},{clipPath:end,offset:1}]
+    const animation = overlay.animate(frames,{duration,fill:'forwards',easing:'linear'})
     animationRef.current = animation
     animation.finished.then(() => {
       if (epoch !== epochRef.current) return
@@ -125,11 +127,16 @@ export default function CubePortal({ journey }) {
     }
   }, [navigate])
 
+  useEffect(() => {
+    if (reducedMotion && phaseRef.current !== goalRef.current) navigate(goalRef.current,{push:false})
+  }, [navigate,reducedMotion])
+
   const highlightedDestination = phase === 'home' ? (hoveredDestination || focusedDestination) : ''
   const isWork = phase === 'work'
   const isTransitioning = phase === 'opening' || phase === 'closing'
   return (
-    <div className="CubePortal" data-theme={theme} data-phase={phase}>
+    <div className="CubePortal" data-theme={theme} data-phase={phase}
+      style={{'--work-open-ms':WORK_MOTION.open+'ms','--work-close-ms':WORK_MOTION.close+'ms','--work-reveal-ms':WORK_MOTION.revealAt+'ms'}}>
       <a className="CubeSkip" href={isWork ? '#cube-work-title' : '#cube-title'} onClick={event => {
         if (!canAnimateLink(event)) return
         event.preventDefault()
@@ -148,7 +155,7 @@ export default function CubePortal({ journey }) {
           <a className="CubeContact" href="mailto:sanamr571@outlook.com">Contact <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
       </header>
-      <main className="CubeHome" id="cube-main" aria-hidden={isWork} inert={isWork}>
+      <main className="CubeHome" id="cube-main" aria-hidden={phase !== 'home'} inert={phase !== 'home'}>
         <section className="CubeIntro" aria-labelledby="cube-title">
           <p className="CubeEyebrow">SOFTWARE ENGINEER</p>
           <h1 id="cube-title" tabIndex="-1">Ideas into <em>systems.</em></h1>

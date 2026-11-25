@@ -79,34 +79,44 @@ export const CUBE_FRAGMENTS=Object.freeze(cells.map((polygon,i)=>{
   const heavy=weight>.57
   const vx=x-627,vy=y-565
   const direction=Math.atan2(vy,vx)+(motionRandom()-.5)*.36
-  const distance=155+(1-weight)*100+motionRandom()*35
+  const distance=230+(1-weight)*250+motionRandom()*85
+  // A few shards approach the viewer; others recede or turn edge-on.
+  const depth=motionRandom()
+  const scale=depth>.67?1.18+depth*.17:depth<.30?.66+depth*.55:.90+depth*.17
+  const squash=.58+motionRandom()*.42
   return Object.freeze({
     id:'stone-'+i,
     d:'M'+polygon.map(p=>p.join(' ')).join('L')+'Z',
     dx:Math.round(Math.cos(direction)*distance),dy:Math.round(Math.sin(direction)*distance),
-    angle:(motionRandom()>.5?1:-1)*(4+Math.round((1-weight)*15+motionRandom()*5)),
+    angle:(motionRandom()>.5?1:-1)*(9+Math.round((1-weight)*34+motionRandom()*12)),
+    scale:rounded(scale),squash:rounded(squash),
     x:rounded(x),y:rounded(y),heavy,
     area:mass,span:polygonSpan(polygon),
-    delay:Math.round(20+weight*155),
-    returnDelay:Math.round((1-weight)*125),
+    delay:Math.round(300+weight*205),
+    returnDelay:Math.round(260+(1-weight)*190),
   })
 }))
 // Only internal cell boundaries are illuminated; the alpha mask hides
 // any portion of the diagram outside the actual stone silhouette.
-export const FRACTURE_SEAMS=(()=>{
+export const FRACTURE_CRACKS=(()=>{
   const edges=new Map()
   for(const polygon of cells) for(let i=0;i<polygon.length;i++){
     const a=polygon[i],b=polygon[(i+1)%polygon.length]
     const key=[a.join(','),b.join(',')].sort().join(':')
     if(!edges.has(key))edges.set(key,[a,b])
   }
-  return [...edges.values()].filter(([a,b])=>!([0,SIZE].some(v=>(a[0]===v&&b[0]===v)||(a[1]===v&&b[1]===v))))
-    .map(([a,b])=>'M'+a.join(' ')+'L'+b.join(' ')).join(' ')
+  const bands=[[],[],[]]
+  for(const [a,b] of edges.values()){
+    if([0,SIZE].some(v=>(a[0]===v&&b[0]===v)||(a[1]===v&&b[1]===v)))continue
+    const distance=Math.hypot((a[0]+b[0])/2-627,(a[1]+b[1])/2-637)
+    bands[distance<230?0:distance<410?1:2].push('M'+a.join(' ')+'L'+b.join(' '))
+  }
+  return Object.freeze(bands.map(paths=>paths.join(' ')))
 })()
 export const FRACTURE_PARTICLES=Object.freeze(Array.from({length:8},(_,i)=>{
   const angle=i*Math.PI/4+.18
   return {x:Math.round(627+Math.cos(angle)*145),y:Math.round(565+Math.sin(angle)*100),
-    dx:Math.round(Math.cos(angle)*140),dy:Math.round(Math.sin(angle)*110),size:4+i%3*2,delay:i%4*18}
+    dx:Math.round(Math.cos(angle)*(255+i%3*75)),dy:Math.round(Math.sin(angle)*(215+i%4*48)),size:5+i%4*3,delay:i%4*18}
 }))
 export function selectFracture(search='') {
   return new URLSearchParams(search).get('fracture')==='7'?LEGACY_CUBE_FRAGMENTS:CUBE_FRAGMENTS
