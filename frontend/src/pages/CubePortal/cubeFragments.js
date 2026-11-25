@@ -92,8 +92,8 @@ export const CUBE_FRAGMENTS=Object.freeze(cells.map((polygon,i)=>{
     scale:rounded(scale),squash:rounded(squash),
     x:rounded(x),y:rounded(y),heavy,
     area:mass,span:polygonSpan(polygon),
-    delay:Math.round(155+weight*135),
-    returnDelay:Math.round(175+(1-weight)*120),
+    delay:Math.round(120+weight*105),
+    returnDelay:Math.round(120+(1-weight)*90),
   })
 }))
 // Only internal cell boundaries are illuminated; the alpha mask hides

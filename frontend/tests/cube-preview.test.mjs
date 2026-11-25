@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration, WORK_MOTION } from '../src/pages/CubePortal/cubePortalNavigation.js'
+import { worldFracturePaths } from '../src/pages/CubePortal/worldFracture.mjs'
 
 import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
 import { passageKind, passageGeometry, PASSAGE_TIMING } from '../public/about/passage.js'
@@ -21,8 +22,8 @@ test('cube preview hash route and reduced motion are deterministic', () => {
   assert.equal(cubeUrl('work'), '/cube-preview#work')
   assert.equal(cubeUrl('home'), '/cube-preview#home')
   assert.equal(portalDuration('work', true), 0)
-  assert.equal(portalDuration('work', false), 860)
-  assert.equal(portalDuration('home', false), 760)
+  assert.equal(portalDuration('work', false), 700)
+  assert.equal(portalDuration('home', false), 650)
 })
 
 test('preview route does not replace the established homepage or Galaxy', () => {
@@ -267,5 +268,26 @@ test('viewport flights reach edges on desktop and mobile, without changing sourc
     assert.ok(Math.max(...xs)-Math.min(...xs)>=width*.90)
     assert.ok(Math.max(...ys)-Math.min(...ys)>=height*.90)
   }
-  assert.ok(WORK_MOTION.open<1000 && WORK_MOTION.close<1000)
+  assert.ok(WORK_MOTION.open<=750 && WORK_MOTION.close<=750)
+})
+
+test('world fracture paths are deterministic and span the viewport', () => {
+  for (const [width,height,x,y] of [[1440,900,990,420],[390,844,195,540],[390,844,195,-20],[1920,1080,0,0]]) {
+    const flight={width,height,x,y}
+    const paths=worldFracturePaths(flight)
+    assert.equal(paths.length,24)
+    assert.equal(new Set(paths.map(p=>p.id)).size,24)
+    assert.deepEqual(paths,worldFracturePaths(flight))
+    for(const {d} of paths) {
+      const numbers=d.match(/-?\d+(?:\.\d+)?/g).map(Number)
+      for(let i=0;i<numbers.length;i+=2) {
+        assert.ok(numbers[i]>=0 && numbers[i]<=width+.01)
+        assert.ok(numbers[i+1]>=0 && numbers[i+1]<=height+.01)
+      }
+    }
+    const ends=paths.filter(p=>!p.branch).map(p=>p.d.split(' L').at(-1).split(' ').map(Number))
+    assert.equal(ends.length,12)
+    assert.ok(ends.every(([a,b])=>a===0||a===width||b===0||b===height))
+  }
+  assert.deepEqual(worldFracturePaths({width:0,height:1,x:0,y:0}),[])
 })

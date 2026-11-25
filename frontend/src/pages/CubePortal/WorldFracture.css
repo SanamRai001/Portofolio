@@ -1,0 +1,54 @@
+/* A fixed, temporary crack network. Do not transform CubeHome or CubeUniverse:
+   their fixed-position stone descendants must remain in viewport coordinates. */
+.CubeWorldFracture {position:fixed;inset:0;width:100%;height:100%;z-index:86;pointer-events:none;overflow:hidden}
+.CubeWorldFractureNetwork {fill:none;stroke:#ad7130;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px #e5a54e);opacity:0}
+.CubePortal[data-theme="dark"] .CubeWorldFractureNetwork {stroke:#ffcf83;filter:drop-shadow(0 0 5px #ff9b30)}
+.CubeWorldFractureNetwork path {stroke-dasharray:100;stroke-dashoffset:100;vector-effect:non-scaling-stroke}
+.CubeWorldFractureNetwork path[data-branch="true"] {stroke-width:.85;opacity:.68}
+.CubePortal[data-phase="opening"] .CubeWorldFractureNetwork {animation:worldCrackOut var(--work-open-ms) linear both}
+.CubePortal[data-phase="opening"] .CubeWorldFractureNetwork path {animation:worldCrackDraw 140ms cubic-bezier(.25,.1,.25,1) calc(44ms + var(--world-crack-delay)) both}
+.CubePortal[data-phase="closing"] .CubeWorldFractureNetwork {animation:worldCrackIn var(--work-close-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeWorldFractureNetwork path {animation:worldCrackSeal 170ms ease-in calc(var(--work-close-ms) - 205ms - var(--world-crack-delay)) both}
+@keyframes worldCrackDraw {from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes worldCrackSeal {from{stroke-dashoffset:0}to{stroke-dashoffset:100}}
+@keyframes worldCrackOut {0%,5%{opacity:0}18%{opacity:.8}32%{opacity:1}52%{opacity:.55}78%,100%{opacity:0}}
+@keyframes worldCrackIn {0%,23%{opacity:0}42%{opacity:.85}65%{opacity:.9}97%,100%{opacity:0}}
+
+/* React at different strengths without transforming a fixed-layer ancestor. */
+.CubeIntro {--shock-x:-24px;--shock-y:-5px;--shock-angle:-.7deg;--shock-scale:1.015}
+.CubeDestinations {--shock-x:12px;--shock-y:4px;--shock-angle:.8deg;--shock-scale:1.035}
+.CubeOrbit {--shock-x:7px;--shock-y:0px;--shock-angle:1.2deg;--shock-scale:1.065}
+.CubeHomeFooter {--shock-x:8px;--shock-y:13px;--shock-angle:.4deg;--shock-scale:1}
+.CubePortal[data-phase="opening"] :is(.CubeIntro,.CubeDestinations,.CubeOrbit,.CubeHomeFooter) {animation:worldRecoil var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"] :is(.CubeIntro,.CubeDestinations,.CubeOrbit,.CubeHomeFooter) {animation:worldGather var(--work-close-ms) linear both}
+@keyframes worldRecoil {
+  0%,17%{translate:0 0;rotate:0deg;scale:1;opacity:1}
+  30%{translate:var(--shock-x) var(--shock-y);rotate:var(--shock-angle);scale:var(--shock-scale);opacity:.96}
+  56%{translate:calc(var(--shock-x)*1.3) calc(var(--shock-y)*1.3);rotate:var(--shock-angle);scale:var(--shock-scale);opacity:.32}
+  100%{translate:var(--shock-x) var(--shock-y);rotate:var(--shock-angle);scale:var(--shock-scale);opacity:0}
+}
+@keyframes worldGather {
+  0%,25%{translate:var(--shock-x) var(--shock-y);rotate:var(--shock-angle);scale:var(--shock-scale);opacity:0}
+  51%{translate:var(--shock-x) var(--shock-y);rotate:var(--shock-angle);scale:var(--shock-scale);opacity:.58}
+  82%,100%{translate:0 0;rotate:0deg;scale:1;opacity:1}
+}
+/* The shared header must remain readable at both destinations. */
+.CubePortal[data-phase="opening"] .CubeHeader {animation:worldHeaderRecoil var(--work-open-ms) ease-out both}
+.CubePortal[data-phase="closing"] .CubeHeader {animation:worldHeaderGather var(--work-close-ms) ease-out both}
+@keyframes worldHeaderRecoil {0%,17%{translate:0 0}32%{translate:0 -5px}48%,100%{translate:0 0}}
+@keyframes worldHeaderGather {0%,45%{translate:0 0}67%{translate:0 -4px}85%,100%{translate:0 0}}
+/* Preserve the existing mountain art and its theme-specific opacity. */
+.CubePortal[data-phase="opening"] .CubeHome::before,.CubePortal[data-phase="opening"] .CubeHome::after {animation:worldLandRecoil var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeHome::before,.CubePortal[data-phase="closing"] .CubeHome::after {animation:worldLandGather var(--work-close-ms) linear both}
+@keyframes worldLandRecoil {0%,17%{translate:0 0;scale:1}32%{translate:0 9px;scale:1.018}100%{translate:0 12px;scale:1.018}}
+@keyframes worldLandGather {0%,30%{translate:0 12px;scale:1.018}82%,100%{translate:0 0;scale:1}}
+@media(max-width:700px) {
+  .CubeIntro {--shock-x:-10px;--shock-y:-4px}
+  .CubeDestinations {--shock-x:6px;--shock-y:2px;--shock-scale:1.02}
+}
+@media(prefers-reduced-motion:reduce) {
+  .CubeWorldFracture {display:none}
+  .CubePortal:is([data-phase="opening"],[data-phase="closing"]) :is(.CubeIntro,.CubeDestinations,.CubeOrbit,.CubeHomeFooter,.CubeHeader),
+  .CubePortal:is([data-phase="opening"],[data-phase="closing"]) .CubeHome::before,
+  .CubePortal:is([data-phase="opening"],[data-phase="closing"]) .CubeHome::after {animation:none!important}
+}

@@ -77,11 +77,11 @@
 .CubePortal[data-phase="closing"] .CubeArtworkBody {animation:stoneIntactIn var(--work-close-ms) linear both}
 .CubePortal[data-phase="closing"] .CubeFragments {animation:stoneFragmentsIn var(--work-close-ms) linear both}
 .CubePortal[data-phase="opening"] .CubeFragment {
-  animation:stoneSeparate calc(var(--work-open-ms) - var(--fragment-delay,180ms)) linear var(--fragment-delay,180ms) both
+  animation:stoneSeparate calc(var(--work-open-ms) - var(--fragment-delay,140ms)) linear var(--fragment-delay,140ms) both
 }
 .CubePortal[data-phase="work"] .CubeFragment {transform:var(--fragment-flight)}
 .CubePortal[data-phase="closing"] .CubeFragment {
-  animation:stoneReconstruct calc(var(--work-close-ms) - var(--fragment-return-delay,175ms)) linear var(--fragment-return-delay,175ms) both
+  animation:stoneReconstruct calc(var(--work-close-ms) - var(--fragment-return-delay,120ms)) linear var(--fragment-return-delay,120ms) both
 }
 .CubePortal[data-phase="opening"] .CubeFractureSeams {animation:stoneSeamCharge var(--work-open-ms) linear both}
 .CubePortal[data-phase="opening"] .CubeFractureLight {animation:stoneLight var(--work-open-ms) linear both}
@@ -89,8 +89,8 @@
 .CubePortal[data-phase="closing"] .CubeFractureSeams {animation:stoneSeamSeal var(--work-close-ms) linear both}
 .CubeFractureSeams {filter:drop-shadow(0 0 5px #ffd18a) drop-shadow(0 0 12px #ffac36)}
 .CubeCrackBand {stroke-dasharray:100;stroke-dashoffset:100}
-.CubePortal[data-phase="opening"] .CubeCrackBand {animation:crackPropagate .16s cubic-bezier(.3,.1,.2,1) both;animation-delay:calc(40ms + var(--crack-delay))}
-.CubePortal[data-phase="closing"] .CubeCrackBand {animation:crackSeal .16s ease both;animation-delay:calc(550ms - var(--crack-delay))}
+.CubePortal[data-phase="opening"] .CubeCrackBand {animation:crackPropagate .12s cubic-bezier(.3,.1,.2,1) both;animation-delay:calc(30ms + var(--crack-delay))}
+.CubePortal[data-phase="closing"] .CubeCrackBand {animation:crackSeal .12s ease both;animation-delay:calc(475ms - var(--crack-delay))}
 .CubeCoreRadiance {transform-box:fill-box;transform-origin:center;opacity:0}
 .CubePortal[data-phase="opening"] .CubeCoreRadiance {animation:coreBreach var(--work-open-ms) linear both}
 .CubePortal[data-phase="closing"] .CubeCoreRadiance {animation:coreSeal var(--work-close-ms) linear both}
@@ -269,12 +269,9 @@
 @media(max-width:700px) {
   .CubePortal[data-theme="dark"] .CubeHome::before {inset:0 -6vw 0;background-size:auto,auto 38%;background-position:center,center bottom}
 }
-/* Give the rupture a clear moment; fade the surrounding navigation back. */
-.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation-duration:.33s;animation-delay:var(--work-reveal-ms)}
-.CubePortal[data-phase="opening"] .CubeWork {animation-duration:.26s;animation-delay:calc(var(--work-reveal-ms) + 130ms)}
-.CubeIntro,.CubeDestinations,.CubeOrbit {transition:opacity .24s ease}
-.CubePortal[data-phase="opening"] .CubeIntro,.CubePortal[data-phase="opening"] .CubeDestinations,.CubePortal[data-phase="opening"] .CubeOrbit,
-.CubePortal[data-phase="closing"] .CubeIntro,.CubePortal[data-phase="closing"] .CubeDestinations,.CubePortal[data-phase="closing"] .CubeOrbit {opacity:.32}
+/* The fracture network and surrounding recoil are owned by WorldFracture.css. */
+.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation-duration:.27s;animation-delay:var(--work-reveal-ms)}
+.CubePortal[data-phase="opening"] .CubeWork {animation-duration:.21s;animation-delay:calc(var(--work-reveal-ms) + 100ms)}
 /* One bounded viewport-wide radiance layer, not per-shard filters. */
 .CubePortal::after {content:"";position:fixed;inset:0;z-index:85;pointer-events:none;
   background:radial-gradient(ellipse at var(--burst-x,50%) var(--burst-y,50%),rgba(255,190,103,.28),rgba(228,150,62,.06) 48%,transparent 80%);opacity:0}
@@ -288,8 +285,8 @@
 /* Small transient chips; no per-particle filters or idle animation. */
 .CubeFractureParticles {pointer-events:none}
 .CubeFractureParticle {opacity:0;transform-box:view-box;transform-origin:center}
-.CubePortal[data-phase="opening"] .CubeFractureParticle {animation:stoneChip .40s .17s cubic-bezier(.18,.7,.24,1) both;animation-delay:calc(.17s + var(--particle-delay))}
-.CubePortal[data-phase="closing"] .CubeFractureParticle {animation:stoneChip .39s .30s cubic-bezier(.18,.7,.24,1) reverse both;animation-delay:calc(.30s + var(--particle-delay)*.5)}
+.CubePortal[data-phase="opening"] .CubeFractureParticle {animation:stoneChip .32s .14s cubic-bezier(.18,.7,.24,1) both;animation-delay:calc(.14s + var(--particle-delay))}
+.CubePortal[data-phase="closing"] .CubeFractureParticle {animation:stoneChip .32s .24s cubic-bezier(.18,.7,.24,1) reverse both;animation-delay:calc(.24s + var(--particle-delay)*.5)}
 @keyframes stoneChip {
   0%{opacity:0;transform:translate(0,0) scale(.5)}
   16%{opacity:.9}

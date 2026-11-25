@@ -3,6 +3,7 @@ import { ArrowUpRight, Moon, Sun, ArrowLeft } from 'lucide-react'
 import useReducedMotion from '../../motion/useReducedMotion.js'
 import { canAnimateLink } from '../../motion/useJourneyTransition.js'
 import CubeScene from './CubeScene.jsx'
+import WorldFracture from './WorldFracture.jsx'
 import CubeWorkProjects from './CubeWorkProjects.jsx'
 import { artworkViewport } from './cubeFragments.js'
 import { cubeUrl, portalDuration, readCubeView, WORK_MOTION } from './cubePortalNavigation.js'
@@ -225,6 +226,7 @@ export default function CubePortal({ journey }) {
           <p className="CubeWorkFootnote">Interactive design preview · Existing portfolio and Lab remain unchanged.</p>
         </section>
       </main>
+      {isTransitioning && flight && !reducedMotion && <WorldFracture flight={flight} />}
       {isTransitioning && <span className="CubeSrOnly" role="status">{phase === 'opening' ? 'Opening selected work' : 'Returning to portfolio home'}</span>}
     </div>
   )

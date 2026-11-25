@@ -115,6 +115,13 @@ try {
             time:clock()?.currentTime??null,body:getComputedStyle(body).opacity,
             clip:getComputedStyle(overlay).clipPath,core:getComputedStyle(core).opacity,
             crackBands:document.querySelectorAll('.CubeCrackBand').length,
+            worldPaths:document.querySelectorAll('.CubeWorldFracture path').length,
+            worldOpacity:getComputedStyle(document.querySelector('.CubeWorldFractureNetwork')).opacity,
+            recoil:getComputedStyle(document.querySelector('.CubeIntro')).translate,
+            phase:document.querySelector('.CubePortal')?.dataset.phase,
+            fractured:document.querySelector('.CubePortalModel')?.dataset.fractured,
+            split:document.querySelector('.CubePortalModel')?.dataset.split,
+            tiltTransform:getComputedStyle(document.querySelector('.CubeArtworkTilt')).transform,
             transforms:[...document.querySelectorAll('.CubeFragment')].map(el=>getComputedStyle(el).transform),
             fixed:getComputedStyle(document.querySelector('.CubePortalModel')).position==='fixed',
             aboveReveal:Number(getComputedStyle(document.querySelector('.CubePortalModel')).zIndex)>Number(getComputedStyle(overlay).zIndex),
@@ -128,9 +135,9 @@ try {
           const start=performance.now()
           while(performance.now()-start<1800){
             const t=clock()?.currentTime
-            if(t>=45&&t<160&&!pressure)pressure=read()
-            if(t>=350&&t<425&&!rupture)rupture=read()
-            if(t>=510&&t<600){spread=read();break}
+            if(t>=35&&t<125&&!pressure)pressure=read()
+            if(t>=285&&t<350&&!rupture)rupture=read()
+            if(t>=420&&t<490){spread=read();break}
             await new Promise(resolve=>requestAnimationFrame(resolve))
           }
           return {pressure,rupture,spread}
@@ -143,20 +150,17 @@ try {
         assert.equal(samples.rupture.crackBands,3)
         assert.ok(samples.rupture.clip.startsWith('circle(0px'),'Work must not cover the rupture early')
         assert.ok(new Set(samples.rupture.transforms).size>=10)
+        assert.equal(samples.rupture.worldPaths,24,'World crack network is active')
+        assert.ok(Number(samples.rupture.worldOpacity)>.45,'World cracks remain visible at rupture')
+        assert.notEqual(samples.rupture.recoil,'none','Surrounding content participates in the shockwave')
         assert.ok(samples.spread,'Viewport flight must be visible during reveal')
         assert.ok(samples.spread.fixed && samples.spread.aboveReveal,'Flight layer must be viewport-fixed above Work')
         const xs=samples.spread.points.map(p=>p.x),ys=samples.spread.points.map(p=>p.y)
         assert.ok(Math.max(...xs)-Math.min(...xs)>samples.spread.viewport.width*.65,'Shards must span the viewport horizontally')
         assert.ok(Math.max(...ys)-Math.min(...ys)>samples.spread.viewport.height*.65,'Shards must span the viewport vertically')
-        evidence = await page.evaluate(() => ({
-          phase: document.querySelector('.CubePortal')?.dataset.phase,
-          fractured: document.querySelector('.CubePortalModel')?.dataset.fractured,
-          fragmentTransforms: [...document.querySelectorAll('.CubeFragment')].map(el=>getComputedStyle(el).transform),
-          bodyOpacity: getComputedStyle(document.querySelector('.CubeArtworkBody')).opacity,
-          split: document.querySelector('.CubePortalModel')?.dataset.split,
-          tiltTransform: getComputedStyle(document.querySelector('.CubeArtworkTilt')).transform,
-          clipPath: getComputedStyle(document.querySelector('.CubePortalReveal')).clipPath,
-        }))
+        // Reuse the atomic animation-clock sample; do not race the shorter handoff.
+        evidence = {...samples.spread,fragmentTransforms:samples.spread.transforms,
+          bodyOpacity:samples.spread.body,clipPath:samples.spread.clip}
         evidence.samples=samples
         assert.equal(evidence.phase, 'opening')
         assert.equal(evidence.fractured, 'true')
@@ -169,6 +173,7 @@ try {
         await page.screenshot({path: output + '/' + view.name + '-opening.png'})
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
+      assert.equal(await page.locator('.CubeWorldFracture').count(),0,'No world fracture layer after handoff')
       await page.waitForFunction(() => Number(getComputedStyle(document.querySelector('.CubeWork')).opacity) >= .98)
       assert.equal(await page.locator('.CubeCaseStudy').count(), 5)
       assert.equal(await page.locator('.WorkFeatured').count(), 3)
@@ -205,6 +210,7 @@ try {
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
       assert.equal(await cube.getAttribute('data-fractured'), 'false')
       assert.equal(await cube.getAttribute('data-flight'),'false')
+      assert.equal(await page.locator('.CubeWorldFracture').count(),0,'No world fracture layer after return')
       assert.equal(await cube.evaluate(el=>getComputedStyle(el).position),'absolute')
       assert.equal(await page.locator('.CubeArtworkBody').evaluate(el=>getComputedStyle(el).opacity),'1')
       assert.equal(await page.locator('.CubeFragments').evaluate(el=>getComputedStyle(el).opacity),'0')

@@ -115,7 +115,7 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
                 data-source-x={piece.x??627} data-source-y={piece.y??627}
                 style={{'--fragment-x':vector.dx+'px','--fragment-y':vector.dy+'px','--fragment-angle':piece.angle+'deg',
                   '--fragment-origin':(piece.x??627)+'px '+(piece.y??627)+'px',
-                  '--fragment-delay':(piece.delay??180)+'ms','--fragment-return-delay':(piece.returnDelay??175)+'ms',
+                  '--fragment-delay':(piece.delay??140)+'ms','--fragment-return-delay':(piece.returnDelay??120)+'ms',
                   '--fragment-scale':piece.scale??1,'--fragment-squash':piece.squash??1}}>
                 <image href={artwork} width="1254" height="1254" clipPath={'url(#'+id+'-'+piece.id+')'} />
               </g>
