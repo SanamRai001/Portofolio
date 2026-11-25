@@ -12,6 +12,7 @@ import { observeSectionReveals } from '../src/motion/sectionReveals.js'
 let components, createRoot, directory, dom, root, container
 const originalGet = axios.get, originalPost = axios.post
 const config = { auth: false, db: true, cache: false, logging: false, pagination: false, rateLimit: false }
+const demoSession = 'a'.repeat(64)
 const calls = []
 let currentConfig, saveConfig
 
@@ -41,15 +42,15 @@ beforeEach(async () => {
   Object.defineProperty(globalThis, 'navigator', { configurable: true, value: dom.window.navigator })
   currentConfig = { ...config }
   calls.length = 0
-  saveConfig = async (change) => { currentConfig = { ...currentConfig, ...change }; return { data: { success: true, data: currentConfig } } }
+  saveConfig = async (change) => { currentConfig = { ...currentConfig, ...change }; return { data: { success: true, data: currentConfig, demoSession } } }
   axios.get = async (url, options) => {
     calls.push({ method: 'get', url, options })
-    if (url.endsWith('/api/system')) return { data: { success: true, data: currentConfig } }
+    if (url.endsWith('/api/system')) return { data: { success: true, data: currentConfig, demoSession } }
     if (url.endsWith('/api/controls') || url.endsWith('/api/logs')) return { data: { success: true, data: [] } }
     if (url.endsWith('/api/projects')) return { data: { success: true, data: [{ _id: 'test', name: 'API project', description: 'Fixture', techStacks: ['Node.js'] }] } }
     throw new Error('Unexpected API: ' + url)
   }
-  axios.post = async (url, change) => { calls.push({ method: 'post', url, change }); return saveConfig(change) }
+  axios.post = async (url, change, options) => { calls.push({ method: 'post', url, change, options }); return saveConfig(change) }
   ;({ createRoot } = await import('react-dom/client'))
   container = document.getElementById('root')
   root = createRoot(container)
@@ -80,7 +81,7 @@ test('homepage keeps real navigation and API projects without any canvas or masc
   assert.ok(container.querySelector('#architecture-story .RequestPipeline'))
   assert.ok(container.textContent.includes('API project'))
   assert.equal(projectRequests().length, 1)
-  assert.equal(projectRequests()[0].options.headers, undefined)
+  assert.equal(projectRequests()[0].options.headers['X-Demo-Session'], demoSession)
   assert.match(container.textContent, /Rate Limit Flag/)
 })
 
@@ -95,7 +96,9 @@ test('lab serializes writes and synchronizes its DOM map after API acknowledgeme
   await click(toggle('db'))
   assert.equal(calls.filter((call) => call.method === 'post').length, 1)
   assert.deepEqual(calls.find((call) => call.method === 'post').change, { cache: true })
-  await act(async () => finish({ data: { success: true, data: { ...config, cache: true } } }))
+  assert.equal(calls.find((call) => call.method === 'post').options.headers['X-Demo-Session'], demoSession)
+  assert.equal(updates.at(-1).cache, false)
+  await act(async () => finish({ data: { success: true, data: { ...config, cache: true }, demoSession } }))
   const cacheState = [...container.querySelectorAll('.BackendLabMappedState')].find((node) => node.textContent.includes('Cache'))
   assert.equal(cacheState.querySelector('dd').textContent, 'ON')
   assert.equal(updates.at(-1).cache, true)
@@ -240,7 +243,9 @@ test('static biography needs no React runtime and uses the homepage identity', a
     assert.ok(doc.querySelector('main')?.textContent.includes('BIT graduate'))
     assert.equal(doc.querySelector('link[rel="canonical"]')?.href, 'https://sanam-rai.com.np/about')
     assert.equal(doc.querySelector('meta[name="robots"]')?.content, 'index, follow, max-image-preview:large')
-    assert.equal(doc.querySelector('script[src]'), null)
+    assert.equal(doc.querySelector('#root'), null)
+    assert.deepEqual([...doc.querySelectorAll('script[src]')].map(script => script.getAttribute('src')), ['/about/about-page.js'])
+    assert.equal(doc.querySelector('script[src]').type, 'module')
     assert.equal(doc.querySelector('link[rel="stylesheet"]')?.href, 'https://sanam-rai.com.np/about/style.css')
 
     const graph = JSON.parse(doc.querySelector('script[type="application/ld+json"]').textContent)['@graph']
@@ -262,4 +267,46 @@ test('static biography needs no React runtime and uses the homepage identity', a
   } finally {
     aboutDom.window.close()
   }
+})
+
+test('Lab chapter reuses six live switches, project API and protected auth behavior', async () => {
+  await render(components.App, { labPreview: true })
+  assert.ok(container.querySelector('.LabChapter'))
+  assert.equal(container.querySelectorAll('[role="switch"]').length, 6)
+  assert.equal(container.querySelectorAll('.HeroSection, #architecture-story').length, 0)
+  assert.ok(container.querySelector('.LabChapterHeader a[href="/?from=lab"]'))
+  assert.equal(projectRequests().length, 1)
+  await click(toggle('cache'))
+  assert.equal(toggle('cache').getAttribute('aria-checked'), 'true')
+  assert.deepEqual(calls.find(call => call.method === 'post').change, { cache: true })
+  await click(toggle('auth'))
+  assert.ok(container.querySelector('.AuthOverlay .LabAuthExit'))
+  assert.ok(container.querySelector('.AppBackground').hasAttribute('inert'))
+})
+
+test('runtime count excludes Mongoose metadata and rejects invalid acknowledgements', async (t) => {
+  t.mock.method(console, 'error', () => {})
+  currentConfig = {...config, _id: 'fixture', updatedAt: '2026-11-24', __v: 0}
+  await render(components.SystemControl, {handleToggle: () => {}})
+  assert.match(container.querySelector('.RuntimeCard').textContent, /1\/6 config flags enabled/)
+  saveConfig = async () => ({data:{success:false,data:{...config, cache:true}}})
+  await click(toggle('cache'))
+  assert.equal(toggle('cache').getAttribute('aria-checked'),'false')
+  assert.match(container.querySelector('.RuntimeCard').textContent,/Sync failed/)
+})
+
+test('old backend without isolated session cannot enable configuration writes', async () => {
+  axios.get = async () => ({data:{success:true,data:config}})
+  await render(components.SystemControl, { handleToggle: () => {} })
+  assert.ok([...container.querySelectorAll('[role="switch"]')].every(button => button.disabled))
+})
+
+test('configuration switches are disabled until the backend confirms all six booleans', async (t) => {
+  t.mock.method(console, 'log', () => {})
+  currentConfig = {db:true}
+  await render(components.SystemControl, {handleToggle: () => {}})
+  assert.ok([...container.querySelectorAll('[role="switch"]')].every(button => button.disabled))
+  assert.match(container.querySelector('.RuntimeCard').textContent,/Configuration not yet confirmed/)
+  await click(toggle('cache'))
+  assert.equal(calls.filter(call=>call.method==='post').length,0)
 })

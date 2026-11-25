@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import API from "./config/api";
 import axios from 'axios';
+import { demoHeaders } from './config/demoSession.js'
 import { isUsableToken } from './authRuntime';
 
 const Form = ({ systemToggle }) => {
@@ -16,7 +17,7 @@ const Form = ({ systemToggle }) => {
 
     try {
       const user = { email, password };
-      const response = await axios.post(API + "/api/auth/login", user);
+      const response = await axios.post(API + "/api/auth/login", user, { headers: demoHeaders() });
       const token = response.data?.token;
 
       if (!isUsableToken(token)) {

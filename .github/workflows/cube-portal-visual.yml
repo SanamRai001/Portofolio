@@ -1,0 +1,75 @@
+name: Cube Portal Artwork Visual Capture
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/src/pages/CubePortal/**'
+      - 'frontend/public/about/**'
+      - 'frontend/public/cube-mountains.svg'
+      - 'frontend/src/App.jsx'
+      - 'frontend/src/SystemControl.jsx'
+      - 'frontend/src/LabChapter*'
+      - 'frontend/tests/homepage.test.mjs'
+      - 'frontend/scripts/check-about-page.mjs'
+      - 'frontend/src/motion/useJourneyTransition.js'
+      - 'frontend/src/motion/JourneyVeil.jsx'
+      - 'frontend/src/motion/journeyTransition.css'
+      - 'frontend/src/PortfolioRoutes.jsx'
+      - 'frontend/src/pages/Galaxy/GalaxyPage.jsx'
+      - 'frontend/scripts/capture-cube-portal.mjs'
+      - 'frontend/vercel.json'
+      - 'frontend/vite.config.js'
+      - 'prototypes/unfolding-cube-portal/assets/stone-cube.glb'
+      - 'prototypes/unfolding-cube-portal/assets/stone-cube-canonical.glb'
+      - 'prototypes/unfolding-cube-portal/source/reference-cube.png'
+      - 'frontend/tests/cube-preview.test.mjs'
+      - '.github/workflows/cube-portal-visual.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cube-portal-visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        view: [desktop, mobile, reduced]
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Install Playwright headless Chromium
+        timeout-minutes: 7
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.1
+          npx playwright install chromium --only-shell
+      - run: npm run build
+      - name: Capture Cube Portal artwork and navigation
+        timeout-minutes: 3
+        env:
+          CUBE_VIEW: ${{ matrix.view }}
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4187 --strictPort &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node scripts/capture-cube-portal.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cube-portal-artwork-visual-${{ matrix.view }}
+          path: frontend/artifacts/cube-portal-visual/
+          if-no-files-found: warn
+          retention-days: 7

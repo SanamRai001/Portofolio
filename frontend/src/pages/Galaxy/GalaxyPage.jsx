@@ -19,7 +19,7 @@ import {
 import GalaxyNavigation from './ui/GalaxyNavigation.jsx'
 import './GalaxyPage.css'
 
-export default function GalaxyPage() {
+export default function GalaxyPage({ journey }) {
   const reducedMotion = useReducedMotion()
   const [navigation] = useState(createNavigationController)
   const [soundscape] = useState(createGalaxySoundscape)
@@ -42,6 +42,11 @@ export default function GalaxyPage() {
     setFailed(true)
   }, [portal, soundscape])
   const fallback = failed
+  const journeyReady = journey?.ready
+  const fromCube = journey?.location.fromCube === true
+  useEffect(() => {
+    if (ready || fallback) journeyReady?.('space')
+  }, [ready, fallback, journeyReady])
 
   useEffect(() => bindGalaxyHistory({ navigation }), [navigation])
 
@@ -159,7 +164,7 @@ export default function GalaxyPage() {
   return (
     <main className={`GalaxyPage${portalEntering ? ' is-portal-entering' : ''}`} aria-labelledby="galaxy-title">
       <header className="GalaxyHeader">
-        <h1 id="galaxy-title"><span>{CORE.shortName}</span><span aria-hidden="true">/</span>Galaxy</h1>
+        <h1 id="galaxy-title" tabIndex="-1"><span>{CORE.shortName}</span><span aria-hidden="true">/</span>Galaxy</h1>
         <div className="GalaxyHeaderActions">
           <button
             type="button"
@@ -172,7 +177,7 @@ export default function GalaxyPage() {
             <span aria-hidden="true">{soundEnabled ? '◉' : '○'}</span>
             <span>Sound</span>
           </button>
-          <a className="GalaxyExit" href="/">Exit to portfolio <span aria-hidden="true">↗</span></a>
+          <a className="GalaxyExit" href="/" onClick={fromCube ? event => journey.navigate(event, '/') : undefined}>{fromCube ? 'Return to cube' : 'Exit to portfolio'} <span aria-hidden="true">↗</span></a>
         </div>
       </header>
 

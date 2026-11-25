@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { demoHeaders } from './config/demoSession.js'
 import API from "./config/api";
 
 const Logs = ({ systemToggle, suspended = false }) => {
@@ -15,7 +16,7 @@ const Logs = ({ systemToggle, suspended = false }) => {
       if (document.hidden) return;
 
       try {
-        const res = await axios.get(API + "/api/logs");
+        const res = await axios.get(API + "/api/logs", { headers: demoHeaders() });
         if (active && res.data.success === true) {
           setLogs(res.data.data);
           setError("");

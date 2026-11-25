@@ -2,6 +2,7 @@ import { projectById } from './data/projects.js'
 
 export const PORTFOLIO_ORIGIN = 'https://sanam-rai.com.np'
 export const GALAXY_SOCIAL_IMAGE = `${PORTFOLIO_ORIGIN}/projects/portfolio-system.png`
+export const projectSocialImage = projectId => `${PORTFOLIO_ORIGIN}/galaxy/social/${projectId}.png`
 
 const truncate = (value, max = 158) => {
   if (value.length <= max) return value
@@ -29,7 +30,8 @@ export function projectMetadata(project) {
     description: truncate(project.summary),
     path,
     url: `${PORTFOLIO_ORIGIN}${path}`,
-    image: GALAXY_SOCIAL_IMAGE,
+    image: projectSocialImage(project.id),
+    imageAlt: `${project.label} engineering case study by Sanam Rai`,
     type: 'article',
     repository: project.href,
     category: project.category,
@@ -80,9 +82,11 @@ export function applyDocumentMetadata(metadata, doc = document) {
   setContent(doc, 'meta[property="og:title"]', metadata.title)
   setContent(doc, 'meta[property="og:description"]', metadata.description)
   setContent(doc, 'meta[property="og:image"]', metadata.image)
+  setContent(doc, 'meta[property="og:image:alt"]', metadata.imageAlt || metadata.title)
   setContent(doc, 'meta[name="twitter:title"]', metadata.title)
   setContent(doc, 'meta[name="twitter:description"]', metadata.description)
   setContent(doc, 'meta[name="twitter:image"]', metadata.image)
+  setContent(doc, 'meta[name="twitter:image:alt"]', metadata.imageAlt || metadata.title)
 }
 
 export function syncProjectStructuredData(project, doc = document) {

@@ -1,15 +1,10 @@
-import NodeCache from 'node-cache'
-
 import Project from '../models/projectModel.js'
 import {
   paginateProjects,
   resolveProjectPagination,
 } from '../utils/projectPagination.js'
 
-const projectCache = new NodeCache({
-  stdTTL: 100,
-  checkperiod: 120,
-})
+const PROJECT_CACHE_MS = 100_000
 
 export const getProjects = async (req, res) => {
   const pagination = resolveProjectPagination(
@@ -33,8 +28,9 @@ export const getProjects = async (req, res) => {
     })
   }
 
-  if (req.systemConfig?.cache === true && projectCache.has('projects')) {
-    const cachedProjects = projectCache.get('projects')
+  const session = req.demoSession
+  if (req.systemConfig?.cache === true && session?.cache?.expiresAt > Date.now()) {
+    const cachedProjects = session.cache.projects
     const data = pagination.enabled
       ? paginateProjects(
           cachedProjects,
@@ -53,8 +49,8 @@ export const getProjects = async (req, res) => {
   try {
     let projects = await Project.find().lean()
 
-    if (req.systemConfig?.cache === true) {
-      projectCache.set('projects', projects)
+    if (req.systemConfig?.cache === true && session) {
+      session.cache = { projects, expiresAt: Date.now() + PROJECT_CACHE_MS }
     }
 
     if (pagination.enabled) {

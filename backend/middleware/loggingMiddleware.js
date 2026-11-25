@@ -1,30 +1,17 @@
 import { performance } from 'node:perf_hooks'
-
-import { addLogs } from '../utils/logStore.js'
 import { formatPublicRequestLog } from '../utils/requestLog.js'
 
-const loggingMiddleware = (req, res, next) => {
-  if (req.systemConfig?.logging !== true) {
-    return next()
-  }
-
+export default function loggingMiddleware(req, res, next) {
+  const session = req.demoSession
+  if (!session || req.systemConfig?.logging !== true) return next()
   const startedAt = performance.now()
-
   res.once('finish', () => {
-    const requestPath = `${req.baseUrl || ''}${req.path || ''}` || '/'
-    const durationMs = performance.now() - startedAt
     const log = formatPublicRequestLog({
-      method: req.method,
-      path: requestPath,
-      statusCode: res.statusCode,
-      durationMs,
+      method: req.method, path: `${req.baseUrl || ''}${req.path || ''}` || '/',
+      statusCode: res.statusCode, durationMs: performance.now() - startedAt,
     })
-
-    addLogs(log)
-    console.log(log)
+    session.logs.unshift(log)
+    if (session.logs.length > 50) session.logs.pop()
   })
-
   return next()
 }
-
-export default loggingMiddleware

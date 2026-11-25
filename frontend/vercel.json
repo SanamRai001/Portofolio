@@ -5,6 +5,18 @@
       "destination": "/about/index.html"
     },
     {
+      "source": "/cube-preview",
+      "destination": "/app-shell.html"
+    },
+    {
+      "source": "/lab-preview",
+      "destination": "/app-shell.html"
+    },
+    {
+      "source": "/lab",
+      "destination": "/app-shell.html"
+    },
+    {
       "source": "/galaxy/projects/reality-archive",
       "destination": "/galaxy/projects/reality-archive/index.html"
     },
@@ -30,11 +42,11 @@
     },
     {
       "source": "/galaxy",
-      "destination": "/index.html"
+      "destination": "/galaxy/index.html"
     },
     {
       "source": "/galaxy/:path*",
-      "destination": "/index.html"
+      "destination": "/galaxy/index.html"
     }
   ],
   "redirects": [
@@ -42,6 +54,35 @@
       "source": "/about/",
       "destination": "/about",
       "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/cube-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/lab-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/lab",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ]
 }
