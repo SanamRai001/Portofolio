@@ -94,5 +94,5 @@ test('Vercel exact project rewrites stay aligned with all curated prerender page
   }
 
   assert.ok(config.rewrites.some(rule =>
-    rule.source === '/galaxy/:path*' && rule.destination === '/index.html'))
+    rule.source === '/galaxy/:path*' && rule.destination === '/galaxy/index.html'))
 })

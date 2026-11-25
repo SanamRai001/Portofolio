@@ -24,7 +24,7 @@ const App = () => {
 
   const authRuntime = deriveAuthRuntimeState(
     systemToggle.auth,
-    localStorage.getItem("token"),
+    typeof window === 'undefined' ? null : window.localStorage.getItem('token'),
   );
   const showAuthOverlay = authRuntime.showAuthOverlay;
   const suspendBackground = authRuntime.suspendBackground;
