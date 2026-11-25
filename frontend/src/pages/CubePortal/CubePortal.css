@@ -165,8 +165,12 @@
 @keyframes cubePortalPreview {0%,10%{opacity:0;transform:translate(-50%,-50%) scale(.91)}26%,36%{opacity:1;transform:translate(-50%,-50%) scale(1)}54%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.03)}}
 @keyframes cubePortalChapterEnter {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .CubePortal[data-phase="opening"] .CubeWork {animation:cubePortalChapterEnter .42s .46s ease both}
-.CubeWork {max-width:1120px;margin:0 auto;padding:135px 48px 80px;opacity:0;transform:translateY(24px);transition:opacity .27s ease,transform .34s ease}
-.CubePortal[data-phase="work"] .CubeWork {opacity:1;transform:none}
+.CubeWork {max-width:1120px;margin:0 auto;padding:135px 48px 80px;opacity:0;transform:translateY(24px)}
+/* The opening keyframes already animate opacity and position. A settled
+   chapter must never inherit a second transition or stale animation. */
+.CubePortal[data-phase="work"] .CubeWork {animation:none;transition:none;opacity:1;transform:none}
+.CubePortal[data-phase="home"] .CubeArtworkBody {animation:none;opacity:1}
+.CubePortal[data-phase="home"] .CubeFragments {animation:none;opacity:0}
 .CubeWorkBack {border:0;background:transparent;padding:11px 2px;display:flex;align-items:center;gap:8px;color:var(--cp-soft);font-size:13px;margin-bottom:54px}
 .CubeWorkBack:hover {color:var(--cp-ink)}
 .CubeWorkEyebrow {font-size:12px;font-weight:600;letter-spacing:.2em;color:var(--cp-accent);margin:0 0 17px}

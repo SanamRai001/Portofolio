@@ -191,15 +191,27 @@ try {
         assert.equal(evidence.tiltTransform, 'none', 'Tilt must reset during opening')
         assert.ok(evidence.clipPath.startsWith('circle('))
         await page.screenshot({path: output + '/' + view.name + '-opening.png', animations:'allow'})
-        // The sampled CSS/WAAPI clocks were paused and seeked. End that diagnostic
-        // navigation, then verify a separate, uninterrupted real user transition.
-        await page.keyboard.press('Escape')
+        // Discard the instrumented document: paused browser-owned CSS animation
+        // objects must never contaminate the normal wall-clock navigation check.
+        await page.goto(origin + '/#home', {waitUntil:'networkidle'})
         await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
+        // A same-document hash navigation can leave the instrumented document alive.
+        await page.reload({waitUntil:'networkidle'})
+        await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
+        assert.equal(await page.locator('.CubePortal').getAttribute('data-theme'),'dark')
         await page.locator('.CubeDestinationWork').click()
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
       assert.equal(await page.locator('.CubeWorldFracture').count(),0,'No world fracture layer after handoff')
-      await page.waitForFunction(() => Number(getComputedStyle(document.querySelector('.CubeWork')).opacity) >= .98)
+      const settledWork = await page.locator('.CubeWork').evaluate(el => ({
+        opacity: getComputedStyle(el).opacity,
+        transform: getComputedStyle(el).transform,
+        animations: el.getAnimations().map(a=>({name:a.animationName, state:a.playState})),
+        ariaHidden: el.closest('main').getAttribute('aria-hidden'),
+      }))
+      assert.equal(settledWork.opacity,'1', 'Settled Work must be opaque: '+JSON.stringify(settledWork))
+      assert.equal(settledWork.transform,'none','Settled Work must be in its final position')
+      assert.equal(settledWork.ariaHidden,'false')
       assert.equal(await page.locator('.CubeCaseStudy').count(), 5)
       assert.equal(await page.locator('.WorkFeatured').count(), 3)
       assert.equal(await page.locator('#work-statescout').textContent(), 'StateScout')
