@@ -1,15 +1,17 @@
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import artwork from '../../../../prototypes/unfolding-cube-portal/source/reference-cube.png?url'
 
-import { CUBE_FRAGMENTS } from './cubeFragments.js'
+import { selectFracture, FRACTURE_SEAMS, FRACTURE_PARTICLES } from './cubeFragments.js'
 
-const MODEL_REVISION = 'original-artwork-fracture-v3'
+const MODEL_REVISION = 'original-artwork-fracture-v4'
 const MAX_TILT = 7
 
 // One artwork, one coordinate system. The idle cube uses the unmodified source.
 // Only during a transition do independently clipped stone regions separate.
 export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady }) {
   const id = useId()
+  const [fragments] = useState(() => selectFracture(window.location.search))
+  const detailed = fragments.length === 20
   const modelRef = useRef(null)
   const tiltRef = useRef(null)
 
@@ -78,11 +80,14 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
   return (
     <>
       <div ref={modelRef} className="CubePortalModel" aria-hidden="true" data-model-revision={MODEL_REVISION}
-        data-renderer="layered-artwork" data-fractured={open} data-split={split} data-highlighted={highlighted}>
+        data-renderer="layered-artwork" data-fragment-count={fragments.length} data-fractured={open} data-split={split} data-highlighted={highlighted}>
         <div className="CubeArtworkTilt" ref={tiltRef}>
         <svg className="CubeArtwork" viewBox="0 0 1254 1254" aria-hidden="true">
           <defs>
-            {CUBE_FRAGMENTS.map(piece => <clipPath key={piece.id} id={id + '-' + piece.id} clipPathUnits="userSpaceOnUse"><path d={piece.d}/></clipPath>)}
+            {fragments.map(piece => <clipPath key={piece.id} id={id + '-' + piece.id} clipPathUnits="userSpaceOnUse"><path d={piece.d}/></clipPath>)}
+            <mask id={id + '-stone-alpha'} maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="1254" style={{maskType:'alpha'}}>
+              <image href={artwork} width="1254" height="1254"/>
+            </mask>
             <radialGradient id={id + '-glow'}>
               <stop offset="0" stopColor="#fff2cc" stopOpacity=".72" />
               <stop offset=".32" stopColor="#ffc66d" stopOpacity=".31" />
@@ -94,16 +99,24 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
             <circle cx="627" cy="637" r="340" fill={'url(#' + id + '-glow)'} />
           </g>
           <g className="CubeFragments">
-            {CUBE_FRAGMENTS.map(piece => (
+            {fragments.map(piece => (
               <g key={piece.id} className="CubeFragment" data-fragment={piece.id}
-                style={{'--fragment-x':piece.dx+'px','--fragment-y':piece.dy+'px','--fragment-angle':piece.angle+'deg'}}>
+                style={{'--fragment-x':piece.dx+'px','--fragment-y':piece.dy+'px','--fragment-angle':piece.angle+'deg',
+                  '--fragment-origin':(piece.x??627)+'px '+(piece.y??627)+'px',
+                  '--fragment-delay':(piece.delay??0)+'ms','--fragment-return-delay':(piece.returnDelay??0)+'ms'}}>
                 <image href={artwork} width="1254" height="1254" clipPath={'url(#'+id+'-'+piece.id+')'} />
               </g>
             ))}
           </g>
-          <g className="CubeFractureSeams" fill="none" stroke="#ffe0a7" strokeWidth="3" strokeLinecap="round">
-            <path d="M153 356 L335 465 627 637 880 490 1090 354 M335 465 L510 240 478 160 M880 490 L760 260 804 170 M627 637 L660 815 627 960 640 1140 M205 739 L260 720 420 850 660 815 840 820 1015 760 1068 747"/>
+          <g className="CubeFractureSeams" mask={'url(#'+id+'-stone-alpha)'} fill="none" stroke="#ffe0a7" strokeWidth={detailed?2:3} strokeLinecap="round">
+            <path d={detailed?FRACTURE_SEAMS:'M153 356 L335 465 627 637 880 490 1090 354 M335 465 L510 240 478 160 M880 490 L760 260 804 170 M627 637 L660 815 627 960 640 1140 M205 739 L260 720 420 850 660 815 840 820 1015 760 1068 747'}/>
           </g>
+          {detailed && !reducedMotion && <g className="CubeFractureParticles">
+            {FRACTURE_PARTICLES.map((p,i)=><path key={i} className="CubeFractureParticle"
+              d={'M'+p.x+' '+(p.y-p.size)+'l'+p.size+' '+p.size+' -'+p.size+' '+p.size+' -'+p.size+' -'+p.size+'Z'}
+              fill={i%3===0?'#ffe0a7':'#998674'}
+              style={{'--particle-x':p.dx+'px','--particle-y':p.dy+'px','--particle-delay':p.delay+'ms'}} />)}
+          </g>}
           <circle className="CubeArtworkGlow" cx="627" cy="637" r="126" fill={'url(#' + id + '-glow)'} />
         </svg>
         </div>

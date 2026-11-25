@@ -56,12 +56,12 @@
 /* The original image is untouched at rest; clipped pieces exist only during passage. */
 .CubeArtworkBody,.CubeFragments,.CubeFractureLight,.CubeFractureSeams {pointer-events:none}
 .CubeFragments,.CubeFractureLight,.CubeFractureSeams {opacity:0}
-.CubeFragment {transform-box:view-box;transform-origin:50% 50%;transform:translate(0,0) rotate(0)}
+.CubeFragment {transform-box:view-box;transform-origin:var(--fragment-origin,50% 50%);transform:translate(0,0) rotate(0)}
 .CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:0}
 .CubePortalModel[data-split="true"] .CubeFragments {opacity:1}
-.CubePortal[data-phase="opening"] .CubeFragment {animation:stoneSeparate 1.04s cubic-bezier(.22,.68,.25,1) both}
+.CubePortal[data-phase="opening"] .CubeFragment {animation:stoneSeparate calc(1.04s - var(--fragment-delay,0ms)) cubic-bezier(.22,.68,.25,1) var(--fragment-delay,0ms) both}
 .CubePortal[data-phase="work"] .CubeFragment {transform:translate(var(--fragment-x),var(--fragment-y)) rotate(var(--fragment-angle))}
-.CubePortal[data-phase="closing"] .CubeFragment {animation:stoneReconstruct .98s cubic-bezier(.42,0,.22,1) both}
+.CubePortal[data-phase="closing"] .CubeFragment {animation:stoneReconstruct calc(.98s - var(--fragment-return-delay,0ms)) cubic-bezier(.42,0,.22,1) var(--fragment-return-delay,0ms) both}
 .CubePortal[data-phase="opening"] .CubeFractureSeams {animation:stoneSeamCharge .55s ease both}
 .CubePortal[data-phase="opening"] .CubeFractureLight {animation:stoneLight 1.04s ease both}
 .CubePortal[data-phase="closing"] .CubeFractureLight {animation:stoneLight .98s ease reverse both}
@@ -227,4 +227,16 @@
 @media(prefers-reduced-motion:reduce) {
   .CubePortalModel[data-split="true"] .CubeFragments {opacity:0}
   .CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:1}
+}
+
+/* Small transient chips; no per-particle filters or idle animation. */
+.CubeFractureParticles {pointer-events:none}
+.CubeFractureParticle {opacity:0;transform-box:view-box;transform-origin:center}
+.CubePortal[data-phase="opening"] .CubeFractureParticle {animation:stoneChip .70s .12s cubic-bezier(.22,.7,.25,1) both;animation-delay:calc(.12s + var(--particle-delay))}
+.CubePortal[data-phase="closing"] .CubeFractureParticle {animation:stoneChip .57s .37s cubic-bezier(.22,.7,.25,1) reverse both;animation-delay:calc(.37s + var(--particle-delay)*.5)}
+@keyframes stoneChip {
+  0%{opacity:0;transform:translate(0,0) scale(.5)}
+  16%{opacity:.9}
+  62%{opacity:.7}
+  100%{opacity:0;transform:translate(var(--particle-x),var(--particle-y)) scale(.4)}
 }
