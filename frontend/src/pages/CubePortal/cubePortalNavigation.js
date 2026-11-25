@@ -11,7 +11,7 @@ export function cubeUrl(view) {
 }
 
 // One clock for stone motion and the radial chapter handoff.
-export const WORK_MOTION=Object.freeze({open:1320,close:1120,revealAt:730,collapseBy:440})
+export const WORK_MOTION=Object.freeze({open:860,close:760,revealAt:430,collapseBy:260})
 export function portalDuration(view, reducedMotion) {
   if (reducedMotion) return 0
   return view === 'work' ? WORK_MOTION.open : WORK_MOTION.close

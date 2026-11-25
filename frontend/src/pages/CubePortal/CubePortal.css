@@ -50,6 +50,12 @@
   .CubePortal[data-phase="home"] .CubePortalModel {pointer-events:auto}
 }
 .CubePortalModel[data-split="true"] .CubeArtworkTilt {transform:none;transition:none}
+/* Lift only the moving cube above the page reveal. Its initial rectangle
+   is captured from normal layout, so nothing jumps or reflows. */
+.CubePortal[data-phase="opening"] .CubeUniverse,.CubePortal[data-phase="closing"] .CubeUniverse {z-index:auto}
+.CubePortalModel[data-flight="true"] {position:fixed;z-index:90;pointer-events:none}
+.CubePortalModel[data-flight="true"] .CubePortalGroundShadow {opacity:0}
+.CubePortal[data-phase="opening"] .CubeHeader,.CubePortal[data-phase="closing"] .CubeHeader {pointer-events:none}
 @media(prefers-reduced-motion:reduce) {
   .CubeArtworkTilt {transform:none!important;transition:none!important}
 }
@@ -71,11 +77,11 @@
 .CubePortal[data-phase="closing"] .CubeArtworkBody {animation:stoneIntactIn var(--work-close-ms) linear both}
 .CubePortal[data-phase="closing"] .CubeFragments {animation:stoneFragmentsIn var(--work-close-ms) linear both}
 .CubePortal[data-phase="opening"] .CubeFragment {
-  animation:stoneSeparate calc(var(--work-open-ms) - var(--fragment-delay,340ms)) linear var(--fragment-delay,340ms) both
+  animation:stoneSeparate calc(var(--work-open-ms) - var(--fragment-delay,180ms)) linear var(--fragment-delay,180ms) both
 }
 .CubePortal[data-phase="work"] .CubeFragment {transform:var(--fragment-flight)}
 .CubePortal[data-phase="closing"] .CubeFragment {
-  animation:stoneReconstruct calc(var(--work-close-ms) - var(--fragment-return-delay,260ms)) linear var(--fragment-return-delay,260ms) both
+  animation:stoneReconstruct calc(var(--work-close-ms) - var(--fragment-return-delay,175ms)) linear var(--fragment-return-delay,175ms) both
 }
 .CubePortal[data-phase="opening"] .CubeFractureSeams {animation:stoneSeamCharge var(--work-open-ms) linear both}
 .CubePortal[data-phase="opening"] .CubeFractureLight {animation:stoneLight var(--work-open-ms) linear both}
@@ -83,8 +89,8 @@
 .CubePortal[data-phase="closing"] .CubeFractureSeams {animation:stoneSeamSeal var(--work-close-ms) linear both}
 .CubeFractureSeams {filter:drop-shadow(0 0 5px #ffd18a) drop-shadow(0 0 12px #ffac36)}
 .CubeCrackBand {stroke-dasharray:100;stroke-dashoffset:100}
-.CubePortal[data-phase="opening"] .CubeCrackBand {animation:crackPropagate .25s cubic-bezier(.3,.1,.2,1) both;animation-delay:calc(85ms + var(--crack-delay))}
-.CubePortal[data-phase="closing"] .CubeCrackBand {animation:crackSeal .25s ease both;animation-delay:calc(810ms - var(--crack-delay))}
+.CubePortal[data-phase="opening"] .CubeCrackBand {animation:crackPropagate .16s cubic-bezier(.3,.1,.2,1) both;animation-delay:calc(40ms + var(--crack-delay))}
+.CubePortal[data-phase="closing"] .CubeCrackBand {animation:crackSeal .16s ease both;animation-delay:calc(550ms - var(--crack-delay))}
 .CubeCoreRadiance {transform-box:fill-box;transform-origin:center;opacity:0}
 .CubePortal[data-phase="opening"] .CubeCoreRadiance {animation:coreBreach var(--work-open-ms) linear both}
 .CubePortal[data-phase="closing"] .CubeCoreRadiance {animation:coreSeal var(--work-close-ms) linear both}
@@ -98,15 +104,15 @@
 }
 @keyframes stoneSeal {0%,88%{transform:scale(1)}94%{transform:scale(.982)}100%{transform:scale(1)}}
 @keyframes stoneIntactOut {0%,23%{opacity:1}23.1%,100%{opacity:0}}
-@keyframes stoneFragmentsOut {0%,23%{opacity:0}23.1%,100%{opacity:1}}
+@keyframes stoneFragmentsOut {0%,23%{opacity:0}23.1%,63%{opacity:1}100%{opacity:0}}
 @keyframes stoneIntactIn {0%,97%{opacity:0}97.1%,100%{opacity:1}}
-@keyframes stoneFragmentsIn {0%,97%{opacity:1}97.1%,100%{opacity:0}}
+@keyframes stoneFragmentsIn {0%{opacity:0}17%,97%{opacity:1}97.1%,100%{opacity:0}}
 @keyframes crackPropagate {from{stroke-dashoffset:100;opacity:0}to{stroke-dashoffset:0;opacity:1}}
 @keyframes crackSeal {from{stroke-dashoffset:0;opacity:1}to{stroke-dashoffset:100;opacity:0}}
 @keyframes stoneSeparate {
   0%{transform:var(--fragment-rest);animation-timing-function:cubic-bezier(.65,0,.18,1)}
   22%{transform:translate(calc(var(--fragment-x)*.72),calc(var(--fragment-y)*.72)) rotate(calc(var(--fragment-angle)*.65)) scale(calc(1 + (var(--fragment-scale,1) - 1)*.65),calc(1 + (var(--fragment-scale,1) - 1)*.65));animation-timing-function:cubic-bezier(.1,.6,.2,1)}
-  67%{transform:var(--fragment-flight);animation-timing-function:ease-out}
+  72%{transform:var(--fragment-flight);animation-timing-function:ease-out}
   100%{transform:var(--fragment-flight)}
 }
 @keyframes stoneReconstruct {
@@ -264,14 +270,16 @@
   .CubePortal[data-theme="dark"] .CubeHome::before {inset:0 -6vw 0;background-size:auto,auto 38%;background-position:center,center bottom}
 }
 /* Give the rupture a clear moment; fade the surrounding navigation back. */
-.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation-duration:.46s;animation-delay:var(--work-reveal-ms)}
-.CubePortal[data-phase="opening"] .CubeWork {animation-duration:.34s;animation-delay:calc(var(--work-reveal-ms) + 230ms)}
+.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation-duration:.33s;animation-delay:var(--work-reveal-ms)}
+.CubePortal[data-phase="opening"] .CubeWork {animation-duration:.26s;animation-delay:calc(var(--work-reveal-ms) + 130ms)}
 .CubeIntro,.CubeDestinations,.CubeOrbit {transition:opacity .24s ease}
 .CubePortal[data-phase="opening"] .CubeIntro,.CubePortal[data-phase="opening"] .CubeDestinations,.CubePortal[data-phase="opening"] .CubeOrbit,
 .CubePortal[data-phase="closing"] .CubeIntro,.CubePortal[data-phase="closing"] .CubeDestinations,.CubePortal[data-phase="closing"] .CubeOrbit {opacity:.32}
-.CubeUniverse::before {content:"";position:absolute;inset:-4%;pointer-events:none;background:radial-gradient(ellipse at 52% 49%,rgba(255,181,87,.24),transparent 56%);opacity:0}
-.CubePortal[data-phase="opening"] .CubeUniverse::before {animation:stoneLight var(--work-open-ms) linear both}
-.CubePortal[data-phase="closing"] .CubeUniverse::before {animation:stoneLightReturn var(--work-close-ms) linear both}
+/* One bounded viewport-wide radiance layer, not per-shard filters. */
+.CubePortal::after {content:"";position:fixed;inset:0;z-index:85;pointer-events:none;
+  background:radial-gradient(ellipse at var(--burst-x,50%) var(--burst-y,50%),rgba(255,190,103,.28),rgba(228,150,62,.06) 48%,transparent 80%);opacity:0}
+.CubePortal[data-phase="opening"]::after {animation:stoneLight var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"]::after {animation:stoneLightReturn var(--work-close-ms) linear both}
 @media(prefers-reduced-motion:reduce) {
   .CubePortalModel[data-split="true"] .CubeFragments {opacity:0}
   .CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:1}
@@ -280,8 +288,8 @@
 /* Small transient chips; no per-particle filters or idle animation. */
 .CubeFractureParticles {pointer-events:none}
 .CubeFractureParticle {opacity:0;transform-box:view-box;transform-origin:center}
-.CubePortal[data-phase="opening"] .CubeFractureParticle {animation:stoneChip .58s .30s cubic-bezier(.18,.7,.24,1) both;animation-delay:calc(.30s + var(--particle-delay))}
-.CubePortal[data-phase="closing"] .CubeFractureParticle {animation:stoneChip .57s .47s cubic-bezier(.18,.7,.24,1) reverse both;animation-delay:calc(.47s + var(--particle-delay)*.5)}
+.CubePortal[data-phase="opening"] .CubeFractureParticle {animation:stoneChip .40s .17s cubic-bezier(.18,.7,.24,1) both;animation-delay:calc(.17s + var(--particle-delay))}
+.CubePortal[data-phase="closing"] .CubeFractureParticle {animation:stoneChip .39s .30s cubic-bezier(.18,.7,.24,1) reverse both;animation-delay:calc(.30s + var(--particle-delay)*.5)}
 @keyframes stoneChip {
   0%{opacity:0;transform:translate(0,0) scale(.5)}
   16%{opacity:.9}

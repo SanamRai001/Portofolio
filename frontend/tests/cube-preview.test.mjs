@@ -7,7 +7,7 @@ import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration, WORK_MOTION }
 
 import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
 import { passageKind, passageGeometry, PASSAGE_TIMING } from '../public/about/passage.js'
-import { CUBE_FRAGMENTS, LEGACY_CUBE_FRAGMENTS, FRACTURE_PARTICLES, FRACTURE_CRACKS, FRACTURE_LIMITS, polygonArea, polygonSpan, fractureCells, selectFracture } from '../src/pages/CubePortal/cubeFragments.js'
+import { CUBE_FRAGMENTS, LEGACY_CUBE_FRAGMENTS, FRACTURE_PARTICLES, FRACTURE_CRACKS, FRACTURE_LIMITS, polygonArea, polygonSpan, fractureCells, selectFracture, artworkViewport, viewportFlight } from '../src/pages/CubePortal/cubeFragments.js'
 import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
 
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
@@ -21,8 +21,8 @@ test('cube preview hash route and reduced motion are deterministic', () => {
   assert.equal(cubeUrl('work'), '/cube-preview#work')
   assert.equal(cubeUrl('home'), '/cube-preview#home')
   assert.equal(portalDuration('work', true), 0)
-  assert.equal(portalDuration('work', false), 1320)
-  assert.equal(portalDuration('home', false), 1120)
+  assert.equal(portalDuration('work', false), 860)
+  assert.equal(portalDuration('home', false), 760)
 })
 
 test('preview route does not replace the established homepage or Galaxy', () => {
@@ -60,7 +60,7 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /aria-hidden=\{!isWork\}/)
   assert.match(jsx, /inert=\{!isWork\}/)
   const cubeScene = text('../src/pages/CubePortal/CubeScene.jsx')
-  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v6'/)
+  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v7'/)
   assert.match(cubeScene, /data-fractured=\{open\}/)
   assert.match(cubeScene, /data-split=\{split\}/)
   assert.match(cubeScene, /cubeDebug/)
@@ -238,7 +238,7 @@ test('irregular fracture is governed by size, not a target count', () => {
 })
 
 test('cinematic fracture reserves a distinct pressure, rupture and reveal interval', () => {
-  assert.ok(WORK_MOTION.revealAt>Math.max(...CUBE_FRAGMENTS.map(p=>p.delay))+170)
+  assert.ok(WORK_MOTION.revealAt>Math.max(...CUBE_FRAGMENTS.map(p=>p.delay))+100)
   assert.ok(WORK_MOTION.revealAt<WORK_MOTION.open)
   assert.ok(WORK_MOTION.collapseBy<WORK_MOTION.close*.5)
   assert.ok(Math.max(...CUBE_FRAGMENTS.map(p=>p.returnDelay))<WORK_MOTION.close*.5)
@@ -248,4 +248,24 @@ test('cinematic fracture reserves a distinct pressure, rupture and reveal interv
   assert.ok(FRACTURE_CRACKS.every(p=>p.startsWith('M')))
   const css=text('../src/pages/CubePortal/CubePortal.css')
   for(const name of ['stonePressure','crackPropagate','coreBreach','stoneReconstruct','coreSeal','stoneIntactIn'])assert.ok(css.includes('@keyframes '+name))
+})
+
+test('viewport flights reach edges on desktop and mobile, without changing source geometry', () => {
+  for(const [width,height,rect] of [
+    [1440,900,{left:740,top:170,width:560,height:470}],
+    [390,844,{left:45,top:300,width:300,height:330}],
+    [390,844,{left:45,top:-20,width:300,height:330}],
+  ]){
+    const origin=artworkViewport(rect)
+    assert.ok(origin.scale>0)
+    const flights=CUBE_FRAGMENTS.map(p=>viewportFlight(p,rect,width,height))
+    for(const f of flights){
+      assert.ok([f.dx,f.dy,f.targetX,f.targetY].every(Number.isFinite))
+      assert.ok(Math.min(Math.abs(f.targetX),Math.abs(width-f.targetX),Math.abs(f.targetY),Math.abs(height-f.targetY)) <= Math.max(width,height)*.15)
+    }
+    const xs=flights.map(f=>f.targetX),ys=flights.map(f=>f.targetY)
+    assert.ok(Math.max(...xs)-Math.min(...xs)>=width*.90)
+    assert.ok(Math.max(...ys)-Math.min(...ys)>=height*.90)
+  }
+  assert.ok(WORK_MOTION.open<1000 && WORK_MOTION.close<1000)
 })

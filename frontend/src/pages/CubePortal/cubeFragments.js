@@ -92,8 +92,8 @@ export const CUBE_FRAGMENTS=Object.freeze(cells.map((polygon,i)=>{
     scale:rounded(scale),squash:rounded(squash),
     x:rounded(x),y:rounded(y),heavy,
     area:mass,span:polygonSpan(polygon),
-    delay:Math.round(300+weight*205),
-    returnDelay:Math.round(260+(1-weight)*190),
+    delay:Math.round(155+weight*135),
+    returnDelay:Math.round(175+(1-weight)*120),
   })
 }))
 // Only internal cell boundaries are illuminated; the alpha mask hides
@@ -120,4 +120,31 @@ export const FRACTURE_PARTICLES=Object.freeze(Array.from({length:8},(_,i)=>{
 }))
 export function selectFracture(search='') {
   return new URLSearchParams(search).get('fracture')==='7'?LEGACY_CUBE_FRAGMENTS:CUBE_FRAGMENTS
+}
+
+// SVG uses xMidYMid meet; convert source-image coordinates to the actual
+// viewport before choosing an edge target. No hard-coded desktop distances.
+export function artworkViewport(rect) {
+  const size=Math.min(rect.width,rect.height)
+  const scale=size/SIZE
+  return {scale,left:rect.left+(rect.width-size)/2,top:rect.top+(rect.height-size)/2,
+    x:rect.left+(rect.width-size)/2+627*scale,
+    y:rect.top+(rect.height-size)/2+637*scale}
+}
+export function viewportFlight(piece,rect,width,height) {
+  const art=artworkViewport(rect)
+  if(!art.scale || width<=0 || height<=0)return {dx:piece.dx,dy:piece.dy}
+  const clamp=(n,max)=>Math.min(max,Math.max(0,n))
+  const x=clamp(art.x,width),y=clamp(art.y,height)
+  const length=Math.hypot(piece.dx,piece.dy)||1
+  const nx=piece.dx/length,ny=piece.dy/length
+  const tx=nx>1e-6?(width-x)/nx:nx< -1e-6?-x/nx:Infinity
+  const ty=ny>1e-6?(height-y)/ny:ny< -1e-6?-y/ny:Infinity
+  const edge=Math.max(0,Math.min(tx,ty))
+  // Vary the endpoint just inside or beyond the screen edge; keep the same
+  // vector for reconstruction. Small pieces travel slightly farther.
+  const fraction=.94+((Math.abs(piece.angle)%11)/10)*.20
+  const targetX=x+nx*edge*fraction,targetY=y+ny*edge*fraction
+  const sx=art.left+(piece.x??627)*art.scale,sy=art.top+(piece.y??627)*art.scale
+  return {dx:(targetX-sx)/art.scale,dy:(targetY-sy)/art.scale,targetX,targetY}
 }

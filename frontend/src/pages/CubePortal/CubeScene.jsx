@@ -1,14 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import artwork from '../../../../prototypes/unfolding-cube-portal/source/reference-cube.png?url'
 
-import { selectFracture, FRACTURE_CRACKS, FRACTURE_PARTICLES } from './cubeFragments.js'
+import { selectFracture, FRACTURE_CRACKS, FRACTURE_PARTICLES, viewportFlight } from './cubeFragments.js'
 
-const MODEL_REVISION = 'original-artwork-fracture-v6'
+const MODEL_REVISION = 'original-artwork-fracture-v7'
 const MAX_TILT = 7
 
 // One artwork, one coordinate system. The idle cube uses the unmodified source.
 // Only during a transition do independently clipped stone regions separate.
-export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady }) {
+export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady, flight }) {
   const id = useId()
   const [fragments] = useState(() => selectFracture(window.location.search))
   const detailed = fragments.length !== 7
@@ -76,11 +76,14 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
   const open = phase === 'opening' || phase === 'work'
   const split = phase !== 'home'
   const diagnostic = new URLSearchParams(window.location.search).has('cubeDebug')
+  const flying = flight && !reducedMotion && (phase === 'opening' || phase === 'closing')
 
   return (
     <>
       <div ref={modelRef} className="CubePortalModel" aria-hidden="true" data-model-revision={MODEL_REVISION}
-        data-renderer="layered-artwork" data-fragment-count={fragments.length} data-fractured={open} data-split={split} data-highlighted={highlighted}>
+        data-renderer="layered-artwork" data-flight={Boolean(flying)}
+        style={flying ? {left:flight.rect.left,top:flight.rect.top,width:flight.rect.width,height:flight.rect.height,right:'auto',bottom:'auto'} : undefined}
+        data-fragment-count={fragments.length} data-fractured={open} data-split={split} data-highlighted={highlighted}>
         <div className="CubeArtworkTilt" ref={tiltRef}>
         <svg className="CubeArtwork" viewBox="0 0 1254 1254" aria-hidden="true">
           <defs>
@@ -106,18 +109,20 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
             <circle className="CubeCoreRadiance" cx="627" cy="637" r="260" fill={'url(#' + id + '-core)'}/>
           </g>
           <g className="CubeFragments">
-            {fragments.map(piece => (
-              <g key={piece.id} className="CubeFragment" data-fragment={piece.id}
-                style={{'--fragment-x':piece.dx+'px','--fragment-y':piece.dy+'px','--fragment-angle':piece.angle+'deg',
+            {fragments.map(piece => {
+              const vector=flight?viewportFlight(piece,flight.rect,flight.width,flight.height):piece
+              return <g key={piece.id} className="CubeFragment" data-fragment={piece.id}
+                data-source-x={piece.x??627} data-source-y={piece.y??627}
+                style={{'--fragment-x':vector.dx+'px','--fragment-y':vector.dy+'px','--fragment-angle':piece.angle+'deg',
                   '--fragment-origin':(piece.x??627)+'px '+(piece.y??627)+'px',
-                  '--fragment-delay':(piece.delay??340)+'ms','--fragment-return-delay':(piece.returnDelay??260)+'ms',
+                  '--fragment-delay':(piece.delay??180)+'ms','--fragment-return-delay':(piece.returnDelay??175)+'ms',
                   '--fragment-scale':piece.scale??1,'--fragment-squash':piece.squash??1}}>
                 <image href={artwork} width="1254" height="1254" clipPath={'url(#'+id+'-'+piece.id+')'} />
               </g>
-            ))}
+            })}
           </g>
           <g className="CubeFractureSeams" mask={'url(#'+id+'-stone-alpha)'} fill="none" stroke="#ffe0a7" strokeWidth={detailed?2:3} strokeLinecap="round">
-            {(detailed?FRACTURE_CRACKS:['M153 356 L335 465 627 637 880 490 1090 354 M335 465 L510 240 478 160 M880 490 L760 260 804 170 M627 637 L660 815 627 960 640 1140 M205 739 L260 720 420 850 660 815 840 820 1015 760 1068 747']).map((d,i)=><path key={i} className="CubeCrackBand" pathLength="100" d={d} style={{'--crack-delay':i*65+'ms'}}/>)}
+            {(detailed?FRACTURE_CRACKS:['M153 356 L335 465 627 637 880 490 1090 354 M335 465 L510 240 478 160 M880 490 L760 260 804 170 M627 637 L660 815 627 960 640 1140 M205 739 L260 720 420 850 660 815 840 820 1015 760 1068 747']).map((d,i)=><path key={i} className="CubeCrackBand" pathLength="100" d={d} style={{'--crack-delay':i*35+'ms'}}/>)}
           </g>
           {detailed && !reducedMotion && <g className="CubeFractureParticles">
             {FRACTURE_PARTICLES.map((p,i)=><path key={i} className="CubeFractureParticle"

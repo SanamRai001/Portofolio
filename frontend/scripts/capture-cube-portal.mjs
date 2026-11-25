@@ -48,7 +48,7 @@ try {
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
-      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v6')
+      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v7')
       assert.equal(await cube.getAttribute('data-fragment-count'),String(CUBE_FRAGMENTS.length))
       assert.equal(await page.locator('.CubeFragment').count(),CUBE_FRAGMENTS.length)
       assert.equal(await page.locator('.CubeFractureParticle').count(),view.reducedMotion==='reduce'?0:8)
@@ -115,17 +115,25 @@ try {
             time:clock()?.currentTime??null,body:getComputedStyle(body).opacity,
             clip:getComputedStyle(overlay).clipPath,core:getComputedStyle(core).opacity,
             crackBands:document.querySelectorAll('.CubeCrackBand').length,
-            transforms:[...document.querySelectorAll('.CubeFragment')].map(el=>getComputedStyle(el).transform)
+            transforms:[...document.querySelectorAll('.CubeFragment')].map(el=>getComputedStyle(el).transform),
+            fixed:getComputedStyle(document.querySelector('.CubePortalModel')).position==='fixed',
+            aboveReveal:Number(getComputedStyle(document.querySelector('.CubePortalModel')).zIndex)>Number(getComputedStyle(overlay).zIndex),
+            viewport:{width:innerWidth,height:innerHeight},
+            points:[...document.querySelectorAll('.CubeFragment')].map(el=>{
+              const p=new DOMPoint(Number(el.dataset.sourceX),Number(el.dataset.sourceY)).matrixTransform(el.getScreenCTM())
+              return {x:p.x,y:p.y}
+            })
           })
-          let pressure=null,rupture=null
+          let pressure=null,rupture=null,spread=null
           const start=performance.now()
           while(performance.now()-start<1800){
             const t=clock()?.currentTime
-            if(t>=90&&t<300&&!pressure)pressure=read()
-            if(t>=560&&t<725){rupture=read();break}
+            if(t>=45&&t<160&&!pressure)pressure=read()
+            if(t>=350&&t<425&&!rupture)rupture=read()
+            if(t>=510&&t<600){spread=read();break}
             await new Promise(resolve=>requestAnimationFrame(resolve))
           }
-          return {pressure,rupture}
+          return {pressure,rupture,spread}
         })
         assert.ok(samples.pressure,'Pressure phase must be observable')
         assert.equal(samples.pressure.body,'1')
@@ -135,6 +143,11 @@ try {
         assert.equal(samples.rupture.crackBands,3)
         assert.ok(samples.rupture.clip.startsWith('circle(0px'),'Work must not cover the rupture early')
         assert.ok(new Set(samples.rupture.transforms).size>=10)
+        assert.ok(samples.spread,'Viewport flight must be visible during reveal')
+        assert.ok(samples.spread.fixed && samples.spread.aboveReveal,'Flight layer must be viewport-fixed above Work')
+        const xs=samples.spread.points.map(p=>p.x),ys=samples.spread.points.map(p=>p.y)
+        assert.ok(Math.max(...xs)-Math.min(...xs)>samples.spread.viewport.width*.65,'Shards must span the viewport horizontally')
+        assert.ok(Math.max(...ys)-Math.min(...ys)>samples.spread.viewport.height*.65,'Shards must span the viewport vertically')
         evidence = await page.evaluate(() => ({
           phase: document.querySelector('.CubePortal')?.dataset.phase,
           fractured: document.querySelector('.CubePortalModel')?.dataset.fractured,
@@ -186,11 +199,13 @@ try {
       await page.keyboard.press('Escape')
       if (view.reducedMotion !== 'reduce') {
         await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'closing')
-        await page.waitForTimeout(570)
+        await page.waitForTimeout(390)
         await page.screenshot({path:output+'/'+view.name+'-reconstruction.png'})
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
       assert.equal(await cube.getAttribute('data-fractured'), 'false')
+      assert.equal(await cube.getAttribute('data-flight'),'false')
+      assert.equal(await cube.evaluate(el=>getComputedStyle(el).position),'absolute')
       assert.equal(await page.locator('.CubeArtworkBody').evaluate(el=>getComputedStyle(el).opacity),'1')
       assert.equal(await page.locator('.CubeFragments').evaluate(el=>getComputedStyle(el).opacity),'0')
       assert.equal(await cube.getAttribute('data-split'), 'false')

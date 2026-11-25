@@ -4,6 +4,7 @@ import useReducedMotion from '../../motion/useReducedMotion.js'
 import { canAnimateLink } from '../../motion/useJourneyTransition.js'
 import CubeScene from './CubeScene.jsx'
 import CubeWorkProjects from './CubeWorkProjects.jsx'
+import { artworkViewport } from './cubeFragments.js'
 import { cubeUrl, portalDuration, readCubeView, WORK_MOTION } from './cubePortalNavigation.js'
 import './CubePortal.css'
 
@@ -29,6 +30,7 @@ export default function CubePortal({ journey }) {
   const [hoveredDestination, setHoveredDestination] = useState('')
   const [focusedDestination, setFocusedDestination] = useState('')
   const [phase, setPhase] = useState(() => readCubeView(window.location.hash))
+  const [flight, setFlight] = useState(null)
   const stageRef = useRef(null)
   const cubeRef = useRef(null)
   const workLinkRef = useRef(null)
@@ -56,9 +58,9 @@ export default function CubePortal({ journey }) {
     try { localStorage.setItem('sanam-cube-theme', theme) } catch { /* storage unavailable */ }
   }, [theme])
 
-  const navigate = useCallback((next, { push = true, focus = true } = {}) => {
+  const navigate = useCallback((next, { push = true, focus = true, settle = false } = {}) => {
     const view = next === 'work' ? 'work' : 'home'
-    if (goalRef.current === view && (phaseRef.current === view || !reducedMotion)) return
+    if (!settle && goalRef.current === view && (phaseRef.current === view || !reducedMotion)) return
     const interrupted = phaseRef.current === 'opening' || phaseRef.current === 'closing'
     if (push) window.history.pushState({ cubeView: view }, '', cubeUrl(view))
     goalRef.current = view
@@ -68,8 +70,13 @@ export default function CubePortal({ journey }) {
     const overlay = stageRef.current
     const element = cubeRef.current?.querySelector('.CubePortalModel') || cubeRef.current
     const rect = element?.getBoundingClientRect()
-    const origin = rect ? { x: rect.left + rect.width * 0.52, y: rect.top + rect.height * 0.5 }
-      : priorOrigin.current
+    const origin = rect ? artworkViewport(rect) : priorOrigin.current
+    // Capture before the model becomes fixed; resize/interrupt settles
+    // rather than leaving a stale viewport snapshot active.
+    if(rect && !interrupted && !reducedMotion) setFlight({
+      rect:{left:rect.left,top:rect.top,width:rect.width,height:rect.height},
+      width:window.innerWidth,height:window.innerHeight,x:origin.x,y:origin.y
+    })
     priorOrigin.current = origin
     const maxDistance = Math.ceil(Math.hypot(
       Math.max(origin.x, window.innerWidth - origin.x),
@@ -82,6 +89,7 @@ export default function CubePortal({ journey }) {
       if (epoch !== epochRef.current) return
       phaseRef.current = view
       setPhase(view)
+      setFlight(null)
       if (overlay) overlay.style.clipPath = view === 'work' ? 'none' : circle(0)
       if (focus) window.requestAnimationFrame(() => {
         if (epoch === epochRef.current) (view === 'work' ? workHeadingRef : workLinkRef).current?.focus({ preventScroll: true })
@@ -92,7 +100,7 @@ export default function CubePortal({ journey }) {
     if (opening && overlay) overlay.scrollTop = 0
     phaseRef.current = opening ? 'opening' : 'closing'
     setPhase(phaseRef.current)
-    if (interrupted || !overlay || duration === 0 || typeof overlay.animate !== 'function') {
+    if (settle || interrupted || !overlay || duration === 0 || typeof overlay.animate !== 'function') {
       finish(); return
     }
     const start = circle(opening ? 0 : maxDistance)
@@ -117,11 +125,16 @@ export default function CubePortal({ journey }) {
   useEffect(() => {
     const onPop = () => navigate(readCubeView(window.location.hash), { push: false, focus: true })
     const onKey = event => { if (event.key === 'Escape' && !document.querySelector('.AboutPassageVeil') && goalRef.current === 'work') navigate('home') }
+    const onResize = () => {
+      if(phaseRef.current === 'opening' || phaseRef.current === 'closing') navigate(goalRef.current,{push:false,settle:true})
+    }
     window.addEventListener('popstate', onPop)
     window.addEventListener('keydown', onKey)
+    window.addEventListener('resize', onResize)
     return () => {
       window.removeEventListener('popstate', onPop)
       window.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', onResize)
       epochRef.current += 1
       animationRef.current?.cancel()
     }
@@ -136,7 +149,7 @@ export default function CubePortal({ journey }) {
   const isTransitioning = phase === 'opening' || phase === 'closing'
   return (
     <div className="CubePortal" data-theme={theme} data-phase={phase}
-      style={{'--work-open-ms':WORK_MOTION.open+'ms','--work-close-ms':WORK_MOTION.close+'ms','--work-reveal-ms':WORK_MOTION.revealAt+'ms'}}>
+      style={{'--work-open-ms':WORK_MOTION.open+'ms','--work-close-ms':WORK_MOTION.close+'ms','--work-reveal-ms':WORK_MOTION.revealAt+'ms','--burst-x':flight?flight.x+'px':'50%','--burst-y':flight?flight.y+'px':'50%'}}>
       <a className="CubeSkip" href={isWork ? '#cube-work-title' : '#cube-title'} onClick={event => {
         if (!canAnimateLink(event)) return
         event.preventDefault()
@@ -168,7 +181,7 @@ export default function CubePortal({ journey }) {
             <ellipse className="CubeOrbitHighlight" cx="350" cy="278" rx="320" ry="169" pathLength="100" transform="rotate(-17 350 278)" />
             <circle cx="100" cy="416" r="3" /><circle cx="522" cy="124" r="3" /><circle cx="625" cy="317" r="3" />
           </svg>
-          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} onJourneyReady={journey?.ready} />
+          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} onJourneyReady={journey?.ready} flight={flight} />
           <nav className="CubeDestinations" aria-label="Explore the portfolio">
             <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { if (canAnimateLink(event)) { event.preventDefault(); navigate('work') } }}>
               <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>
