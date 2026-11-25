@@ -7,7 +7,7 @@ export const READY_LIMIT_MS = 3000
 
 export function routeFamily(path) {
   const clean = path.replace(/\/+$/, '') || '/'
-  if (clean === '/cube-preview') return 'cube'
+  if (clean === '/' || clean === '/cube-preview') return 'cube'
   if (clean === '/galaxy' || clean.startsWith('/galaxy/')) return 'space'
   return 'portfolio'
 }
@@ -65,7 +65,7 @@ export function useJourneyTransition() {
     const source = routeFamily(window.location.pathname)
     const target = routeFamily(destination)
     if (!canAnimateLink(event) || !((source === 'cube' && destination === '/galaxy') ||
-        (source === 'space' && destination === '/cube-preview'))) return
+        (source === 'space' && target === 'cube'))) return
     event.preventDefault()
     if (active.current) return
     const job = { phase: 'depart', target, trigger: event.currentTarget }

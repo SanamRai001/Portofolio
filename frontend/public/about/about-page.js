@@ -26,18 +26,18 @@ if (button) {
 }
 if (new URLSearchParams(location.search).get('from') === 'cube') {
   document.querySelectorAll('[data-about-return]').forEach(link => {
-    link.href = '/cube-preview?from=about'
+    link.href = '/?from=about'
     link.dataset.aboutPassage = ''
     link.textContent = link.closest('footer') ? '← Return to cube' : 'Return to cube'
   })
   const work = document.querySelector('[data-about-work]')
   if (work) {
-    work.href = '/cube-preview?from=about#work'
+    work.href = '/?from=about#work'
     work.dataset.aboutPassage = ''
   }
   const brand = document.querySelector('.brand')
   if (brand) {
-    brand.href = '/cube-preview?from=about'
+    brand.href = '/?from=about'
     brand.dataset.aboutPassage = ''
     brand.setAttribute('aria-label','Sanam Rai — return to cube')
   }

@@ -43,7 +43,8 @@ export default function CubePortal({ journey }) {
   const priorOrigin = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
-    // A temporary review route should not enter search indexes as a second homepage.
+    // Only the old preview alias is excluded from search indexes.
+    if (window.location.pathname.replace(/\/+$/, '') !== '/cube-preview') return
     const originalTitle = document.title
     const robots = document.querySelector('meta[name="robots"]')
     const oldRobots = robots?.getAttribute('content')
@@ -63,7 +64,7 @@ export default function CubePortal({ journey }) {
     const view = next === 'work' ? 'work' : 'home'
     if (!settle && goalRef.current === view && (phaseRef.current === view || !reducedMotion)) return
     const interrupted = phaseRef.current === 'opening' || phaseRef.current === 'closing'
-    if (push) window.history.pushState({ cubeView: view }, '', cubeUrl(view))
+    if (push) window.history.pushState({ cubeView: view }, '', cubeUrl(view, window.location.pathname))
     goalRef.current = view
     const epoch = ++epochRef.current
     animationRef.current?.cancel()
@@ -187,7 +188,7 @@ export default function CubePortal({ journey }) {
             <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { if (canAnimateLink(event)) { event.preventDefault(); navigate('work') } }}>
               <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>
             </a>
-            <a className="CubeDestination CubeDestinationLab" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('lab') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('lab')} onBlur={() => setFocusedDestination('')} href="/lab-preview?from=cube" data-about-passage><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
+            <a className="CubeDestination CubeDestinationLab" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('lab') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('lab')} onBlur={() => setFocusedDestination('')} href="/lab?from=cube" data-about-passage><span aria-hidden="true">›_</span><strong>Lab</strong><small>Interactive backend</small></a>
             <a className="CubeDestination CubeDestinationGalaxy" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('galaxy') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('galaxy')} onBlur={() => setFocusedDestination('')} href="/galaxy" onClick={event => journey?.navigate(event, '/galaxy', cubeRef.current?.querySelector('.CubePortalModel'))}><span aria-hidden="true">◌</span><strong>Galaxy</strong><small>Explore</small></a>
             <a className="CubeDestination CubeDestinationAbout" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('about') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('about')} onBlur={() => setFocusedDestination('')} href="/about?from=cube" data-about-passage><span aria-hidden="true">♙</span><strong>About</strong><small>My story</small></a>
           </nav>
@@ -223,7 +224,7 @@ export default function CubePortal({ journey }) {
           <button type="button" className="CubeWorkBack WorkReturnBottom" onClick={() => navigate('home')}>
             <ArrowLeft size={16} aria-hidden="true" /> Return to cube
           </button>
-          <p className="CubeWorkFootnote">Interactive design preview · Existing portfolio and Lab remain unchanged.</p>
+          <p className="CubeWorkFootnote">Selected work · Evidence and source links</p>
         </section>
       </main>
       {isTransitioning && flight && !reducedMotion && <WorldFracture flight={flight} />}

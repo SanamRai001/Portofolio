@@ -4,7 +4,7 @@ import JourneyVeil from './motion/JourneyVeil.jsx'
 
 const Portfolio = lazy(() => import('./App.jsx'))
 const Galaxy = lazy(() => import('./pages/Galaxy/GalaxyPage.jsx'))
-// Review route only: production homepage stays unchanged until GPU/browser acceptance.
+// The cube is the canonical homepage; old preview paths remain compatible.
 const CubePortalPreview = lazy(() => import('./pages/CubePortal/CubePortal.jsx'))
 
 class RouteBoundary extends Component {
@@ -41,11 +41,11 @@ export default function PortfolioRoutes() {
     <RouteBoundary key={family}>
       <Suspense fallback={
         <main className="EntryState">
-          <p role="status">{galaxy ? 'Entering deep space…' : cubePreview ? 'Opening cube preview…' : 'Loading portfolio…'}</p>
+          <p role="status">{galaxy ? 'Entering deep space…' : cubePreview ? 'Opening portfolio…' : 'Loading portfolio…'}</p>
           <a href="/">Return to portfolio</a>
         </main>
       }>
-        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <CubePortalPreview journey={journey} /> : <Portfolio labPreview={journey.location.path.replace(/\/+$/, '') === '/lab-preview'} />}
+        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <CubePortalPreview journey={journey} /> : <Portfolio labPreview={['/lab', '/lab-preview'].includes(journey.location.path.replace(/\/+$/, ''))} />}
       </Suspense>
     </RouteBoundary>
     </div>

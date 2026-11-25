@@ -271,7 +271,7 @@ test('Lab chapter reuses six live switches, project API and protected auth behav
   assert.ok(container.querySelector('.LabChapter'))
   assert.equal(container.querySelectorAll('[role="switch"]').length, 6)
   assert.equal(container.querySelectorAll('.HeroSection, #architecture-story').length, 0)
-  assert.ok(container.querySelector('.LabChapterHeader a[href="/cube-preview?from=lab"]'))
+  assert.ok(container.querySelector('.LabChapterHeader a[href="/?from=lab"]'))
   assert.equal(projectRequests().length, 1)
   await click(toggle('cache'))
   assert.equal(toggle('cache').getAttribute('aria-checked'), 'true')

@@ -33,7 +33,7 @@ const App = ({ labPreview = false }) => {
     const title = document.title
     const robots = document.querySelector('meta[name="robots"]')
     const previous = robots?.getAttribute('content')
-    document.title = 'Backend Lab Preview | Sanam Rai'
+    document.title = 'Backend Lab | Sanam Rai'
     robots?.setAttribute('content', 'noindex, nofollow')
     let disposed = false
     let cleanup
@@ -72,7 +72,7 @@ const App = ({ labPreview = false }) => {
           aria-describedby="auth-dialog-description"
         >
           <Form systemToggle={systemToggle} />
-          {labPreview && <a className="LabAuthExit" href="/cube-preview?from=lab" data-about-passage>← Return to cube</a>}
+          {labPreview && <a className="LabAuthExit" href="/?from=lab" data-about-passage>← Return to cube</a>}
         </div>
       )}
 
@@ -113,7 +113,7 @@ const App = ({ labPreview = false }) => {
             {!labPreview && <div data-reveal><TechStack /></div>}
           </main>
 
-          {labPreview ? <footer className="LabChapterFooter SectionShell"><a href="/cube-preview?from=lab" data-about-passage>← Return to cube</a><span>Live configuration · Shared backend</span></footer> : <Footer />}
+          {labPreview ? <footer className="LabChapterFooter SectionShell"><a href="/?from=lab" data-about-passage>← Return to cube</a><span>Live configuration · Shared backend</span></footer> : <Footer />}
         </div>
       </div>
     </div>

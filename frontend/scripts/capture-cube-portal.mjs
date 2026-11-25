@@ -16,7 +16,7 @@ await mkdir(output, { recursive: true })
 let ready = false
 for (let attempt = 0; attempt < 50; attempt++) {
   try {
-    if ((await fetch(origin + '/cube-preview')).ok) { ready = true; break }
+    if ((await fetch(origin + '/')).ok) { ready = true; break }
   } catch { /* server starting */ }
   await new Promise(resolve => setTimeout(resolve, 250))
 }
@@ -44,7 +44,7 @@ try {
     let evidence = {}
     try {
       console.log('[cube:' + view.name + '] load original artwork')
-      await page.goto(origin + '/cube-preview', {waitUntil: 'networkidle'})
+      await page.goto(origin + '/', {waitUntil: 'networkidle'})
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
@@ -243,7 +243,7 @@ try {
         await page.locator('.JourneyVeil[data-phase="depart"]').waitFor({state:'visible'})
         await page.keyboard.press('Escape')
         await page.locator('.JourneyVeil').waitFor({state:'detached'})
-        assert.ok(new URL(page.url()).pathname === '/cube-preview')
+        assert.ok(new URL(page.url()).pathname === '/')
       }
       await galaxyLink.click()
       if (view.reducedMotion !== 'reduce') {
@@ -254,17 +254,17 @@ try {
       await page.waitForURL('**/galaxy', {timeout:15000})
       await page.locator('.GalaxyPage').waitFor({state:'visible',timeout:20000})
       await page.locator('.JourneyVeil').waitFor({state:'detached',timeout:10000})
-      assert.equal(await page.locator('.GalaxyExit').getAttribute('href'), '/cube-preview')
+      assert.equal(await page.locator('.GalaxyExit').getAttribute('href'), '/')
       await page.screenshot({path: output + '/' + view.name + '-galaxy-arrival.png'})
       await page.locator('.GalaxyExit').click()
-      await page.waitForURL('**/cube-preview', {timeout:15000})
+      await page.waitForURL('**/', {timeout:15000})
       await page.locator('.JourneyVeil').waitFor({state:'detached',timeout:10000})
       await page.locator('.CubePortalModel').waitFor({state:'visible'})
       assert.equal(await page.locator('.CubePortalModel').getAttribute('data-split'), 'false')
       await page.screenshot({path: output + '/' + view.name + '-galaxy-return.png'})
       await page.goBack({waitUntil:'domcontentloaded'})
       await page.locator('.GalaxyPage').waitFor({state:'visible',timeout:20000})
-      assert.equal(await page.locator('.GalaxyExit').getAttribute('href'), '/cube-preview')
+      assert.equal(await page.locator('.GalaxyExit').getAttribute('href'), '/')
       await page.goForward({waitUntil:'domcontentloaded'})
       await page.locator('.CubePortalModel').waitFor({state:'visible'})
       console.log('[cube:' + view.name + '] standalone About journey')
@@ -286,7 +286,7 @@ try {
         await verifyPassage('about','outbound')
         await page.keyboard.press('Escape')
         await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
-        assert.equal(new URL(page.url()).pathname,'/cube-preview')
+        assert.equal(new URL(page.url()).pathname,'/')
         assert.equal(await page.locator('#root').evaluate(el => el.inert),false)
       }
       await about.click()
@@ -297,7 +297,7 @@ try {
       assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://sanam-rai.com.np/about')
       assert.equal(await page.locator('#root').count(),0)
       assert.equal(await page.locator('html').getAttribute('data-theme'),'dark')
-      assert.equal(await page.locator('.nav-links [data-about-return]').getAttribute('href'),'/cube-preview?from=about')
+      assert.equal(await page.locator('.nav-links [data-about-return]').getAttribute('href'),'/?from=about')
       await page.screenshot({path:output+'/'+view.name+'-about-dark.png'})
       await page.locator('.theme-toggle').click()
       assert.equal(await page.locator('html').getAttribute('data-theme'),'light')
@@ -306,7 +306,7 @@ try {
       assert.ok(aboutLayout.content <= aboutLayout.width + 1, 'About horizontal overflow')
       await page.locator('.nav-links [data-about-return]').click()
       await verifyPassage('about','return')
-      await page.waitForURL('**/cube-preview?from=about')
+      await page.waitForURL('**/?from=about')
       await page.locator('.CubePortalModel').waitFor({state:'visible'})
       await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
       assert.equal(await page.locator('.CubePortal').getAttribute('data-theme'),'light')
@@ -325,7 +325,7 @@ try {
       })
       await page.locator('.CubeDestinationLab').click()
       await verifyPassage('lab','outbound')
-      await page.waitForURL('**/lab-preview?from=cube')
+      await page.waitForURL('**/lab?from=cube')
       await page.locator('.LabChapter').waitFor({state:'visible'})
       await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
       await page.waitForFunction(() => document.querySelector('.RuntimeCard')?.textContent.includes('Backend synced'))
@@ -344,7 +344,7 @@ try {
       assert.ok(labLayout.content <= labLayout.width + 1,'Lab horizontal overflow')
       await page.locator('.LabReturn').click()
       await verifyPassage('lab','return')
-      await page.waitForURL('**/cube-preview?from=lab')
+      await page.waitForURL('**/?from=lab')
       await page.locator('.CubePortalModel').waitFor({state:'visible'})
       await page.locator('.AboutPassageVeil').waitFor({state:'detached'})
       assert.equal(await page.locator('.CubePortal').getAttribute('data-theme'),'dark')

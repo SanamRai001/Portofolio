@@ -13,6 +13,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/lab",
+      "destination": "/index.html"
+    },
+    {
       "source": "/galaxy/projects/reality-archive",
       "destination": "/galaxy/projects/reality-archive/index.html"
     },
@@ -64,6 +68,15 @@
     },
     {
       "source": "/lab-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/lab",
       "headers": [
         {
           "key": "X-Robots-Tag",

@@ -1,5 +1,14 @@
 # PROJECT_STATE
 
+## Release candidate — unified portfolio (2026-11-25)
+
+- Branch: `release/portfolio-unified-20261125`, baseline `2b6807462131b5c0cb4597a0a8178d13940a485d` (PR #44); master remains unchanged. Candidate makes the cube the canonical root, Work `/#work`, Lab `/lab`, Galaxy and About unchanged in their route families. Old preview paths remain compatible and non-indexable.
+- Integrated the source/test changes from stale PR #22 (idempotent demo viewer recovery, no production seed run) and PR #39 (six generated social cards and metadata/build checks). Preserved current build checks; did not transplant old status docs or obsolete workflow branch filters.
+- PR #42 prerenders the former App tree, not the new cube. Do not merge it wholesale. Existing static identity metadata, About and Galaxy project prerender remain; new homepage SSR/hydration needs its own reconciled implementation.
+- Release blocker: public POST /api/system writes global shared MongoDB flags. No production DB changes, seed or deployment; resolve isolation or explicitly restrict write authority before promoting this candidate. Lab remains noindex.
+- Verification: baseline browser and frontend CI passed; new candidate CI, production-path browser and social-card visual review pending. No master merge until release gate is resolved.
+
+
 ## Current work — Cube Portal / selected work (2026-11-24)
 
 - **Branch / PR:** `feat/cube-portal-react-preview-20261123`, draft PR #44; master remains `680d83089c833a9f9680ca7391578a62dc7827a9`. Isolated `/cube-preview`.

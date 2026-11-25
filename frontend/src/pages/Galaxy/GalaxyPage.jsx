@@ -177,7 +177,7 @@ export default function GalaxyPage({ journey }) {
             <span aria-hidden="true">{soundEnabled ? '◉' : '○'}</span>
             <span>Sound</span>
           </button>
-          <a className="GalaxyExit" href={fromCube ? '/cube-preview' : '/'} onClick={fromCube ? event => journey.navigate(event, '/cube-preview') : undefined}>{fromCube ? 'Return to cube' : 'Exit to portfolio'} <span aria-hidden="true">↗</span></a>
+          <a className="GalaxyExit" href="/" onClick={fromCube ? event => journey.navigate(event, '/') : undefined}>{fromCube ? 'Return to cube' : 'Exit to portfolio'} <span aria-hidden="true">↗</span></a>
         </div>
       </header>
 

@@ -19,14 +19,15 @@ test('cube preview hash route and reduced motion are deterministic', () => {
   assert.equal(readCubeView('#work'), 'work')
   assert.equal(readCubeView('#home'), 'home')
   assert.equal(readCubeView('#garbage'), 'home')
-  assert.equal(cubeUrl('work'), '/cube-preview#work')
-  assert.equal(cubeUrl('home'), '/cube-preview#home')
+  assert.equal(cubeUrl('work'), '/#work')
+  assert.equal(cubeUrl('home'), '/#home')
+  assert.equal(cubeUrl('work', '/cube-preview'), '/cube-preview#work')
   assert.equal(portalDuration('work', true), 0)
   assert.equal(portalDuration('work', false), 700)
   assert.equal(portalDuration('home', false), 650)
 })
 
-test('preview route does not replace the established homepage or Galaxy', () => {
+test('canonical cube homepage retains the preview alias and Galaxy', () => {
   const routes = text('../src/PortfolioRoutes.jsx')
   assert.match(routes, /const Portfolio = lazy\(/)
   assert.match(routes, /const Galaxy = lazy\(/)
@@ -70,7 +71,7 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /--portal-x/)
   assert.match(text('../src/pages/CubePortal/CubePortal.css'), /cubePortalChapterEnter/)
   assert.match(jsx, /noindex, nofollow/)
-  assert.match(jsx, /\/lab-preview\?from=cube/)
+  assert.match(jsx, /\/lab\?from=cube/)
   assert.match(jsx, /href="\/galaxy"/)
   assert.match(jsx, /href="\/about\?from=cube" data-about-passage/)
 })
@@ -111,7 +112,9 @@ test('selected work contains public, evidence-linked projects without speculativ
 })
 
 test('shared passage has bounded geometry and respects native link modifiers', () => {
+  assert.equal(routeFamily('/'), 'cube')
   assert.equal(routeFamily('/cube-preview/'), 'cube')
+  assert.equal(routeFamily('/lab'), 'portfolio')
   assert.equal(routeFamily('/galaxy/projects'), 'space')
   assert.equal(routeFamily('/about'), 'portfolio')
   assert.equal(READY_LIMIT_MS, 3000)
@@ -149,7 +152,7 @@ test('About remains standalone with optional native-page passage and shared them
   assert.doesNotMatch(html, /id="root"/)
   assert.match(html, /class="intro-orbit".*aria-hidden="true"/)
   assert.match(page, /sanam-cube-theme/)
-  assert.match(page, /\/cube-preview\?from=about/)
+  assert.match(page, /\/\?from=about/)
   assert.match(passage, /prefers-reduced-motion/)
   assert.match(passage, /event\.metaKey/)
   assert.match(passage, /window\.location\.assign/)
@@ -158,6 +161,7 @@ test('About remains standalone with optional native-page passage and shared them
 
 test('Lab preview has its own non-indexable entry and retains shared live components', () => {
   const config = JSON.parse(text('../vercel.json'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/lab' && rule.destination === '/index.html'))
   assert.ok(config.rewrites.some(rule => rule.source === '/lab-preview' && rule.destination === '/index.html'))
   assert.ok(config.headers.some(rule => rule.source === '/lab-preview' && rule.headers.some(h => h.key === 'X-Robots-Tag' && h.value === 'noindex, nofollow')))
   const app = text('../src/App.jsx')
@@ -168,6 +172,8 @@ test('Lab preview has its own non-indexable entry and retains shared live compon
 test('editorial and technical passages are explicit, bounded and do not intercept Galaxy', () => {
   for (const [route,kind] of [['/about','about'],['/lab-preview','lab']]) {
     assert.equal(passageKind('/cube-preview',route,'cube'),kind)
+    assert.equal(passageKind('/',route,'cube'),kind)
+    assert.equal(passageKind(route,'/',kind),kind)
     assert.equal(passageKind(route,'/cube-preview',kind),kind)
     assert.equal(passageKind(route,'/cube-preview','cube'),null)
     assert.ok(PASSAGE_TIMING[kind].departure + PASSAGE_TIMING[kind].arrival <= 1100)

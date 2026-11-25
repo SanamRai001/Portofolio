@@ -6,17 +6,23 @@ export const PASSAGE_TIMING = Object.freeze({
   lab: Object.freeze({ departure: 600, arrival: 430 }),
 })
 const media = () => window.matchMedia('(prefers-reduced-motion: reduce)')
-const route = () => window.location.pathname.replace(/\/+$/, '')
+const canonicalRoute = path => {
+  const clean = path.replace(/\/+$/, '') || '/'
+  return clean === '/cube-preview' ? '/' : clean === '/lab-preview' ? '/lab' : clean
+}
+const route = () => canonicalRoute(window.location.pathname)
 const from = () => new URLSearchParams(window.location.search).get('from')
 
 export function passageKind(source, target, context) {
-  if (source === '/cube-preview' && context === 'cube') {
+  source = canonicalRoute(source)
+  target = canonicalRoute(target)
+  if (source === '/' && context === 'cube') {
     if (target === '/about') return 'about'
-    if (target === '/lab-preview') return 'lab'
+    if (target === '/lab') return 'lab'
   }
-  if (target === '/cube-preview') {
+  if (target === '/') {
     if (source === '/about' && context === 'about') return 'about'
-    if (source === '/lab-preview' && context === 'lab') return 'lab'
+    if (source === '/lab' && context === 'lab') return 'lab'
   }
   return null
 }
@@ -136,7 +142,7 @@ export function installAboutPassage() {
   }
   const arrive = () => {
     if (arrivalPlayed || preference.matches || typeof Element.prototype.animate !== 'function') return
-    const returning = route() === '/cube-preview'
+    const returning = route() === '/'
     const kind = returning ? passageKind(from() === 'about' ? '/about' : '/lab-preview', route(), from())
       : passageKind('/cube-preview', route(), from())
     if (!kind) return
@@ -167,7 +173,7 @@ export function installAboutPassage() {
     clear()
     trigger = link
     pending = url.href
-    const returning = url.pathname === '/cube-preview'
+    const returning = canonicalRoute(url.pathname) === '/'
     try { start(kind,'departure',returning,commit) }
     catch { clear(); window.location.assign(url.href) }
   }

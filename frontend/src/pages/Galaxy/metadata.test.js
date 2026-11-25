@@ -15,6 +15,7 @@ import {
 test('G4C project metadata is canonical, bounded and unique for every case study', () => {
   const titles = new Set()
   const descriptions = new Set()
+  const images = new Set()
 
   for (const project of PROJECT_NODES) {
     const meta = projectMetadata(project)
@@ -24,8 +25,11 @@ test('G4C project metadata is canonical, bounded and unique for every case study
     assert.ok(meta.title.includes(project.label))
     assert.ok(meta.description.length <= 158)
     assert.equal(meta.repository, project.href)
+    assert.equal(meta.image, `https://sanam-rai.com.np/galaxy/social/${project.id}.png`)
+    assert.match(meta.imageAlt, new RegExp(project.label))
     titles.add(meta.title)
     descriptions.add(meta.description)
+    images.add(meta.image)
 
     const structured = projectStructuredData(project)
     assert.equal(structured.name, project.label)
@@ -35,6 +39,7 @@ test('G4C project metadata is canonical, bounded and unique for every case study
 
   assert.equal(titles.size, PROJECT_NODES.length)
   assert.equal(descriptions.size, PROJECT_NODES.length)
+  assert.equal(images.size, PROJECT_NODES.length)
   assert.equal(projectMetadataById('missing'), null)
 })
 
@@ -48,9 +53,11 @@ test('runtime metadata updates and removes project JSON-LD without stale case-st
     <meta property="og:title" content="Original">
     <meta property="og:description" content="original">
     <meta property="og:image" content="https://sanam-rai.com.np/projects/portfolio-system.png">
+    <meta property="og:image:alt" content="Original social image">
     <meta name="twitter:title" content="Original">
     <meta name="twitter:description" content="original">
     <meta name="twitter:image" content="https://sanam-rai.com.np/projects/portfolio-system.png">
+    <meta name="twitter:image:alt" content="Original social image">
   </head><body></body></html>`)
   const doc = dom.window.document
   const stateScout = PROJECT_NODES.find(project => project.id === 'statescout')
@@ -64,6 +71,9 @@ test('runtime metadata updates and removes project JSON-LD without stale case-st
   assert.equal(doc.querySelector('link[rel="canonical"]').href, first.url)
   assert.equal(doc.querySelector('meta[property="og:type"]').content, 'article')
   assert.equal(doc.querySelector('meta[name="twitter:title"]').content, first.title)
+  assert.equal(doc.querySelector('meta[property="og:image"]').content, first.image)
+  assert.equal(doc.querySelector('meta[name="twitter:image"]').content, first.image)
+  assert.equal(doc.querySelector('meta[property="og:image:alt"]').content, first.imageAlt)
   assert.equal(doc.querySelector('script[data-galaxy-project]').dataset.galaxyProject, 'statescout')
   assert.match(doc.querySelector('script[data-galaxy-project]').textContent, /StateScout/)
 
@@ -73,6 +83,9 @@ test('runtime metadata updates and removes project JSON-LD without stale case-st
   assert.equal(doc.querySelectorAll('script[data-galaxy-project]').length, 1)
   assert.equal(doc.querySelector('script[data-galaxy-project]').dataset.galaxyProject, 'reality-archive')
   assert.match(doc.querySelector('script[data-galaxy-project]').textContent, /Reality Archive/)
+  assert.equal(doc.querySelector('meta[property="og:image"]').content, second.image)
+  assert.equal(doc.querySelector('meta[name="twitter:image"]').content, second.image)
+  assert.notEqual(second.image, first.image)
 
   syncProjectStructuredData(null, doc)
   assert.equal(doc.querySelector('script[data-galaxy-project]'), null)
