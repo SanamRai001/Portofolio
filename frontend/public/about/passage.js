@@ -1,7 +1,6 @@
-// Native-document choreography for the editorial and technical chapters.
+// A luminous straight-line slit shared by About and Lab.
 // Galaxy retains its separate, already accepted same-document journey.
 const EASE = 'cubic-bezier(.45,0,.22,1)'
-const SVG = 'http://www.w3.org/2000/svg'
 export const PASSAGE_TIMING = Object.freeze({
   about: Object.freeze({ departure: 540, arrival: 420 }),
   lab: Object.freeze({ departure: 600, arrival: 430 }),
@@ -28,122 +27,67 @@ export function passageGeometry(rect, width, height) {
   return { x, y, radius: Math.ceil(Math.hypot(Math.max(x,width-x), Math.max(y,height-y))) + 32 }
 }
 
-function originFor(element) {
-  return passageGeometry(element?.getBoundingClientRect(), innerWidth, innerHeight)
-}
-
-function svgNode(tag, attrs, parent) {
-  const node = document.createElementNS(SVG, tag)
-  for (const [key,value] of Object.entries(attrs)) node.setAttribute(key, String(value))
-  if (parent) parent.append(node)
-  return node
-}
-
 function makeVeil(kind, returning) {
   const dark = document.documentElement.dataset.theme === 'dark' ||
     document.querySelector('.CubePortal, .LabChapter')?.dataset.theme === 'dark'
-  const bg = dark ? '#0a1119' : '#f6f3ec'
-  const gold = dark ? '#e8bc83' : '#94662c'
   const veil = document.createElement('div')
   veil.className = 'AboutPassageVeil'
   veil.dataset.kind = kind
   veil.dataset.direction = returning ? 'return' : 'outbound'
   veil.setAttribute('aria-hidden', 'true')
-  Object.assign(veil.style, {
-    position:'fixed', inset:'0', zIndex:'2147483000', pointerEvents:'auto',
-    overflow:'hidden', isolation:'isolate',
+  Object.assign(veil.style, {position:'fixed',inset:'0',zIndex:'2147483000',pointerEvents:'auto',overflow:'hidden',isolation:'isolate'})
+  const element = (name,style,parent=veil) => {
+    const el = document.createElement('div')
+    el.className = name
+    Object.assign(el.style,style)
+    parent.append(el)
+    return el
+  }
+  const shade = element('ChapterPassageShade',{position:'absolute',inset:'0',background:dark?'#0a1119':'#f6f3ec'})
+  const line = element('ChapterPassageLine',{
+    position:'absolute',left:0,right:0,top:'50%',height:'2px',marginTop:'-1px',
+    transformOrigin:returning?'right center':'left center',
+    background:'linear-gradient(90deg,#b98038,#ffcf84 30%,#fff2cb 55%,#d49443)',
+    boxShadow:'0 0 7px #ffd18c,0 0 22px #e9a94b99,0 0 52px #e9a94b44',
   })
-  const shade = document.createElement('div')
-  shade.className = 'ChapterPassageShade'
-  Object.assign(shade.style, {position:'absolute',inset:'0',background:bg})
-  veil.append(shade)
-
-  const motif = document.createElement('div')
-  motif.className = 'ChapterPassageMotif'
-  Object.assign(motif.style, {
-    position:'absolute',left:'50%',top:'50%',width:'min(350px, 78vw)',aspectRatio:'360 / 210',
-    transform:'translate(-50%,-50%)',pointerEvents:'none',color:gold,
+  const bloom = element('ChapterPassageBloom',{
+    position:'absolute',inset:'0',pointerEvents:'none',
+    background:'radial-gradient(ellipse 75% 11% at 50% 50%,#ffc46d44,transparent 90%)',
   })
-  const svg = svgNode('svg',{viewBox:'0 0 360 210',width:'100%',height:'100%',fill:'none','aria-hidden':'true'},motif)
-  const traces = [], nodes = []
-  const trace = (d, width=1.4) => {
-    const p = svgNode('path',{d,stroke:gold,'stroke-width':width,'stroke-linecap':'round','stroke-linejoin':'round',pathLength:100,'stroke-dasharray':100,'stroke-dashoffset':100},svg)
-    traces.push(p)
-    return p
-  }
-  const dot = (cx,cy,r=3) => {
-    const el = svgNode('circle',{cx,cy,r,fill:gold},svg)
-    el.style.opacity = '0'
-    nodes.push(el)
-  }
-  let emblem
-  if (kind === 'about') {
-    svgNode('ellipse',{cx:180,cy:105,rx:158,ry:56,transform:'rotate(-17 180 105)',stroke:gold,'stroke-width':.7,opacity:.22},svg)
-    svgNode('ellipse',{cx:180,cy:105,rx:91,ry:37,transform:'rotate(-17 180 105)',stroke:gold,'stroke-width':.6,opacity:.18,'stroke-dasharray':'2 6'},svg)
-    trace('M29 141 C-9 116 78 52 163 49 C245 23 333 48 339 77 C346 116 255 161 171 165 C100 174 50 164 29 141',1.6)
-    trace('M92 126 C121 78 216 60 266 84 C303 106 240 143 180 142',.9)
-    dot(29,141,3);dot(339,77,3);dot(266,84,2.5)
-    emblem = svgNode('text',{x:180,y:119,'text-anchor':'middle',fill:gold,'font-family':'Georgia,serif','font-size':45,'letter-spacing':-4},svg)
-    emblem.textContent = 'SR'
-  } else {
-    const paths = [
-      'M12 105 H71 L112 54 H174',
-      'M71 105 H174',
-      'M71 105 L112 156 H174',
-      'M186 54 H246 L289 105 H348',
-      'M186 105 H289',
-      'M186 156 H246 L289 105',
-    ]
-    paths.forEach(d => svgNode('path',{d,stroke:gold,'stroke-width':.65,opacity:.18},svg))
-    paths.forEach(d => trace(d))
-    ;[[12,105],[71,105],[180,54],[180,105],[180,156],[289,105],[348,105]].forEach(([x,y]) => dot(x,y,3))
-    emblem = svgNode('g',{stroke:gold,'stroke-width':1.35,'stroke-linecap':'round','stroke-linejoin':'round'},svg)
-    svgNode('rect',{x:160,y:85,width:40,height:40,rx:8,fill:bg},emblem)
-    svgNode('path',{d:'M170 99 L176 105 L170 111 M182 111 H190'},emblem)
-  }
-  emblem.style.opacity = '0'
-  veil.append(motif)
+  const pulse = element('ChapterPassagePulse',{
+    position:'absolute',top:'50%',left:0,width:kind==='lab'?'12%':'24%',height:'3px',marginTop:'-1px',
+    background:'linear-gradient(90deg,transparent,#fff4d7,transparent)',
+    boxShadow:'0 0 16px #ffcf84',pointerEvents:'none',
+  })
   document.body.append(veil)
-  return {veil,shade,motif,traces,nodes,emblem}
+  return {veil,shade,line,bloom,pulse}
 }
 
-function playPassage(parts, kind, phase, returning, origin) {
+function playPassage(parts, kind, phase, returning) {
   const arriving = phase === 'arrival'
   const duration = PASSAGE_TIMING[kind][phase]
-  const {shade,motif,traces,nodes,emblem} = parts
+  const {shade,line,bloom,pulse} = parts
   const animations = []
   const play = (el, frames, extra={}) => {
     const a = el.animate(frames,{duration,easing:EASE,fill:'both',...extra})
-    // Every animation can be interrupted during Escape, history or cleanup.
     a.finished.catch(() => {})
     animations.push(a)
     return a
   }
-  const circle = radius => 'circle(' + radius + 'px at ' + origin.x + 'px ' + origin.y + 'px)'
+  const slit = 'inset(50% 0 50% 0)'
+  const full = 'inset(0 0 0 0)'
   const cover = play(shade, arriving
-    ? [{clipPath:circle(origin.radius)}, {clipPath:circle(origin.radius),offset:.18}, {clipPath:circle(0)}]
-    : [{clipPath:circle(0)}, {clipPath:circle(origin.radius)}])
-  const center = 'translate(-50%,-50%) scale(1)'
-  const displaced = 'translate(calc(-50% + ' + (origin.x-innerWidth/2) + 'px),calc(-50% + ' + (origin.y-innerHeight/2) + 'px)) scale(.28)'
-  // A single shared motif crosses the page boundary; return resolves toward the cube.
-  play(motif, arriving
-    ? [{transform:center,opacity:1},{transform:center,opacity:1,offset:.22},{transform:returning ? displaced : 'translate(-50%,-50%) scale(1.10)',opacity:0}]
-    : [{transform:returning ? 'translate(-50%,-50%) scale(1.10)' : displaced,opacity:0},{transform:center,opacity:1,offset:.72},{transform:center,opacity:1}])
-  traces.forEach((path,i) => {
-    const offset = kind === 'lab' && i >= 3 ? .24 : .06
-    play(path, arriving
-      ? [{strokeDashoffset:0},{strokeDashoffset:0,offset:.18},{strokeDashoffset:100}]
-      : [{strokeDashoffset:returning ? -100 : 100},{strokeDashoffset:returning ? -100 : 100,offset},{strokeDashoffset:0,offset:.86},{strokeDashoffset:0}])
-  })
-  nodes.forEach((node,i) => {
-    const offset = Math.min(.65,.20+i*.055)
-    play(node, arriving
-      ? [{opacity:1},{opacity:1,offset:.22},{opacity:0}]
-      : [{opacity:0},{opacity:0,offset},{opacity:1,offset:Math.min(.90,offset+.16)},{opacity:1}])
-  })
-  play(emblem, arriving
-    ? [{opacity:1},{opacity:1,offset:.20},{opacity:0}]
-    : [{opacity:0},{opacity:0,offset:.38},{opacity:1,offset:.82},{opacity:1}])
+    ? [{clipPath:full},{clipPath:full,offset:.08},{clipPath:slit,offset:.78},{clipPath:slit}]
+    : [{clipPath:slit},{clipPath:slit,offset:.30},{clipPath:full,offset:.94},{clipPath:full}])
+  play(line, arriving
+    ? [{transform:'scaleX(1)',opacity:0},{transform:'scaleX(1)',opacity:.9,offset:.65},{transform:'scaleX(0)',opacity:0}]
+    : [{transform:'scaleX(0)',opacity:0},{transform:'scaleX(1)',opacity:1,offset:.30},{transform:'scaleX(1)',opacity:.7,offset:.65},{transform:'scaleX(1)',opacity:0}])
+  play(bloom,arriving
+    ? [{opacity:0},{opacity:.85,offset:.70},{opacity:0}]
+    : [{opacity:0},{opacity:kind==='lab'?.9:.65,offset:.37},{opacity:0}])
+  const start = returning?'translateX(830%)':'translateX(-110%)'
+  const end = returning?'translateX(-110%)':'translateX(830%)'
+  play(pulse,[{transform:start,opacity:0},{opacity:arriving?.5:1,offset:.18},{opacity:.65,offset:.43},{transform:end,opacity:0,offset:.68},{transform:end,opacity:0}])
   return {cover,animations,duration}
 }
 
@@ -178,13 +122,13 @@ export function installAboutPassage() {
     if (restore) trigger?.focus({preventScroll:true})
     trigger = null
   }
-  const start = (kind, phase, returning, origin, finish) => {
+  const start = (kind, phase, returning, finish) => {
     const parts = makeVeil(kind, returning)
     veil = parts.veil
     veil.dataset.phase = phase
     blockPage()
     const token = ++generation
-    const motion = playPassage(parts, kind, phase, returning, origin)
+    const motion = playPassage(parts, kind, phase, returning)
     animations = motion.animations
     const settle = () => { if (generation === token) finish() }
     motion.cover.finished.then(settle, () => {})
@@ -197,8 +141,7 @@ export function installAboutPassage() {
       : passageKind('/cube-preview', route(), from())
     if (!kind) return
     arrivalPlayed = true
-    const cube = returning && location.hash !== '#work' ? document.querySelector('.CubePortalModel') : null
-    try { start(kind,'arrival',returning,originFor(cube),() => clear()) }
+    try { start(kind,'arrival',returning,() => clear()) }
     catch { clear() }
   }
   const commit = () => {
@@ -225,8 +168,7 @@ export function installAboutPassage() {
     trigger = link
     pending = url.href
     const returning = url.pathname === '/cube-preview'
-    const cube = !returning && document.querySelector('.CubePortal[data-phase="home"] .CubePortalModel')
-    try { start(kind,'departure',returning,originFor(cube || null),commit) }
+    try { start(kind,'departure',returning,commit) }
     catch { clear(); window.location.assign(url.href) }
   }
   const key = event => {

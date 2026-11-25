@@ -47,7 +47,7 @@ try {
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
-      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-tilt-v2')
+      assert.equal(await cube.getAttribute('data-model-revision'), 'original-artwork-fracture-v3')
       assert.equal(await cube.getAttribute('data-renderer'), 'layered-artwork')
       assert.equal(await cube.getAttribute('data-split'), 'false')
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
@@ -55,7 +55,7 @@ try {
       assert.ok(artworkResponses.some(r => r.status === 200), 'Original image was not loaded')
       assert.deepEqual(modelRequests, [], 'GLB request unexpectedly made')
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('href'),
-        await page.locator('.CubeArtworkLid image').getAttribute('href'))
+        await page.locator('.CubeFragment image').first().getAttribute('href'))
       await page.screenshot({path: output + '/' + view.name + '-home.png'})
       await page.mouse.move(3, 3)
       await page.waitForTimeout(300)
@@ -95,25 +95,26 @@ try {
       await page.locator('.CubeThemeButton').click()
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.theme === 'dark')
       await page.waitForTimeout(600)
+      assert.ok(await page.locator('.CubeHome').evaluate(el=>getComputedStyle(el,'::before').backgroundImage.includes('cube-mountains.svg')))
       await page.screenshot({path: output + '/' + view.name + '-dark.png'})
       await page.locator('.CubeDestinationWork').click()
       if (view.reducedMotion !== 'reduce') {
-        await page.waitForTimeout(260)
+        await page.waitForTimeout(290)
         evidence = await page.evaluate(() => ({
           phase: document.querySelector('.CubePortal')?.dataset.phase,
-          lidOpen: document.querySelector('.CubePortalModel')?.dataset.lidOpen,
-          lidTransform: getComputedStyle(document.querySelector('.CubeArtworkLid')).transform,
-          bodyTransform: getComputedStyle(document.querySelector('.CubeArtworkBody')).transform,
+          fractured: document.querySelector('.CubePortalModel')?.dataset.fractured,
+          fragmentTransforms: [...document.querySelectorAll('.CubeFragment')].map(el=>getComputedStyle(el).transform),
+          bodyOpacity: getComputedStyle(document.querySelector('.CubeArtworkBody')).opacity,
           split: document.querySelector('.CubePortalModel')?.dataset.split,
           tiltTransform: getComputedStyle(document.querySelector('.CubeArtworkTilt')).transform,
           clipPath: getComputedStyle(document.querySelector('.CubePortalReveal')).clipPath,
         }))
         assert.equal(evidence.phase, 'opening')
-        assert.equal(evidence.lidOpen, 'true')
+        assert.equal(evidence.fractured, 'true')
         assert.equal(evidence.split, 'true')
-        assert.notEqual(evidence.lidTransform, 'none')
-        assert.notEqual(evidence.lidTransform, 'matrix(1, 0, 0, 1, 0, 0)')
-        assert.equal(evidence.bodyTransform, 'none', 'Body must stay in place')
+        assert.equal(evidence.fragmentTransforms.length,7)
+        assert.ok(new Set(evidence.fragmentTransforms).size>=5,'Stone fragments must move independently')
+        assert.equal(evidence.bodyOpacity,'0')
         assert.equal(evidence.tiltTransform, 'none', 'Tilt must reset during opening')
         assert.ok(evidence.clipPath.startsWith('circle('))
         await page.screenshot({path: output + '/' + view.name + '-opening.png'})
@@ -147,8 +148,13 @@ try {
       const workLayout = await page.locator('.CubePortalReveal').evaluate(el => ({ width: el.clientWidth, content: el.scrollWidth }))
       assert.ok(workLayout.content <= workLayout.width + 1, 'Work chapter horizontal overflow')
       await page.keyboard.press('Escape')
+      if (view.reducedMotion !== 'reduce') {
+        await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'closing')
+        await page.waitForTimeout(570)
+        await page.screenshot({path:output+'/'+view.name+'-reconstruction.png'})
+      }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
-      assert.equal(await cube.getAttribute('data-lid-open'), 'false')
+      assert.equal(await cube.getAttribute('data-fractured'), 'false')
       assert.equal(await cube.getAttribute('data-split'), 'false')
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
       await page.locator('.CubeDestinationWork').click()
@@ -203,9 +209,9 @@ try {
         const veil = page.locator('.AboutPassageVeil[data-phase="departure"][data-kind="' + kind + '"][data-direction="' + direction + '"]')
         await veil.waitFor({state:'attached', timeout:2000})
         assert.equal(await veil.locator('.ChapterPassageShade').count(),1)
-        assert.equal(await veil.locator('.ChapterPassageMotif svg').count(),1)
-        if (kind === 'about') assert.equal(await veil.locator('svg text').textContent(),'SR')
-        else assert.ok(await veil.locator('svg path').count() >= 12)
+        assert.equal(await veil.locator('.ChapterPassageLine').count(),1)
+        assert.equal(await veil.locator('.ChapterPassageBloom').count(),1)
+        assert.equal(await veil.locator('.ChapterPassagePulse').count(),1)
         assert.equal(await page.evaluate(() => [...document.body.children].some(el => el.inert)),true)
       }
       if (view.reducedMotion !== 'reduce') {

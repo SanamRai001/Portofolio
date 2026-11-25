@@ -12,5 +12,5 @@ export function cubeUrl(view) {
 
 export function portalDuration(view, reducedMotion) {
   if (reducedMotion) return 0
-  return view === 'work' ? 720 : 640
+  return view === 'work' ? 700 : 980
 }

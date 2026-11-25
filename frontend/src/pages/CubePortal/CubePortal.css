@@ -43,7 +43,7 @@
 .CubeOrbit circle {fill:var(--cp-ink);transition:fill .45s ease}
 .CubePortal[data-theme="dark"] .CubeOrbit circle {fill:var(--cp-gold);filter:drop-shadow(0 0 5px var(--cp-gold))}
 .CubePortalModel {position:absolute;inset:9% 15% 11% 17%;pointer-events:none;z-index:2}
-/* Preserve the source artwork at rest; animate only the clipped lid on open. */
+/* Preserve the source artwork at rest; animate clipped stone fragments on open. */
 .CubeArtworkTilt {position:absolute;inset:0;transform-origin:50% 50%;transform:perspective(900px) rotateX(var(--cube-tilt-x,0deg)) rotateY(var(--cube-tilt-y,0deg));transition:transform .24s cubic-bezier(.22,.7,.25,1);pointer-events:none}
 .CubeArtwork {position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
 @media(hover:hover) and (pointer:fine) {
@@ -53,12 +53,31 @@
 @media(prefers-reduced-motion:reduce) {
   .CubeArtworkTilt {transform:none!important;transition:none!important}
 }
-.CubeArtworkBody,.CubeArtworkLid {pointer-events:none}
-.CubeArtworkLid {opacity:0;transform-box:view-box;transform-origin:50% 29%;transform:translate(0,0) rotate(0);transition:transform .58s cubic-bezier(.22,.72,.24,1)}
-.CubePortalModel[data-split="true"] .CubeArtworkLid {opacity:1}
-.CubePortalModel[data-lid-open="true"] .CubeArtworkLid {transform:translate(0,-17%) rotate(-4deg)}
-.CubeArtworkInterior {opacity:0;transition:opacity .22s ease}
-.CubePortalModel[data-lid-open="true"] .CubeArtworkInterior {opacity:1}
+/* The original image is untouched at rest; clipped pieces exist only during passage. */
+.CubeArtworkBody,.CubeFragments,.CubeFractureLight,.CubeFractureSeams {pointer-events:none}
+.CubeFragments,.CubeFractureLight,.CubeFractureSeams {opacity:0}
+.CubeFragment {transform-box:view-box;transform-origin:50% 50%;transform:translate(0,0) rotate(0)}
+.CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:0}
+.CubePortalModel[data-split="true"] .CubeFragments {opacity:1}
+.CubePortal[data-phase="opening"] .CubeFragment {animation:stoneSeparate 1.04s cubic-bezier(.22,.68,.25,1) both}
+.CubePortal[data-phase="work"] .CubeFragment {transform:translate(var(--fragment-x),var(--fragment-y)) rotate(var(--fragment-angle))}
+.CubePortal[data-phase="closing"] .CubeFragment {animation:stoneReconstruct .98s cubic-bezier(.42,0,.22,1) both}
+.CubePortal[data-phase="opening"] .CubeFractureSeams {animation:stoneSeamCharge .55s ease both}
+.CubePortal[data-phase="opening"] .CubeFractureLight {animation:stoneLight 1.04s ease both}
+.CubePortal[data-phase="closing"] .CubeFractureLight {animation:stoneLight .98s ease reverse both}
+.CubePortal[data-phase="closing"] .CubeFractureSeams {animation:stoneSeamCharge .36s .62s ease reverse both}
+.CubeFractureSeams {filter:drop-shadow(0 0 6px #ffbd65) drop-shadow(0 0 13px #ffac36)}
+@keyframes stoneSeparate {
+  0%,15% {transform:translate(0,0) rotate(0)}
+  46% {transform:translate(calc(var(--fragment-x)*.50),calc(var(--fragment-y)*.50)) rotate(calc(var(--fragment-angle)*.50))}
+  100% {transform:translate(var(--fragment-x),var(--fragment-y)) rotate(var(--fragment-angle))}
+}
+@keyframes stoneReconstruct {
+  0%,35% {transform:translate(var(--fragment-x),var(--fragment-y)) rotate(var(--fragment-angle))}
+  86%,100% {transform:translate(0,0) rotate(0)}
+}
+@keyframes stoneSeamCharge {0%{opacity:0}26%,43%{opacity:.95}100%{opacity:0}}
+@keyframes stoneLight {0%{opacity:0}28%,50%{opacity:.85}100%{opacity:0}}
 .CubeArtworkGlow {opacity:0;mix-blend-mode:screen;transition:opacity .22s ease}
 .CubePortal[data-theme="dark"] .CubeArtworkGlow {opacity:.22}
 .CubePortalModel[data-highlighted="true"] .CubeArtworkGlow {opacity:.50}
@@ -190,4 +209,22 @@
   .WorkChapterOrbit {right:0;top:0;width:56%;opacity:.35}
   .WorkIntroCopy {max-width:100%}
   .CubeWorkIntro .CubeWorkLead {margin-bottom:20px}
+}
+
+/* Layered atmospheric foothills, independent of the original stone artwork. */
+.CubePortal[data-theme="dark"] .CubeHome::after {display:none}
+.CubePortal[data-theme="dark"] .CubeHome::before {
+  content:"";position:absolute;inset:-100px -8vw 0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 72% 56%,rgba(142,111,68,.085),transparent 43%),
+    url('/cube-mountains.svg') center bottom / 100% auto no-repeat;
+}
+@media(max-width:700px) {
+  .CubePortal[data-theme="dark"] .CubeHome::before {inset:0 -6vw 0;background-size:auto,auto 38%;background-position:center,center bottom}
+}
+/* Let the fracture register before the chapter covers it. */
+.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation-delay:.32s}
+.CubePortal[data-phase="opening"] .CubeWork {animation-delay:.68s}
+@media(prefers-reduced-motion:reduce) {
+  .CubePortalModel[data-split="true"] .CubeFragments {opacity:0}
+  .CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:1}
 }

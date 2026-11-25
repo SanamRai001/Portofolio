@@ -7,6 +7,7 @@ import { CUBE_PREVIEW_PATH, cubeUrl, readCubeView, portalDuration } from '../src
 
 import { routeFamily, journeyOrigin, canAnimateLink, READY_LIMIT_MS } from '../src/motion/useJourneyTransition.js'
 import { passageKind, passageGeometry, PASSAGE_TIMING } from '../public/about/passage.js'
+import { CUBE_FRAGMENTS } from '../src/pages/CubePortal/cubeFragments.js'
 import { WORK_PROJECTS } from '../src/pages/CubePortal/workProjects.js'
 
 const at = relative => fileURLToPath(new URL(relative, import.meta.url))
@@ -20,8 +21,8 @@ test('cube preview hash route and reduced motion are deterministic', () => {
   assert.equal(cubeUrl('work'), '/cube-preview#work')
   assert.equal(cubeUrl('home'), '/cube-preview#home')
   assert.equal(portalDuration('work', true), 0)
-  assert.equal(portalDuration('work', false), 720)
-  assert.equal(portalDuration('home', false), 640)
+  assert.equal(portalDuration('work', false), 700)
+  assert.equal(portalDuration('home', false), 980)
 })
 
 test('preview route does not replace the established homepage or Galaxy', () => {
@@ -44,7 +45,9 @@ test('layered preview reuses the exact approved artwork and does not load WebGL'
   const scene = text('../src/pages/CubePortal/CubeScene.jsx')
   assert.match(scene, /reference-cube\.png\?url/)
   assert.match(scene, /viewBox="0 0 1254 1254"/)
-  assert.match(scene, /clipPath=\{split \?/)
+  assert.match(scene, /CUBE_FRAGMENTS\.map/)
+  assert.equal(CUBE_FRAGMENTS.length,7)
+  assert.equal(new Set(CUBE_FRAGMENTS.map(piece => piece.id)).size,7)
   assert.match(scene, /data-renderer="layered-artwork"/)
   assert.doesNotMatch(scene, /createCubeScene|GLTFLoader|WebGLRenderer|<canvas/)
   assert.match(text('../vite.config.js'), /repositoryRoot/)
@@ -57,8 +60,8 @@ test('portal retains keyboard navigation, focus and explicit non-indexable previ
   assert.match(jsx, /aria-hidden=\{!isWork\}/)
   assert.match(jsx, /inert=\{!isWork\}/)
   const cubeScene = text('../src/pages/CubePortal/CubeScene.jsx')
-  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-tilt-v2'/)
-  assert.match(cubeScene, /data-lid-open=\{open\}/)
+  assert.match(cubeScene, /MODEL_REVISION = 'original-artwork-fracture-v3'/)
+  assert.match(cubeScene, /data-fractured=\{open\}/)
   assert.match(cubeScene, /data-split=\{split\}/)
   assert.match(cubeScene, /cubeDebug/)
   assert.match(jsx, /highlightedDestination/)
@@ -176,4 +179,22 @@ test('editorial and technical passages are explicit, bounded and do not intercep
     for (const cx of [0,width]) for (const cy of [0,height]) assert.ok(radius > Math.hypot(cx-x,cy-y))
   }
   assert.deepEqual(passageGeometry(null,100,100),{x:50,y:50,radius:103})
+})
+
+test('fracture has independent outward vectors and reversible keyframes', () => {
+  assert.equal(new Set(CUBE_FRAGMENTS.map(p=>p.dx+','+p.dy)).size,7)
+  for(const piece of CUBE_FRAGMENTS) {
+    assert.ok(Math.hypot(piece.dx,piece.dy)>100)
+    assert.ok(piece.d.startsWith('M') && piece.d.endsWith('Z'))
+  }
+  const css = text('../src/pages/CubePortal/CubePortal.css')
+  assert.match(css, /stoneSeparate/)
+  assert.match(css, /stoneReconstruct/)
+  assert.match(css, /cube-mountains\.svg/)
+  assert.match(text('../public/cube-mountains.svg'), /id="mist"/)
+  const passage = text('../public/about/passage.js')
+  assert.match(passage, /ChapterPassageLine/)
+  assert.match(passage, /ChapterPassageBloom/)
+  assert.match(passage, /inset\(50% 0 50% 0\)/)
+  assert.doesNotMatch(passage, /ChapterPassageMotif/)
 })

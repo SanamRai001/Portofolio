@@ -65,7 +65,7 @@ export default function CubePortal({ journey }) {
     animationRef.current?.cancel()
     animationRef.current = null
     const overlay = stageRef.current
-    const element = cubeRef.current
+    const element = cubeRef.current?.querySelector('.CubePortalModel') || cubeRef.current
     const rect = element?.getBoundingClientRect()
     const origin = rect ? { x: rect.left + rect.width * 0.52, y: rect.top + rect.height * 0.5 }
       : priorOrigin.current
@@ -100,7 +100,7 @@ export default function CubePortal({ journey }) {
     overlay.style.setProperty('--portal-y', origin.y + 'px')
     overlay.style.clipPath = start
     const animation = overlay.animate([{ clipPath: start }, { clipPath: end }], {
-      duration, delay: opening ? 100 : 0,
+      duration, delay: opening ? 340 : 0,
       easing: 'cubic-bezier(0.45,0,0.25,1)', fill: 'forwards',
     })
     animationRef.current = animation

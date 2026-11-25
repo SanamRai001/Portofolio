@@ -5,6 +5,7 @@ on:
     paths:
       - 'frontend/src/pages/CubePortal/**'
       - 'frontend/public/about/**'
+      - 'frontend/public/cube-mountains.svg'
       - 'frontend/src/App.jsx'
       - 'frontend/src/SystemControl.jsx'
       - 'frontend/src/LabChapter*'
