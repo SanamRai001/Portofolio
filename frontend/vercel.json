@@ -5,6 +5,14 @@
       "destination": "/about/index.html"
     },
     {
+      "source": "/cube-preview",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/lab-preview",
+      "destination": "/index.html"
+    },
+    {
       "source": "/galaxy/projects/reality-archive",
       "destination": "/galaxy/projects/reality-archive/index.html"
     },
@@ -42,6 +50,26 @@
       "source": "/about/",
       "destination": "/about",
       "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/cube-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/lab-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ]
 }

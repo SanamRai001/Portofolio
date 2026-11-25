@@ -1,0 +1,295 @@
+/* Cube Portal preview — fully scoped to keep the existing homepage/Galaxy untouched. */
+.CubePortal {
+  --cp-bg:#f6f3ec; --cp-ink:#1b201e; --cp-soft:#616965; --cp-muted:#939991;
+  --cp-border:rgba(44,49,44,.2); --cp-card:rgba(255,255,255,.64);
+  --cp-accent:#88be83; --cp-gold:#f6c17f; --cp-land:#acada6;
+  min-height:100svh; position:relative; overflow:hidden; isolation:isolate;
+  background:var(--cp-bg); color:var(--cp-ink); font:400 16px/1.5 Inter,ui-sans-serif,system-ui,sans-serif;
+  transition:background-color .55s ease,color .55s ease;
+}
+.CubePortal[data-theme="dark"] {
+  --cp-bg:#0a1119; --cp-ink:#f3eee7; --cp-soft:#d1d0cf; --cp-muted:#9aabb5;
+  --cp-border:rgba(234,232,228,.26); --cp-card:rgba(18,28,36,.79);
+  --cp-accent:#a7dc91; --cp-gold:#ffdaae; --cp-land:#566677;
+}
+.CubePortal *, .CubePortal *::before, .CubePortal *::after { box-sizing:border-box }
+.CubePortal button { font:inherit; cursor:pointer }
+.CubePortal a { color:inherit; text-decoration:none }
+.CubePortal :is(a,button):focus-visible { outline:2px solid var(--cp-accent);outline-offset:5px }
+.CubeSrOnly { position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap }
+.CubeSkip { position:fixed;top:10px;left:10px;z-index:110;transform:translateY(-150%);padding:12px 16px;background:var(--cp-ink);color:var(--cp-bg)!important }
+.CubeSkip:focus { transform:translateY(0) }
+.CubeHeader { position:relative;z-index:80;display:flex;align-items:center;justify-content:space-between;gap:20px;width:min(1450px,calc(100% - 112px));margin:0 auto;padding:30px 0 }
+.CubeIdentity { display:flex;align-items:center;gap:21px;white-space:nowrap;font-size:12px;font-weight:600;letter-spacing:.27em }
+.CubeIdentity strong {font:400 31px/.9 Georgia,serif;letter-spacing:-.09em}
+.CubeIdentity>span:nth-child(2) {font-size:20px;font-weight:300;color:var(--cp-muted)}
+.CubeHeaderActions {display:flex;align-items:center;gap:22px}
+.CubeLocation {font-size:13px;color:var(--cp-soft)}
+.CubeThemeButton {display:grid;place-items:center;width:43px;height:43px;border-radius:50%;border:1px solid var(--cp-border);background:transparent;color:var(--cp-ink);transition:background .2s ease,transform .2s ease}
+.CubeThemeButton:hover {transform:translateY(-2px);background:var(--cp-card)}
+.CubeContact {display:flex;gap:10px;align-items:center;border-radius:25px;background:var(--cp-ink);color:var(--cp-bg)!important;padding:11px 19px;font-size:13px;transition:transform .2s ease}
+.CubeContact:hover {transform:translateY(-2px)}
+.CubeHome {position:relative;min-height:min(780px,calc(100svh - 95px));width:min(1450px,calc(100% - 112px));margin:0 auto}
+.CubeHome::after {content:"";position:absolute;z-index:0;pointer-events:none;left:-6vw;right:-6vw;bottom:-12px;height:200px;opacity:.37;background:linear-gradient(0deg,var(--cp-land),transparent 80%);clip-path:polygon(0 78%,7% 68%,13% 83%,22% 49%,31% 84%,42% 97%,57% 89%,68% 94%,76% 75%,83% 81%,91% 51%,100% 66%,100% 100%,0 100%);mask-image:linear-gradient(0deg,#000,transparent)}
+.CubeIntro {position:relative;z-index:5;top:137px;max-width:410px;width:40%}
+.CubeEyebrow {font-size:12px;letter-spacing:.32em;font-weight:600;color:var(--cp-soft);margin:0 0 28px}
+.CubeIntro h1 {font:400 clamp(58px,6.1vw,96px)/.99 Georgia,'Times New Roman',serif;letter-spacing:-.068em;margin:0 0 28px}
+.CubeIntro h1 em {color:var(--cp-soft);font-weight:400}
+.CubeIntro>p:not(.CubeEyebrow) {font-size:17px;line-height:1.74;color:var(--cp-soft);max-width:340px}
+.CubeAccent {height:2px;width:46px;margin-top:27px;background:var(--cp-accent)}
+.CubeUniverse {position:absolute;right:0;top:30px;width:66%;height:600px;z-index:4}
+.CubeOrbit {position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.CubeOrbit ellipse {fill:none;stroke:var(--cp-muted);stroke-width:.8;opacity:.65}
+.CubeOrbit circle {fill:var(--cp-ink);transition:fill .45s ease}
+.CubePortal[data-theme="dark"] .CubeOrbit circle {fill:var(--cp-gold);filter:drop-shadow(0 0 5px var(--cp-gold))}
+.CubePortalModel {position:absolute;inset:9% 15% 11% 17%;pointer-events:none;z-index:2}
+/* Preserve the source artwork at rest; animate clipped stone fragments on open. */
+.CubeArtworkTilt {position:absolute;inset:0;transform-origin:50% 50%;transform:perspective(900px) rotateX(var(--cube-tilt-x,0deg)) rotateY(var(--cube-tilt-y,0deg));transition:transform .24s cubic-bezier(.22,.7,.25,1);pointer-events:none}
+.CubeArtwork {position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+@media(hover:hover) and (pointer:fine) {
+  .CubePortal[data-phase="home"] .CubePortalModel {pointer-events:auto}
+}
+.CubePortalModel[data-split="true"] .CubeArtworkTilt {transform:none;transition:none}
+/* Lift only the moving cube above the page reveal. Its initial rectangle
+   is captured from normal layout, so nothing jumps or reflows. */
+.CubePortal[data-phase="opening"] .CubeUniverse,.CubePortal[data-phase="closing"] .CubeUniverse {z-index:auto}
+.CubePortalModel[data-flight="true"] {position:fixed;z-index:90;pointer-events:none}
+.CubePortalModel[data-flight="true"] .CubePortalGroundShadow {opacity:0}
+.CubePortal[data-phase="opening"] .CubeHeader,.CubePortal[data-phase="closing"] .CubeHeader {pointer-events:none}
+@media(prefers-reduced-motion:reduce) {
+  .CubeArtworkTilt {transform:none!important;transition:none!important}
+}
+/* Cinematic Work passage. The idle source is untouched until pressure releases. */
+.CubeArtworkBody,.CubeFragments,.CubeFractureLight,.CubeFractureSeams {pointer-events:none}
+.CubeFragments,.CubeFractureLight,.CubeFractureSeams {opacity:0}
+.CubeFragment {
+  transform-box:view-box;transform-origin:var(--fragment-origin,50% 50%);
+  --fragment-rest:translate(0,0) rotate(0deg) scale(1,1);
+  --fragment-flight:translate(var(--fragment-x),var(--fragment-y)) rotate(var(--fragment-angle)) scale(calc(var(--fragment-scale,1)*var(--fragment-squash,1)),var(--fragment-scale,1));
+  transform:var(--fragment-rest)
+}
+.CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:0}
+.CubePortalModel[data-split="true"] .CubeFragments {opacity:1}
+.CubePortal[data-phase="opening"] .CubeArtwork {transform-origin:50% 50%;animation:stonePressure var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeArtwork {transform-origin:50% 50%;animation:stoneSeal var(--work-close-ms) linear both}
+.CubePortal[data-phase="opening"] .CubeArtworkBody {animation:stoneIntactOut var(--work-open-ms) linear both}
+.CubePortal[data-phase="opening"] .CubeFragments {animation:stoneFragmentsOut var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeArtworkBody {animation:stoneIntactIn var(--work-close-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeFragments {animation:stoneFragmentsIn var(--work-close-ms) linear both}
+.CubePortal[data-phase="opening"] .CubeFragment {
+  animation:stoneSeparate calc(var(--work-open-ms) - var(--fragment-delay,140ms)) linear var(--fragment-delay,140ms) both
+}
+.CubePortal[data-phase="work"] .CubeFragment {transform:var(--fragment-flight)}
+.CubePortal[data-phase="closing"] .CubeFragment {
+  animation:stoneReconstruct calc(var(--work-close-ms) - var(--fragment-return-delay,120ms)) linear var(--fragment-return-delay,120ms) both
+}
+.CubePortal[data-phase="opening"] .CubeFractureSeams {animation:stoneSeamCharge var(--work-open-ms) linear both}
+.CubePortal[data-phase="opening"] .CubeFractureLight {animation:stoneLight var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeFractureLight {animation:stoneLightReturn var(--work-close-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeFractureSeams {animation:stoneSeamSeal var(--work-close-ms) linear both}
+.CubeFractureSeams {filter:drop-shadow(0 0 5px #ffd18a) drop-shadow(0 0 12px #ffac36)}
+.CubeCrackBand {stroke-dasharray:100;stroke-dashoffset:100}
+.CubePortal[data-phase="opening"] .CubeCrackBand {animation:crackPropagate .12s cubic-bezier(.3,.1,.2,1) both;animation-delay:calc(30ms + var(--crack-delay))}
+.CubePortal[data-phase="closing"] .CubeCrackBand {animation:crackSeal .12s ease both;animation-delay:calc(475ms - var(--crack-delay))}
+.CubeCoreRadiance {transform-box:fill-box;transform-origin:center;opacity:0}
+.CubePortal[data-phase="opening"] .CubeCoreRadiance {animation:coreBreach var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"] .CubeCoreRadiance {animation:coreSeal var(--work-close-ms) linear both}
+/* Compression, crack growth and a short recoil before the portal expands. */
+@keyframes stonePressure {
+  0%{transform:scale(1)}
+  13%{transform:scale(.982)}
+  22%{transform:scale(.965) rotate(-.6deg)}
+  29%{transform:scale(1.04) rotate(.45deg)}
+  40%,100%{transform:scale(1)}
+}
+@keyframes stoneSeal {0%,88%{transform:scale(1)}94%{transform:scale(.982)}100%{transform:scale(1)}}
+@keyframes stoneIntactOut {0%,23%{opacity:1}23.1%,100%{opacity:0}}
+@keyframes stoneFragmentsOut {0%,23%{opacity:0}23.1%,63%{opacity:1}100%{opacity:0}}
+@keyframes stoneIntactIn {0%,97%{opacity:0}97.1%,100%{opacity:1}}
+@keyframes stoneFragmentsIn {0%{opacity:0}17%,97%{opacity:1}97.1%,100%{opacity:0}}
+@keyframes crackPropagate {from{stroke-dashoffset:100;opacity:0}to{stroke-dashoffset:0;opacity:1}}
+@keyframes crackSeal {from{stroke-dashoffset:0;opacity:1}to{stroke-dashoffset:100;opacity:0}}
+@keyframes stoneSeparate {
+  0%{transform:var(--fragment-rest);animation-timing-function:cubic-bezier(.65,0,.18,1)}
+  22%{transform:translate(calc(var(--fragment-x)*.72),calc(var(--fragment-y)*.72)) rotate(calc(var(--fragment-angle)*.65)) scale(calc(1 + (var(--fragment-scale,1) - 1)*.65),calc(1 + (var(--fragment-scale,1) - 1)*.65));animation-timing-function:cubic-bezier(.1,.6,.2,1)}
+  72%{transform:var(--fragment-flight);animation-timing-function:ease-out}
+  100%{transform:var(--fragment-flight)}
+}
+@keyframes stoneReconstruct {
+  0%,17%{transform:var(--fragment-flight);animation-timing-function:cubic-bezier(.55,.05,.25,1)}
+  76%{transform:translate(calc(var(--fragment-x)*.16),calc(var(--fragment-y)*.16)) rotate(calc(var(--fragment-angle)*.12)) scale(1,1);animation-timing-function:cubic-bezier(.2,.6,.3,1)}
+  94%,100%{transform:var(--fragment-rest)}
+}
+@keyframes stoneSeamCharge {0%,6%{opacity:0}23%{opacity:1}30%{opacity:.95}43%,100%{opacity:0}}
+@keyframes stoneSeamSeal {0%,62%{opacity:0}78%{opacity:.88}94%,100%{opacity:0}}
+@keyframes stoneLight {0%{opacity:0}19%{opacity:.25}34%{opacity:.92}57%{opacity:.7}100%{opacity:0}}
+@keyframes stoneLightReturn {0%{opacity:0}28%{opacity:.7}62%{opacity:.55}91%,100%{opacity:0}}
+@keyframes coreBreach {0%,22%{opacity:0;transform:scale(.35)}39%{opacity:1;transform:scale(1)}57%{opacity:.9;transform:scale(1.45)}100%{opacity:0;transform:scale(1.8)}}
+@keyframes coreSeal {0%{opacity:0;transform:scale(1.8)}28%{opacity:.85;transform:scale(1.45)}70%{opacity:.5;transform:scale(.7)}92%,100%{opacity:0;transform:scale(.25)}}
+.CubeArtworkGlow {opacity:0;mix-blend-mode:screen;transition:opacity .22s ease}
+.CubePortal[data-theme="dark"] .CubeArtworkGlow {opacity:.22}
+.CubePortalModel[data-highlighted="true"] .CubeArtworkGlow {opacity:.50}
+.CubePortal[data-theme="dark"] .CubePortalModel[data-highlighted="true"] .CubeArtworkGlow {opacity:.74}
+.CubePortalModel[data-split="true"] .CubeArtworkGlow {opacity:0}
+.CubeOrbit .CubeOrbitHighlight {opacity:0;stroke:var(--cp-gold);stroke-width:1.7;stroke-dasharray:15 85;stroke-linecap:round;transition:opacity .18s ease}
+.CubeUniverse[data-highlight="work"] .CubeOrbitHighlight {stroke-dashoffset:31;opacity:1}
+.CubeUniverse[data-highlight="lab"] .CubeOrbitHighlight {stroke-dashoffset:19;opacity:1}
+.CubeUniverse[data-highlight="galaxy"] .CubeOrbitHighlight {stroke-dashoffset:-4;opacity:1}
+.CubeUniverse[data-highlight="about"] .CubeOrbitHighlight {stroke-dashoffset:-32;opacity:1}
+.CubePortal[data-theme="dark"] .CubeOrbitHighlight {filter:drop-shadow(0 0 3px var(--cp-gold))}
+.CubePortalGroundShadow {position:absolute;bottom:5%;left:28%;width:42%;height:16px;border-radius:50%;background:rgba(14,19,20,.2);filter:blur(13px);pointer-events:none}
+.CubeDestinations {position:absolute;inset:0;pointer-events:none;z-index:8}
+.CubeDestination {position:absolute;min-width:118px;min-height:95px;padding:12px 15px;display:flex;flex-direction:column;justify-content:center;gap:3px;pointer-events:auto;transform:rotate(var(--twist,0deg));border-radius:14px;border:1px solid var(--cp-border);background:var(--cp-card);backdrop-filter:blur(13px);transition:background .25s ease,box-shadow .25s ease,transform .25s ease}
+.CubeDestination>span {font:24px/1 ui-monospace,monospace;margin-bottom:2px}
+.CubeDestination>strong {font-weight:500;font-size:21px;letter-spacing:-.04em;line-height:1.15}
+.CubeDestination>small {font-size:11px;color:var(--cp-soft);letter-spacing:.01em}
+.CubeDestination:hover,.CubeDestination:focus-visible {transform:rotate(var(--twist)) translateY(-5px);box-shadow:0 12px 25px rgba(25,23,21,.07)}
+.CubePortal[data-theme="dark"] .CubeDestination:hover {box-shadow:0 0 19px rgba(255,204,144,.15);border-color:var(--cp-gold)}
+.CubeDestinationWork {--twist:-7deg;left:16%;top:13%;border-color:rgba(130,184,123,.38)}
+.CubePortal[data-theme="dark"] .CubeDestinationWork {box-shadow:0 0 13px rgba(145,211,128,.12)}
+.CubeDestinationLab {--twist:5deg;right:9%;top:11%}
+.CubeDestinationGalaxy {--twist:6deg;right:0;top:64%}
+.CubeDestinationAbout {--twist:-6deg;left:11%;top:77%}
+.CubeHomeFooter {position:absolute;z-index:5;right:0;bottom:42px;font-size:11px;letter-spacing:.23em;color:var(--cp-soft)}
+.CubeHomeFooter span {padding:0 9px;color:var(--cp-muted)}
+/* Overlay expands from the cube center; never translates the cube to a corner. */
+.CubePortalReveal {position:fixed;inset:0;z-index:60;overflow-y:auto;background:var(--cp-bg);color:var(--cp-ink);visibility:hidden;pointer-events:none;clip-path:circle(0 at 66% 44%)}
+.CubePortal[data-phase="opening"] .CubePortalReveal,.CubePortal[data-phase="work"] .CubePortalReveal,.CubePortal[data-phase="closing"] .CubePortalReveal {visibility:visible}
+.CubePortal[data-phase="work"] .CubePortalReveal {clip-path:none;pointer-events:auto}
+/* The opening must show a recognizable destination before it covers the home scene. */
+.CubePortalGlimpse {position:fixed;z-index:1;left:var(--portal-x,66vw);top:var(--portal-y,44vh);width:min(265px,65vw);display:flex;align-items:center;flex-direction:column;gap:12px;transform:translate(-50%,-50%) scale(.92);opacity:0;text-align:center;pointer-events:none;color:var(--cp-ink)}
+.CubePortalGlimpse span {font-size:10px;font-weight:700;letter-spacing:.19em;color:var(--cp-soft)}
+.CubePortalGlimpse strong {font:400 clamp(22px,2.5vw,34px)/1.06 Georgia,serif;letter-spacing:-.045em}
+.CubePortalGlimpse::after {content:"";display:block;width:36px;height:2px;background:var(--cp-gold)}
+.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation:cubePortalPreview .82s cubic-bezier(.22,1,.36,1) both}
+@keyframes cubePortalPreview {0%,10%{opacity:0;transform:translate(-50%,-50%) scale(.91)}26%,36%{opacity:1;transform:translate(-50%,-50%) scale(1)}54%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.03)}}
+@keyframes cubePortalChapterEnter {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.CubePortal[data-phase="opening"] .CubeWork {animation:cubePortalChapterEnter .42s .46s ease both}
+.CubeWork {max-width:1120px;margin:0 auto;padding:135px 48px 80px;opacity:0;transform:translateY(24px);transition:opacity .27s ease,transform .34s ease}
+.CubePortal[data-phase="work"] .CubeWork {opacity:1;transform:none}
+.CubeWorkBack {border:0;background:transparent;padding:11px 2px;display:flex;align-items:center;gap:8px;color:var(--cp-soft);font-size:13px;margin-bottom:54px}
+.CubeWorkBack:hover {color:var(--cp-ink)}
+.CubeWorkEyebrow {font-size:12px;font-weight:600;letter-spacing:.2em;color:var(--cp-accent);margin:0 0 17px}
+.CubeWork h1 {font:400 clamp(48px,6.5vw,88px)/1.05 Georgia,serif;letter-spacing:-.057em;margin:0}
+.CubeWorkLead {font-size:17px;color:var(--cp-soft);line-height:1.7;max-width:540px;margin:20px 0 50px}
+.CubeWorkFootnote {color:var(--cp-muted);font-size:11px;margin-top:55px}
+.CubePortal[data-phase="opening"] .CubeIntro,.CubePortal[data-phase="opening"] .CubeDestinations {pointer-events:none}
+@media(max-width:900px) {
+  .CubeHeader,.CubeHome {width:calc(100% - 50px)}
+  .CubeIntro {width:43%;top:105px}
+  .CubeIntro h1 {font-size:clamp(50px,7.5vw,79px)}
+  .CubeUniverse {width:69%;height:570px;top:36px}
+  .CubeDestinationWork {left:9%}
+  .CubeDestinationLab {right:2%}
+  .CubeDestinationGalaxy {right:1%}
+  .CubeDestinationAbout {left:7%}
+}
+@media(max-width:700px) {
+  .CubePortal {min-height:100svh}
+  .CubeHeader,.CubeHome {width:calc(100% - 38px)}
+  .CubeHeader {padding:22px 0}
+  .CubeIdentity {gap:9px;letter-spacing:.13em;font-size:10px}
+  .CubeIdentity strong {font-size:25px}
+  .CubeLocation {display:none}
+  .CubeHeaderActions {gap:9px}
+  .CubeThemeButton {width:42px;height:42px}
+  .CubeContact {padding:10px 13px;font-size:12px}
+  .CubeHome {min-height:880px}
+  .CubeIntro {top:24px;width:100%;max-width:440px}
+  .CubeEyebrow {font-size:10px;margin:0 0 18px}
+  .CubeIntro h1 {font-size:clamp(57px,12.5vw,77px);max-width:360px}
+  .CubeIntro>p:not(.CubeEyebrow) {font-size:15px;max-width:320px}
+  .CubeAccent {margin-top:17px}
+  .CubeUniverse {top:278px;left:-6%;right:auto;width:112%;height:465px}
+  .CubePortalModel {inset:13% 18% 15% 17%}
+  .CubeDestination {min-width:95px;min-height:77px;padding:8px 11px;border-radius:12px}
+  .CubeDestination>span {font-size:19px}
+  .CubeDestination>strong {font-size:17px}
+  .CubeDestination>small {font-size:9px}
+  .CubeDestinationWork {left:6%;top:7%}
+  .CubeDestinationLab {right:2%;top:8%}
+  .CubeDestinationGalaxy {right:1%;top:77%}
+  .CubeDestinationAbout {left:5%;top:82%}
+  .CubeHomeFooter {bottom:34px;left:0;right:auto;letter-spacing:.18em}
+  .CubeHome::after {height:150px}
+  .CubeWork {padding:116px 25px 70px}
+  .CubeWorkBack {margin-bottom:40px}
+  .CubeWorkLead {font-size:15px}
+}
+@media(max-width:380px) {
+  .CubeHeader,.CubeHome {width:calc(100% - 28px)}
+  .CubeIdentity {letter-spacing:.04em}
+  .CubeIdentity>span:nth-child(2) {display:none}
+  .CubeUniverse {top:280px;height:430px}
+  .CubeDestinationAbout {top:81%}
+}
+@media(prefers-reduced-motion:reduce) {
+  .CubePortal *, .CubePortal *::before, .CubePortal *::after {transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+
+/* Visible only with ?cubeDebug=1; identifies stale preview assets without affecting the public UI. */
+.CubePortalDebug {position:fixed;left:12px;bottom:12px;z-index:120;max-width:calc(100vw - 24px);padding:7px 11px;border-radius:7px;border:1px solid var(--cp-border);background:var(--cp-bg);color:var(--cp-ink);font:500 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;box-shadow:0 3px 12px rgba(0,0,0,.07);pointer-events:none}
+
+
+.CubeWorkBack.WorkReturnBottom {margin:26px 0 0;min-height:44px}
+
+/* Chapter continuity: preserve the cube's orbit language without a second hero object. */
+.CubeWork {--work-gold:#94662c}
+.CubePortal[data-theme="dark"] .CubeWork {--work-gold:#e8bc83}
+.CubeWorkIntro {position:relative;isolation:isolate;margin-bottom:48px}
+.WorkIntroCopy {position:relative;z-index:1;max-width:660px}
+.WorkIntroCopy h1 em {font-weight:400;color:var(--cp-soft)}
+.CubeWorkIntro .CubeWorkLead {margin-bottom:24px}
+.CubeWorkEyebrow {color:var(--work-gold)}
+.WorkChapterOrbit {position:absolute;right:-25px;top:-32px;width:min(47%,460px);height:auto;z-index:0;pointer-events:none;overflow:visible}
+.WorkChapterOrbit ellipse {fill:none;stroke:var(--work-gold);stroke-width:.8;opacity:.4}
+.WorkChapterOrbit .WorkOrbitInner {opacity:.16;stroke-dasharray:2 5}
+.WorkChapterOrbit .WorkOrbitArc {stroke-width:1.8;stroke-dasharray:15 85;stroke-dashoffset:-27;stroke-linecap:round;opacity:.9}
+.WorkOrbitNode {fill:var(--work-gold)}
+.WorkChapterRule {height:1px;width:min(100%,420px);background:var(--cp-border);position:relative}
+.WorkChapterRule span {display:block;width:54px;height:2px;background:var(--work-gold)}
+.CubePortal[data-phase="opening"] .WorkOrbitArc {animation:workChapterOrbitDraw .75s .15s ease both}
+.CubePortal[data-phase="opening"] .WorkChapterRule span {transform-origin:left;animation:workChapterRuleDraw .48s .35s ease both}
+@keyframes workChapterOrbitDraw {from{stroke-dashoffset:0;opacity:0}to{stroke-dashoffset:-27;opacity:.9}}
+@keyframes workChapterRuleDraw {from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:700px) {
+  .CubeWorkIntro {margin-bottom:32px}
+  .WorkChapterOrbit {right:0;top:0;width:56%;opacity:.35}
+  .WorkIntroCopy {max-width:100%}
+  .CubeWorkIntro .CubeWorkLead {margin-bottom:20px}
+}
+
+/* Layered atmospheric foothills, independent of the original stone artwork. */
+.CubePortal[data-theme="dark"] .CubeHome::after {display:none}
+.CubePortal[data-theme="dark"] .CubeHome::before {
+  content:"";position:absolute;inset:-100px -8vw 0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 72% 56%,rgba(142,111,68,.085),transparent 43%),
+    url('/cube-mountains.svg') center bottom / 100% auto no-repeat;
+}
+@media(max-width:700px) {
+  .CubePortal[data-theme="dark"] .CubeHome::before {inset:0 -6vw 0;background-size:auto,auto 38%;background-position:center,center bottom}
+}
+/* The fracture network and surrounding recoil are owned by WorldFracture.css. */
+.CubePortal[data-phase="opening"] .CubePortalGlimpse {animation-duration:.27s;animation-delay:var(--work-reveal-ms)}
+.CubePortal[data-phase="opening"] .CubeWork {animation-duration:.21s;animation-delay:calc(var(--work-reveal-ms) + 100ms)}
+/* One bounded viewport-wide radiance layer, not per-shard filters. */
+.CubePortal::after {content:"";position:fixed;inset:0;z-index:85;pointer-events:none;
+  background:radial-gradient(ellipse at var(--burst-x,50%) var(--burst-y,50%),rgba(255,190,103,.28),rgba(228,150,62,.06) 48%,transparent 80%);opacity:0}
+.CubePortal[data-phase="opening"]::after {animation:stoneLight var(--work-open-ms) linear both}
+.CubePortal[data-phase="closing"]::after {animation:stoneLightReturn var(--work-close-ms) linear both}
+@media(prefers-reduced-motion:reduce) {
+  .CubePortalModel[data-split="true"] .CubeFragments {opacity:0}
+  .CubePortalModel[data-split="true"] .CubeArtworkBody {opacity:1}
+}
+
+/* Small transient chips; no per-particle filters or idle animation. */
+.CubeFractureParticles {pointer-events:none}
+.CubeFractureParticle {opacity:0;transform-box:view-box;transform-origin:center}
+.CubePortal[data-phase="opening"] .CubeFractureParticle {animation:stoneChip .32s .14s cubic-bezier(.18,.7,.24,1) both;animation-delay:calc(.14s + var(--particle-delay))}
+.CubePortal[data-phase="closing"] .CubeFractureParticle {animation:stoneChip .32s .24s cubic-bezier(.18,.7,.24,1) reverse both;animation-delay:calc(.24s + var(--particle-delay)*.5)}
+@keyframes stoneChip {
+  0%{opacity:0;transform:translate(0,0) scale(.5)}
+  16%{opacity:.9}
+  62%{opacity:.7}
+  100%{opacity:0;transform:translate(var(--particle-x),var(--particle-y)) rotate(100deg) scale(.55)}
+}

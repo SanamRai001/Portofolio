@@ -1,0 +1,17 @@
+/* Preview-only passage. No video, WebGL or third-party animation runtime. */
+.JourneyVeil {position:fixed;inset:0;z-index:2147483000;pointer-events:auto;overflow:hidden;isolation:isolate}
+.JourneyVeilShade {position:absolute;inset:0;background:#020204;clip-path:circle(var(--journey-radius) at var(--journey-x) var(--journey-y))}
+.JourneyVeilRing,.JourneyVeilOrbit {box-sizing:border-box;position:absolute;left:var(--journey-x);top:var(--journey-y);width:calc(var(--journey-radius)*2);height:calc(var(--journey-radius)*2);margin-left:calc(-1*var(--journey-radius));margin-top:calc(-1*var(--journey-radius));border:2px solid #e6b56f;border-radius:50%;pointer-events:none;opacity:0}
+.JourneyVeilRing {box-shadow:0 0 18px #dfa85780,inset 0 0 12px #dfa85750}
+.JourneyVeilOrbit {border-color:#b99056;box-shadow:none}
+.JourneyVeil[data-phase="depart"] .JourneyVeilShade {animation:journeyCover var(--journey-cover-ms) cubic-bezier(.5,.02,.32,1) both}
+.JourneyVeil[data-phase="depart"] .JourneyVeilRing {animation:journeyRingOut var(--journey-cover-ms) cubic-bezier(.5,.02,.32,1) both}
+.JourneyVeil[data-phase="depart"] .JourneyVeilOrbit {animation:journeyOrbitOut var(--journey-cover-ms) cubic-bezier(.5,.02,.32,1) both}
+.JourneyVeil[data-phase="reveal"] .JourneyVeilShade {animation:journeyReveal var(--journey-reveal-ms) cubic-bezier(.42,0,.22,1) both}
+.JourneyVeil[data-phase="reveal"] .JourneyVeilRing {animation:journeyRingIn var(--journey-reveal-ms) cubic-bezier(.42,0,.22,1) both}
+@keyframes journeyCover {0%{clip-path:circle(0px at var(--journey-x) var(--journey-y))}100%{clip-path:circle(var(--journey-radius) at var(--journey-x) var(--journey-y))}}
+@keyframes journeyReveal {0%{clip-path:circle(var(--journey-radius) at var(--journey-x) var(--journey-y))}100%{clip-path:circle(0px at var(--journey-x) var(--journey-y))}}
+@keyframes journeyRingOut {0%{transform:scale(.015);opacity:0}15%{opacity:.9}75%{opacity:.8}100%{transform:scale(1);opacity:0}}
+@keyframes journeyOrbitOut {0%{transform:rotate(-17deg) scale(.025,.014);opacity:0}20%{opacity:.6}100%{transform:rotate(-17deg) scale(1.35,.77);opacity:0}}
+@keyframes journeyRingIn {0%{transform:scale(1);opacity:0}24%{opacity:.7}82%{opacity:.8}100%{transform:scale(.005);opacity:0}}
+@media(prefers-reduced-motion:reduce) {.JourneyVeil {display:none}}
