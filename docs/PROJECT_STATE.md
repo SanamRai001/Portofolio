@@ -6,7 +6,9 @@
 - Integrated the source/test changes from stale PR #22 (idempotent demo viewer recovery, no production seed run) and PR #39 (six generated social cards and metadata/build checks). Preserved current build checks; did not transplant old status docs or obsolete workflow branch filters.
 - PR #42 prerenders the former App tree, not the new cube. Do not merge it wholesale. Existing static identity metadata, About and Galaxy project prerender remain; new homepage SSR/hydration needs its own reconciled implementation.
 - Release blocker: public POST /api/system writes global shared MongoDB flags. No production DB changes, seed or deployment; resolve isolation or explicitly restrict write authority before promoting this candidate. Lab remains noindex.
-- Verification: baseline browser and frontend CI passed; new candidate CI, production-path browser and social-card visual review pending. No master merge until release gate is resolved.
+- Verification at `5a17d64`: backend/frontend CI and Vercel passed; desktop capture failed to sample the short rupture interval, mobile/reduced passed. Capture now seeks actual browser animations at defined times before resuming; new CI pending.
+- Session isolation implemented: public config writes require an opaque random demo session; fixed public defaults, independent flags, cache and request logs, 30-minute absolute expiry, 1000-session cap. Frontend stores ID in sessionStorage, requires backend acknowledgement before enabling writes, and never sends dependent requests using speculative flags. Rate-limit flag remains demonstrative only. Real HTTP isolation tests added with fixture project data; production DB and backend rollout unverified.
+- Deployment constraint: process-local store assumes one backend process or sticky routing; restart/expiry resets session. Existing backend deployment still has the old global-write contract until updated. Candidate frontend fails closed against that old backend. Do not promote frontend before backend rollout is verified. SEO reconciliation remains pending.
 
 
 ## Current work — Cube Portal / selected work (2026-11-24)

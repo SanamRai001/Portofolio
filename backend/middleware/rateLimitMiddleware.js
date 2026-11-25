@@ -1,5 +1,4 @@
 import rateLimit from "express-rate-limit"
-import System from "../models/systemModel.js";
 
 const limiter = rateLimit({
         windowMs: 30 * 1000,
@@ -13,9 +12,8 @@ const limiter = rateLimit({
         }
     });
 
-const rateLimitMiddleware = async(req, res, next)=>{
-    const systemConfig = await System.findOne({});
-    if(systemConfig?.rateLimit === false){
+const rateLimitMiddleware = (req, res, next)=>{
+    if(req.systemConfig?.rateLimit !== true){
         return next();
     }
     else{

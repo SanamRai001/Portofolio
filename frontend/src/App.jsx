@@ -90,7 +90,7 @@ const App = ({ labPreview = false }) => {
               <svg className="LabChapterOrbit" viewBox="0 0 500 180" aria-hidden="true" focusable="false"><path d="M8 90H110L146 34H254L290 145H390L422 90H492" /><circle cx="146" cy="34" r="4"/><circle cx="290" cy="145" r="4"/><circle cx="422" cy="90" r="3"/></svg>
               <p className="SectionKicker">02 / THE LAB</p>
               <h1 id="lab-chapter-title">Beyond the <em>interface.</em></h1>
-              <p>Explore the running backend. Change a configuration, inspect its request path, and observe the real API response.</p>
+              <p>Explore the running backend. Change your demo configuration, inspect its request path, and observe the real API response.</p>
               <div className="LabChapterRule" aria-hidden="true"/>
             </section> : <>
               <HeroSection />
@@ -113,7 +113,7 @@ const App = ({ labPreview = false }) => {
             {!labPreview && <div data-reveal><TechStack /></div>}
           </main>
 
-          {labPreview ? <footer className="LabChapterFooter SectionShell"><a href="/?from=lab" data-about-passage>← Return to cube</a><span>Live configuration · Shared backend</span></footer> : <Footer />}
+          {labPreview ? <footer className="LabChapterFooter SectionShell"><a href="/?from=lab" data-about-passage>← Return to cube</a><span>Live configuration · Isolated demo session</span></footer> : <Footer />}
         </div>
       </div>
     </div>

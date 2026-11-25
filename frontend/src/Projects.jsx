@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { demoHeaders } from './config/demoSession.js'
 import { useEffect, useState } from 'react';
 import API from "./config/api";
 import ProjectCard from './reusable/ProjectCard';
@@ -32,9 +33,7 @@ const Projects = ({ systemToggle }) => {
         setLoading(true);
         const response = await axios.get(url, {
           signal: controller.signal,
-          headers: token
-            ? { 'Authorization': "Bearer " + token }
-            : undefined
+          headers: demoHeaders(token ? { Authorization: "Bearer " + token } : {})
         });
 
         setProjects(Array.isArray(response.data.data) ? response.data.data : []);

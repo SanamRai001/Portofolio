@@ -101,11 +101,17 @@ try {
       await page.waitForTimeout(600)
       assert.ok(await page.locator('.CubeHome').evaluate(el=>getComputedStyle(el,'::before').backgroundImage.includes('cube-mountains.svg')))
       await page.screenshot({path: output + '/' + view.name + '-dark.png'})
-      await page.locator('.CubeDestinationWork').click()
+      if (view.reducedMotion === 'reduce') await page.locator('.CubeDestinationWork').click()
       if (view.reducedMotion !== 'reduce') {
-        // Capture the pressure and rupture directly from the animation clock,
-        // rather than assuming screenshots have a fixed capture latency.
+        // Seek the real browser animations to exact times; a busy CI frame must not
+        // erase a short sampling window. The normal navigation resumes after capture.
         const samples=await page.evaluate(async()=>{
+          document.querySelector('.CubeDestinationWork').click()
+          await new Promise(resolve=>requestAnimationFrame(resolve))
+          const root=document.querySelector('.CubePortal')
+          const animations=root.getAnimations({subtree:true}).filter(a=>
+            /^(stone|crack|core|world|cubePortal)/.test(a.animationName||'') || a.effect?.target?.classList?.contains('CubePortalReveal'))
+          animations.forEach(a=>a.pause())
           const artwork=document.querySelector('.CubeArtwork')
           const body=document.querySelector('.CubeArtworkBody')
           const core=document.querySelector('.CubeCoreRadiance')
@@ -131,15 +137,11 @@ try {
               return {x:p.x,y:p.y}
             })
           })
-          let pressure=null,rupture=null,spread=null
-          const start=performance.now()
-          while(performance.now()-start<1800){
-            const t=clock()?.currentTime
-            if(t>=35&&t<125&&!pressure)pressure=read()
-            if(t>=285&&t<350&&!rupture)rupture=read()
-            if(t>=420&&t<490){spread=read();break}
-            await new Promise(resolve=>requestAnimationFrame(resolve))
+          const seek=t=>{
+            animations.forEach(a=>{a.currentTime=t})
+            return read()
           }
+          const pressure=seek(80),rupture=seek(315),spread=seek(465)
           return {pressure,rupture,spread}
         })
         assert.ok(samples.pressure,'Pressure phase must be observable')
@@ -170,7 +172,8 @@ try {
         assert.equal(evidence.bodyOpacity,'0')
         assert.equal(evidence.tiltTransform, 'none', 'Tilt must reset during opening')
         assert.ok(evidence.clipPath.startsWith('circle('))
-        await page.screenshot({path: output + '/' + view.name + '-opening.png'})
+        await page.screenshot({path: output + '/' + view.name + '-opening.png', animations:'allow'})
+        await page.evaluate(()=>document.querySelector('.CubePortal').getAnimations({subtree:true}).filter(a=>a.playState==='paused').forEach(a=>a.play()))
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
       assert.equal(await page.locator('.CubeWorldFracture').count(),0,'No world fracture layer after handoff')
@@ -314,14 +317,18 @@ try {
       // Never mutate the shared deployed configuration during visual checks.
       let flags = {auth:false,db:true,cache:false,logging:false,pagination:false,rateLimit:false}
       const fixtureRequests = []
+      const demoSession = 'b'.repeat(64)
       await page.route(/\/api\/(system|controls|projects|logs)(?:\?|$)/,async route => {
         const request = route.request()
         const key = new URL(request.url()).pathname.split('/').at(-1)
         fixtureRequests.push({method:request.method(),key})
-        const headers = {'access-control-allow-origin':'*','access-control-allow-methods':'GET, POST, OPTIONS','access-control-allow-headers':'content-type, authorization'}
+        const headers = {'access-control-allow-origin':'*','access-control-allow-methods':'GET, POST, OPTIONS','access-control-allow-headers':'content-type, authorization, x-demo-session'}
         if(request.method() === 'OPTIONS') return route.fulfill({status:204,headers})
-        if(request.method() === 'POST' && key === 'system') flags = {...flags,...request.postDataJSON()}
-        return route.fulfill({status:200,headers,json:{success:true,data:key === 'system' ? flags : []}})
+        if(request.method() === 'POST' && key === 'system') {
+          assert.equal(request.headers()['x-demo-session'],demoSession)
+          flags = {...flags,...request.postDataJSON()}
+        }
+        return route.fulfill({status:200,headers,json:{success:true,data:key === 'system' ? flags : [], ...(key==='system'?{demoSession}:{})}})
       })
       await page.locator('.CubeDestinationLab').click()
       await verifyPassage('lab','outbound')
@@ -336,7 +343,7 @@ try {
       await page.waitForFunction(() => document.querySelector('[aria-label="Toggle cache"]')?.getAttribute('aria-checked') === 'true' && document.querySelector('.RuntimeCard')?.textContent.includes('Backend synced'))
       assert.ok(fixtureRequests.some(r => r.key === 'system' && r.method === 'POST'))
       assert.match(await page.locator('.RuntimeCard').textContent(), /2\/6 config flags enabled/)
-      assert.match(await page.locator('.FeatureControlsHeader').textContent(), /shared demo backend/)
+      assert.match(await page.locator('.FeatureControlsHeader').textContent(), /only to your demo session/)
       await page.locator('.LabThemeButton').click()
       assert.equal(await page.locator('.LabChapter').getAttribute('data-theme'),'dark')
       await page.screenshot({path:output+'/'+view.name+'-lab-dark.png'})

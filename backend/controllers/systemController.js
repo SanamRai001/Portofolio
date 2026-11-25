@@ -1,68 +1,23 @@
-import System from '../models/systemModel.js'
 import { parseSystemConfigUpdate } from '../utils/systemConfigInput.js'
+import { demoSessions, findDemoSession, expiredDemo } from '../utils/demoSessions.js'
 
-export const updateSystemConfig = async (req, res) => {
-  const parsed = parseSystemConfigUpdate(req.body)
+const respond = (res, session, message) => res.json({
+  success: true, message, data: { ...session.flags }, demoSession: session.id,
+})
 
-  if (!parsed.ok) {
-    return res.status(400).json({
-      success: false,
-      message: parsed.message,
-    })
-  }
-
-  try {
-    const updated = await System.findOneAndUpdate(
-      {},
-      {
-        $set: {
-          ...parsed.data,
-          updatedAt: new Date(),
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        runValidators: true,
-        setDefaultsOnInsert: true,
-      },
-    )
-
-    return res.json({
-      success: true,
-      message: 'System config updated',
-      data: updated,
-    })
-  } catch (error) {
-    console.error('System config update failed', error.message)
-    return res.status(500).json({
-      success: false,
-      message: 'System config update failed',
-    })
-  }
+export const readSystemConfig = (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  const session = findDemoSession(req) || demoSessions.create()
+  if (!session) return res.status(503).json({ success: false, message: 'Demo capacity reached. Try again later.' })
+  return respond(res, session, 'Demo configuration fetched')
 }
 
-export const readSystemConfig = async (_req, res) => {
-  try {
-    const config = await System.findOne()
-
-    if (!config) {
-      return res.status(500).json({
-        success: false,
-        message: 'System config missing',
-      })
-    }
-
-    return res.json({
-      success: true,
-      message: 'System config fetched',
-      data: config,
-    })
-  } catch (error) {
-    console.error('System config read failed', error.message)
-    return res.status(500).json({
-      success: false,
-      message: 'System config failed',
-    })
-  }
+export const updateSystemConfig = (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  const session = findDemoSession(req)
+  if (!session) return expiredDemo(res)
+  const parsed = parseSystemConfigUpdate(req.body)
+  if (!parsed.ok) return res.status(400).json({ success: false, message: parsed.message })
+  Object.assign(session.flags, parsed.data)
+  return respond(res, session, 'Demo configuration updated')
 }
