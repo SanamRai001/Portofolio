@@ -14,7 +14,7 @@ function readTheme() {
   catch { return 'light' }
 }
 
-export default function CubePortal({ journey }) {
+export default function CubePortal({ journey, artworkUrl }) {
   const reducedMotion = useReducedMotion()
   useEffect(() => {
     // Standalone About owns a native document navigation; use the same
@@ -30,7 +30,7 @@ export default function CubePortal({ journey }) {
   const [theme, setTheme] = useState(readTheme)
   const [hoveredDestination, setHoveredDestination] = useState('')
   const [focusedDestination, setFocusedDestination] = useState('')
-  const [phase, setPhase] = useState(() => readCubeView(window.location.hash))
+  const [phase, setPhase] = useState(() => readCubeView(typeof window === 'undefined' ? '' : window.location.hash))
   const [flight, setFlight] = useState(null)
   const stageRef = useRef(null)
   const cubeRef = useRef(null)
@@ -38,7 +38,7 @@ export default function CubePortal({ journey }) {
   const workHeadingRef = useRef(null)
   const epochRef = useRef(0)
   const animationRef = useRef(null)
-  const goalRef = useRef(readCubeView(window.location.hash))
+  const goalRef = useRef(readCubeView(typeof window === 'undefined' ? '' : window.location.hash))
   const phaseRef = useRef(phase)
   const priorOrigin = useRef({ x: 0, y: 0 })
 
@@ -125,7 +125,7 @@ export default function CubePortal({ journey }) {
   }, [reducedMotion])
 
   useEffect(() => {
-    const onPop = () => navigate(readCubeView(window.location.hash), { push: false, focus: true })
+    const onPop = () => navigate(readCubeView(typeof window === 'undefined' ? '' : window.location.hash), { push: false, focus: true })
     const onKey = event => { if (event.key === 'Escape' && !document.querySelector('.AboutPassageVeil') && goalRef.current === 'work') navigate('home') }
     const onResize = () => {
       if(phaseRef.current === 'opening' || phaseRef.current === 'closing') navigate(goalRef.current,{push:false,settle:true})
@@ -174,7 +174,7 @@ export default function CubePortal({ journey }) {
         <section className="CubeIntro" aria-labelledby="cube-title">
           <p className="CubeEyebrow">SOFTWARE ENGINEER</p>
           <h1 id="cube-title" tabIndex="-1">Ideas into <em>systems.</em></h1>
-          <p>I design and build reliable software that solves real problems.</p>
+          <p>I’m Sanam Rai, a backend-focused full-stack developer building reliable software that solves real problems.</p>
           <div className="CubeAccent" aria-hidden="true" />
         </section>
         <div className="CubeUniverse" ref={cubeRef} data-highlight={highlightedDestination}>
@@ -183,7 +183,7 @@ export default function CubePortal({ journey }) {
             <ellipse className="CubeOrbitHighlight" cx="350" cy="278" rx="320" ry="169" pathLength="100" transform="rotate(-17 350 278)" />
             <circle cx="100" cy="416" r="3" /><circle cx="522" cy="124" r="3" /><circle cx="625" cy="317" r="3" />
           </svg>
-          <CubeScene phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} onJourneyReady={journey?.ready} flight={flight} />
+          <CubeScene artworkUrl={artworkUrl} phase={phase} theme={theme} reducedMotion={reducedMotion} highlighted={Boolean(highlightedDestination)} onJourneyReady={journey?.ready} flight={flight} />
           <nav className="CubeDestinations" aria-label="Explore the portfolio">
             <a className="CubeDestination CubeDestinationWork" onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredDestination('work') }} onPointerLeave={() => setHoveredDestination('')} onFocus={() => setFocusedDestination('work')} onBlur={() => setFocusedDestination('')} ref={workLinkRef} href="#work" onClick={event => { if (canAnimateLink(event)) { event.preventDefault(); navigate('work') } }}>
               <span aria-hidden="true">▱</span><strong>Work</strong><small>Selected projects</small>

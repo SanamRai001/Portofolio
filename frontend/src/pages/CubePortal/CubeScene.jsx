@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import artwork from '../../../../prototypes/unfolding-cube-portal/source/reference-cube.png?url'
+import sourceArtwork from '../../../../prototypes/unfolding-cube-portal/source/reference-cube.png?url'
 
 import { selectFracture, FRACTURE_CRACKS, FRACTURE_PARTICLES, viewportFlight } from './cubeFragments.js'
 
@@ -8,9 +8,10 @@ const MAX_TILT = 7
 
 // One artwork, one coordinate system. The idle cube uses the unmodified source.
 // Only during a transition do independently clipped stone regions separate.
-export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady, flight }) {
+export default function CubeScene({ phase, highlighted, reducedMotion, onJourneyReady, flight, artworkUrl }) {
+  const artwork = artworkUrl || sourceArtwork
   const id = useId()
-  const [fragments] = useState(() => selectFracture(window.location.search))
+  const [fragments] = useState(() => selectFracture(typeof window === 'undefined' ? '' : window.location.search))
   const detailed = fragments.length !== 7
   const modelRef = useRef(null)
   const tiltRef = useRef(null)
@@ -25,7 +26,7 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
     else if (image.complete) done()
     else { image.onload = done; image.onerror = done }
     return () => { cancelled = true; image.onload = null; image.onerror = null }
-  }, [onJourneyReady])
+  }, [onJourneyReady, artwork])
 
   useEffect(() => {
     const model = modelRef.current
@@ -75,7 +76,7 @@ export default function CubeScene({ phase, highlighted, reducedMotion, onJourney
   }, [phase, reducedMotion])
   const open = phase === 'opening' || phase === 'work'
   const split = phase !== 'home'
-  const diagnostic = new URLSearchParams(window.location.search).has('cubeDebug')
+  const diagnostic = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('cubeDebug')
   const flying = flight && !reducedMotion && (phase === 'opening' || phase === 'closing')
 
   return (

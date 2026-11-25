@@ -44,7 +44,25 @@ try {
     let evidence = {}
     try {
       console.log('[cube:' + view.name + '] load original artwork')
+      const html = await (await fetch(origin + '/')).text()
+      assert.ok(html.includes('data-prerender="cube-v1"'), 'Canonical root is prerendered')
+      assert.ok(html.includes('backend-focused full-stack developer'), 'Identity exists before JavaScript')
+      for (const path of ['/lab','/lab-preview','/cube-preview','/galaxy','/galaxy/projects/statescout']) {
+        const shell = await (await fetch(origin + path)).text()
+        assert.ok(!shell.includes('data-prerender="cube-v1"'), 'Non-home route must not show prerendered cube: ' + path)
+      }
+      await page.addInitScript(() => {
+        const observer = new MutationObserver(() => {
+          const node = document.querySelector('#root[data-prerender="cube-v1"] > div .CubePortal')
+          if (node) { window.__prerenderCube = node; observer.disconnect() }
+        })
+        observer.observe(document, {childList:true, subtree:true})
+      })
       await page.goto(origin + '/', {waitUntil: 'networkidle'})
+      if (view.reducedMotion !== 'reduce') {
+        assert.equal(await page.evaluate(() => window.__prerenderCube === document.querySelector('.CubePortal')), true,
+          'Default homepage must hydrate the original server DOM')
+      }
       const cube = page.locator('.CubePortalModel')
       const artwork = page.locator('.CubeArtwork')
       await artwork.waitFor({state: 'visible'})
@@ -173,7 +191,11 @@ try {
         assert.equal(evidence.tiltTransform, 'none', 'Tilt must reset during opening')
         assert.ok(evidence.clipPath.startsWith('circle('))
         await page.screenshot({path: output + '/' + view.name + '-opening.png', animations:'allow'})
-        await page.evaluate(()=>document.querySelector('.CubePortal').getAnimations({subtree:true}).filter(a=>a.playState==='paused').forEach(a=>a.play()))
+        // The sampled CSS/WAAPI clocks were paused and seeked. End that diagnostic
+        // navigation, then verify a separate, uninterrupted real user transition.
+        await page.keyboard.press('Escape')
+        await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'home')
+        await page.locator('.CubeDestinationWork').click()
       }
       await page.waitForFunction(() => document.querySelector('.CubePortal')?.dataset.phase === 'work')
       assert.equal(await page.locator('.CubeWorldFracture').count(),0,'No world fracture layer after handoff')
@@ -199,8 +221,8 @@ try {
       if (view.reducedMotion !== 'reduce') {
         await page.waitForFunction(() => document.querySelectorAll('.CubeCaseStudy')[2]?.dataset.revealed === 'true')
       }
-      await page.waitForTimeout(550)
-      assert.equal(await page.locator('.CubeCaseStudy').nth(2).locator('.WorkStudyCopy').evaluate(el => getComputedStyle(el).opacity), '1')
+      await page.waitForFunction(() => getComputedStyle(document.querySelectorAll('.CubeCaseStudy')[2].querySelector('.WorkStudyCopy')).opacity === '1')
+      assert.equal(await page.locator('.CubeCaseStudy').nth(2).locator('.WorkStudyCopy').evaluate(el => getComputedStyle(el).opacity), '1', 'Work exhibit must finish revealing')
       await page.screenshot({path: output + '/' + view.name + '-work-exhibit.png'})
       const workLayout = await page.locator('.CubePortalReveal').evaluate(el => ({ width: el.clientWidth, content: el.scrollWidth }))
       assert.ok(workLayout.content <= workLayout.width + 1, 'Work chapter horizontal overflow')
@@ -215,7 +237,8 @@ try {
       assert.equal(await cube.getAttribute('data-flight'),'false')
       assert.equal(await page.locator('.CubeWorldFracture').count(),0,'No world fracture layer after return')
       assert.equal(await cube.evaluate(el=>getComputedStyle(el).position),'absolute')
-      assert.equal(await page.locator('.CubeArtworkBody').evaluate(el=>getComputedStyle(el).opacity),'1')
+      await page.waitForFunction(() => getComputedStyle(document.querySelector('.CubeArtworkBody')).opacity === '1')
+      assert.equal(await page.locator('.CubeArtworkBody').evaluate(el=>getComputedStyle(el).opacity),'1','Original stone opacity must restore after closing')
       assert.equal(await page.locator('.CubeFragments').evaluate(el=>getComputedStyle(el).opacity),'0')
       assert.equal(await cube.getAttribute('data-split'), 'false')
       assert.equal(await page.locator('.CubeArtworkBody').getAttribute('clip-path'), null)
@@ -369,7 +392,7 @@ try {
       assert.deepEqual(navigationErrors, [], 'Uncaught journey errors')
       results.push({view: view.name, status: 'pass', artworkResponses, evidence, layout, errors})
     } catch (error) {
-      results.push({view: view.name, status: 'fail', reason: error.message, artworkResponses, evidence, errors})
+      results.push({view: view.name, status: 'fail', reason: error.message, stack: error.stack, artworkResponses, evidence, errors})
     } finally {
       await writeFile(output + '/results.json', JSON.stringify(results, null, 2) + '\n')
       console.log(JSON.stringify(results.at(-1)))

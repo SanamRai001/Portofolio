@@ -30,11 +30,12 @@ class RouteBoundary extends Component {
 }
 
 // Only the cube/space journey is coordinated here; all other links stay native.
-export default function PortfolioRoutes() {
+export default function PortfolioRoutes({ initialCube, artworkUrl } = {}) {
   const journey = useJourneyTransition()
   const family = routeFamily(journey.location.path)
   const galaxy = family === 'space'
   const cubePreview = family === 'cube'
+  const Cube = initialCube || CubePortalPreview
   return (
     <>
     <div inert={Boolean(journey.motion)}>
@@ -45,7 +46,7 @@ export default function PortfolioRoutes() {
           <a href="/">Return to portfolio</a>
         </main>
       }>
-        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <CubePortalPreview journey={journey} /> : <Portfolio labPreview={['/lab', '/lab-preview'].includes(journey.location.path.replace(/\/+$/, ''))} />}
+        {galaxy ? <Galaxy journey={journey} /> : cubePreview ? <Cube journey={journey} artworkUrl={artworkUrl} /> : <Portfolio labPreview={['/lab', '/lab-preview'].includes(journey.location.path.replace(/\/+$/, ''))} />}
       </Suspense>
     </RouteBoundary>
     </div>

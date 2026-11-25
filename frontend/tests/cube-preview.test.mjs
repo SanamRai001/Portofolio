@@ -32,9 +32,9 @@ test('canonical cube homepage retains the preview alias and Galaxy', () => {
   assert.match(routes, /const Portfolio = lazy\(/)
   assert.match(routes, /const Galaxy = lazy\(/)
   assert.match(routes, /const CubePortalPreview = lazy\(/)
-  assert.match(routes, /cubePreview \? <CubePortalPreview journey=\{journey\} \/> : <Portfolio labPreview=/)
+  assert.match(routes, /cubePreview \? <Cube journey=\{journey\} artworkUrl=\{artworkUrl\} \/> : <Portfolio labPreview=/)
   const vercel = JSON.parse(text('../vercel.json'))
-  assert.deepEqual(vercel.rewrites.find(x => x.source === '/cube-preview'), {source:'/cube-preview',destination:'/index.html'})
+  assert.deepEqual(vercel.rewrites.find(x => x.source === '/cube-preview'), {source:'/cube-preview',destination:'/app-shell.html'})
   assert.ok(vercel.rewrites.find(x => x.source === '/about'))
   assert.ok(vercel.rewrites.find(x => x.source === '/galaxy'))
   assert.deepEqual(vercel.headers.find(x => x.source === '/cube-preview').headers[0], {key:'X-Robots-Tag',value:'noindex, nofollow'})
@@ -161,8 +161,8 @@ test('About remains standalone with optional native-page passage and shared them
 
 test('Lab preview has its own non-indexable entry and retains shared live components', () => {
   const config = JSON.parse(text('../vercel.json'))
-  assert.ok(config.rewrites.some(rule => rule.source === '/lab' && rule.destination === '/index.html'))
-  assert.ok(config.rewrites.some(rule => rule.source === '/lab-preview' && rule.destination === '/index.html'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/lab' && rule.destination === '/app-shell.html'))
+  assert.ok(config.rewrites.some(rule => rule.source === '/lab-preview' && rule.destination === '/app-shell.html'))
   assert.ok(config.headers.some(rule => rule.source === '/lab-preview' && rule.headers.some(h => h.key === 'X-Robots-Tag' && h.value === 'noindex, nofollow')))
   const app = text('../src/App.jsx')
   for (const component of ['SystemControl', 'Logs', 'Projects', 'Form']) assert.match(app, new RegExp('<' + component + ' '))

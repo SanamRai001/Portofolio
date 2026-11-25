@@ -26,7 +26,9 @@ export function journeyOrigin(rect, width, height) {
 }
 
 const originFor = element => journeyOrigin(element?.getBoundingClientRect(), window.innerWidth, window.innerHeight)
-const readLocation = () => ({ path: window.location.pathname, fromCube: window.history.state?.__cubeJourney === true })
+const readLocation = () => typeof window === 'undefined'
+  ? { path: '/', fromCube: false }
+  : { path: window.location.pathname, fromCube: window.history.state?.__cubeJourney === true }
 
 // Only the cube/space handoff is client-side. Existing Galaxy world history
 // and all unrelated native anchors retain their existing navigation contracts.
